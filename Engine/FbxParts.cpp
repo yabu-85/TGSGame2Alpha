@@ -437,29 +437,25 @@ void FbxParts::Draw(Transform& transform)
 		UINT    offset = 0;
 		Direct3D::pContext_->IASetIndexBuffer(ppIndexBuffer_[i], DXGI_FORMAT_R32_UINT, 0);
 
-
-		// パラメータの受け渡し
-		D3D11_MAPPED_SUBRESOURCE pdata;
+		//コンスタントバッファに渡す情報
 		CONSTANT_BUFFER cb;
-		cb.worldVewProj =	XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());						// リソースへ送る値をセット
-		cb.world =		XMMatrixTranspose(transform.GetWorldMatrix());
-		cb.normalTrans =	XMMatrixTranspose(transform.matRotate_ * XMMatrixInverse(nullptr, transform.matScale_));
-		cb.ambient = pMaterial_[i].ambient;
-		cb.diffuse = pMaterial_[i].diffuse;
-		cb.speculer = pMaterial_[i].specular;
-		cb.shininess = pMaterial_[i].shininess;
-		cb.cameraPosition = XMFLOAT4(Camera::GetPosition().x, Camera::GetPosition().y, Camera::GetPosition().z, 0);
-		cb.lightDirection = XMFLOAT4(1, -1, 1, 0);
+		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
+		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
+		cb.matWorld = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.isTexture = pMaterial_[i].pTexture != nullptr;
+		cb.diffuseColor = pMaterial_[i].diffuse;
+		cb.specular = pMaterial_[i].specular;
+		cb.shininess = pMaterial_[i].shininess;
+		cb.camPos = XMFLOAT4(10.0f, 10.0f, -10.0f, 0.0);
+		cb.lightPos = XMFLOAT4(10.0f, 10.0f, 10.0f, 10.0f);
+		cb.matWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());
+		cb.matWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
 
-
-		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
-		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));		// リソースへ値を送る
-
-
+		D3D11_MAPPED_SUBRESOURCE pdata;
+		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
+		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
 
 		// テクスチャをシェーダーに設定
-
 		if (cb.isTexture)
 		{
 			ID3D11SamplerState*			pSampler = pMaterial_[i].pTexture->GetSampler();
@@ -468,9 +464,14 @@ void FbxParts::Draw(Transform& transform)
 			ID3D11ShaderResourceView*	pSRV = pMaterial_[i].pTexture->GetSRV();
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 		}
-		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);									// GPUからのリソースアクセスを再開
 
-		 //ポリゴンメッシュを描画する
+		Direct3D::pContext_->PSSetSamplers(1, 1, &Direct3D::pDepthSampler_);
+		Direct3D::pContext_->PSSetShaderResources(2, 1, &Direct3D::pDepthSRV_);
+		
+		//GPUからのリソースアクセスを再開
+		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);
+
+		//ポリゴンメッシュを描画する
 		Direct3D::pContext_->DrawIndexed(pMaterial_[i].polygonCount * 3, 0, 0);
 	}
 

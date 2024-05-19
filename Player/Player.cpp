@@ -8,6 +8,8 @@
 #include "../Engine/Text.h"
 #include "../Engine/Input.h"
 
+#include "../Engine/Direct3D.h"
+
 namespace {
     const float moveSpeed = 0.08f;          //移動スピード
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
@@ -166,6 +168,7 @@ void Player::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
+    /*
     Transform tra = transform_;
     tra.position_.y += PlayerHeightSize;
     tra.scale_ = XMFLOAT3(0.1f, 0.1f, 0.1f);
@@ -188,6 +191,8 @@ void Player::Draw()
     pText->Draw(30, 30, (int)transform_.position_.x);
     pText->Draw(30, 70, (int)transform_.position_.y);
     pText->Draw(30, 110, (int)transform_.position_.z);
+    */
+    
 
 }
 

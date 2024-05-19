@@ -138,6 +138,9 @@
     <ClCompile Include="Stage\Stage.cpp">
       <Filter>04Stage</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Light.cpp">
+      <Filter>01Engine\GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -246,6 +249,9 @@
     <ClInclude Include="Stage\Stage.h">
       <Filter>04Stage</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Light.h">
+      <Filter>01Engine\GameObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">
@@ -258,6 +264,9 @@
       <Filter>02Shader</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">
+      <Filter>02Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shader\ShadowMap.hlsl">
       <Filter>02Shader</Filter>
     </FxCompile>
   </ItemGroup>

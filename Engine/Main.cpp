@@ -121,7 +121,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				}
 			}
 
-
 			//指定した時間（FPSを60に設定した場合は60分の1秒）経過していたら更新処理
 			if ((nowTime - lastUpdateTime) * fpsLimit > 1000.0f)
 			{
@@ -129,6 +128,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				lastUpdateTime = nowTime;	//現在の時間（最後に画面を更新した時間）を覚えておく
 				FPS++;						//画面更新回数をカウントする
 
+				/*
 				//ImGuiの更新処理
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplWin32_NewFrame();
@@ -143,61 +143,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				}
 				ImGui::End();//ImGuiの処理を終了
 
-				//入力（キーボード、マウス、コントローラー）情報を更新
-				Input::Update();
-
-				//描画処理の前に記述
 				ImGui::Render();
 				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+				*/
+				
+				Input::Update();
+				Camera::Update();
+				pRootObject->UpdateSub();
 
-				if (Input::IsKey(DIK_F)) {
-				}
+#if 1
+				//１回目
+				Camera::SetPosition(XMFLOAT3(15, 3, -5));
+				Camera::Update();
+				Direct3D::BeginDraw();
+				pRootObject->DrawSub();
+				Direct3D::EndDraw();
+#endif
+#if 1
+				//２回目
+				Camera::SetPosition(XMFLOAT3(0, 4, 10));
+				Camera::Update();
+				Direct3D::BeginDraw2();
+				pRootObject->DrawSub();
+				Direct3D::ScreenDraw();
+				Direct3D::EndDraw();
+#endif
 
-				else if (Input::IsKey(DIK_G)) {
-					if (nowTime % 10 == 0) {
-						pRootObject->UpdateSub();
-
-						//カメラを更新
-						Camera::Update();
-
-						//このフレームの描画開始
-						Direct3D::BeginDraw();
-
-						//全オブジェクトを描画
-						//ルートオブジェクトのDrawを呼んだあと、自動的に子、孫のUpdateが呼ばれる
-						pRootObject->DrawSub();
-
-						//描画終了
-						Direct3D::EndDraw();
-
-						//ちょっと休ませる
-						Sleep(1);
-					}
-				}
-
-				else if (true || !Input::IsKey(DIK_F)) {
-
-					//全オブジェクトの更新処理
-					//ルートオブジェクトのUpdateを呼んだあと、自動的に子、孫のUpdateが呼ばれる
-					pRootObject->UpdateSub();
-
-					//カメラを更新
-					Camera::Update();
-
-					//このフレームの描画開始
-					Direct3D::BeginDraw();
-
-					//全オブジェクトを描画
-					//ルートオブジェクトのDrawを呼んだあと、自動的に子、孫のUpdateが呼ばれる
-					pRootObject->DrawSub();
-
-					//描画終了
-					Direct3D::EndDraw();
-
-					//ちょっと休ませる
-					Sleep(1);
-				}
-			}
+				//ちょっと休ませる
+				Sleep(1);
+			}			
 			timeEndPeriod(1);	//時間計測の制度を戻す
 		}
 	}

@@ -4,16 +4,22 @@
 
 //コンストラクタ
 Sprite::Sprite():
-	pTexture_(nullptr)
+	pTexture_(nullptr), pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr)
 {
 }
 
 //デストラクタ
 Sprite::~Sprite()
 {
+	SAFE_DELETE(pTexture_);
+
+	pConstantBuffer_->Release();
+	pIndexBuffer_->Release();
+	pVertexBuffer_->Release();
 
 	SAFE_RELEASE(pVertexBuffer_);
 	SAFE_RELEASE(pIndexBuffer_);
+	SAFE_RELEASE(pConstantBuffer_);
 }
 
 //準備
@@ -34,6 +40,23 @@ HRESULT Sprite::Load(std::string fileName)
 	
 	//コンスタントバッファ準備
 	InitConstantBuffer();
+
+	return S_OK;
+}
+
+HRESULT Sprite::Load(ID3D11Texture2D* pTexture)
+{
+	//頂点情報準備
+	InitVertex();
+
+	//インデックス情報準備
+	InitIndex();
+
+	//コンスタントバッファ作成
+	InitConstantBuffer();
+
+	pTexture_ = new Texture;
+	pTexture_->Load(pTexture);
 
 	return S_OK;
 }
