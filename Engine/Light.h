@@ -3,14 +3,14 @@
 using namespace DirectX;
 
 //定数
-static const int LIGHT_TOTAL_NUM = 15;	//ライトの総数  
+static const int LIGHT_TOTAL_NUM = 5;	//ライトの総数  
 
 namespace Light
 {
-	/// <summary>
-	/// 各変数の初期化
-	/// </summary>
 	void Initialize();
+	void Draw();
+	void SetPosition(int i, XMFLOAT4 pos);
+	XMFLOAT4 GetPosition(int i);
 
 	/// <summary>
 	/// Playerのライトの位置を設定

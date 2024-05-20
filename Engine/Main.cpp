@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Input.h"
 #include "Audio.h"
+#include "Light.h"
 #include "../Other/InputManager.h"
 
 //ImGui関連のデータ
@@ -54,6 +55,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");			//スクリーンの幅
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
+	screenWidth = 400;
+	screenHeight = 300;
+
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
 
@@ -78,6 +82,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//オーディオ（効果音）の準備
 	Audio::Initialize();
+	
+	Light::Initialize();
 
 	//ルートオブジェクト準備
 	//すべてのゲームオブジェクトの親となるオブジェクト
@@ -153,7 +159,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 #if 1
 				//１回目
-				Camera::SetPosition(XMFLOAT3(15, 3, -5));
 				Camera::Update();
 				Direct3D::BeginDraw();
 				pRootObject->DrawSub();
@@ -161,7 +166,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #endif
 #if 1
 				//２回目
-				Camera::SetPosition(XMFLOAT3(0, 4, 10));
 				Camera::Update();
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();

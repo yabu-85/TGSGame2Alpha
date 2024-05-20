@@ -3,6 +3,7 @@
 #include "Global.h"
 #include "Direct3D.h"
 #include "Camera.h"
+#include "Light.h"
 
 //コンストラクタ
 FbxParts::FbxParts():
@@ -446,8 +447,10 @@ void FbxParts::Draw(Transform& transform)
 		cb.diffuseColor = pMaterial_[i].diffuse;
 		cb.specular = pMaterial_[i].specular;
 		cb.shininess = pMaterial_[i].shininess;
-		cb.camPos = XMFLOAT4(10.0f, 10.0f, -10.0f, 0.0);
-		cb.lightPos = XMFLOAT4(10.0f, 10.0f, 10.0f, 10.0f);
+
+		cb.camPos = Light::GetPosition(0);
+		cb.lightPos = Light::GetPosition(0);
+
 		cb.matWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());
 		cb.matWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
 

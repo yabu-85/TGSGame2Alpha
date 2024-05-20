@@ -23,7 +23,6 @@ cbuffer global
     float4 lightPos;
     float shininess;
     bool isTexture;
-    float scroll;
 };
 
 //„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
@@ -55,7 +54,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     normal = mul(normal, matNormal);
     normal = normalize(normal);
 
-    float4 light = normalize(lightPos); // float4(-1, 1, -1, 0);
+    float4 light = lightPos - mul(pos, matWorld);
     light = normalize(light);
     outData.color = clamp(dot(normal, light), 0, 1);
 

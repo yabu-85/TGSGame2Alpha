@@ -16,6 +16,7 @@ cbuffer global
     float4 diffuseColor;
     float4 speculer;
     float4 camPos;
+    float4 lightPos;
 };
 
 //„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
@@ -34,7 +35,7 @@ VS_OUT VS(float4 pos : POSITION)
 {
     VS_OUT outData;
     outData.pos = mul(pos, matWVP);
-    outData.z = length(camPos - mul(pos, matWorld)) / 30.0f;
+    outData.z = length(lightPos - mul(pos, matWorld)) / 30.0f;
     return outData;
 }
 
