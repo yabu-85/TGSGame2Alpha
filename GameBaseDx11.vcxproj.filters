@@ -36,6 +36,9 @@
     <Filter Include="04Stage">
       <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01Engine\Json">
+      <UniqueIdentifier>{9b7be748-83c7-411f-9acc-264632f26858}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\BoxCollider.cpp">
@@ -137,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="Stage\Stage.cpp">
       <Filter>04Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Json\jsonReader.cpp">
+      <Filter>01Engine\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +251,12 @@
     </ClInclude>
     <ClInclude Include="Stage\Stage.h">
       <Filter>04Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Json\json.hpp">
+      <Filter>01Engine\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Json\JsonReader.h">
+      <Filter>01Engine\Json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

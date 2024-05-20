@@ -54,6 +54,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");			//スクリーンの幅
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
+#if _DEBUG
+	screenWidth = 400;
+	screenHeight = 300;
+#endif
+
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
 
@@ -129,32 +134,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				lastUpdateTime = nowTime;	//現在の時間（最後に画面を更新した時間）を覚えておく
 				FPS++;						//画面更新回数をカウントする
 
-				//ImGuiの更新処理
-				ImGui_ImplDX11_NewFrame();
-				ImGui_ImplWin32_NewFrame();
-
-				ImGui::NewFrame();
-				ImGui::Begin("Hello");//ImGuiの処理を開始
-				{
-					//描画されるボタンを押したら...
-					if (ImGui::Button("button")) {
-						PostQuitMessage(0);	//プログラム終了
-					}
-				}
-				ImGui::End();//ImGuiの処理を終了
-
 				//入力（キーボード、マウス、コントローラー）情報を更新
 				Input::Update();
-
-				//描画処理の前に記述
-				ImGui::Render();
-				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 				if (Input::IsKey(DIK_F)) {
 				}
 
 				else if (Input::IsKey(DIK_G)) {
 					if (nowTime % 10 == 0) {
+						//ImGuiの更新処理
+						ImGui_ImplDX11_NewFrame();
+						ImGui_ImplWin32_NewFrame();
+
+						ImGui::NewFrame();
+						ImGui::Begin("Hello");//ImGuiの処理を開始
+						{
+							//描画されるボタンを押したら...
+							if (ImGui::Button("button")) {
+								PostQuitMessage(0);	//プログラム終了
+							}
+						}
+						ImGui::End();//ImGuiの処理を終了
+
 						pRootObject->UpdateSub();
 
 						//カメラを更新
@@ -167,6 +168,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 						//ルートオブジェクトのDrawを呼んだあと、自動的に子、孫のUpdateが呼ばれる
 						pRootObject->DrawSub();
 
+						//描画処理の前に記述
+						ImGui::Render();
+						ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 						//描画終了
 						Direct3D::EndDraw();
 
@@ -175,7 +180,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					}
 				}
 
-				else if (true || !Input::IsKey(DIK_F)) {
+				else {
+					//ImGuiの更新処理
+					ImGui_ImplDX11_NewFrame();
+					ImGui_ImplWin32_NewFrame();
+
+					ImGui::NewFrame();
+					ImGui::Begin("Hello");//ImGuiの処理を開始
+					{
+						//描画されるボタンを押したら...
+						if (ImGui::Button("button")) {
+							PostQuitMessage(0);	//プログラム終了
+						}
+					}
+					ImGui::End();//ImGuiの処理を終了
 
 					//全オブジェクトの更新処理
 					//ルートオブジェクトのUpdateを呼んだあと、自動的に子、孫のUpdateが呼ばれる
@@ -190,6 +208,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					//全オブジェクトを描画
 					//ルートオブジェクトのDrawを呼んだあと、自動的に子、孫のUpdateが呼ばれる
 					pRootObject->DrawSub();
+
+					//描画処理の前に記述
+					ImGui::Render();
+					ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 					//描画終了
 					Direct3D::EndDraw();

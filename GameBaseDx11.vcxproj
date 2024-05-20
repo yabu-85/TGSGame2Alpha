@@ -154,6 +154,7 @@
     <ClCompile Include="Engine\Text.cpp" />
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
+    <ClCompile Include="Json\jsonReader.cpp" />
     <ClCompile Include="Other\InputManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
     <ClCompile Include="Player\Player.cpp" />
@@ -192,6 +193,8 @@
     <ClInclude Include="Engine\Text.h" />
     <ClInclude Include="Engine\Texture.h" />
     <ClInclude Include="Engine\Transform.h" />
+    <ClInclude Include="Json\json.hpp" />
+    <ClInclude Include="Json\JsonReader.h" />
     <ClInclude Include="Other\InputManager.h" />
     <ClInclude Include="Player\Aim.h" />
     <ClInclude Include="Player\Player.h" />
