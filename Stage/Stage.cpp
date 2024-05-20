@@ -14,7 +14,7 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-	hModel_ = Model::Load("Model/test.fbx");
+	hModel_ = Model::Load("Model/testStage.fbx");
 	assert(hModel_ >= 0);
 
 }

@@ -158,9 +158,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Input::Update();
 				Camera::Update();
 				pRootObject->UpdateSub();
+				XMFLOAT3 cPos = Camera::GetPosition();
 
 #if 1
 				//‚P‰ñ–Ú
+				Camera::SetPosition(cPos);
 				Camera::Update();
 				Direct3D::BeginDraw();
 				pRootObject->DrawSub();
@@ -168,6 +170,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #endif
 #if 1
 				//‚Q‰ñ–Ú
+				//Camera::SetPosition(XMFLOAT3(0, 4, -10));
 				Camera::Update();
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();

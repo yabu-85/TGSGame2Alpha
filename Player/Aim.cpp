@@ -9,29 +9,16 @@
 #include "../Engine/Fbx.h"
 
 namespace {
-    static const float UP_MOUSE_LIMIT = -60.0f;
-    static const float DOWN_MOUSE_LIMIT = 60.0f;
+    static const float UP_MOUSE_LIMIT = -80.0f;
+    static const float DOWN_MOUSE_LIMIT = 80.0f;
     
     static const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
     static const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
     static const float MOUSE_SPEED = 0.05f;                         //感度
-    static const float DISTANCE_BEHIND_DEFAULT = 5.0f;              //どのくらい後ろから移すかのデフォルト値
+    static const float DISTANCE_BEHIND_DEFAULT = 12.0f;              //どのくらい後ろから移すかのデフォルト値
     static const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
     float HEIGHT_DISTANCE = 1.5f;                                   //Aimの高さ
-
-    static const float MAX_CAMERA_OFFSET = 5.0f;                    //cameraOffsetの最大距離
-    static const float SUPRESS = 0.002f;                            //AimMove時のOffsetの値を抑制する値
-    static const float MOVE_SUPRESS = 0.20f;                        //動く時の抑制の値
-    static const float STOP_SUPRESS = 0.25f;                        //止まる時の抑制の値
-    
-    //ターゲット関係ーーーーーーーーーーーーーー
-    static const float TARGET_RANGE = 25.0f;                        //ターゲットの有効範囲
-    static const float FOV_RADIAN = XMConvertToRadians(120) / 2.0f; //ターゲットの有効範囲
-    static const float TARGET_RATIO = 0.3f;                         //ターゲット時の回転率
-
-    static const int TARGET_CHANGE_COOLTIME = 10;                   //TargetChangeのクールダウン
-    static const float TARGET_CHANGE_VALUE = 40.0f;                 //どのくらいマウス動かせばいいか
 }
 
 Aim::Aim(GameObject* parent)

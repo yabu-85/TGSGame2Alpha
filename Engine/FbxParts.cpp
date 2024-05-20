@@ -447,12 +447,9 @@ void FbxParts::Draw(Transform& transform)
 		cb.diffuseColor = pMaterial_[i].diffuse;
 		cb.specular = pMaterial_[i].specular;
 		cb.shininess = pMaterial_[i].shininess;
-
-		cb.camPos = Light::GetPosition(0);
+		cb.camPos = XMFLOAT4(Camera::GetPosition().x, Camera::GetPosition().y, Camera::GetPosition().z, 0);
 		cb.lightPos = Light::GetPosition(0);
-
-		cb.matWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());
-		cb.matWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
+		cb.matWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める

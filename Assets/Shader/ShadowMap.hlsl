@@ -11,8 +11,7 @@ cbuffer global
     float4x4 matWVP;
     float4x4 matNormal;
     float4x4 matWorld;
-    float4x4 g_mWLP; //ワールド・”ライトビュー”・プロジェクションの合成 
-    float4x4 g_mWLPT; //ワールド・”ライトビュー”・プロジェクション・UV 行列の合成
+    float4x4 g_mWLPT;
     float4 diffuseColor;
     float4 speculer;
     float4 camPos;

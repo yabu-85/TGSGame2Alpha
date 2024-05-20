@@ -12,17 +12,16 @@ Texture2D       g_texDepth : register(t2);          //深度テクスチャー
 //───────────────────────────────────────
 cbuffer global
 {
-    float4x4 matWVP; // ワールド・ビュー・プロジェクションの合成行列
-    float4x4 matNormal; //法線を変形させる行列
-    float4x4 matWorld;
-    float4x4 g_mWLP; //ワールド・”ライトビュー”・プロジェクションの合成 
-    float4x4 g_mWLPT; //ワールド・”ライトビュー”・プロジェクション・UV 行列の合成
-    float4 diffuseColor;
-    float4 speculer;
-    float4 camPos;
-    float4 lightPos;
-    float shininess;
-    bool isTexture;
+    float4x4 matWVP;        //ワールド・ビュー・プロジェクションの合成行列
+    float4x4 matNormal;     //法線の変換行列（回転行列と拡大の逆行列）
+    float4x4 matWorld;      //ワールド変換行列
+    float4x4 mWLPT;         //ワールド・ライトビュー・プロジェクション・UV 行列の合成
+    float4 diffuseColor;    //マテリアルの色
+    float4 speculer;        //スペキュラーカラー
+    float4 camPos;          //カメラの座標
+    float4 lightPos;        //ライトの座標
+    float shininess;        //ハイライトの強さ
+    bool isTexture;         //テクスチャがあるか
 };
 
 //───────────────────────────────────────
@@ -54,12 +53,11 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     normal = mul(normal, matNormal);
     normal = normalize(normal);
 
-    float4 light = lightPos - mul(pos, matWorld);
-    light = normalize(light);
+    float4 light = normalize(lightPos - mul(pos, matWorld));
     outData.color = clamp(dot(normal, light), 0, 1);
-
-	//ライトビューを参照するとき、手がかりとなるテクスチャー座標 
-    outData.LightTexCoord = mul(pos, g_mWLPT); //この点が、ライトビューであったときの位置がわかる 
+    
+    //ライトビューを参照するとき、手がかりとなるテクスチャー座標 
+    outData.LightTexCoord = mul(pos, mWLPT); //この点が、ライトビューであったときの位置がわかる 
 
 	//ライトビューにおける位置(変換後) 
     outData.LighViewPos = mul(pos, matWorld);
@@ -83,24 +81,22 @@ float4 PS(VS_OUT inData) : SV_Target
     else
     {
 		//マテリアルの色
-        ambient = diffuseColor * float4(0.2, 0.2, 0.2, 1);
         diffuse = diffuseColor * inData.color;
         diffuse.a = 1;
     }
 
 	//影の処理 
     inData.LightTexCoord /= inData.LightTexCoord.w;
-    float TexValue = g_texDepth.Sample(g_texDepthSampler, inData.LightTexCoord).r;
-    
+    float TexValue = g_texDepth.Sample(g_texDepthSampler, inData.LightTexCoord.xy).r;
     float LightLength = inData.LighViewPos.z / inData.LighViewPos.w;
+    //LightLength = length(inData.LighViewPos - lightPos) / 30.0f;
+    
     if (TexValue + 0.005 < LightLength)  //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
     {
-        diffuse *= 0.6f;
+        //diffuse *= 0.3f;  
     }
-    else
-    {
-        diffuse *= 2.0f;
-    }
+    diffuse.a = 1.0f;
+    return diffuse;
     
     return diffuse + ambient;
 	

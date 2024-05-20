@@ -31,7 +31,6 @@ class FbxParts
 		XMMATRIX	matWVP;
 		XMMATRIX	matNormal;
 		XMMATRIX	matWorld;
-		XMMATRIX	matWLP;
 		XMMATRIX	matWLPT;
 		XMFLOAT4	diffuseColor;
 		XMFLOAT4	specular;

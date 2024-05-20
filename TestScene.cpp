@@ -22,11 +22,14 @@ void TestScene::Initialize()
 //çXêV
 void TestScene::Update()
 {
+	static const float speed = 0.3f;
 	XMFLOAT4 pos = Light::GetPosition(0);
-	if (Input::IsKey(DIK_LEFTARROW)) pos.x += 0.1f;
-	if (Input::IsKey(DIK_RIGHTARROW)) pos.x -= 0.1f;
-	if (Input::IsKey(DIK_UPARROW)) pos.z += 0.1f;
-	if (Input::IsKey(DIK_DOWNARROW)) pos.z -= 0.1f;
+	if (Input::IsKey(DIK_LEFTARROW)) pos.x += speed;
+	if (Input::IsKey(DIK_RIGHTARROW)) pos.x -= speed;
+	if (Input::IsKey(DIK_UPARROW)) pos.z += speed;
+	if (Input::IsKey(DIK_DOWNARROW)) pos.z -= speed;
+	if (Input::IsMouseButton(0)) pos.y += speed;
+	if (Input::IsMouseButton(1)) pos.y -= speed;
 	Light::SetPosition(0, pos);
 
 }
