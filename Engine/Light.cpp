@@ -1,0 +1,42 @@
+#include "Light.h"
+#include "Model.h"
+
+struct LightData {
+	XMFLOAT4 pos;
+	LightData() : pos(XMFLOAT4()) {}
+};
+
+namespace Light {
+	LightData lightDatas[LIGHT_TOTAL_NUM];
+	int hModel = -1;
+}
+
+void Light::Initialize()
+{
+#if 1
+	hModel = Model::Load("DebugCollision/SphereCollider.fbx");
+	assert(hModel >= 0);
+#endif
+
+	lightDatas[0] = LightData();
+	lightDatas[0].pos = XMFLOAT4(0.0f, 10.0f, 0.0f, 0.0f);
+}
+
+void Light::Draw()
+{
+	Transform trans;
+	trans.position_ = XMFLOAT3(lightDatas[0].pos.x, lightDatas[0].pos.y, lightDatas[0].pos.z);
+	Model::SetTransform(hModel, trans);
+	Model::Draw(hModel);
+
+}
+
+void Light::SetPosition(int i, XMFLOAT4 pos)
+{
+	lightDatas[0].pos = pos;
+}
+
+XMFLOAT4 Light::GetPosition(int i)
+{
+	return lightDatas[0].pos;
+}

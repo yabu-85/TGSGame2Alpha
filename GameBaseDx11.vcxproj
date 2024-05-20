@@ -144,6 +144,7 @@
     <ClCompile Include="Engine\imgui\imgui_tables.cpp" />
     <ClCompile Include="Engine\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\Input.cpp" />
+    <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Main.cpp" />
     <ClCompile Include="Engine\Model.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Engine\imgui\imstb_textedit.h" />
     <ClInclude Include="Engine\imgui\imstb_truetype.h" />
     <ClInclude Include="Engine\Input.h" />
+    <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Model.h" />
     <ClInclude Include="Engine\VFX.h" />
     <ClInclude Include="Engine\RootObject.h" />
@@ -210,6 +212,9 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Assets\Shader\ShadowMap.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
     </FxCompile>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>

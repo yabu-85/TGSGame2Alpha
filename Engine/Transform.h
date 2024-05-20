@@ -34,6 +34,8 @@ public:
 	//戻値：その時点でのワールド行列
 	XMMATRIX GetWorldMatrix();
 
+	//法線変形用行列を取得
+	XMMATRIX GetNormalMatrix();
 
 	static XMFLOAT3 Float3Add(XMFLOAT3 a, XMFLOAT3 b)
 	{

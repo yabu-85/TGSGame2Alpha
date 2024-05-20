@@ -25,10 +25,15 @@ namespace Direct3D
 	//【コンテキスト】
 	//GPUに命令を出すためのやつ
 	extern ID3D11DeviceContext*    pContext_;
-
+	
+	//シャドウマップ用
+	extern ID3D11ShaderResourceView* pDepthSRV_;
+	extern ID3D11SamplerState* pDepthSampler_;
+	extern XMMATRIX lightViewMatrix;
+	extern XMMATRIX clipToUVMatrix;
 
 	//■シェーダー関連で必要なセット
-	enum SHADER_TYPE{SHADER_3D, SHADER_2D, SHADER_UNLIT, SHADER_BILLBOARD, SHADER_MAX};	//3タイプ（3D用、2D用、当たり判定枠表示用）
+	enum SHADER_TYPE{SHADER_3D, SHADER_2D, SHADER_UNLIT, SHADER_BILLBOARD, SHADER_SHADOWMAP, SHADER_MAX};	//3タイプ（3D用、2D用、当たり判定枠表示用）
 	struct SHADER_BUNDLE
 	{
 		//【頂点入力レイアウト情報】
@@ -89,6 +94,8 @@ namespace Direct3D
 
 	//描画開始
 	void BeginDraw();
+	void BeginDraw2();
+	void ScreenDraw();
 
 	//描画終了
 	void EndDraw();

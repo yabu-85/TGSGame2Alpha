@@ -7,7 +7,7 @@ using namespace DirectX;
 class GameObject;
 class BoxCollider;
 class SphereCollider;
-
+class Triangle;
 
 //あたり判定のタイプ
 enum ColliderType
@@ -68,6 +68,10 @@ public:
 
 	//セッター
 	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }
+
+	bool isHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0, const XMFLOAT3& v1, const XMFLOAT3& v2, XMVECTOR& outDistanceVector);
+    
+
 
 };
 

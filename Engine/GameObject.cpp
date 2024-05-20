@@ -274,8 +274,6 @@ void GameObject::CollisionDraw()
 	{
 		(*i)->Draw(GetWorldPosition());
 	}
-
-	Direct3D::SetShader(Direct3D::SHADER_3D);
 }
 
 //RootJob‚ðŽæ“¾

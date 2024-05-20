@@ -66,6 +66,7 @@ public:
 	//引数：fileName	画像ファイル名
 	//戻値：成功/失敗
 	HRESULT Load(std::string fileName);
+	HRESULT Load(ID3D11Texture2D* pTexture);
 
 	//描画
 	//引数：matrix	変換行列（ワールド行列）

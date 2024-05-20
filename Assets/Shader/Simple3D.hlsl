@@ -1,26 +1,28 @@
 //───────────────────────────────────────
  // テクスチャ＆サンプラーデータのグローバル変数定義
 //───────────────────────────────────────
-Texture2D		g_texture: register(t0);	//テクスチャー
-SamplerState	g_sampler : register(s0);	//サンプラー
+Texture2D       g_texture : register(t0);           //テクスチャー
+SamplerState    g_sampler : register(s0);           //サンプラー
+SamplerState	g_texDepthSampler : register(s1);   //サンプラー
+Texture2D       g_texDepth : register(t2);          //深度テクスチャー
 
 //───────────────────────────────────────
- // コンスタントバッファ
+// コンスタントバッファ
 // DirectX 側から送信されてくる、ポリゴン頂点以外の諸情報の定義
 //───────────────────────────────────────
 cbuffer global
 {
-	float4x4	g_matWVP;			// ワールド・ビュー・プロジェクションの合成行列
-	float4x4	g_matNormalTrans;	// 法線の変換行列（回転行列と拡大の逆行列）
-	float4x4	g_matWorld;			// ワールド変換行列
-	float4		g_vecLightDir;		// ライトの方向ベクトル
-	float4		g_vecDiffuse;		// ディフューズカラー（マテリアルの色）
-	float4		g_vecAmbient;		// アンビエントカラー（影の色）
-	float4		g_vecSpeculer;		// スペキュラーカラー（ハイライトの色）
-	float4		g_vecCameraPosition;// 視点（カメラの位置）
-	float		g_shuniness;		// ハイライトの強さ（テカリ具合）
-	bool		g_isTexture;		// テクスチャ貼ってあるかどうか
-
+    float4x4 matWVP; // ワールド・ビュー・プロジェクションの合成行列
+    float4x4 matNormal; //法線を変形させる行列
+    float4x4 matWorld;
+    float4x4 g_mWLP; //ワールド・”ライトビュー”・プロジェクションの合成 
+    float4x4 g_mWLPT; //ワールド・”ライトビュー”・プロジェクション・UV 行列の合成
+    float4 diffuseColor;
+    float4 speculer;
+    float4 camPos;
+    float4 lightPos;
+    float shininess;
+    bool isTexture;
 };
 
 //───────────────────────────────────────
@@ -28,39 +30,42 @@ cbuffer global
 //───────────────────────────────────────
 struct VS_OUT
 {
-	float4 pos    : SV_POSITION;	//位置
-	float4 normal : TEXCOORD2;		//法線
-	float2 uv	  : TEXCOORD0;		//UV座標
-	float4 eye	  : TEXCOORD1;		//視線
+    float4 pos : SV_POSITION; //位置
+    float2 uv : TEXCOORD; //UV座標
+    float4 color : COLOR; //色（明るさ）
+    float4 LightTexCoord : TEXCOORD5;
+    float4 LighViewPos : TEXCOORD6;
 };
 
 //───────────────────────────────────────
 // 頂点シェーダ
 //───────────────────────────────────────
-VS_OUT VS(float4 pos : POSITION, float4 Normal : NORMAL, float2 Uv : TEXCOORD)
+VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 {
 	//ピクセルシェーダーへ渡す情報
-	VS_OUT outData;
+    VS_OUT outData;
 
 	//ローカル座標に、ワールド・ビュー・プロジェクション行列をかけて
 	//スクリーン座標に変換し、ピクセルシェーダーへ
-	outData.pos = mul(pos, g_matWVP);		
+    outData.pos = mul(pos, matWVP);
+    outData.uv = uv;
 
-	//法線の変形
-	Normal.w = 0;					//4次元目は使わないので0
-	Normal = mul(Normal, g_matNormalTrans);		//オブジェクトが変形すれば法線も変形
-	outData.normal = Normal;		//これをピクセルシェーダーへ
+	//法線を回転
+    normal = mul(normal, matNormal);
+    normal = normalize(normal);
 
-	//視線ベクトル（ハイライトの計算に必要
-	float4 worldPos = mul(pos, g_matWorld);					//ローカル座標にワールド行列をかけてワールド座標へ
-	outData.eye = normalize(g_vecCameraPosition - worldPos);	//視点から頂点位置を引き算し視線を求めてピクセルシェーダーへ
+    float4 light = lightPos - mul(pos, matWorld);
+    light = normalize(light);
+    outData.color = clamp(dot(normal, light), 0, 1);
 
-	//UV「座標
-	outData.uv = Uv;	//そのままピクセルシェーダーへ
+	//ライトビューを参照するとき、手がかりとなるテクスチャー座標 
+    outData.LightTexCoord = mul(pos, g_mWLPT); //この点が、ライトビューであったときの位置がわかる 
 
+	//ライトビューにおける位置(変換後) 
+    outData.LighViewPos = mul(pos, matWorld);
 
 	//まとめて出力
-	return outData;
+    return outData;
 }
 
 //───────────────────────────────────────
@@ -68,44 +73,35 @@ VS_OUT VS(float4 pos : POSITION, float4 Normal : NORMAL, float2 Uv : TEXCOORD)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-	//ライトの向き
-	float4 lightDir = g_vecLightDir;	//グルーバル変数は変更できないので、いったんローカル変数へ
-	lightDir = normalize(lightDir);	//向きだけが必要なので正規化
-
-	//法線はピクセルシェーダーに持ってきた時点で補完され長さが変わっている
-	//正規化しておかないと面の明るさがおかしくなる
-	inData.normal = normalize(inData.normal);
-
-	//拡散反射光（ディフューズ）
-	//法線と光のベクトルの内積が、そこの明るさになる
-	float4 shade = saturate(dot(inData.normal, -lightDir));
-	shade.a = 1;	//暗いところが透明になるので、強制的にアルファは1
-
-	float4 diffuse;
-	//テクスチャ有無
-	if (g_isTexture == true)
-	{
+    float4 diffuse;
+    float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    if (isTexture == true)
+    {
 		//テクスチャの色
-		diffuse = g_texture.Sample(g_sampler, inData.uv);
-	}
-	else
-	{
+        diffuse = g_texture.Sample(g_sampler, inData.uv);
+    }
+    else
+    {
 		//マテリアルの色
-		diffuse = g_vecDiffuse;
-	}
+        ambient = diffuseColor * float4(0.2, 0.2, 0.2, 1);
+        diffuse = diffuseColor * inData.color;
+        diffuse.a = 1;
+    }
 
-	//環境光（アンビエント）
-	//これはMaya側で指定し、グローバル変数で受け取ったものをそのまま
-	float4 ambient = g_vecAmbient;
-
-	//鏡面反射光（スペキュラー）
-	float4 speculer = float4(0, 0, 0, 0);	//とりあえずハイライトは無しにしておいて…
-	if (g_vecSpeculer.a != 0)	//スペキュラーの情報があれば
-	{
-		float4 R = reflect(lightDir, inData.normal);			//正反射ベクトル
-		speculer = pow(saturate(dot(R, inData.eye)), g_shuniness) * g_vecSpeculer;	//ハイライトを求める
-	}
-
-	//最終的な色
-	return diffuse * shade + diffuse * ambient + speculer;
+	//影の処理 
+    inData.LightTexCoord /= inData.LightTexCoord.w;
+    float TexValue = g_texDepth.Sample(g_texDepthSampler, inData.LightTexCoord).r;
+    
+    float LightLength = inData.LighViewPos.z / inData.LighViewPos.w;
+    if (TexValue + 0.005 < LightLength)  //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
+    {
+        diffuse *= 0.6f;
+    }
+    else
+    {
+        diffuse *= 2.0f;
+    }
+    
+    return diffuse + ambient;
+	
 }

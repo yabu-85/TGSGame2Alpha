@@ -31,7 +31,7 @@ public:
 	//引数：fileName	画像ファイル名
 	//戻値：成功/失敗
 	HRESULT Load(std::string fileName);
-
+	HRESULT Load(ID3D11Texture2D* pTexture);
 
 	//各アクセス関数
 	ID3D11SamplerState* GetSampler() { return pSampleLinear_; }	//サンプラーの取得
