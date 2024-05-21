@@ -2,8 +2,6 @@
 #include "Model.h"
 #include "Direct3D.h"
 
-#define DRAW 1;
-
 struct LightData {
 	XMFLOAT4 position;
 	XMFLOAT4 target;
@@ -18,24 +16,11 @@ namespace Light {
 
 void Light::Initialize()
 {
-#if DRAW
-	hModel = Model::Load("DebugCollision/SphereCollider.fbx");
-	assert(hModel >= 0);
-#endif
-
 	lightDatas[0].position = XMFLOAT4(10.0f, 10.0f, 0.0f, 0.0f);
 }
 
 void Light::Draw()
 {
-
-#if DRAW
-	Transform trans;
-	trans.position_ = XMFLOAT3(lightDatas[0].position.x, lightDatas[0].position.y, lightDatas[0].position.z);
-	Model::SetTransform(hModel, trans);
-	Model::Draw(hModel);
-#endif
-
 }
 
 void Light::SetPosition(int i, XMFLOAT4 pos)

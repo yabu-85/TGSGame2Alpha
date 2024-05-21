@@ -67,6 +67,7 @@ namespace Direct3D
 	extern D3D11_VIEWPORT vp2;
 	extern D3D11_VIEWPORT vpRight;
 
+	extern float	playerSpeed;
 
 	////////////////////////Ç±Ç±Ç©ÇÁÇÕä÷êî///////////////////////////////
 

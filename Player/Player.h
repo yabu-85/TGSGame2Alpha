@@ -62,15 +62,12 @@ public:
 
     //移動
     XMFLOAT3 GetInputMove();        //Inputの移動量取得
-    void FrontMove(float f = 1.0f); //前への移動
-    void BackMove(float f = 1.0f); //前への移動
     void Move(float f = 1.0f);      //移動
     void CalcMove();                //Inputを考慮したやつ
     void CalcNoMove();              //Input考慮してない、滑るやつとかの計算用
-    XMVECTOR GetDirectionVec();     //向いている方向（正規化済み
-    void ResetMovement();
 
     int GetModelHandle() { return hModel_; }
     Aim* GetAim() { return pAim_; }
+
 };
 

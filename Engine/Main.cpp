@@ -18,6 +18,7 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_dx11.h"
 #include "ImGui/imgui_impl_win32.h"
+#include "../Player/Player.h"
 
 #pragma comment(lib,"Winmm.lib")
 
@@ -179,6 +180,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					XMFLOAT4 target = Light::GetTarget(0);
 					ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
 					ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
+					ImGui::Separator();
+					ImGui::SliderFloat("Player Speed", &Direct3D::playerSpeed, 0.0f, 5.0f);
+				
 				}
 				ImGui::End();//ImGui‚Ìˆ—‚ğI—¹
 				ImGui::Render();

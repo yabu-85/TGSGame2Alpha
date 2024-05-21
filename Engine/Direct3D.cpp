@@ -64,6 +64,9 @@ namespace Direct3D
 	IDXGIAdapter* pAdapter = NULL;
 	IDXGIFactory* pFactory = NULL;
 
+	//‚¿‚å‚¢‚Æ‚±‚±‚É’u‚¢‚Æ‚­
+	float playerSpeed = 0.0f;
+
 	//-------------------------------------------------------
 
 	//‰Šú‰»ˆ—

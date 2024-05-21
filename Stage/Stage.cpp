@@ -20,10 +20,13 @@ void Stage::Initialize()
 	hModel_ = Model::Load("Model/planeStage.fbx");
 	assert(hModel_ >= 0);
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 4; i++) {
 		handle[i] = Model::Load("Model/toras.fbx");
 		assert(handle[i] >= 0);
 	}
+
+	handle[4] = Model::Load("Model/testSph.fbx");
+	assert(handle[4] >= 0);
 	
 
 }
@@ -36,8 +39,9 @@ void Stage::Draw()
 {
 	Model::SetTransform(hModel_, transform_);
 	Model::Draw(hModel_);
-
+	
 	Transform trans;
+#if 0
 	trans.position_ = XMFLOAT3(0, 2, 0);
 	Model::SetTransform(handle[0], trans);
 	Model::Draw(handle[0]);
@@ -47,6 +51,12 @@ void Stage::Draw()
 	trans.rotate_.y = 30;
 	Model::SetTransform(handle[0], trans);
 	Model::Draw(handle[0]);
+#endif
+
+	trans.position_ = XMFLOAT3(0, 1, 0);
+	trans.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
+	Model::SetTransform(handle[4], trans);
+	Model::Draw(handle[4]);
 
 }
 
