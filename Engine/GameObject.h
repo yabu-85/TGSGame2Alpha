@@ -51,6 +51,8 @@ public:
 	void DrawSub();
 	void ReleaseSub();
 
+	void DrawSs();
+	void TwoWindowDrawSub();
 
 	////ローカル行列の取得（このオブジェクトの行列）
 	////戻値：ローカル行列

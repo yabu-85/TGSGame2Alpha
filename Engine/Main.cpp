@@ -60,11 +60,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	screenHeight = 300;
 #endif
 
+	float screenWidth2 = 400.0f;
+	float screenHeight2 = 300.0f;
+
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
+	HWND hWndTool = InitApp(hInstance, screenWidth2, screenHeight2, nCmdShow);
 
 	//Direct3D準備
 	Direct3D::Initialize(hWnd, screenWidth, screenHeight);
+	Direct3D::InitializeTwo(hWndTool, screenWidth2, screenHeight2);
 
 	//ImGuiを初期化
 	IMGUI_CHECKVERSION();
@@ -158,25 +163,91 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Input::Update();
 				Camera::Update();
 				pRootObject->UpdateSub();
-				XMFLOAT3 cPos = Camera::GetPosition();
 
-#if 1
-				//１回目
-				Camera::SetPosition(cPos);
+				/*
+				//プロジェクションを更新
+				Camera::SetProj(Direct3D::vp.Width, Direct3D::vp.Height);
+				
+				//ビューポート設定
+				Direct3D::SetViewPort(Direct3D::vp);
+				Direct3D::SetClipToUv(Direct3D::vp);
+
+				//シャドウマップ作成-----------------------------
+				//ライトの位置から見た画像を、遠くは白、近くは黒のグレースケールで表す
+				XMFLOAT3 pos = Camera::GetPosition();
+				XMFLOAT3 tar = Camera::GetTarget();
+				XMVECTOR up = Camera::GetUp();
+				Camera::SetPosition(XMFLOAT3(-25, 20, -25));
+				Camera::SetTarget(XMFLOAT3(0, 0, 0));
+				Camera::SetUpDirection(XMVectorSet(0, 0, 1, 0));
+				Camera::UpdateTwo();
+				Direct3D::lightView_ = Camera::GetViewMatrix();
+
+				Direct3D::BrginDrawShadowToTexture();
+
+				//オブジェクトの影描画
+				root->ShadowDraw();
+
+				//エフェクトの描画
+				VFX::Draw();
+
+				//エフェクトエディタモードじゃないのなら
+				//透明・半透明描画
+				root->TransparentDrawSub();
+
+				//描画終了
+				Direct3D::EndDraw();
+
+				//カメラ元に戻す
+				Camera::SetPosition(pos);
+				Camera::SetTarget(tar);
+				Camera::SetUpDirection(up);
 				Camera::Update();
+				//--------------------------------------------------
+
+				//描画開始
+				Direct3D::BeginDraw();
+
+				//エフェクトエディタモードじゃないのなら
+				root->DrawSub();
+
+				//透明・半透明描画
+				root->TransparentDrawSub();
+
+				//エフェクトの描画
+				VFX::Draw();
+
+				//様々な描画処理をする
+				GameManager::Draw();
+				*/
+
+				//１回目
+				XMFLOAT3 pos = Camera::GetPosition();
+				XMFLOAT3 tar = Camera::GetTarget();
+				Camera::SetPosition(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z));
+				Camera::SetTarget(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y - 1.0f, Light::GetPosition(0).z));
+				Camera::SetPosition(XMFLOAT3(0, 30, 10));
+				Camera::SetTarget(XMFLOAT3(0, 5, 0));
+				Camera::Update();
+				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
+
 				Direct3D::BeginDraw();
 				pRootObject->DrawSub();
 				Direct3D::EndDraw();
-#endif
-#if 1
-				//２回目
-				//Camera::SetPosition(XMFLOAT3(0, 4, -10));
+				Camera::SetPosition(pos);
+				Camera::SetTarget(tar);
 				Camera::Update();
+
+				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
-				Direct3D::ScreenDraw();
 				Direct3D::EndDraw();
-#endif
+
+				//二つ目のウィンドウ描画
+				Camera::TwoWindowUpdate();
+				Direct3D::BeginDrawTwo();
+				pRootObject->DrawSub();
+				Direct3D::EndDraw();
 
 				//ちょっと休ませる
 				Sleep(1);

@@ -12,6 +12,9 @@ namespace Camera
 	//更新（ビュー行列作成）
 	void Update();
 
+	//更新（ビュー行列作成）
+	void TwoWindowUpdate();
+
 	//視点（カメラの位置）を設定
 	void SetPosition(XMFLOAT3 position);
 

@@ -19,15 +19,17 @@ void Light::Initialize()
 #endif
 
 	lightDatas[0] = LightData();
-	lightDatas[0].pos = XMFLOAT4(0.0f, 10.0f, 0.0f, 0.0f);
+	lightDatas[0].pos = XMFLOAT4(10.0f, 10.0f, 0.0f, 0.0f);
 }
 
 void Light::Draw()
 {
+#if 1
 	Transform trans;
 	trans.position_ = XMFLOAT3(lightDatas[0].pos.x, lightDatas[0].pos.y, lightDatas[0].pos.z);
 	Model::SetTransform(hModel, trans);
 	Model::Draw(hModel);
+#endif
 
 }
 

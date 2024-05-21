@@ -79,6 +79,7 @@ namespace Direct3D
 	//引数：screenWidth		スクリーンの幅
 	//引数：screenHeight	スクリーンの高さ
 	HRESULT Initialize(HWND hWnd, int screenWidth, int screenHeight);
+	HRESULT InitializeTwo(HWND hWnd, int screenWidth, int screenHeight);
 
 	//シェーダー関連で必要なセット準備
 	void InitShaderBundle();
@@ -95,7 +96,7 @@ namespace Direct3D
 	//描画開始
 	void BeginDraw();
 	void BeginDraw2();
-	void ScreenDraw();
+	void BeginDrawTwo();
 
 	//描画終了
 	void EndDraw();

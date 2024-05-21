@@ -1,7 +1,3 @@
-Texture2D g_texture : register(t0); //テクスチャー
-SamplerState g_sampler : register(s0); //サンプラー
-Texture2D g_textureNormal : register(t1); //テクスチャー
-
 //───────────────────────────────────────
 // コンスタントバッファ
 // DirectX 側から送信されてくる、ポリゴン頂点以外の諸情報の定義
@@ -24,7 +20,7 @@ cbuffer global
 struct VS_OUT
 {
     float4 pos : SV_POSITION; //位置
-    float z : TEXCOORD1;
+    float depth : TEXCOORD1;
 };
 
 //───────────────────────────────────────
@@ -34,7 +30,7 @@ VS_OUT VS(float4 pos : POSITION)
 {
     VS_OUT outData;
     outData.pos = mul(pos, matWVP);
-    outData.z = length(lightPos - mul(pos, matWorld)) / 30.0f;
+    outData.depth = length(lightPos - mul(pos, matWVP)) / 30.0f;
     return outData;
 }
 
@@ -43,5 +39,5 @@ VS_OUT VS(float4 pos : POSITION)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-    return float4(inData.z, inData.z, inData.z, 1.0f);
+    return float4(inData.depth, inData.depth, inData.depth, 1.0f);
 }
