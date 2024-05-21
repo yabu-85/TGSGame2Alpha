@@ -13,12 +13,12 @@ namespace Direct3D
 	//1フレーム分の絵が出来上がったら画用紙を交換。これにより画面がちらつかない。
 	//その辺を司るのがスワップチェーン
 	IDXGISwapChain*         pSwapChain_ = nullptr;
+	IDXGISwapChain*			pSwapChain2_ = nullptr;
 
 	//【レンダーターゲットビュー】
 	//描画したいものと、描画先（上でいう画用紙）の橋渡しをするもの
 	ID3D11RenderTargetView* pRenderTargetView_ = nullptr;
 	ID3D11RenderTargetView* pRenderTargetView2_ = nullptr;
-	ID3D11RenderTargetView* pDepthTargetView_ = nullptr;
 
 	//【デプスステンシル】
 	//Zバッファ法を用いて、3D物体の前後関係を正しく表示するためのもの
@@ -35,8 +35,9 @@ namespace Direct3D
 	//半透明のものをどのように表現するか
 	ID3D11BlendState*	pBlendState[BLEND_MAX];
 
-	bool		isDrawCollision_ = true;	//コリジョンを表示するか
-	bool		_isLighting = false;		//ライティングするか
+	bool isDrawCollision_ = true;		//コリジョンを表示するか
+	bool isLighting_ = false;			//ライティングするか
+	bool isTwoWindowShadowDraw_ = true;	//２ウィンドウにShadowMap表示するかどうか（falseは定点カメラ）
 
 	//extern宣言した変数の初期化
 	ID3D11Device*           pDevice_ = nullptr;
@@ -45,13 +46,12 @@ namespace Direct3D
 	int						screenWidth_ = 0;
 	int						screenHeight_ = 0;
 
-	//シャドウマップ用に移動-------------------------------
-	D3D11_VIEWPORT vp;	//描画先を毎回していしないといけないからここに置く
-	
-	//シャドウマップ用に追加-------------------------------------
+	//シャドウマップ用-------------------------------------
+	D3D11_VIEWPORT vp;
 	D3D11_VIEWPORT vp2;
-	D3D11_VIEWPORT vp3;
+	D3D11_VIEWPORT vpRight;
 
+	ID3D11RenderTargetView* pDepthTargetView_;
 	ID3D11Texture2D* pRenderTexture;
 	ID3D11ShaderResourceView* pDepthSRV_;
 	ID3D11SamplerState* pDepthSampler_;
@@ -59,11 +59,7 @@ namespace Direct3D
 	XMMATRIX lightViewMatrix;
 	XMMATRIX clipToUVMatrix;
 
-	//これ多分2画面用のやつ
-	Sprite* pScreen;
-	
-	//もう1つのスワップチェイン作成用
-	IDXGISwapChain* pSwapChain_2 = nullptr;
+	//2画面用のやつ------------------------------------------
 	IDXGIDevice1* pDXGI = NULL;
 	IDXGIAdapter* pAdapter = NULL;
 	IDXGIFactory* pFactory = NULL;
@@ -80,15 +76,14 @@ namespace Direct3D
 		screenHeight_ = screenHeight;
 
 		///////////////////////////いろいろ準備するための設定///////////////////////////////
-		//いろいろな設定項目をまとめた構造体
-		DXGI_SWAP_CHAIN_DESC scDesc;
 
-		//とりあえず全部0
-		ZeroMemory(&scDesc, sizeof(scDesc));
+		//スパップチェインの設定
+		DXGI_SWAP_CHAIN_DESC scDesc;
+		ZeroMemory(&scDesc, sizeof(scDesc));					//とりあえず全部0
 
 		//描画先のフォーマット
-		scDesc.BufferDesc.Width = screenWidth;		//画面幅
-		scDesc.BufferDesc.Height = screenHeight;		//画面高さ
+		scDesc.BufferDesc.Width = screenWidth;					//画面幅
+		scDesc.BufferDesc.Height = screenHeight;				//画面高さ
 		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// 何色使えるか
 
 		//FPS（1/60秒に1回）
@@ -96,13 +91,12 @@ namespace Direct3D
 		scDesc.BufferDesc.RefreshRate.Denominator = 1;
 
 		//その他
-		scDesc.Windowed = TRUE;				//ウィンドウモードかフルスクリーンか
-		scDesc.OutputWindow = hWnd;			//ウィンドウハンドル
-		scDesc.BufferCount = 1;				//裏画面の枚数
+		scDesc.Windowed = TRUE;									//ウィンドウモードかフルスクリーンか
+		scDesc.OutputWindow = hWnd;								//ウィンドウハンドル
+		scDesc.BufferCount = 1;									//裏画面の枚数
 		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	//画面に描画するために使う
-		scDesc.SampleDesc.Count = 1;		//MSAA（アンチエイリアス）の設定
-		scDesc.SampleDesc.Quality = 0;		//　〃
-
+		scDesc.SampleDesc.Count = 1;							//MSAA（アンチエイリアス）の設定
+		scDesc.SampleDesc.Quality = 0;							//　〃
 
 		///////////////////////////上記設定をもとにデバイス、コンテキスト、スワップチェインを作成///////////////////////////////
 		D3D_FEATURE_LEVEL level;
@@ -263,9 +257,6 @@ namespace Direct3D
 		SamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
 		Direct3D::pDevice_->CreateSamplerState(&SamDesc, &pDepthSampler_);
 
-		pScreen = new Sprite;
-		pScreen->Load(pRenderTexture);
-
 		XMFLOAT4X4 clipToUV;
 		ZeroMemory(&clipToUV, sizeof(XMFLOAT4X4));
 		clipToUV._11 = 0.5;
@@ -283,16 +274,18 @@ namespace Direct3D
 
 	HRESULT InitializeTwo(HWND hWnd, int screenWidth, int screenHeight)
 	{
-		///////////////////////////いろいろ準備するための設定///////////////////////////////
-		//いろいろな設定項目をまとめた構造体
-		DXGI_SWAP_CHAIN_DESC scDesc;
+		// ウィンドウを最小化する
+		ShowWindow(hWnd, SW_MINIMIZE);
 
-		//とりあえず全部0
-		ZeroMemory(&scDesc, sizeof(scDesc));
+		///////////////////////////いろいろ準備するための設定///////////////////////////////
+		
+		//スパップチェインの設定
+		DXGI_SWAP_CHAIN_DESC scDesc;
+		ZeroMemory(&scDesc, sizeof(scDesc));					//とりあえず全部0
 
 		//描画先のフォーマット
-		scDesc.BufferDesc.Width = screenWidth;		//画面幅
-		scDesc.BufferDesc.Height = screenHeight;		//画面高さ
+		scDesc.BufferDesc.Width = screenWidth;					//画面幅
+		scDesc.BufferDesc.Height = screenHeight;				//画面高さ
 		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// 何色使えるか
 
 		//FPS（1/60秒に1回）
@@ -300,35 +293,28 @@ namespace Direct3D
 		scDesc.BufferDesc.RefreshRate.Denominator = 1;
 
 		//その他
-		scDesc.Windowed = TRUE;				//ウィンドウモードかフルスクリーンか
-		scDesc.OutputWindow = hWnd;			//ウィンドウハンドル
-		scDesc.BufferCount = 1;				//裏画面の枚数
+		scDesc.Windowed = TRUE;									//ウィンドウモードかフルスクリーンか
+		scDesc.OutputWindow = hWnd;								//ウィンドウハンドル
+		scDesc.BufferCount = 1;									//裏画面の枚数
 		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	//画面に描画するために使う
-		scDesc.SampleDesc.Count = 1;		//MSAA（アンチエイリアス）の設定
-		scDesc.SampleDesc.Quality = 0;		//　〃
+		scDesc.SampleDesc.Count = 1;							//MSAA（アンチエイリアス）の設定
+		scDesc.SampleDesc.Quality = 0;							//　〃
 
 		pDevice_->QueryInterface(__uuidof(IDXGIDevice1), (void**)&pDXGI);
 		pDXGI->GetAdapter(&pAdapter);
 		pAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pFactory);
-		pFactory->CreateSwapChain(pDevice_, &scDesc, &pSwapChain_2);
+		pFactory->CreateSwapChain(pDevice_, &scDesc, &pSwapChain2_);
 
 		///////////////////////////描画のための準備///////////////////////////////
 		//スワップチェーンからバックバッファを取得（バックバッファ ＝ 裏画面 ＝ 描画先）
 		ID3D11Texture2D* pBackBuffer;
-		pSwapChain_2->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+		pSwapChain2_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 
 		//レンダーターゲットビューを作成
 		pDevice_->CreateRenderTargetView(pBackBuffer, NULL, &pRenderTargetView2_);
 
 		//一時的にバックバッファを取得しただけなので、解放
 		pBackBuffer->Release();
-
-		vp3.Width = (float)screenWidth;	 //幅
-		vp3.Height = (float)screenHeight;//高さ
-		vp3.MinDepth = 0.0f;			 //手前
-		vp3.MaxDepth = 1.0f;			 //奥
-		vp3.TopLeftX = 0;				 //左
-		vp3.TopLeftY = 0;				 //上
 
 		//深度ステンシルビューの作成
 		D3D11_TEXTURE2D_DESC descDepth;
@@ -525,7 +511,6 @@ namespace Direct3D
 		}
 	}
 
-
 	//今から描画するShaderBundleを設定
 	void SetShader(SHADER_TYPE type)
 	{
@@ -592,17 +577,14 @@ namespace Direct3D
 
 	void BeginDrawTwo()
 	{
-		pContext_->OMSetRenderTargets(1, &pRenderTargetView2_, pDepthStencilView2);            // 描画先を設定
-		pContext_->RSSetViewports(1, &vp3);
+		if (isTwoWindowShadowDraw_) SetShader(SHADER_SHADOWMAP);
+		else SetShader(SHADER_3D);
 
-		//背景の色
-		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
-
-		//深度バッファクリア
-		pContext_->ClearDepthStencilView(pDepthStencilView2, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-		//画面をクリア
+		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f }; // R,G,B,A
+		pContext_->OMSetRenderTargets(1, &pRenderTargetView2_, pDepthStencilView2); // 描画先を設定
+		pContext_->RSSetViewports(1, &vp2);
 		pContext_->ClearRenderTargetView(pRenderTargetView2_, clearColor);
+		pContext_->ClearDepthStencilView(pDepthStencilView2, D3D11_CLEAR_DEPTH, 1.0f, 0);		
 	}
 
 	//描画終了
@@ -610,7 +592,7 @@ namespace Direct3D
 	{
 		//スワップ（バックバッファを表に表示する）
 		pSwapChain_->Present(0, 0);
-		pSwapChain_2->Present(0, 0);
+		pSwapChain2_->Present(0, 0);
 
 	}
 

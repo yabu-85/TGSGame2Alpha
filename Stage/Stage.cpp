@@ -19,7 +19,7 @@ void Stage::Initialize()
 {
 	hModel_ = Model::Load("Model/planeStage.fbx");
 	assert(hModel_ >= 0);
-	
+
 	for (int i = 0; i < 5; i++) {
 		handle[i] = Model::Load("Model/toras.fbx");
 		assert(handle[i] >= 0);

@@ -60,8 +60,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	screenHeight = 300;
 #endif
 
-	float screenWidth2 = 400.0f;
-	float screenHeight2 = 300.0f;
+	int screenWidth2 = 400;
+	int screenHeight2 = 300;
 
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
@@ -140,98 +140,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//時間計測関連
 				lastUpdateTime = nowTime;	//現在の時間（最後に画面を更新した時間）を覚えておく
 				FPS++;						//画面更新回数をカウントする
-
-				/*
-				//ImGuiの更新処理
-				ImGui_ImplDX11_NewFrame();
-				ImGui_ImplWin32_NewFrame();
-
-						ImGui::NewFrame();
-						ImGui::Begin("Hello");//ImGuiの処理を開始
-						{
-							//描画されるボタンを押したら...
-							if (ImGui::Button("button")) {
-								PostQuitMessage(0);	//プログラム終了
-							}
-						}
-						ImGui::End();//ImGuiの処理を終了
-
-				ImGui::Render();
-				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-				*/
 				
 				Input::Update();
 				Camera::Update();
 				pRootObject->UpdateSub();
 
-				/*
-				//プロジェクションを更新
-				Camera::SetProj(Direct3D::vp.Width, Direct3D::vp.Height);
-				
-				//ビューポート設定
-				Direct3D::SetViewPort(Direct3D::vp);
-				Direct3D::SetClipToUv(Direct3D::vp);
-
-				//シャドウマップ作成-----------------------------
-				//ライトの位置から見た画像を、遠くは白、近くは黒のグレースケールで表す
-				XMFLOAT3 pos = Camera::GetPosition();
-				XMFLOAT3 tar = Camera::GetTarget();
-				XMVECTOR up = Camera::GetUp();
-				Camera::SetPosition(XMFLOAT3(-25, 20, -25));
-				Camera::SetTarget(XMFLOAT3(0, 0, 0));
-				Camera::SetUpDirection(XMVectorSet(0, 0, 1, 0));
-				Camera::UpdateTwo();
-				Direct3D::lightView_ = Camera::GetViewMatrix();
-
-				Direct3D::BrginDrawShadowToTexture();
-
-				//オブジェクトの影描画
-				root->ShadowDraw();
-
-				//エフェクトの描画
-				VFX::Draw();
-
-				//エフェクトエディタモードじゃないのなら
-				//透明・半透明描画
-				root->TransparentDrawSub();
-
-				//描画終了
-				Direct3D::EndDraw();
-
-				//カメラ元に戻す
-				Camera::SetPosition(pos);
-				Camera::SetTarget(tar);
-				Camera::SetUpDirection(up);
-				Camera::Update();
-				//--------------------------------------------------
-
-				//描画開始
-				Direct3D::BeginDraw();
-
-				//エフェクトエディタモードじゃないのなら
-				root->DrawSub();
-
-				//透明・半透明描画
-				root->TransparentDrawSub();
-
-				//エフェクトの描画
-				VFX::Draw();
-
-				//様々な描画処理をする
-				GameManager::Draw();
-				*/
-
 				//１回目
 				XMFLOAT3 pos = Camera::GetPosition();
 				XMFLOAT3 tar = Camera::GetTarget();
 				Camera::SetPosition(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z));
-				Camera::SetTarget(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y - 1.0f, Light::GetPosition(0).z));
-				Camera::SetPosition(XMFLOAT3(0, 30, 10));
-				Camera::SetTarget(XMFLOAT3(0, 5, 0));
+				Camera::SetTarget(XMFLOAT3(0, 0, 0));
 				Camera::Update();
 				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
 
 				Direct3D::BeginDraw();
+
 				pRootObject->DrawSub();
 				Direct3D::EndDraw();
 				Camera::SetPosition(pos);
@@ -241,13 +164,47 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
+				//ImGuiの更新処理
+				ImGui_ImplDX11_NewFrame();
+				ImGui_ImplWin32_NewFrame();
+				ImGui::NewFrame();
+				ImGui::Begin("Hello");//ImGuiの処理を開始
+				{
+					//ImGui::Text("");		テキスト
+					//ImGui::Button("");	ボタン
+					//ImGui::Separator();	区切り線
+					//ImGui::SameLine();	同じ場所に配置
+					//ImGui::Spacing();		指定した分スペースを確保
+					XMFLOAT4 position = Light::GetPosition(0);
+					XMFLOAT4 target = Light::GetTarget(0);
+					ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
+					ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
+				}
+				ImGui::End();//ImGuiの処理を終了
+				ImGui::Render();
+				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 				Direct3D::EndDraw();
 
 				//二つ目のウィンドウ描画
-				Camera::TwoWindowUpdate();
+				XMFLOAT3 cpos = XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z);
+				XMFLOAT3 ctar = XMFLOAT3(0, 0, 0);
+				if (Direct3D::isTwoWindowShadowDraw_) {
+					Camera::SetPosition(cpos);
+					Camera::SetTarget(ctar);
+					Camera::Update();
+				}
+				else {
+					//今のとこ定点だから毎回やる必要もない（変えるかも）
+					Camera::SetPosition2(cpos);
+					Camera::SetTarget2(ctar);
+					Camera::TwoWindowUpdate();
+				}
 				Direct3D::BeginDrawTwo();
 				pRootObject->DrawSub();
 				Direct3D::EndDraw();
+				Camera::SetPosition(pos);
+				Camera::SetTarget(tar);
+				Camera::Update();
 
 				//ちょっと休ませる
 				Sleep(1);

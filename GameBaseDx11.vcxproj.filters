@@ -24,9 +24,6 @@
       <UniqueIdentifier>{47a6a3f5-8cfd-436b-8d58-beccd108f3f3}</UniqueIdentifier>
       <Extensions>hlsl</Extensions>
     </Filter>
-    <Filter Include="01Engine\ImGui">
-      <UniqueIdentifier>{dd71bb05-2176-458b-94c7-db803e1c8874}</UniqueIdentifier>
-    </Filter>
     <Filter Include="03Player">
       <UniqueIdentifier>{41b3bdd3-76b7-4a9f-b1e6-fef76a352c41}</UniqueIdentifier>
     </Filter>
@@ -38,6 +35,12 @@
     </Filter>
     <Filter Include="01Engine\Json">
       <UniqueIdentifier>{9b7be748-83c7-411f-9acc-264632f26858}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01Engine\Gui">
+      <UniqueIdentifier>{dd71bb05-2176-458b-94c7-db803e1c8874}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01Engine\Gui\ImGui">
+      <UniqueIdentifier>{308fa319-e968-43e4-a42d-27bcdbf0c721}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -111,24 +114,6 @@
     <ClCompile Include="Engine\VFX.cpp">
       <Filter>01Engine\ResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\imgui\imgui.cpp">
-      <Filter>01Engine\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\imgui\imgui_draw.cpp">
-      <Filter>01Engine\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\imgui\imgui_impl_dx11.cpp">
-      <Filter>01Engine\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\imgui\imgui_impl_win32.cpp">
-      <Filter>01Engine\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\imgui\imgui_tables.cpp">
-      <Filter>01Engine\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\imgui\imgui_widgets.cpp">
-      <Filter>01Engine\ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="Player\Aim.cpp">
       <Filter>03Player</Filter>
     </ClCompile>
@@ -146,6 +131,24 @@
     </ClCompile>
     <ClCompile Include="Engine\Light.cpp">
       <Filter>01Engine\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\imgui\imgui.cpp">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\imgui\imgui_draw.cpp">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\imgui\imgui_impl_dx11.cpp">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\imgui\imgui_impl_win32.cpp">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\imgui\imgui_tables.cpp">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\imgui\imgui_widgets.cpp">
+      <Filter>01Engine\Gui\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -219,30 +222,6 @@
     <ClInclude Include="Engine\VFX.h">
       <Filter>01Engine\ResourceManager</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\imgui\imconfig.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\imgui\imgui.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\imgui\imgui_impl_dx11.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\imgui\imgui_impl_win32.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\imgui\imgui_internal.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\imgui\imstb_rectpack.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\imgui\imstb_textedit.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\imgui\imstb_truetype.h">
-      <Filter>01Engine\ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="Player\Aim.h">
       <Filter>03Player</Filter>
     </ClInclude>
@@ -263,6 +242,30 @@
     </ClInclude>
     <ClInclude Include="Engine\Light.h">
       <Filter>01Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imconfig.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imgui.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imgui_impl_dx11.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imgui_impl_win32.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imgui_internal.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imstb_rectpack.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imstb_textedit.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\imgui\imstb_truetype.h">
+      <Filter>01Engine\Gui\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
