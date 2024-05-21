@@ -2,8 +2,9 @@
 #include "Model.h"
 
 struct LightData {
-	XMFLOAT4 pos;
-	LightData() : pos(XMFLOAT4()) {}
+	XMFLOAT4 posision;
+	XMFLOAT4 target;
+	LightData() : posision(XMFLOAT4()), target(XMFLOAT4()) {}
 };
 
 namespace Light {
@@ -19,14 +20,15 @@ void Light::Initialize()
 #endif
 
 	lightDatas[0] = LightData();
-	lightDatas[0].pos = XMFLOAT4(10.0f, 10.0f, 0.0f, 0.0f);
+	lightDatas[0].posision = XMFLOAT4(10.0f, 10.0f, 0.0f, 0.0f);
+	lightDatas[0].target = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void Light::Draw()
 {
 #if 1
 	Transform trans;
-	trans.position_ = XMFLOAT3(lightDatas[0].pos.x, lightDatas[0].pos.y, lightDatas[0].pos.z);
+	trans.position_ = XMFLOAT3(lightDatas[0].posision.x, lightDatas[0].posision.y, lightDatas[0].posision.z);
 	Model::SetTransform(hModel, trans);
 	Model::Draw(hModel);
 #endif
@@ -35,10 +37,15 @@ void Light::Draw()
 
 void Light::SetPosition(int i, XMFLOAT4 pos)
 {
-	lightDatas[0].pos = pos;
+	lightDatas[0].posision = pos;
 }
 
 XMFLOAT4 Light::GetPosition(int i)
 {
-	return lightDatas[0].pos;
+	return lightDatas[0].posision;
+}
+
+XMFLOAT4 Light::GetTarget(int i)
+{
+	return lightDatas[0].target;
 }

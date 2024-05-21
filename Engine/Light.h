@@ -2,15 +2,16 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-//定数
-static const int LIGHT_TOTAL_NUM = 5;	//ライトの総数  
-
 namespace Light
 {
+	//定数
+	static const int LIGHT_TOTAL_NUM = 5;	//ライトの総数  
+
 	void Initialize();
 	void Draw();
 	void SetPosition(int i, XMFLOAT4 pos);
 	XMFLOAT4 GetPosition(int i);
+	XMFLOAT4 GetTarget(int i);
 
 	/// <summary>
 	/// Playerのライトの位置を設定
