@@ -150,6 +150,9 @@
     <ClCompile Include="Engine\imgui\imgui_widgets.cpp">
       <Filter>01Engine\Gui\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\CapsuleCollider.cpp">
+      <Filter>01Engine\Collider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -266,6 +269,9 @@
     </ClInclude>
     <ClInclude Include="Engine\imgui\imstb_truetype.h">
       <Filter>01Engine\Gui\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\CapsuleCollider.h">
+      <Filter>01Engine\Collider</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

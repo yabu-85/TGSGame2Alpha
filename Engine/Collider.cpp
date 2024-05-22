@@ -6,7 +6,7 @@
 
 //コンストラクタ
 Collider::Collider():
-	pGameObject_(nullptr)
+    pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f))
 {
 }
 
@@ -96,7 +96,102 @@ void Collider::Draw(XMFLOAT3 position)
 	Model::Draw(hDebugModel_);
 }
 
-bool Collider::isHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0, const XMFLOAT3& v1, const XMFLOAT3& v2, XMVECTOR& outDistanceVector)
+// 2線分の最短距離（2D版）
+// s1 : S1(線分1)
+// s2 : S2(線分2)
+// p1 : S1側の垂線の足（戻り値）
+// p2 : S2側の垂線の足（戻り値）
+// t1 : S1側のベクトル係数（戻り値）
+// t2 : S2側のベクトル係数（戻り値）
+// 戻り値: 最短距離
+bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider* capsule2)
+{
+/*
+float calcSegmentSegmentDist2D(const Segment2D & s1, const Segment2D & s2, Point2D & p1, Point2D & p2, float& t1, float& t2) {
+
+        // S1が縮退している？
+        if (s1.v.lengthSq() < _OX_EPSILON_) {
+            // S2も縮退？
+            if (s2.v.lengthSq() < _OX_EPSILON_) {
+                // 点と点の距離の問題に帰着
+                float len = (s2.p - s1.p).length();
+                p1 = s1.p;
+                p2 = s2.p;
+                t1 = t2 = 0.0f;
+                return len;
+            }
+            else {
+                // S1の始点とS2の最短問題に帰着
+                float len = calcPointSegmentDist2D(s1.p, s2, p2, t2);
+                p1 = s1.p;
+                t1 = 0.0f;
+                clamp01(t2);
+                return len;
+            }
+        }
+
+        // S2が縮退している？
+        else if (s2.v.lengthSq() < _OX_EPSILON_) {
+            // S2の始点とS1の最短問題に帰着
+            float len = calcPointSegmentDist2D(s2.p, s1, p1, t1);
+            p2 = s2.p;
+            clamp01(t1);
+            t2 = 0.0f;
+            return len;
+        }
+
+        //線分同士
+
+        // 2線分が平行だったら垂線の端点の一つをP1に仮決定
+    if (s1.v.isParallel(s2.v) == true) {
+        t1 = 0.0f;
+        p1 = s1.p;
+        float len = calcPointSegmentDist2D(s1.p, s2, p2, t2);
+        if (0.0f <= t2 && t2 <= 1.0f)
+            return len;
+    }
+    else {
+        // 線分はねじれの関係
+        // 2直線間の最短距離を求めて仮のt1,t2を求める
+        float len = calcLineLineDist2D(s1, s2, p1, p2, t1, t2);
+        if (
+            0.0f <= t1 && t1 <= 1.0f &&
+            0.0f <= t2 && t2 <= 1.0f
+            ) {
+            return len;
+        }
+    }
+
+    // 垂線の足が外にある事が判明
+    // S1側のt1を0～1の間にクランプして垂線を降ろす
+    clamp01(t1);
+    p1 = s1.getPoint(t1);
+    float len = calcPointSegmentDist2D(p1, s2, p2, t2);
+    if (0.0f <= t2 && t2 <= 1.0f)
+        return len;
+
+    // S2側が外だったのでS2側をクランプ、S1に垂線を降ろす
+    clamp01(t2);
+    p2 = s2.getPoint(t2);
+    len = calcPointSegmentDist2D(p2, s1, p1, t1);
+    if (0.0f <= t1 && t1 <= 1.0f)
+        return len;
+
+    // 双方の端点が最短と判明
+    clamp01(t1);
+    p1 = s1.getPoint(t1);
+    return (p2 - p1).length();
+}
+*/
+    
+}
+
+bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule2)
+{
+    return false;
+}
+
+bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0, const XMFLOAT3& v1, const XMFLOAT3& v2, XMVECTOR& outDistanceVector)
 {
     XMVECTOR p = XMLoadFloat3(&circle->center_);
     XMVECTOR q0 = XMLoadFloat3(&v0);

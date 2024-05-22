@@ -84,6 +84,7 @@ namespace Direct3D
 	//今から描画するShaderBundleを設定
 	//引数：type	SHADER_3D, SHADER_2D, SHADER_UNLITのどれか
 	void SetShader(SHADER_TYPE type);
+	SHADER_TYPE GetCurrentShader();
 
 	//ブレンドモードの変更
 	//引数：blendMode	BLEND_DEFAULT	通常

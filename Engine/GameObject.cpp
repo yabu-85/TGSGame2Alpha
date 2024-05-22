@@ -268,12 +268,15 @@ void GameObject::Collision(GameObject * pTarget)
 //テスト用の衝突判定枠を表示
 void GameObject::CollisionDraw()
 {
+	Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
 	Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
 	{
 		(*i)->Draw(GetWorldPosition());
 	}
+
+	Direct3D::SetShader(type);
 }
 
 //RootJobを取得

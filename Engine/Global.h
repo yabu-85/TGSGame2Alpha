@@ -46,7 +46,7 @@ static float CalculationDistance(XMFLOAT3 a, XMFLOAT3 b)
 }
 
 //ベクトルから回転軸を計算（度）
-static XMFLOAT3 CalculationRotate(XMFLOAT3 dir) {
+static XMFLOAT3 CalculationRotateXY(XMFLOAT3 dir) {
 	XMFLOAT3 rot = XMFLOAT3();
 	rot.x = XMConvertToDegrees(-asinf(dir.y));
 	rot.y = XMConvertToDegrees(atan2f(dir.x, dir.z));
@@ -60,6 +60,12 @@ static float CalculationRotateZ(XMFLOAT3 dir) {
 	float sinX = sinf(dir.x * XM_PI / 180.0f);
 	float sinY = sinf(dir.y * XM_PI / 180.0f);
 	return XMConvertToDegrees(atan2f(-sinY * dir.x + cosY * dir.z, dir.y * sinX + (dir.x * cosY + dir.z * sinY) * cosX));
+}
+
+static XMFLOAT3 CalculationRotateXYZ(XMFLOAT3 dir) {
+	XMFLOAT3 rot = CalculationRotateXY(dir);
+	rot.z = CalculationRotateZ(dir);
+	return rot;
 }
 
 //回転軸から向いている方向を計算ベクター

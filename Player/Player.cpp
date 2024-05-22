@@ -9,6 +9,8 @@
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
 
+#include "../Engine/CapsuleCollider.h"
+
 namespace {
     float moveSpeed = 0.08f;          //移動スピード
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
@@ -53,6 +55,8 @@ void Player::Initialize()
     transform_.position_.y = 10.0f;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
+
+    AddCollider(new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f));
 
 }
 
@@ -174,7 +178,7 @@ void Player::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-    /*
+    /*当たり判定のやつ
     Transform tra = transform_;
     tra.position_.y += PlayerHeightSize;
     tra.scale_ = XMFLOAT3(0.1f, 0.1f, 0.1f);
@@ -190,15 +194,9 @@ void Player::Draw()
     tra.position_.y += CheckDistance[0];
     Model::SetTransform(testModel_, tra);
     Model::Draw(testModel_);
-
-    //デバッグ用
-    CollisionDraw();
-
-    pText->Draw(30, 30, (int)transform_.position_.x);
-    pText->Draw(30, 70, (int)transform_.position_.y);
-    pText->Draw(30, 110, (int)transform_.position_.z);
     */
     
+    CollisionDraw();
 
 }
 

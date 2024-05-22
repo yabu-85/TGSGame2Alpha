@@ -3,9 +3,6 @@
 #include "Direct3D.h"
 
 struct LightData {
-	XMFLOAT4 posision;
-	XMFLOAT4 target;
-	LightData() : posision(XMFLOAT4()), target(XMFLOAT4()) {}
 	XMFLOAT4 position;
 	XMFLOAT4 target;
 	LightData() : position(XMFLOAT4()), target(XMFLOAT4()) {}

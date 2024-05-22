@@ -43,11 +43,13 @@ namespace Direct3D
 	ID3D11Device*           pDevice_ = nullptr;
 	ID3D11DeviceContext*    pContext_ = nullptr;
 	SHADER_BUNDLE			shaderBundle[SHADER_MAX] = { 0 };
+
 	int						screenWidth_ = 0;
 	int						screenHeight_ = 0;
 
-	//シャドウマップ用に移動-------------------------------
-	
+	// シェーダーバンドルの保存用の変数
+	SHADER_TYPE currentType;
+
 	//シャドウマップ用-------------------------------------
 	D3D11_VIEWPORT vp1;
 	D3D11_VIEWPORT vp2;
@@ -63,7 +65,6 @@ namespace Direct3D
 	//2画面用のやつ------------------------------------------
 	
 	//もう1つのスワップチェイン作成用
-	IDXGISwapChain* pSwapChain_2 = nullptr;
 	IDXGIDevice1* pDXGI = NULL;
 	IDXGIAdapter* pAdapter = NULL;
 	IDXGIFactory* pFactory = NULL;
@@ -320,9 +321,6 @@ namespace Direct3D
 		vp2.TopLeftX = 0;				 //左
 		vp2.TopLeftY = 0;				 //上
 
-		vp3.TopLeftX = 0;				 //左
-		vp3.TopLeftY = 0;				 //上
-
 		//深度ステンシルビューの作成
 		D3D11_TEXTURE2D_DESC descDepth;
 		descDepth.Width = screenWidth;
@@ -522,11 +520,13 @@ namespace Direct3D
 	//今から描画するShaderBundleを設定
 	void SetShader(SHADER_TYPE type)
 	{
+		currentType = type;
 		pContext_->RSSetState(shaderBundle[type].pRasterizerState);
 		pContext_->VSSetShader(shaderBundle[type].pVertexShader, NULL, 0);                         // 頂点シェーダをセット
 		pContext_->PSSetShader(shaderBundle[type].pPixelShader, NULL, 0);                          // ピクセルシェーダをセット
 		pContext_->IASetInputLayout(shaderBundle[type].pVertexLayout);
 	}
+	SHADER_TYPE GetCurrentShader() { return currentType; }
 
 	//ブレンドモードの変更
 	void SetBlendMode(BLEND_MODE blendMode)
@@ -563,8 +563,6 @@ namespace Direct3D
 	//描画開始
 	void BeginDraw2()
 	{
-		SetShader(SHADER_3D);
-
 		//描画先を設定
 		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
 		pContext_->RSSetViewports(1, &vp1);
@@ -574,10 +572,12 @@ namespace Direct3D
 		//画面をクリアと深度バッファクリア
 		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);
 		
-		//pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 		SetShader(SHADER_3D);
 	}
+
+	void BeginDrawTwo() {
 		if (isTwoWindowShadowDraw_) SetShader(SHADER_SHADOWMAP);
 		else SetShader(SHADER_3D);
 
@@ -605,9 +605,17 @@ namespace Direct3D
 	void Release()
 	{
 		SAFE_RELEASE(pDepthStencil);
+		SAFE_RELEASE(pDepthStencil2);
+		
 		SAFE_RELEASE(pDepthStencilView);
+		SAFE_RELEASE(pDepthStencilView2);
+		
 		SAFE_RELEASE(pRenderTargetView_);
+		SAFE_RELEASE(pRenderTargetView2_);
+		SAFE_RELEASE(pDepthTargetView_);
+
 		SAFE_RELEASE(pSwapChain_);
+		SAFE_RELEASE(pSwapChain2_);
 
 		for (int i = 0; i < BLEND_MAX; i++)
 		{
@@ -629,7 +637,12 @@ namespace Direct3D
 		}
 
 		SAFE_RELEASE(pRenderTargetView_);
+		SAFE_RELEASE(pRenderTargetView2_);
+		SAFE_RELEASE(pDepthTargetView_);
+
 		SAFE_RELEASE(pSwapChain_);
+		SAFE_RELEASE(pSwapChain2_);
+		
 		SAFE_RELEASE(pContext_);
 		SAFE_RELEASE(pDevice_);
 	}

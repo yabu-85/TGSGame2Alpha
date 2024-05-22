@@ -41,8 +41,6 @@ void TestScene::Update()
 //•`‰æ
 void TestScene::Draw()
 {
-	Light::Draw();
-
 }
 
 //ŠJ•ú

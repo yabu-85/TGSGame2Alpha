@@ -142,25 +142,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				lastUpdateTime = nowTime;	//現在の時間（最後に画面を更新した時間）を覚えておく
 				FPS++;						//画面更新回数をカウントする
 
-#if 0
-				//ImGuiの更新処理
-				ImGui_ImplDX11_NewFrame();
-				ImGui_ImplWin32_NewFrame();
-				ImGui::NewFrame();
-				ImGui::Begin("Light Positions and Targets"); // ImGuiの処理を開始
-				{
-					XMFLOAT4 position = Light::GetPosition(0);
-					XMFLOAT4 target = Light::GetTarget(0);
-					ImGui::Text("Light %d", 0);
-					ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
-					ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
-					ImGui::Separator();
-				}
-				ImGui::End(); // ImGuiの処理を終了
-				ImGui::Render();
-				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-#endif
-			
 				Input::Update();
 				Camera::Update();
 				pRootObject->UpdateSub();
@@ -172,9 +153,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Camera::SetTarget(XMFLOAT3(0, 0, 0));
 				Camera::Update();
 				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
-
+				
 				Direct3D::BeginDraw();
-
 				pRootObject->DrawSub();
 				Direct3D::EndDraw();
 				Camera::SetPosition(pos);
