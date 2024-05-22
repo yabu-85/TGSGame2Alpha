@@ -49,9 +49,11 @@ void Camera::TwoWindowUpdate()
 
 //Å“_‚ğİ’è
 void Camera::SetTarget(XMFLOAT3 target) { _target = target; }
+void Camera::SetTarget2(XMFLOAT3 target) { _twoWindowTarget2 = target; }
 
 //ˆÊ’u‚ğİ’è
 void Camera::SetPosition(XMFLOAT3 position) { _position = position; }
+void Camera::SetPosition2(XMFLOAT3 position) { _twoWindowPosition2 = position; }
 
 //Å“_‚ğæ“¾
 XMFLOAT3 Camera::GetTarget() { return _target; }

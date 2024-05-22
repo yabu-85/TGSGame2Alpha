@@ -69,7 +69,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     
     outData.lightTex = mul(pos, g_mWLPT);
     outData.lightViewPos = mul(pos, g_mWLP);
-
+    
 	//まとめて出力
     return outData;
 }
@@ -116,15 +116,15 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	//最終的な色
     float4 color = diffuse * shade + diffuse * ambient + speculer;
-    //plus + ambient
     
-	//影の処理 
     inData.lightTex /= inData.lightTex.w;
     float TexValue = g_depthTexture.Sample(g_depthSampler, inData.lightTex.xy).r;
     float LightLength = inData.lightViewPos.z / inData.lightViewPos.w;
-    if (TexValue + 0.001 <= LightLength) //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
+    
+	//ライトから見た頂点のZ値と深度テクスチャの値を比べて、深度テクスチャの方が小さければ影とみなす
+    if (TexValue + 0.003f < LightLength)
     {
-        color *= 0.6; //影（明るさを 60%） 
+        color.r = 2.0f;
     }
 
 	//もしアルファ値がすこしでも透明でなければ

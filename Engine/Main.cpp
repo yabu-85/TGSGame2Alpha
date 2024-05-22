@@ -18,6 +18,7 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_dx11.h"
 #include "ImGui/imgui_impl_win32.h"
+#include "../Player/Player.h"
 
 #pragma comment(lib,"Winmm.lib")
 
@@ -60,8 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	screenHeight = 300;
 #endif
 
-	float screenWidth2 = 400.0f;
-	float screenHeight2 = 300.0f;
+	int screenWidth2 = 400;
+	int screenHeight2 = 300;
 
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
@@ -168,13 +169,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				XMFLOAT3 pos = Camera::GetPosition();
 				XMFLOAT3 tar = Camera::GetTarget();
 				Camera::SetPosition(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z));
-				Camera::SetTarget(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y - 1.0f, Light::GetPosition(0).z));
-				Camera::SetPosition(XMFLOAT3(0, 30, 10));
-				Camera::SetTarget(XMFLOAT3(0, 5, 10));
+				Camera::SetTarget(XMFLOAT3(0, 0, 0));
 				Camera::Update();
 				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
 
 				Direct3D::BeginDraw();
+
 				pRootObject->DrawSub();
 				Direct3D::EndDraw();
 				Camera::SetPosition(pos);
@@ -184,13 +184,50 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
+				//ImGuiの更新処理
+				ImGui_ImplDX11_NewFrame();
+				ImGui_ImplWin32_NewFrame();
+				ImGui::NewFrame();
+				ImGui::Begin("Hello");//ImGuiの処理を開始
+				{
+					//ImGui::Text("");		テキスト
+					//ImGui::Button("");	ボタン
+					//ImGui::Separator();	区切り線
+					//ImGui::SameLine();	同じ場所に配置
+					//ImGui::Spacing();		指定した分スペースを確保
+					XMFLOAT4 position = Light::GetPosition(0);
+					XMFLOAT4 target = Light::GetTarget(0);
+					ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
+					ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
+					ImGui::Separator();
+					ImGui::SliderFloat("Player Speed", &Direct3D::playerSpeed, 0.0f, 5.0f);
+				
+				}
+				ImGui::End();//ImGuiの処理を終了
+				ImGui::Render();
+				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 				Direct3D::EndDraw();
 
 				//二つ目のウィンドウ描画
-				Camera::TwoWindowUpdate();
+				XMFLOAT3 cpos = XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z);
+				XMFLOAT3 ctar = XMFLOAT3(0, 0, 0);
+				if (Direct3D::isTwoWindowShadowDraw_) {
+					Camera::SetPosition(cpos);
+					Camera::SetTarget(ctar);
+					Camera::Update();
+				}
+				else {
+					//今のとこ定点だから毎回やる必要もない（変えるかも）
+					Camera::SetPosition2(cpos);
+					Camera::SetTarget2(ctar);
+					Camera::TwoWindowUpdate();
+				}
 				Direct3D::BeginDrawTwo();
 				pRootObject->DrawSub();
 				Direct3D::EndDraw();
+				Camera::SetPosition(pos);
+				Camera::SetTarget(tar);
+				Camera::Update();
 
 				//ちょっと休ませる
 				Sleep(1);

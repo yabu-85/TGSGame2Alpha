@@ -7,11 +7,10 @@
 #include "../Other/InputManager.h"
 #include "../Engine/Text.h"
 #include "../Engine/Input.h"
-
 #include "../Engine/Direct3D.h"
 
 namespace {
-    const float moveSpeed = 0.08f;          //移動スピード
+    float moveSpeed = 0.08f;          //移動スピード
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
     const float moveGradually = 0.09f;      //移動スピードの加減の値移動時
     const float maxMoveSpeed = 0.7f;        //最大移動スピード
@@ -26,6 +25,7 @@ namespace {
     const float CheckDistance[2] = { 0.3f, PlayerHeightSize };  //足元、頭
 
     //デバッグ用
+    bool isFly = false;
     bool isCollider = true; //当たり判定するかどうか
     Text* pText = nullptr;
 }
@@ -47,17 +47,19 @@ void Player::Initialize()
     testModel_ = Model::Load("DebugCollision/SphereCollider.fbx");
     assert(testModel_ >= 0);
 
+    moveSpeed = 0.8f;
+    Direct3D::playerSpeed = moveSpeed;
+
     transform_.position_.y = 10.0f;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
-
-    pText = new Text();
-    pText->Initialize();
 
 }
 
 void Player::Update()
 {
+    moveSpeed = Direct3D::playerSpeed;
+
     if (InputManager::CmdWalk()) {
         CalcMove();
         Rotate();
@@ -65,14 +67,18 @@ void Player::Update()
     else {
         CalcNoMove();
     }
+    
+    if (Input::IsKeyDown(DIK_T)) isFly = !isFly;
     Move();
     
     //重力
     static float gra = 0.0f;
     static bool isGround = false;
-    if (isGround && InputManager::IsCmdDown(InputManager::JUMP)) gra = -JumpPower;
-    gra += gravity;
-    transform_.position_.y -= gra;
+    if (!isFly) {
+        if (isGround && InputManager::IsCmdDown(InputManager::JUMP)) gra = -JumpPower;
+        gra += gravity;
+        transform_.position_.y -= gra;
+    }
 
     //ステージ当たり判定
     Stage* pStage = (Stage*)FindObject("Stage");
@@ -229,6 +235,7 @@ XMFLOAT3 Player::GetInputMove()
         XMFLOAT3 aimDirection = pAim_->GetAimDirection();
         if (InputManager::IsCmd(InputManager::MOVE_UP)) {
             fMove.x += aimDirection.x;
+            if(isFly) fMove.y += aimDirection.y;
             fMove.z += aimDirection.z;
         }
         if (InputManager::IsCmd(InputManager::MOVE_LEFT)) {
@@ -237,6 +244,7 @@ XMFLOAT3 Player::GetInputMove()
         }
         if (InputManager::IsCmd(InputManager::MOVE_DOWN)) {
             fMove.x -= aimDirection.x;
+            if (isFly) fMove.y -= aimDirection.y;
             fMove.z -= aimDirection.z;
         }
         if (InputManager::IsCmd(InputManager::MOVE_RIGHT)) {
@@ -252,52 +260,11 @@ XMFLOAT3 Player::GetInputMove()
     return fMove;
 }
 
-void Player::FrontMove(float f)
-{
-    XMVECTOR vMove = { 0.0, 0.0, 1.0, 0.0 };
-    XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
-    vMove = XMVector3TransformCoord(vMove, mRotY);
-    vMove = XMVector3Normalize(vMove);
-    vMove = XMVector3Normalize(vMove + XMLoadFloat3(&playerMovement_));
-    XMFLOAT3 move{};
-    XMStoreFloat3(&move, vMove);
-
-    transform_.position_.x += ((move.x * moveSpeed) * f);
-    transform_.position_.z += ((move.z * moveSpeed) * f);
-}
-
-void Player::BackMove(float f)
-{
-    XMVECTOR vMove = { 0.0, 0.0, -1.0, 0.0 };
-    XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
-    vMove = XMVector3TransformCoord(vMove, mRotY);
-    vMove = XMVector3Normalize(vMove);
-    vMove = XMVector3Normalize(vMove + XMLoadFloat3(&playerMovement_));
-    XMFLOAT3 move{};
-    XMStoreFloat3(&move, vMove);
-
-    transform_.position_.x += ((move.x * moveSpeed) * f);
-    transform_.position_.z += ((move.z * moveSpeed) * f);
-}
-
 void Player::Move(float f)
 {
     transform_.position_.x += ((playerMovement_.x * moveSpeed) * f);
+    transform_.position_.y += ((playerMovement_.y * moveSpeed) * f);
     transform_.position_.z += ((playerMovement_.z * moveSpeed) * f);
-}
-
-XMVECTOR Player::GetDirectionVec()
-{
-    XMVECTOR vMove = { 0.0, 0.0, 1.0, 0.0 };
-    XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
-    vMove = XMVector3TransformCoord(vMove, mRotY);
-    vMove = XMVector3Normalize(vMove);
-    return vMove;
-}
-
-void Player::ResetMovement()
-{
-    playerMovement_ = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
 void Player::CalcMove()
@@ -305,8 +272,8 @@ void Player::CalcMove()
     gradually_ = stopGradually;
 
     XMFLOAT3 fMove = GetInputMove();
-    XMFLOAT3 move = { ((fMove.x - playerMovement_.x) * gradually_) , 0.0f , ((fMove.z - playerMovement_.z) * gradually_) };
-    playerMovement_ = { playerMovement_.x + move.x , 0.0f , playerMovement_.z + move.z };
+    XMFLOAT3 move = { ((fMove.x - playerMovement_.x) * gradually_) , ((fMove.y - playerMovement_.y) * gradually_) , ((fMove.z - playerMovement_.z) * gradually_) };
+    playerMovement_ = { playerMovement_.x + move.x , playerMovement_.y + move.y , playerMovement_.z + move.z };
 
     //MaxSpeed超えていたら正規化・MaxSpeedの値にする
     float currentSpeed = XMVectorGetX(XMVector3Length(XMLoadFloat3(&playerMovement_)));
@@ -323,6 +290,6 @@ void Player::CalcNoMove()
 {
     XMFLOAT3 move = { 0,0,0 };
     gradually_ = stopGradually;
-    move = { ((move.x - playerMovement_.x) * gradually_) , 0.0f , ((move.z - playerMovement_.z) * gradually_) };
-    playerMovement_ = { playerMovement_.x + move.x , 0.0f , playerMovement_.z + move.z };
+    move = { ((move.x - playerMovement_.x) * gradually_) , ((move.y - playerMovement_.y) * gradually_) , ((move.z - playerMovement_.z) * gradually_) };
+    playerMovement_ = { playerMovement_.x + move.x , playerMovement_.y + move.y , playerMovement_.z + move.z };
 }

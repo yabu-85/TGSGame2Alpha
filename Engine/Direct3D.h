@@ -18,11 +18,9 @@ using namespace DirectX;
 namespace Direct3D
 {
 	////////////////////////外部からもアクセスする変数群///////////////////////////////
-	//【デバイス】
 	//描画を行うための環境やリソースの作成に使う
 	extern ID3D11Device*           pDevice_;
 
-	//【コンテキスト】
 	//GPUに命令を出すためのやつ
 	extern ID3D11DeviceContext*    pContext_;
 	
@@ -60,17 +58,16 @@ namespace Direct3D
 		BLEND_DEFAULT, BLEND_ADD, BLEND_MAX
 	};
 
-
-
 	//その他
-	extern int		screenWidth_;		//スクリーンの幅
-	extern int		screenHeight_;		//スクリーンの高さ
-	extern bool		isDrawCollision_;	//コリジョンを表示するかフラグ
+	extern int		screenWidth_;			//スクリーンの幅
+	extern int		screenHeight_;			//スクリーンの高さ
+	extern bool		isDrawCollision_;		//コリジョンを表示するかフラグ
+	extern bool		isTwoWindowShadowDraw_;	//２ウィンドウにShadowMap表示するかどうか（falseは定点カメラ）
+	extern D3D11_VIEWPORT vp;
+	extern D3D11_VIEWPORT vp2;
+	extern D3D11_VIEWPORT vpRight;
 
-
-
-
-
+	extern float	playerSpeed;
 
 	////////////////////////ここからは関数///////////////////////////////
 

@@ -4,14 +4,15 @@
 //───────────────────────────────────────
 cbuffer global
 {
-    float4x4 matWVP;
-    float4x4 matNormal;
-    float4x4 matWorld;
-    float4x4 g_mWLPT;
-    float4 diffuseColor;
-    float4 speculer;
-    float4 camPos;
-    float4 lightPos;
+    float4x4 matWVP; //ワールド・ビュー・プロジェクションの合成行列
+    float4x4 matNormal; //法線の変換行列（回転行列と拡大の逆行列）
+    float4x4 matWorld; //ワールド変換行列
+    float4x4 g_mWLP; //ワールド・”ライトビュー”・プロジェクションの合成 
+    float4x4 g_mWLPT; //ワールド・”ライトビュー”・プロジェクション・UV 行列の合成 
+    float4 diffuseColor; //マテリアルの色
+    float4 speculer; //スペキュラーカラー
+    float4 camPos; //カメラの座標
+    float4 lightPos; //ライトの座標
 };
 
 //───────────────────────────────────────
@@ -20,8 +21,10 @@ cbuffer global
 struct VS_OUT
 {
     float4 pos : SV_POSITION; //位置
-    float depth : TEXCOORD1;
+    float4 depth : TEXCOORD1;
 };
+
+#define CALC_METHOD 1
 
 //───────────────────────────────────────
 // 頂点シェーダ
@@ -29,8 +32,15 @@ struct VS_OUT
 VS_OUT VS(float4 pos : POSITION)
 {
     VS_OUT outData;
+    
+#if CALC_METHOD
     outData.pos = mul(pos, matWVP);
-    outData.depth = length(lightPos - mul(pos, matWVP)) / 30.0f;
+    outData.depth = outData.pos;
+#else
+    outData.pos = mul(pos, matWVP);
+    outData.depth = length(camPos - mul(pos, matWorld)) / 40.0;
+#endif
+    
     return outData;
 }
 
@@ -39,5 +49,11 @@ VS_OUT VS(float4 pos : POSITION)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-    return float4(inData.depth, inData.depth, inData.depth, 1.0f);
+#if CALC_METHOD
+    float4 color = inData.depth.z / inData.depth.w;
+    color.a = 1;
+    return color;
+#else    
+    return float4(inData.depth.z, inData.depth.z, inData.depth.z, 1);
+#endif
 }

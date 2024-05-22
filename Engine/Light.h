@@ -9,7 +9,10 @@ namespace Light
 
 	void Initialize();
 	void Draw();
+	
 	void SetPosition(int i, XMFLOAT4 pos);
+	void SetTarget(int i, XMFLOAT4 tar);
+
 	XMFLOAT4 GetPosition(int i);
 	XMFLOAT4 GetTarget(int i);
 
