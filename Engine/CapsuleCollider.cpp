@@ -4,23 +4,13 @@
 #include "Model.h"
 #include "Global.h"
 
-bool CapsuleCollider::IsHit(Collider* target)
-{
-	switch (target->type_)
-	{
-	case COLLIDER_BOX:		OutputDebugString("no Collider BoxVsCapsule func\n"); return false;
-	case COLLIDER_CIRCLE:	return IsHitCircleVsCapsule((SphereCollider*)target, this);
-	case COLLIDER_CAPSULE:	return IsHitCapsuleVsCapsule((CapsuleCollider*)target, this);
-	}
-}
-
 CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XMVECTOR direction)
 {
 	center_ = center;
 	size_ = XMFLOAT3(radius, radius, radius);
 	height_ = height;
 	direction_ = direction;
-	type_ = COLLIDER_CIRCLE;
+	type_ = COLLIDER_CAPSULE;
 
 	//ƒŠƒŠ[ƒXŽž‚Í”»’è˜g‚Í•\Ž¦‚µ‚È‚¢
 #ifdef _DEBUG
@@ -33,12 +23,25 @@ void CapsuleCollider::Draw(XMFLOAT3 position)
 {
 	XMFLOAT3 fDir;
 	XMStoreFloat3(&fDir, direction_);
+	if (fDir.x == 0.0f && fDir.y == 0.0f && fDir.z) fDir.z = 0.0001f;
 
 	Transform transform;
 	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
-	transform.scale_ = size_;
+	transform.scale_ = XMFLOAT3(size_.x, height_, size_.z);
 	transform.rotate_ = CalculationRotateXYZ(fDir);
 	transform.Calclation();
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);
+}
+
+bool CapsuleCollider::IsHit(Collider* target)
+{
+	switch (target->type_)
+	{
+	case COLLIDER_BOX:		return IsHitBoxVsCapsule((BoxCollider*)target, this);
+	case COLLIDER_CIRCLE:	return IsHitCircleVsCapsule((SphereCollider*)target, this);
+	case COLLIDER_CAPSULE:	return IsHitCapsuleVsCapsule((CapsuleCollider*)target, this);
+	}
+
+	return false;
 }

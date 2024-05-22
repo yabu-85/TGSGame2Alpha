@@ -53,10 +53,10 @@ void Stage::Draw()
 	Model::Draw(handle[0]);
 #endif
 
-	trans.position_ = XMFLOAT3(0, 1, 0);
-	trans.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	Model::SetTransform(handle[4], trans);
-	Model::Draw(handle[4]);
+	trans.position_ = XMFLOAT3(0, 6, 0);
+	trans.scale_ = XMFLOAT3(1.3f, 1.3f, 1.3f);
+	Model::SetTransform(handle[0], trans);
+	Model::Draw(handle[0]);
 
 }
 

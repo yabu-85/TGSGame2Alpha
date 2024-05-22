@@ -2,14 +2,13 @@
 #include "Aim.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
+#include "../Engine/CapsuleCollider.h"
 #include "../Stage/Stage.h"
 
 #include "../Other/InputManager.h"
 #include "../Engine/Text.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
-
-#include "../Engine/CapsuleCollider.h"
 
 namespace {
     float moveSpeed = 0.08f;          //移動スピード
@@ -56,12 +55,13 @@ void Player::Initialize()
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
 
-    AddCollider(new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f));
+    AddCollider(new CapsuleCollider(XMFLOAT3(), 1.0f, 5.0f));
 
 }
 
 void Player::Update()
 {
+    if (Input::IsKeyDown(DIK_T)) isFly = !isFly;
     moveSpeed = Direct3D::playerSpeed;
 
     if (InputManager::CmdWalk()) {
@@ -71,8 +71,8 @@ void Player::Update()
     else {
         CalcNoMove();
     }
-    
-    if (Input::IsKeyDown(DIK_T)) isFly = !isFly;
+    if (Input::IsKey(DIK_SPACE)) playerMovement_.y += 0.1f;
+    else if (Input::IsKey(DIK_F)) playerMovement_.y -= 0.1f;
     Move();
     
     //重力

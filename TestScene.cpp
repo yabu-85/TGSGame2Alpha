@@ -1,6 +1,7 @@
 #include "TestScene.h"
 #include "Player/Player.h"
 #include "Stage/Stage.h"
+#include "Enemy/Enemy.h"
 
 #include "Engine/Input.h"
 #include "Engine/Light.h"
@@ -17,6 +18,7 @@ void TestScene::Initialize()
 {
 	Instantiate<Player>(this);
 	Instantiate<Stage>(this);
+	Instantiate<Enemy>(this);
 
 }
 

@@ -27,12 +27,6 @@
     <Filter Include="03Player">
       <UniqueIdentifier>{41b3bdd3-76b7-4a9f-b1e6-fef76a352c41}</UniqueIdentifier>
     </Filter>
-    <Filter Include="05Other">
-      <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="04Stage">
-      <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01Engine\Json">
       <UniqueIdentifier>{9b7be748-83c7-411f-9acc-264632f26858}</UniqueIdentifier>
     </Filter>
@@ -41,6 +35,15 @@
     </Filter>
     <Filter Include="01Engine\Gui\ImGui">
       <UniqueIdentifier>{308fa319-e968-43e4-a42d-27bcdbf0c721}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04Enemy">
+      <UniqueIdentifier>{888ef92a-f8aa-4c29-b0ac-e1e0b9ba689f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="05Stage">
+      <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06Other">
+      <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -121,10 +124,10 @@
       <Filter>03Player</Filter>
     </ClCompile>
     <ClCompile Include="Other\InputManager.cpp">
-      <Filter>05Other</Filter>
+      <Filter>06Other</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Stage.cpp">
-      <Filter>04Stage</Filter>
+      <Filter>05Stage</Filter>
     </ClCompile>
     <ClCompile Include="Json\jsonReader.cpp">
       <Filter>01Engine\Json</Filter>
@@ -152,6 +155,9 @@
     </ClCompile>
     <ClCompile Include="Engine\CapsuleCollider.cpp">
       <Filter>01Engine\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy\Enemy.cpp">
+      <Filter>04Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -232,10 +238,10 @@
       <Filter>03Player</Filter>
     </ClInclude>
     <ClInclude Include="Other\InputManager.h">
-      <Filter>05Other</Filter>
+      <Filter>06Other</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Stage.h">
-      <Filter>04Stage</Filter>
+      <Filter>05Stage</Filter>
     </ClInclude>
     <ClInclude Include="Json\json.hpp">
       <Filter>01Engine\Json</Filter>
@@ -272,6 +278,9 @@
     </ClInclude>
     <ClInclude Include="Engine\CapsuleCollider.h">
       <Filter>01Engine\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy\Enemy.h">
+      <Filter>04Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

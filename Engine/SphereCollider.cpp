@@ -24,8 +24,12 @@ SphereCollider::SphereCollider(XMFLOAT3 center, float radius)
 //–ß’lFÚG‚µ‚Ä‚ê‚Îtrue
 bool SphereCollider::IsHit(Collider* target)
 {
-	if (target->type_ == COLLIDER_BOX)
-		return IsHitBoxVsCircle((BoxCollider*)target, this);
-	else
-		return IsHitCircleVsCircle((SphereCollider*)target, this);
+	switch (target->type_)
+	{
+	case COLLIDER_BOX:		return IsHitBoxVsCircle((BoxCollider*)target, this);
+	case COLLIDER_CIRCLE:	return IsHitCircleVsCircle((SphereCollider*)target, this);
+	case COLLIDER_CAPSULE:	return IsHitCircleVsCapsule(this, (CapsuleCollider*)target);
+	}
+
+	return false;
 }

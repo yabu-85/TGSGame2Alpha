@@ -124,7 +124,8 @@ float4 PS(VS_OUT inData) : SV_Target
 	//ライトから見た頂点のZ値と深度テクスチャの値を比べて、深度テクスチャの方が小さければ影とみなす
     if (TexValue + 0.003f < LightLength)
     {
-        color.r = 2.0f;
+        //color.r = 2.0f;
+        color *= 0.3f;
     }
 
 	//もしアルファ値がすこしでも透明でなければ

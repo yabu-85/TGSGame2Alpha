@@ -61,6 +61,12 @@ public:
 	//戻値：接触していればtrue
 	bool IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere);
 
+	//箱型と球体の衝突判定
+	//引数：box	箱型判定
+	//引数：sphere	２つ目の箱型判定
+	//戻値：接触していればtrue
+	bool IsHitBoxVsCapsule(BoxCollider* box, CapsuleCollider* capsule);
+
 	//球体同士の衝突判定
 	//引数：circleA	１つ目の球体判定
 	//引数：circleB	２つ目の球体判定
@@ -76,7 +82,7 @@ public:
 
 	//カプセル
 	bool IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider* capsule2);
-	bool IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule2);
+	bool IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule);
 	//ポリゴンと
 	bool IsHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0, const XMFLOAT3& v1, const XMFLOAT3& v2, XMVECTOR& outDistanceVector);
     

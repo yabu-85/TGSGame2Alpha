@@ -25,8 +25,12 @@ BoxCollider::BoxCollider(XMFLOAT3 basePos, XMFLOAT3 size)
 //–ß’lFÚG‚µ‚Ä‚ê‚Îtrue
 bool BoxCollider::IsHit(Collider* target)
 {
-	if (target->type_ == COLLIDER_BOX)
-		return IsHitBoxVsBox((BoxCollider*)target, this);
-	else
-		return IsHitBoxVsCircle(this, (SphereCollider*)target);
+	switch (target->type_)
+	{
+	case COLLIDER_BOX:		return IsHitBoxVsBox((BoxCollider*)target, this);
+	case COLLIDER_CIRCLE:	return IsHitBoxVsCircle(this, (SphereCollider*)target);
+	case COLLIDER_CAPSULE:	return IsHitBoxVsCapsule(this, (CapsuleCollider*)target);
+	}
+
+	return false;
 }
