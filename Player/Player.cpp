@@ -50,14 +50,15 @@ void Player::Initialize()
     testModel_ = Model::Load("DebugCollision/SphereCollider.fbx");
     assert(testModel_ >= 0);
 
-    moveSpeed = 0.2f;
+    moveSpeed = 0.05f;
     Direct3D::playerSpeed = moveSpeed;
 
     transform_.position_.y = 10.0f;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
 
-    pCollid = new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5f);
+    XMVECTOR vec = { 1.0f, 0.01f, 0.0f, 0.0f };
+    pCollid = new CapsuleCollider(XMFLOAT3(), 0.5f, 1.0f, vec);
     AddCollider(pCollid);
 
 }
@@ -169,22 +170,32 @@ void Player::Update()
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = XMFLOAT3(0.0f, 10.0f, 0.0f);
     if (Input::IsKeyDown(DIK_T)) isCollider = !isCollider;
 
-    if (Input::IsKey(DIK_X)) {
+    if (Input::IsKey(DIK_NUMPAD7)) {
         XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
         XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
         pCollid->direction_ = rotatedDirection;
     }
-    if (Input::IsKey(DIK_C)) {
+    if (Input::IsKey(DIK_NUMPAD8)) {
         XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(-1.0f));
         XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
         pCollid->direction_ = rotatedDirection;
     }
-    if (Input::IsKey(DIK_V)) {
+    if (Input::IsKey(DIK_NUMPAD4)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+        pCollid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_NUMPAD5)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(-1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+        pCollid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_NUMPAD1)) {
         XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(1.0f));
         XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
         pCollid->direction_ = rotatedDirection;
     }
-    if (Input::IsKey(DIK_B)) {
+    if (Input::IsKey(DIK_NUMPAD2)) {
         XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(-1.0f));
         XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
         pCollid->direction_ = rotatedDirection;

@@ -122,11 +122,11 @@ struct Segment {
     }
 };
 
-//半直線（始まりと向きだけの無限の線）
+//直線（直線上の一点と方向ベクトル）
 struct Line {
-    XMFLOAT3 pos;   //線の始点
+    XMFLOAT3 pos;   //始
     XMVECTOR vec;   //線の方向ベクトル
-    Line(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(XMVector3Normalize(v)) {};
+    Line(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
     
     //直線上の点を取得する
     XMFLOAT3 GetPosition(float dot) const {
@@ -152,7 +152,7 @@ float CalcPointLineDist(XMFLOAT3& p, Line& l, XMFLOAT3& h, float& t) {
     float lenSqV = XMVectorGetX(XMVector3LengthSq(l.vec));
     t = 0.0f;
     if (lenSqV > (0.0f - EPSILON)) {
-        t = XMVectorGetX(XMVector3Dot(l.vec, XMVector3Normalize(XMLoadFloat3(&p) - XMLoadFloat3(&l.pos)))) / lenSqV;
+        t = XMVectorGetX(XMVector3Dot(XMVector3Normalize(l.vec), XMVector3Normalize(XMLoadFloat3(&p) - XMLoadFloat3(&l.pos)))) / lenSqV;
     }
 
     XMVECTOR pointOnLine = XMLoadFloat3(&l.pos) + (t * l.vec);
@@ -214,8 +214,10 @@ float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t) {
 // 戻り値: 最短距離
 float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
     //2直線が並行か調べる
-    float dot = XMVectorGetX(XMVector3Cross(l1.vec, l2.vec));
-    if (dot <= EPSILON) {
+    //2つのベクトルの外積の長さをチェックし、許容誤差より小さいかどうかを確認
+    XMVECTOR crossProduct = XMVector3Cross(l1.vec, l2.vec);
+    float crossLength = XMVectorGetX(XMVector3Length(crossProduct));
+    if (std::abs(crossLength) < EPSILON) {
         // 点P11と直線L2の最短距離の問題に帰着
         float len = CalcPointLineDist(l1.pos, l2, p2, t2);
         p1 = l1.pos;
@@ -224,16 +226,19 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
     }
 
     //2直線はねじれの関係
-    XMVECTOR l1Pos = XMLoadFloat3(&l1.pos);
-    XMVECTOR l2Pos = XMLoadFloat3(&l2.pos);
-    float DV1V2 = XMVectorGetX(XMVector3Dot(l1.vec, l2.vec));
+    float DV1V2 = XMVectorGetX(XMVector3Dot(XMVector3Normalize(l1.vec), XMVector3Normalize(l2.vec)));
+
+    OutputDebugStringA(std::to_string(DV1V2).c_str());
+    OutputDebugString(" , ");
+
     float DV1V1 = XMVectorGetX(XMVector3LengthSq(l1.vec));
     float DV2V2 = XMVectorGetX(XMVector3LengthSq(l2.vec));
-    XMVECTOR P21P11 = l1Pos - l2Pos;
+    XMVECTOR P21P11 = XMLoadFloat3(&l1.pos) - XMLoadFloat3(&l2.pos);
 
-    t1 = (DV1V2 * XMVectorGetX(XMVector3Dot(l2.vec, P21P11)) - DV2V2 * XMVectorGetX(XMVector3Dot(l1.vec, P21P11)) / (DV1V1 * DV2V2 - DV1V2 * DV1V2));
+    t1 = (DV1V2 * XMVectorGetX(XMVector3Dot(XMVector3Normalize(l2.vec), XMVector3Normalize(P21P11))) 
+        - DV2V2 * XMVectorGetX(XMVector3Dot(XMVector3Normalize(l1.vec), P21P11)) / (DV1V1 * DV2V2 - DV1V2 * DV1V2));
     p1 = l1.GetPosition(t1);
-    t2 = XMVectorGetX(XMVector3Dot(l2.vec, (XMLoadFloat3(&p1) - XMLoadFloat3(&l2.pos)))) / DV2V2;
+    t2 = XMVectorGetX(XMVector3Dot(XMVector3Normalize(l2.vec), XMVector3Normalize((XMLoadFloat3(&p1) - XMLoadFloat3(&l2.pos))))) / DV2V2;
     p2 = l2.GetPosition(t2);
     return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
 }
@@ -256,7 +261,7 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
             p1 = s1.pos;
             p2 = s2.pos;
             t1 = t2 = 0.0f;
-            OutputDebugString("1\n");
+            OutputDebugString("1\t");
             return len;
         }
         else {
@@ -264,7 +269,7 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
             p1 = s1.pos;
             t1 = 0.0f;
             Clamp01(t2);
-            OutputDebugString("2\n");
+            OutputDebugString("2\t");
             return len;
         }
     }
@@ -274,7 +279,7 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
         p2 = s2.pos;
         Clamp01(t1);
         t2 = 0.0f; 
-        OutputDebugString("3\n");
+        OutputDebugString("3\t");
         return len;
     }
 
@@ -286,7 +291,7 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
         p1 = s1.pos;
         float len = CalcPointSegmentDist(s1.pos, s2, p2, t2);
         if (t2 >= 0.0f - EPSILON && t2 <= 1.0f + EPSILON) {
-            OutputDebugString("4\n");
+            OutputDebugString("4\t");
             return len;
         }
     }
@@ -297,7 +302,7 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
         Line l2 = Line(s2.pos, s2.vec);
         float len = CalcLineLineDist(l1, l2, p1, p2, t1, t2);
         if (0.0f <= t1 && t1 <= 1.0f && 0.0f <= t2 && t2 <= 1.0f) {
-            OutputDebugString("5\n");
+            OutputDebugString("5\t");
             return len;
         }
     }
@@ -308,8 +313,8 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
     XMVECTOR pointOnS1 = XMLoadFloat3(&s1.pos) + (s1.vec * t1);
     XMStoreFloat3(&p1, pointOnS1);
     float len = CalcPointSegmentDist(p1, s2, p2, t2);
-    if (0.0f <= t2 && t2 <= 1.0f) {
-        OutputDebugString("6\n");
+    if (t2 >= -EPSILON && t2 <= 1.0f + EPSILON) {
+        OutputDebugString("6\t");
         return len;
     }
 
@@ -319,14 +324,14 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
     XMStoreFloat3(&p2, pointOnS2);
     len = CalcPointSegmentDist(p2, s1, p1, t1);
     if (0.0f <= t1 && t1 <= 1.0f) {
-        OutputDebugString("7\n");
+        OutputDebugString("7\t");
         return len;
     }
 
     // 双方の端点が最短と判明
     XMStoreFloat3(&p1, pointOnS1);
     XMStoreFloat3(&p2, pointOnS2);
-    OutputDebugString("8\n");
+    OutputDebugString("8\t");
     float d = XMVectorGetX(XMVector3Length(pointOnS2 - pointOnS1));
     return d;
 }
@@ -354,6 +359,9 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
     bool out = (d <= capsule1->size_.x + capsule2->size_.x);
     if (out) OutputDebugStringA(("Capsule    hit" + std::to_string(d) + "\n").c_str());
     else OutputDebugStringA(("Capsule no hit" + std::to_string(d) + "\n").c_str());
+
+    capsule1->targetDit_ = d;
+    capsule2->targetDit_ = d;
 
     return out;
 }

@@ -142,7 +142,9 @@ void Enemy::Release()
 
 void Enemy::OnCollision(GameObject* pTarget)
 {
-    OutputDebugString("push\n");
+    std::list<Collider*> list = pTarget->GetAllColliderList();
+    
+
     gra = 0.0f;
     transform_.position_.y += pushPower;
 }

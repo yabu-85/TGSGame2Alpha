@@ -8,7 +8,7 @@ CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height) : 
 {
 }
 
-CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XMVECTOR direction)
+CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XMVECTOR direction) : targetDit_(0.0f)
 {
 	center_ = center;
 	size_ = XMFLOAT3(radius, radius, radius);

@@ -29,5 +29,8 @@ public:
 	float height_;
 	XMVECTOR direction_;
 
+	//“–‚½‚Á‚½‹——£•Û‘¶—p
+	float targetDit_;
+
 };
 
