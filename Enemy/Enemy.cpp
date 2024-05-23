@@ -4,6 +4,7 @@
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 #include "../Engine/CapsuleCollider.h"
+#include "../Engine/SphereCollider.h"
 #include "../Engine/Direct3D.h"
 
 namespace {
@@ -34,7 +35,8 @@ void Enemy::Initialize()
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
 
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.0f, vec));
+   // AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.0f, vec));
+    AddCollider(new SphereCollider(XMFLOAT3(), 1.0f));
 
 }
 
@@ -143,7 +145,13 @@ void Enemy::Release()
 void Enemy::OnCollision(GameObject* pTarget)
 {
     std::list<Collider*> list = pTarget->GetAllColliderList();
-    
+    auto it = colliderList_.begin();
+    if ((*it)->GetColliderType() == COLLIDER_CAPSULE) {
+        CapsuleCollider* capsule = static_cast<CapsuleCollider*>((*it));
+        capsule->targetDit_;
+
+    }
+
 
     gra = 0.0f;
     transform_.position_.y += pushPower;

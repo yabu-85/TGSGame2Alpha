@@ -17,6 +17,11 @@ Collider::~Collider()
 {
 }
 
+ColliderType Collider::GetColliderType()
+{
+    return type_;
+}
+
 //” Œ^“¯Žm‚ÌÕ“Ë”»’è
 //ˆø”FboxA	‚P‚Â–Ú‚Ì” Œ^”»’è
 //ˆø”FboxB	‚Q‚Â–Ú‚Ì” Œ^”»’è
@@ -366,9 +371,26 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
     return out;
 }
 
-bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule2)
+bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule)
 {
-    return false;
+    XMFLOAT3 center = circle->center_;
+    XMFLOAT3 position = Float3Add(circle->pGameObject_->GetWorldPosition(), center);
+
+    XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
+    XMVECTOR dir = XMVector3Normalize(capsule->direction_);
+    dir *= capsule->height_;
+    XMVECTOR vPos = XMLoadFloat3(&capPos) - dir * 0.5f;
+    XMStoreFloat3(&capPos, vPos);
+    Segment seg1 = Segment(position, dir);
+
+    XMFLOAT3 hit = XMFLOAT3();
+    float t = 0.0f;
+    float dist = CalcPointSegmentDist(position, seg1, hit, t);
+    bool b = dist < (circle->size_.x + capsule->size_.x);
+    if(b) OutputDebugStringA(("Capsule    hit" + std::to_string(dist) + "\n").c_str());
+    else OutputDebugStringA(("Capsule no hit" + std::to_string(dist) + "\n").c_str());
+
+    return b;
 }
 
 bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0, const XMFLOAT3& v1, const XMFLOAT3& v2, XMVECTOR& outDistanceVector)
