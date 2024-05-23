@@ -67,6 +67,8 @@ namespace Direct3D
 	extern D3D11_VIEWPORT vp2;
 	extern D3D11_VIEWPORT vpRight;
 
+	extern XMFLOAT3	PlayerPosition;
+	extern XMFLOAT3	EnemyPosition;
 	extern float	playerSpeed;
 
 	////////////////////////Ç±Ç±Ç©ÇÁÇÕä÷êî///////////////////////////////

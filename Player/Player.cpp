@@ -29,6 +29,8 @@ namespace {
     bool isFly = false;
     bool isCollider = true; //“–‚½‚è”»’è‚·‚é‚©‚Ç‚¤‚©
     Text* pText = nullptr;
+
+    CapsuleCollider* pCollid = nullptr;
 }
 
 Player::Player(GameObject* parent)
@@ -48,14 +50,15 @@ void Player::Initialize()
     testModel_ = Model::Load("DebugCollision/SphereCollider.fbx");
     assert(testModel_ >= 0);
 
-    moveSpeed = 0.8f;
+    moveSpeed = 0.2f;
     Direct3D::playerSpeed = moveSpeed;
 
     transform_.position_.y = 10.0f;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
 
-    AddCollider(new CapsuleCollider(XMFLOAT3(), 1.0f, 5.0f));
+    pCollid = new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5f);
+    AddCollider(pCollid);
 
 }
 
@@ -96,7 +99,6 @@ void Player::Update()
         if (rayData.hit && rayData.dist < PlayerHeightSize) {
             transform_.position_.y -= PlayerHeightSize - rayData.dist;
             gra = 0.0f;
-            OutputDebugString("ã\n");
         }
     }
     //‰º
@@ -108,7 +110,6 @@ void Player::Update()
         if (rayData.hit && rayData.dist < PlayerHeightSize) {
             transform_.position_.y += PlayerHeightSize - rayData.dist;
             gra = 0.0f;
-            OutputDebugString("‰º\n");
             isGround = true;
         }
     }
@@ -121,7 +122,6 @@ void Player::Update()
             Model::RayCast(pStage->GetModelHandle(), &rayData);
             if (rayData.hit && rayData.dist < PlayerBesideSize) {
                 transform_.position_.x += rayData.dist - PlayerBesideSize;
-                OutputDebugString("‰E\n");
             }
         }
     }
@@ -134,7 +134,6 @@ void Player::Update()
             Model::RayCast(pStage->GetModelHandle(), &rayData);
             if (rayData.hit && rayData.dist < PlayerBesideSize) {
                 transform_.position_.x -= rayData.dist - PlayerBesideSize;
-                OutputDebugString("¶\n");
             }
         }
     }
@@ -147,7 +146,6 @@ void Player::Update()
             Model::RayCast(pStage->GetModelHandle(), &rayData);
             if (rayData.hit && rayData.dist < PlayerBesideSize) {
                 transform_.position_.z += rayData.dist - PlayerBesideSize;
-                OutputDebugString("‘O\n");
             }
         }
     }
@@ -171,10 +169,34 @@ void Player::Update()
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = XMFLOAT3(0.0f, 10.0f, 0.0f);
     if (Input::IsKeyDown(DIK_T)) isCollider = !isCollider;
 
+    if (Input::IsKey(DIK_X)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+        pCollid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_C)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(-1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+        pCollid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_V)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+        pCollid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_B)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(-1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+        pCollid->direction_ = rotatedDirection;
+    }
+
+
 }
 
 void Player::Draw()
 {
+    Direct3D::PlayerPosition = transform_.position_;
+
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 

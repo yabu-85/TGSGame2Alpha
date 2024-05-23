@@ -180,7 +180,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
 					ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
 					ImGui::Separator();
-					ImGui::SliderFloat("Player Speed", &Direct3D::playerSpeed, 0.0f, 5.0f);
+					ImGui::Text("Player: (%.2f, %.2f, %.2f)", Direct3D::PlayerPosition.x, Direct3D::PlayerPosition.y, Direct3D::PlayerPosition.z);
+					ImGui::Text("Enemy : (%.2f, %.2f, %.2f)", Direct3D::EnemyPosition.x, Direct3D::EnemyPosition.y, Direct3D::EnemyPosition.z);
+					ImGui::Separator();
+					ImGui::SliderFloat("Player Speed", &Direct3D::playerSpeed, 0.0f, 1.0f);
 				
 				}
 				ImGui::End();//ImGuiÇÃèàóùÇèIóπ

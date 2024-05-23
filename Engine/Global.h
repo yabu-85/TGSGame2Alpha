@@ -77,6 +77,17 @@ static XMVECTOR CalculationVectorDirection(XMFLOAT3 rotate) {
 	return XMVector3TransformNormal(forwardVector, mView);
 }
 
+//回転軸から向いている方向を計算ベクター
+static XMVECTOR CalculationVectorDirection(XMVECTOR rotate) {
+	XMFLOAT3 rot;
+	XMStoreFloat3(&rot, rotate);
+	XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(rot.y));
+	XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(rot.y));
+	XMMATRIX mView = mRotX * mRotY;
+	const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	return XMVector3TransformNormal(forwardVector, mView);
+}
+
 //回転軸から向いている方向を計算XMFLOAT3
 static XMFLOAT3 CalculationDirection(XMFLOAT3 rotate) {
 	XMFLOAT3 dir;

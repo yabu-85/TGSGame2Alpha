@@ -4,6 +4,10 @@
 #include "Model.h"
 #include "Global.h"
 
+CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height) : CapsuleCollider(center, radius, height, { 0.0f, 1.0f, 0.0f, 0.0f })
+{
+}
+
 CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XMVECTOR direction)
 {
 	center_ = center;
@@ -28,7 +32,9 @@ void CapsuleCollider::Draw(XMFLOAT3 position)
 	Transform transform;
 	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
 	transform.scale_ = XMFLOAT3(size_.x, height_, size_.z);
-	transform.rotate_ = CalculationRotateXYZ(fDir);
+	transform.rotate_ = CalculationRotateXY(fDir);
+	transform.rotate_.x += 90.0f;
+
 	transform.Calclation();
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);

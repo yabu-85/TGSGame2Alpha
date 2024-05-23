@@ -8,6 +8,7 @@
 
 namespace {
     bool isFly = false;
+    float gra = 0.0f;
     const float gravity = 0.0015f;
     const float pushPower = 0.1f;
 
@@ -31,14 +32,15 @@ void Enemy::Initialize()
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
-    AddCollider(new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f));
+
+    XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
+    AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.0f, vec));
 
 }
 
 void Enemy::Update()
 {
     //重力
-    static float gra = 0.0f;
     if (!isFly) {
         gra += gravity;
         transform_.position_.y -= gra;
@@ -55,7 +57,6 @@ void Enemy::Update()
         if (rayData.hit && rayData.dist < EnemyHeightSize) {
             transform_.position_.y -= EnemyHeightSize - rayData.dist;
             gra = 0.0f;
-            OutputDebugString("上\n");
         }
     }
     //下
@@ -65,9 +66,12 @@ void Enemy::Update()
         rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
         Model::RayCast(pStage->GetModelHandle(), &rayData);
         if (rayData.hit && rayData.dist < EnemyHeightSize) {
-            transform_.position_.y += EnemyHeightSize - rayData.dist;
+            float d = EnemyHeightSize - rayData.dist;
+            transform_.position_.y += d;
+            if (transform_.position_.y == 0.0f) {
+                int a = 0;
+            }
             gra = 0.0f;
-            OutputDebugString("下\n");
         }
     }
     //右
@@ -79,7 +83,6 @@ void Enemy::Update()
             Model::RayCast(pStage->GetModelHandle(), &rayData);
             if (rayData.hit && rayData.dist < EnemyBesideSize) {
                 transform_.position_.x += rayData.dist - EnemyBesideSize;
-                OutputDebugString("右\n");
             }
         }
     }
@@ -92,7 +95,6 @@ void Enemy::Update()
             Model::RayCast(pStage->GetModelHandle(), &rayData);
             if (rayData.hit && rayData.dist < EnemyBesideSize) {
                 transform_.position_.x -= rayData.dist - EnemyBesideSize;
-                OutputDebugString("左\n");
             }
         }
     }
@@ -105,7 +107,6 @@ void Enemy::Update()
             Model::RayCast(pStage->GetModelHandle(), &rayData);
             if (rayData.hit && rayData.dist < EnemyBesideSize) {
                 transform_.position_.z += rayData.dist - EnemyBesideSize;
-                OutputDebugString("前\n");
             }
         }
     }
@@ -118,7 +119,6 @@ void Enemy::Update()
             Model::RayCast(pStage->GetModelHandle(), &rayData);
             if (rayData.hit && rayData.dist < EnemyBesideSize) {
                 transform_.position_.z -= rayData.dist - EnemyBesideSize;
-                OutputDebugString("後ろ\n");
             }
         }
     }
@@ -127,6 +127,8 @@ void Enemy::Update()
 
 void Enemy::Draw()
 {
+    Direct3D::EnemyPosition = transform_.position_;
+
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
@@ -140,5 +142,7 @@ void Enemy::Release()
 
 void Enemy::OnCollision(GameObject* pTarget)
 {
+    OutputDebugString("push\n");
+    gra = 0.0f;
     transform_.position_.y += pushPower;
 }

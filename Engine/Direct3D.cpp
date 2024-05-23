@@ -70,6 +70,8 @@ namespace Direct3D
 	IDXGIFactory* pFactory = NULL;
 
 	//‚¿‚å‚¢‚Æ‚±‚±‚É’u‚¢‚Æ‚­
+	XMFLOAT3	PlayerPosition;
+	XMFLOAT3	EnemyPosition;
 	float playerSpeed = 0.0f;
 
 	//-------------------------------------------------------
