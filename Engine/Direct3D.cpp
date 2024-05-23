@@ -227,29 +227,30 @@ namespace Direct3D
 		texdec.Height = screenHeight;
 		texdec.MipLevels = 1;
 		texdec.ArraySize = 1;
+		texdec.MiscFlags = 0;
 		texdec.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		texdec.SampleDesc.Count = 1;
 		texdec.SampleDesc.Quality = 0;
 		texdec.Usage = D3D11_USAGE_DEFAULT;
-		texdec.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		texdec.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 		texdec.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		texdec.MiscFlags = 0;
 		pDevice_->CreateTexture2D(&texdec, nullptr, &pRenderTexture);
 
 		//新しいレンダーターゲットビュー作成
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		ZeroMemory(&renderTargetViewDesc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
-		renderTargetViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		renderTargetViewDesc.Format = texdec.Format;
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		pDevice_->CreateRenderTargetView(pRenderTexture, &renderTargetViewDesc, &pDepthTargetView_);
+		hr = pDevice_->CreateRenderTargetView(pRenderTexture, &renderTargetViewDesc, &pDepthTargetView_);
 
 		//シェーダーリソースビュー
-		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
+		D3D11_SHADER_RESOURCE_VIEW_DESC srv;
+		ZeroMemory(&srv, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 		srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		srv.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srv.Texture2D.MipLevels = 1;
-		pDevice_->CreateShaderResourceView(pRenderTexture, &srv, &pDepthSRV_);
+		hr = pDevice_->CreateShaderResourceView(pRenderTexture, &srv, &pDepthSRV_);
 
 		// テクスチャー用サンプラー作成
 		D3D11_SAMPLER_DESC  SamDesc;
@@ -258,16 +259,20 @@ namespace Direct3D
 		SamDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 		SamDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 		SamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		SamDesc.BorderColor[0] = 1.0f; //R
+		SamDesc.BorderColor[1] = 1.0f; //G
+		SamDesc.BorderColor[2] = 1.0f; //B
+		SamDesc.BorderColor[3] = 1.0f; //A
 		Direct3D::pDevice_->CreateSamplerState(&SamDesc, &pDepthSampler_);
 
 		XMFLOAT4X4 clipToUV;
 		ZeroMemory(&clipToUV, sizeof(XMFLOAT4X4));
-		clipToUV._11 = 0.5;
-		clipToUV._22 = -0.5;
-		clipToUV._33 = 1;
-		clipToUV._41 = 0.5;
-		clipToUV._42 = 0.5;
-		clipToUV._44 = 1;
+		clipToUV._11 = 0.5f;
+		clipToUV._22 = -0.5f;
+		clipToUV._33 = 1.0f;
+		clipToUV._41 = 0.5f;
+		clipToUV._42 = 0.5f;
+		clipToUV._44 = 1.0f;
 		clipToUVMatrix = XMLoadFloat4x4(&clipToUV);
 
 		//ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
@@ -547,7 +552,7 @@ namespace Direct3D
 		//ShadowMapで追加-------------------------------
 		pContext_->OMSetRenderTargets(1, &pDepthTargetView_, pDepthStencilView);            // 描画先を設定
 
-		pContext_->RSSetViewports(1, &vp2);
+		pContext_->RSSetViewports(1, &vp1);
 		//---------------------------------------
 
 		//背景の色

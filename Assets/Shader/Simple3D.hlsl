@@ -3,8 +3,8 @@
 //───────────────────────────────────────
 Texture2D       g_texture : register(t0);           //テクスチャー
 SamplerState    g_sampler : register(s0);           //サンプラー
-SamplerState	g_depthSampler : register(s1);   //サンプラー
-Texture2D       g_depthTexture : register(t2); //深度テクスチャー
+SamplerState	g_depthSampler : register(s1);      //サンプラー
+Texture2D       g_depthTexture : register(t2);      //深度テクスチャー
 
 //───────────────────────────────────────
 // コンスタントバッファ
@@ -15,8 +15,8 @@ cbuffer global
     float4x4 matWVP;        //ワールド・ビュー・プロジェクションの合成行列
     float4x4 matNormal;     //法線の変換行列（回転行列と拡大の逆行列）
     float4x4 matWorld;      //ワールド変換行列
-    float4x4 g_mWLP;		//ワールド・”ライトビュー”・プロジェクションの合成 
-	float4x4 g_mWLPT;	    //ワールド・”ライトビュー”・プロジェクション・UV 行列の合成 
+    float4x4 g_mWLP;		//ワールド・ライトビュー・プロジェクションの合成 
+	float4x4 g_mWLPT;	    //ワールド・ライトビュー・プロジェクション・UV 行列の合成 
     float4 diffuseColor;    //マテリアルの色
     float4 speculer;        //スペキュラーカラー
     float4 camPos;          //カメラの座標
@@ -68,7 +68,9 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     outData.color = clamp(dot(normal, light), 0, 1);
     
     outData.lightTex = mul(pos, g_mWLPT);
-    outData.lightViewPos = mul(pos, g_mWLP);
+    
+    //outData.lightViewPos = mul(pos, g_mWLP);
+    outData.lightViewPos = mul(pos, matWorld);
     
 	//まとめて出力
     return outData;
@@ -119,15 +121,15 @@ float4 PS(VS_OUT inData) : SV_Target
     
     inData.lightTex /= inData.lightTex.w;
     float TexValue = g_depthTexture.Sample(g_depthSampler, inData.lightTex.xy).r;
-    float LightLength = inData.lightViewPos.z / inData.lightViewPos.w;
-    
-	//ライトから見た頂点のZ値と深度テクスチャの値を比べて、深度テクスチャの方が小さければ影とみなす
-    if (TexValue + 0.003f < LightLength)
+    float LightLength = length(inData.lightViewPos - lightPos) / 50.0f;
+    //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
+    if (TexValue + 0.005 < LightLength)
     {
-        //color.r = 2.0f;
+        float red = color.r * 2.0f;
         color *= 0.3f;
+        color.r = red;
     }
-
+       
 	//もしアルファ値がすこしでも透明でなければ
     if (diffuse.a == 1.0f) color.a = 1.0f;
     else color.a = diffuse.a;

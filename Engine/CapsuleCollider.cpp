@@ -25,19 +25,21 @@ CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XM
 
 void CapsuleCollider::Draw(XMFLOAT3 position)
 {
+#ifdef _DEBUG
 	XMFLOAT3 fDir;
 	XMStoreFloat3(&fDir, direction_);
 	if (fDir.x == 0.0f && fDir.y == 0.0f && fDir.z) fDir.z = 0.0001f;
 
 	Transform transform;
 	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
-	transform.scale_ = XMFLOAT3(size_.x, height_, size_.z);
+	transform.scale_ = XMFLOAT3(size_.x, height_ * 0.5f, size_.z);
 	transform.rotate_ = CalculationRotateXY(fDir);
 	transform.rotate_.x += 90.0f;
 
 	transform.Calclation();
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);
+#endif
 }
 
 bool CapsuleCollider::IsHit(Collider* target)

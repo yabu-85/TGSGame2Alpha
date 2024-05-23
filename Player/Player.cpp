@@ -26,6 +26,8 @@ namespace {
     const float CheckDistance[2] = { 0.3f, PlayerHeightSize };  //足元、頭
 
     //デバッグ用
+    float gra = 0.0f;
+    bool isGround = false;
     bool isFly = false;
     bool isCollider = true; //当たり判定するかどうか
     Text* pText = nullptr;
@@ -57,9 +59,13 @@ void Player::Initialize()
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
 
-    XMVECTOR vec = { 1.0f, 0.01f, 0.0f, 0.0f };
-    pCollid = new CapsuleCollider(XMFLOAT3(), 0.5f, 1.0f, vec);
+#if 1
+    XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
+    pCollid = new CapsuleCollider(XMFLOAT3(), 0.5f, 2.2f, vec);
     AddCollider(pCollid);
+#else
+    AddCollider(new SphereCollider(XMFLOAT3(), 1.0f));
+#endif
 
 }
 
@@ -80,15 +86,18 @@ void Player::Update()
     Move();
     
     //重力
-    static float gra = 0.0f;
-    static bool isGround = false;
     if (!isFly) {
         if (isGround && InputManager::IsCmdDown(InputManager::JUMP)) gra = -JumpPower;
         gra += gravity;
-        transform_.position_.y -= gra;
+        if(gra > 0.0f) transform_.position_.y -= gra;
     }
 
-    //ステージ当たり判定
+    if (transform_.position_.y < 0.0f) {
+        gra = 0;
+        transform_.position_.y = 0.0f;
+    }
+
+    /*
     Stage* pStage = (Stage*)FindObject("Stage");
     isGround = false;
     //上
@@ -98,7 +107,7 @@ void Player::Update()
         rayData.dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
         Model::RayCastSurface(pStage->GetModelHandle(), &rayData);
         if (rayData.hit && rayData.dist < PlayerHeightSize) {
-            transform_.position_.y -= PlayerHeightSize - rayData.dist;
+            transform_.position_.y = transform_.position_.y - PlayerHeightSize - rayData.dist;
             gra = 0.0f;
         }
     }
@@ -163,6 +172,9 @@ void Player::Update()
             }
         }
     }
+    
+    */
+    //ステージ当たり判定
     
 
 

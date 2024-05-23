@@ -8,7 +8,7 @@
 
 //コンストラクタ
 Collider::Collider():
-    pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f))
+    pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f)), hDebugModel_(-1)
 {
 }
 
@@ -100,18 +100,20 @@ bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circ
 //引数：position	オブジェクトの位置
 void Collider::Draw(XMFLOAT3 position)
 {
-	Transform transform;
+#ifdef _DEBUG
+    Transform transform;
 	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
 	transform.scale_ = size_;
 	transform.Calclation();
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------
 
 // 許容誤差の定義
-const float EPSILON = 0.0001f;
+const float EPSILON = 0.00001f;
 
 //線分（始まりと終わりがある有限の線）
 struct Segment {
@@ -156,13 +158,14 @@ void Clamp01(float& v) {
 float CalcPointLineDist(XMFLOAT3& p, Line& l, XMFLOAT3& h, float& t) {
     float lenSqV = XMVectorGetX(XMVector3LengthSq(l.vec));
     t = 0.0f;
-    if (lenSqV > (0.0f - EPSILON)) {
-        t = XMVectorGetX(XMVector3Dot(XMVector3Normalize(l.vec), XMVector3Normalize(XMLoadFloat3(&p) - XMLoadFloat3(&l.pos)))) / lenSqV;
+    if (lenSqV > (-EPSILON)) {
+        XMVECTOR v = XMLoadFloat3(&p) - XMLoadFloat3(&l.pos);
+        t = XMVectorGetX(XMVector3Dot(l.vec, v)) / lenSqV;
     }
 
     XMVECTOR pointOnLine = XMLoadFloat3(&l.pos) + (t * l.vec);
     XMStoreFloat3(&h, pointOnLine);
-    return XMVectorGetX(XMVector3Length(pointOnLine - XMLoadFloat3(&p)));
+    return abs(XMVectorGetX(XMVector3Length(pointOnLine - XMLoadFloat3(&p))));
 }
 
 // ∠p1p2p3は鋭角？
@@ -197,12 +200,14 @@ float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t) {
     float len = CalcPointLineDist(p, line, h, t);
 
     if (!IsSharpAngle(p, seg.pos, e)) {
+        // 始点側の外側
         h = seg.pos;
-        return XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&p), XMLoadFloat3(&seg.pos))));
+        return XMVectorGetX(XMVector3Length(XMLoadFloat3(&seg.pos) - XMLoadFloat3(&p)));
     }
     else if (!IsSharpAngle(p, e, seg.pos)) {
+        // 終点側の外側
         h = e;
-        return XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&p), XMLoadFloat3(&e))));
+        return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p) - XMLoadFloat3(&e)));
     }
 
     return len;
@@ -222,7 +227,7 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
     //2つのベクトルの外積の長さをチェックし、許容誤差より小さいかどうかを確認
     XMVECTOR crossProduct = XMVector3Cross(l1.vec, l2.vec);
     float crossLength = XMVectorGetX(XMVector3Length(crossProduct));
-    if (std::abs(crossLength) < EPSILON) {
+    if (crossLength < EPSILON) {
         // 点P11と直線L2の最短距離の問題に帰着
         float len = CalcPointLineDist(l1.pos, l2, p2, t2);
         p1 = l1.pos;
@@ -232,10 +237,6 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
 
     //2直線はねじれの関係
     float DV1V2 = XMVectorGetX(XMVector3Dot(XMVector3Normalize(l1.vec), XMVector3Normalize(l2.vec)));
-
-    OutputDebugStringA(std::to_string(DV1V2).c_str());
-    OutputDebugString(" , ");
-
     float DV1V1 = XMVectorGetX(XMVector3LengthSq(l1.vec));
     float DV2V2 = XMVectorGetX(XMVector3LengthSq(l2.vec));
     XMVECTOR P21P11 = XMLoadFloat3(&l1.pos) - XMLoadFloat3(&l2.pos);
@@ -295,10 +296,14 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
         t1 = 0.0f;
         p1 = s1.pos;
         float len = CalcPointSegmentDist(s1.pos, s2, p2, t2);
-        if (t2 >= 0.0f - EPSILON && t2 <= 1.0f + EPSILON) {
+        float t = abs(t2);
+        OutputDebugString("dot\t");
+
+        if (t2 >= -EPSILON && t2 <= 1.0f + EPSILON) {
             OutputDebugString("4\t");
             return len;
         }
+
     }
     else {
         // 線分はねじれの関係（ねじれ：平行でなく交わらない2つの直線の位置関係）
@@ -306,6 +311,9 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
         Line l1 = Line(s1.pos, s1.vec);
         Line l2 = Line(s2.pos, s2.vec);
         float len = CalcLineLineDist(l1, l2, p1, p2, t1, t2);
+        
+        OutputDebugString("no \t");
+        
         if (0.0f <= t1 && t1 <= 1.0f && 0.0f <= t2 && t2 <= 1.0f) {
             OutputDebugString("5\t");
             return len;
@@ -381,7 +389,7 @@ bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* cap
     dir *= capsule->height_;
     XMVECTOR vPos = XMLoadFloat3(&capPos) - dir * 0.5f;
     XMStoreFloat3(&capPos, vPos);
-    Segment seg1 = Segment(position, dir);
+    Segment seg1 = Segment(capPos, dir);
 
     XMFLOAT3 hit = XMFLOAT3();
     float t = 0.0f;

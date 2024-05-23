@@ -21,10 +21,8 @@ cbuffer global
 struct VS_OUT
 {
     float4 pos : SV_POSITION; //位置
-    float4 depth : TEXCOORD1;
+    float depth : TEXCOORD1;
 };
-
-#define CALC_METHOD 1
 
 //───────────────────────────────────────
 // 頂点シェーダ
@@ -33,14 +31,8 @@ VS_OUT VS(float4 pos : POSITION)
 {
     VS_OUT outData;
     
-#if CALC_METHOD
     outData.pos = mul(pos, matWVP);
-    outData.depth = outData.pos;
-#else
-    outData.pos = mul(pos, matWVP);
-    outData.depth = length(camPos - mul(pos, matWorld)) / 40.0;
-#endif
-    
+    outData.depth = length(camPos - mul(pos, matWorld)) / 50.0;
     return outData;
 }
 
@@ -49,11 +41,5 @@ VS_OUT VS(float4 pos : POSITION)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-#if CALC_METHOD
-    float4 color = inData.depth.z / inData.depth.w;
-    color.a = 1;
-    return color;
-#else    
-    return float4(inData.depth.z, inData.depth.z, inData.depth.z, 1);
-#endif
+    return float4(inData.depth, inData.depth, inData.depth, 1);
 }

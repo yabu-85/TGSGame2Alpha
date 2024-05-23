@@ -1,13 +1,13 @@
 // 定数バッファ(CPU側からの値受け取り場)
 cbuffer global
 {
-	float4x4	WVP;    // 変換行列
+    float4x4 matWVP;
 };
 
 // 頂点シェーダ
 float4 VS(float4 pos : POSITION) : SV_POSITION
 {
-	return mul(pos, WVP);	
+    return mul(pos, matWVP);
 }
 
 // ピクセルシェーダ

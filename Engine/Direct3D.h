@@ -63,10 +63,9 @@ namespace Direct3D
 	extern int		screenHeight_;			//スクリーンの高さ
 	extern bool		isDrawCollision_;		//コリジョンを表示するかフラグ
 	extern bool		isTwoWindowShadowDraw_;	//２ウィンドウにShadowMap表示するかどうか（falseは定点カメラ）
-	extern D3D11_VIEWPORT vp;
+	
+	extern D3D11_VIEWPORT vp1;
 	extern D3D11_VIEWPORT vp2;
-	extern D3D11_VIEWPORT vpRight;
-
 	extern XMFLOAT3	PlayerPosition;
 	extern XMFLOAT3	EnemyPosition;
 	extern float	playerSpeed;

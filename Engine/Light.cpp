@@ -16,7 +16,7 @@ namespace Light {
 
 void Light::Initialize()
 {
-	lightDatas[0].position = XMFLOAT4(10.0f, 10.0f, 0.0f, 0.0f);
+	lightDatas[0].position = XMFLOAT4(0.01f, 15.0f, 0.0f, 0.0f);
 }
 
 void Light::Draw()

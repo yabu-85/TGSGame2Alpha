@@ -34,9 +34,12 @@ void Enemy::Initialize()
     assert(hModel_ >= 0);
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
 
+#if 1
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-   // AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.0f, vec));
+    AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 2.2f, vec));
+#else
     AddCollider(new SphereCollider(XMFLOAT3(), 1.0f));
+#endif
 
 }
 
@@ -48,6 +51,12 @@ void Enemy::Update()
         transform_.position_.y -= gra;
     }
 
+    if (transform_.position_.y < 0.0f) {
+        gra = 0;
+        transform_.position_.y = 0.0f;
+    }
+
+    /*
     //ステージ当たり判定
     Stage* pStage = (Stage*)FindObject("Stage");
     //上
@@ -124,6 +133,8 @@ void Enemy::Update()
             }
         }
     }
+    */
+    
     
 }
 
@@ -152,7 +163,4 @@ void Enemy::OnCollision(GameObject* pTarget)
 
     }
 
-
-    gra = 0.0f;
-    transform_.position_.y += pushPower;
 }
