@@ -16,7 +16,14 @@ struct RayCastData
 	BOOL        hit;	//レイが当たったか
 	XMFLOAT3 normal;	//法線
 
-	RayCastData() { dist = 99999.0f; }
+	RayCastData() { dist = 99999.0f; start = XMFLOAT3(); dir = XMFLOAT3(); hit = FALSE; normal = XMFLOAT3(); }
+};
+
+struct PolygonData {
+	XMFLOAT3 position_[3];
+	XMFLOAT3 normal;
+	PolygonData() : position_{ XMFLOAT3(), XMFLOAT3(), XMFLOAT3() }, normal(XMFLOAT3()) {}
+	PolygonData(XMFLOAT3 p1, XMFLOAT3 p2, XMFLOAT3 p3, XMFLOAT3 nor) : position_{ p1, p2, p3 }, normal(XMFLOAT3()) { }
 };
 
 //-----------------------------------------------------------
@@ -90,6 +97,9 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCastSurface(RayCastData* data);
+
+	void GetAllPolygon(std::vector<PolygonData>& list);
+	void GetAllPolygonRecursive(FbxNode* pNode, std::vector<PolygonData>& list);
 
 };
 

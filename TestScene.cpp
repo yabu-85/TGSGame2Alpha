@@ -18,7 +18,7 @@ void TestScene::Initialize()
 {
 	Instantiate<Player>(this);
 	Instantiate<Stage>(this);
-	Instantiate<Enemy>(this);
+	//Instantiate<Enemy>(this);
 
 }
 

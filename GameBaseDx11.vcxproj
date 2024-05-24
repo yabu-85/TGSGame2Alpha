@@ -161,7 +161,10 @@
     <ClCompile Include="Other\InputManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
     <ClCompile Include="Player\Player.cpp" />
+    <ClCompile Include="Stage\Cell.cpp" />
+    <ClCompile Include="Stage\CollisionMap.cpp" />
     <ClCompile Include="Stage\Stage.cpp" />
+    <ClCompile Include="Stage\Triangle.cpp" />
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -204,7 +207,10 @@
     <ClInclude Include="Other\InputManager.h" />
     <ClInclude Include="Player\Aim.h" />
     <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Stage\Cell.h" />
+    <ClInclude Include="Stage\CollisionMap.h" />
     <ClInclude Include="Stage\Stage.h" />
+    <ClInclude Include="Stage\Triangle.h" />
     <ClInclude Include="TestScene.h" />
   </ItemGroup>
   <ItemGroup>

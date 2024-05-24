@@ -159,6 +159,15 @@
     <ClCompile Include="Enemy\Enemy.cpp">
       <Filter>04Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Stage\Cell.cpp">
+      <Filter>05Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage\CollisionMap.cpp">
+      <Filter>05Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage\Triangle.cpp">
+      <Filter>05Stage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -281,6 +290,15 @@
     </ClInclude>
     <ClInclude Include="Enemy\Enemy.h">
       <Filter>04Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage\Cell.h">
+      <Filter>05Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage\CollisionMap.h">
+      <Filter>05Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage\Triangle.h">
+      <Filter>05Stage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

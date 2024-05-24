@@ -163,3 +163,33 @@ void Fbx::RayCastSurface(RayCastData* data)
 		parts_[i]->RayCast(data);
 	}
 }
+
+void Fbx::GetAllPolygon(std::vector<PolygonData>& list)
+{
+	FbxNode* rootNode = pFbxScene_->GetRootNode();
+	int childCount = rootNode->GetChildCount();
+	for (int i = 0; childCount > i; i++) {
+		GetAllPolygonRecursive(rootNode->GetChild(i), list);
+	}
+}
+
+void Fbx::GetAllPolygonRecursive(FbxNode* pNode, std::vector<PolygonData>& list)
+{
+	if (!pNode) return;
+
+	//このノードがメッシュを持っているかどうかを確認
+	FbxNodeAttribute* attr = pNode->GetNodeAttribute();
+	if (attr && attr->GetAttributeType() == FbxNodeAttribute::eMesh)
+	{
+		//ポリゴンデータがあればリストに追加
+		std::vector<PolygonData> poly = parts_[list.size()]->GetAllPolygon(pNode);
+		if (poly.empty()) list = poly;
+		else list.insert(list.end(), poly.begin(), poly.end());
+	}
+
+	//このノードのすべての子ノードに対して再帰的に処理を行う
+	for (int i = 0; i < pNode->GetChildCount(); ++i)
+	{
+		GetAllPolygonRecursive(pNode->GetChild(i), list);
+	}
+}

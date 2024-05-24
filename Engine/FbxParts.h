@@ -2,6 +2,7 @@
 #include <fbxsdk.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <vector>
 #include "Texture.h"
 #include "Transform.h"
 
@@ -9,6 +10,7 @@ using namespace DirectX;
 
 class Fbx;
 struct RayCastData;
+struct PolygonData;
 
 //-----------------------------------------------------------
 //FBXの１つのパーツを扱うクラス
@@ -156,5 +158,10 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCastSurface(RayCastData *data);
+
+	std::vector<PolygonData> GetAllPolygon(FbxNode* pNode);
+
+	void GetAllPolygonRecursive(FbxNode* pNode, std::vector<PolygonData>& list);
+
 };
 

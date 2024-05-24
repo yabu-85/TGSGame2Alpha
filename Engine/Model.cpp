@@ -206,4 +206,9 @@ namespace Model
 
 		_datas[handle]->pFbx->RayCastSurface(data);
 	}
+
+	Fbx* GetFbx(int handle)
+	{
+		return _datas[handle]->pFbx;
+	}
 }

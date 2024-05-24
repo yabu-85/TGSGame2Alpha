@@ -3,12 +3,15 @@
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 #include "../Engine/CapsuleCollider.h"
-#include "../Stage/Stage.h"
 
 #include "../Other/InputManager.h"
-#include "../Engine/Text.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
+
+#include "../Stage/CollisionMap.h"
+#include "../Stage/Cell.h"
+#include "../Stage/Triangle.h"
+#include "../Stage/Stage.h"
 
 namespace {
     float moveSpeed = 0.08f;          //移動スピード
@@ -30,7 +33,7 @@ namespace {
     bool isGround = false;
     bool isFly = false;
     bool isCollider = true; //当たり判定するかどうか
-    Text* pText = nullptr;
+    XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
     CapsuleCollider* pCollid = nullptr;
 }
@@ -48,14 +51,13 @@ void Player::Initialize()
 {
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
-
     testModel_ = Model::Load("DebugCollision/SphereCollider.fbx");
     assert(testModel_ >= 0);
 
     moveSpeed = 0.05f;
     Direct3D::playerSpeed = moveSpeed;
 
-    transform_.position_.y = 10.0f;
+    transform_.position_ = start;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
 
@@ -81,107 +83,36 @@ void Player::Update()
     else {
         CalcNoMove();
     }
-    if (Input::IsKey(DIK_SPACE)) playerMovement_.y += 0.1f;
-    else if (Input::IsKey(DIK_F)) playerMovement_.y -= 0.1f;
+    
+    if (isFly && Input::IsKey(DIK_SPACE)) playerMovement_.y += 0.1f;
+    else if (isFly &&Input::IsKey(DIK_F)) playerMovement_.y -= 0.1f;
     Move();
     
-    //重力
+    //重力＆ジャンプ
     if (!isFly) {
         if (isGround && InputManager::IsCmdDown(InputManager::JUMP)) gra = -JumpPower;
         gra += gravity;
-        if(gra > 0.0f) transform_.position_.y -= gra;
+        transform_.position_.y -= gra;
     }
 
-    if (transform_.position_.y < 0.0f) {
-        gra = 0;
-        transform_.position_.y = 0.0f;
-    }
-
-    /*
-    Stage* pStage = (Stage*)FindObject("Stage");
     isGround = false;
-    //上
-    if(gra < 0.0f) {
-        RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y, transform_.position_.z);
-        rayData.dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
-        Model::RayCastSurface(pStage->GetModelHandle(), &rayData);
-        if (rayData.hit && rayData.dist < PlayerHeightSize) {
-            transform_.position_.y = transform_.position_.y - PlayerHeightSize - rayData.dist;
-            gra = 0.0f;
-        }
+    CollisionMap* pStage = (CollisionMap*)FindObject("CollisionMap");
+    RayCastData rayData = RayCastData();
+    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
+    rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+    pStage->CellRayCast(transform_.position_, &rayData);
+    if (rayData.hit && rayData.dist < PlayerHeightSize) {
+        transform_.position_.y += PlayerHeightSize - rayData.dist;
+        gra = 0.0f;
+        isGround = true;
     }
-    //下
-    else {
-        RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
-        rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-        Model::RayCast(pStage->GetModelHandle(), &rayData);
-        if (rayData.hit && rayData.dist < PlayerHeightSize) {
-            transform_.position_.y += PlayerHeightSize - rayData.dist;
-            gra = 0.0f;
-            isGround = true;
-        }
-    }
-    //右
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(1.0f, 0.0f, 0.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < PlayerBesideSize) {
-                transform_.position_.x += rayData.dist - PlayerBesideSize;
-            }
-        }
-    }
-    //左
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(-1.0f, 0.0f, 0.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < PlayerBesideSize) {
-                transform_.position_.x -= rayData.dist - PlayerBesideSize;
-            }
-        }
-    }
-    //前
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(0.0f, 0.0f, 1.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < PlayerBesideSize) {
-                transform_.position_.z += rayData.dist - PlayerBesideSize;
-            }
-        }
-    }
-    //後ろ
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(0.0f, 0.0f, -1.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < PlayerBesideSize) {
-                transform_.position_.z -= rayData.dist - PlayerBesideSize;
-                OutputDebugString("後ろ\n");
-            }
-        }
-    }
-    
-    */
-    //ステージ当たり判定
-    
+
+
 
 
     //デバッグ用
-    if (Input::IsKeyDown(DIK_Z)) transform_.position_ = XMFLOAT3(0.0f, 10.0f, 0.0f);
+    if (Input::IsKeyDown(DIK_Z)) transform_.position_ = start;
     if (Input::IsKeyDown(DIK_T)) isCollider = !isCollider;
-
     if (Input::IsKey(DIK_NUMPAD7)) {
         XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
         XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
@@ -212,8 +143,6 @@ void Player::Update()
         XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
         pCollid->direction_ = rotatedDirection;
     }
-
-
 }
 
 void Player::Draw()
@@ -223,26 +152,7 @@ void Player::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-    /*当たり判定のやつ
-    Transform tra = transform_;
-    tra.position_.y += PlayerHeightSize;
-    tra.scale_ = XMFLOAT3(0.1f, 0.1f, 0.1f);
-    Model::SetTransform(testModel_, tra);
-    Model::Draw(testModel_);
-
-    tra.position_ = transform_.position_;
-    tra.position_.y += PlayerHeightSize - PlayerHeadSize;
-    Model::SetTransform(testModel_, tra);
-    Model::Draw(testModel_);
-
-    tra.position_ = transform_.position_;
-    tra.position_.y += CheckDistance[0];
-    Model::SetTransform(testModel_, tra);
-    Model::Draw(testModel_);
-    */
-    
     CollisionDraw();
-
 }
 
 void Player::Release()

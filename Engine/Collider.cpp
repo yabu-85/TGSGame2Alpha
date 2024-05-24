@@ -380,12 +380,8 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
 
     float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
     bool out = (d <= capsule1->size_.x + capsule2->size_.x);
-    if (out) OutputDebugStringA(("Capsule    hit" + std::to_string(d) + "\n").c_str());
-    else OutputDebugStringA(("Capsule no hit" + std::to_string(d) + "\n").c_str());
-    
     capsule1->targetDit_ = d;
     capsule2->targetDit_ = d;
-
     return out;
 }
 
@@ -405,9 +401,6 @@ bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* cap
     float t = 0.0f;
     float dist = CalcPointSegmentDist(position, seg1, hit, t);
     bool b = dist < (circle->size_.x + capsule->size_.x);
-    if(b) OutputDebugStringA(("Capsule    hit" + std::to_string(dist) + "\n").c_str());
-    else OutputDebugStringA(("Capsule no hit" + std::to_string(dist) + "\n").c_str());
-
     return b;
 }
 

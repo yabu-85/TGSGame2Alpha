@@ -105,4 +105,6 @@ namespace Model
 	//引数：data	必要なものをまとめたデータ
 	void RayCastSurface(int handle, RayCastData* data);
 
+	Fbx* GetFbx(int handle);
+
 };

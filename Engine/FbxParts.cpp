@@ -664,3 +664,24 @@ void FbxParts::RayCastSurface(RayCastData* data)
 		}
 	}
 }
+
+std::vector<PolygonData> FbxParts::GetAllPolygon(FbxNode* pNode)
+{
+	FbxMesh* mesh = pNode->GetMesh();
+	std::vector<PolygonData> list;
+
+	for (DWORD poly = 0; poly < polygonCount_; poly++)
+	{
+		//3’¸“_•ª
+		PolygonData data = PolygonData();
+		for (int vertex = 0; vertex < 3; vertex++)
+		{
+			int index = mesh->GetPolygonVertex(poly, vertex);
+			FbxVector4 pos = mesh->GetControlPointAt(index);
+			data.position_[vertex] = XMFLOAT3((float)pos[0], (float)pos[1], (float)pos[2]);
+		}
+		list.push_back(data);
+	}
+
+	return list;
+}
