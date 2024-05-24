@@ -61,7 +61,7 @@ void Player::Initialize()
 
 #if 1
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    pCollid = new CapsuleCollider(XMFLOAT3(), 0.5f, 2.2f, vec);
+    pCollid = new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f, vec);
     AddCollider(pCollid);
 #else
     AddCollider(new SphereCollider(XMFLOAT3(), 1.0f));

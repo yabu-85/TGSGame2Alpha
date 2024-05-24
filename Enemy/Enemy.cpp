@@ -36,7 +36,7 @@ void Enemy::Initialize()
 
 #if 1
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 2.2f, vec));
+    AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5, vec));
 #else
     AddCollider(new SphereCollider(XMFLOAT3(), 1.0f));
 #endif
