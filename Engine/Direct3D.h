@@ -112,6 +112,8 @@ namespace Direct3D
 	//戻値：衝突したかどうか
 	bool Intersect(XMFLOAT3& start, XMFLOAT3& direction, XMFLOAT3 &v0, XMFLOAT3& v1, XMFLOAT3& v2, float* distance);
 
+	bool Intersect(XMFLOAT3& start, XMFLOAT3& direction, XMVECTOR&v0, XMVECTOR& v1, XMVECTOR& v2, float* distance);
+
 	//Zバッファへの書き込みON/OFF
 	//引数：isWrite	  true=書き込みON／false=書き込みOFF
 	void SetDepthBafferWriteEnable(bool isWrite);

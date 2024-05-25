@@ -31,6 +31,7 @@ class Collider
 	friend class CapsuleCollider;
 
 protected:
+public:
 	GameObject*		pGameObject_;	//この判定をつけたゲームオブジェクト
 	ColliderType	type_;			//種類
 	XMFLOAT3		center_;		//中心位置（ゲームオブジェクトの原点から見た位置）
@@ -85,8 +86,9 @@ public:
 	//カプセル
 	bool IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider* capsule2);
 	bool IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule);
+	
 	//ポリゴンと
-	bool IsHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0, const XMFLOAT3& v1, const XMFLOAT3& v2, XMVECTOR& outDistanceVector);
+	bool IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle, XMVECTOR& outDistanceVector);
     
 
 

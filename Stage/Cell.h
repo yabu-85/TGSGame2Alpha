@@ -5,21 +5,27 @@
 using namespace DirectX;
 class Triangle;
 struct RayCastData;
+class SphereCollider;
 
 class Cell
 {
-	//左奥下の座標
-	XMFLOAT3 position_;
-
 	//cubeの一辺の長さ
 	float length_ = 0;
 
-	//頂点位置 posision
-	XMFLOAT3 verPos_[8];
+	XMFLOAT3 min_;
+	XMFLOAT3 max_;
 
 	//Trianglesのリスト
 	std::vector<Triangle> floarTriangles_;
 	std::vector<Triangle> wallTriangles_;
+	
+	//Triangleが範囲内か調べる関数
+	bool IsPointInAABB(XMFLOAT3& point);
+	bool IsTriangleInAABB(Triangle& tri);
+	bool IntersectSegmentAABB(XMFLOAT3& p0, XMFLOAT3& p1);
+	bool IsPointInTriangle(XMFLOAT3& pt, XMVECTOR& v0, XMVECTOR& v1, XMVECTOR& v2);
+	bool IsAABBInsideTriangle(Triangle& triangle);
+	bool IntersectTriangleAABB(Triangle& tri);
 
 public:
 	Cell();
@@ -31,4 +37,7 @@ public:
 
 	//FloarTriangleに当たった場合の最小距離を返す
 	bool SegmentVsFloarTriangle(RayCastData* _data);
+
+	bool SphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
+
 };

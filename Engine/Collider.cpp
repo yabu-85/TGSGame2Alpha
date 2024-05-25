@@ -404,31 +404,56 @@ bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* cap
     return b;
 }
 
-bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0, const XMFLOAT3& v1, const XMFLOAT3& v2, XMVECTOR& outDistanceVector)
+/*
+https://dixq.net/forum/viewtopic.php?t=143
+https://www.antun.net/tips/game/algorithm/collision.html
+
+まず平面と球の中心点の距離を求め、距離が半径より小さい場合は
+平面上の点で円の中心に最も近い点を求め、
+最後にその点で三角形の内外判定を行います。
+
+最初の２点は問題なさそうですが、「最後にその点で三角形の内外判定」の部分が条件として甘いと思います。
+三角形を含む平面による球の切り口（円になります）と三角形で判定すれば良いのではないでしょうか。その際、
+・円の中心が三角形に含まれていれば衝突
+・三角形の辺が円と交差すれば衝突
+と判定できます。
+
+切り口で作られる円の中心は、球の中心から平面へ下ろした垂線の足で、
+円の半径は、添付した図の通り球の半径と垂線の長さから求められます。
+
+nと cp最後のあたりの各内積は smと cpじゃなくて、三角形の法線 nと cpでやるのでは？
+
+・　[辺] 球の中心から三角形の辺に垂直におろした点を求めてその点が辺上に含まれるかどうか
+・　[点] 三角形の頂点と球の中心との距離が、球の半径以下かどうかを調べる。
+
+尚、どの辺をとか、どの頂点を調べるのかは、最初の「面の接触」チェックでの結果を利用すれば正直に３頂点・３辺をチェックしなくても済むかと。
+*/
+
+#include "../Stage/Triangle.h"
+bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle, XMVECTOR& outDistanceVector)
 {
-    XMVECTOR p = XMLoadFloat3(&circle->center_);
-    XMVECTOR q0 = XMLoadFloat3(&v0);
-    XMVECTOR q1 = XMLoadFloat3(&v1);
-    XMVECTOR q2 = XMLoadFloat3(&v2);
+    XMFLOAT3 pos = Float3Add(circle->center_, circle->pGameObject_->GetWorldPosition());
+    XMVECTOR p = XMLoadFloat3(&pos);
 
-    // 三角形の辺ベクトルを計算
-    XMVECTOR edge0 = q1 - q0;
-    XMVECTOR edge1 = q2 - q0;
+    XMVECTOR q0 = triangle->GetPosition(0);
+    XMVECTOR q1 = triangle->GetPosition(1);
+    XMVECTOR q2 = triangle->GetPosition(2);
+    XMVECTOR normal = triangle->GetNormal();
 
-    // 三角形の法線ベクトルを計算
-    XMVECTOR normal = XMVector3Cross(edge0, edge1);
-    normal = XMVector3Normalize(normal);
-
-    // 球の中心から平面への距離を計算
+    //球の中心から平面への距離を計算
     float distanceToPlane = XMVectorGetX(XMVector3Dot(normal, p - q0));
 
-    // 平面と球の中心の距離が球の半径より大きい場合、非交差と判定
+    //平面と球の中心の距離が球の半径より大きい場合、非交差と判定
     if (fabs(distanceToPlane) > circle->size_.x) {
         return false;
     }
 
     // 球の中心から三角形の平面への垂線の足
     XMVECTOR pointOnPlane = p - distanceToPlane * normal;
+
+    //三角形の辺ベクトルを計算
+    XMVECTOR edge0 = q1 - q0;
+    XMVECTOR edge1 = q2 - q0;
 
     // 三角形内の点をパラメトリックに表現
     XMVECTOR v0ToPoint = pointOnPlane - q0;
@@ -438,18 +463,15 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0,
     float d20 = XMVectorGetX(XMVector3Dot(v0ToPoint, edge0));
     float d21 = XMVectorGetX(XMVector3Dot(v0ToPoint, edge1));
     float denom = d00 * d11 - d01 * d01;
-
     float v = (d11 * d20 - d01 * d21) / denom;
     float w = (d00 * d21 - d01 * d20) / denom;
     float u = 1.0f - v - w;
 
-    // u, v, wの範囲による判定
-    bool isInsideTriangle = (u >= 0.0f) && (v >= 0.0f) && (w >= 0.0f);
-
-    if (isInsideTriangle) {
-        // 平面上の点が三角形内部の場合
-        outDistanceVector = distanceToPlane * normal;
-        return fabs(distanceToPlane) <= circle->size_.x;
+    //平面上の点が三角形内部かどうか
+    if ((u >= 0.0f) && (v >= 0.0f) && (w >= 0.0f)) {
+        outDistanceVector = (circle->size_.x - distanceToPlane) * normal;
+        bool output = fabs(distanceToPlane) < circle->size_.x;
+        return output;
     }
 
     // 三角形の各頂点と球の中心との距離を計算
@@ -470,33 +492,31 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, const XMFLOAT3& v0,
         closestPoint = q2;
     }
 
-    // 各辺と球の中心との距離を計算
-    XMVECTOR edgeClosestPoint;
-    float edgeDistSq;
+    // 各辺と球の中心との最小距離を計算
+    auto updateClosestPoint = [&](XMVECTOR a, XMVECTOR b) {
+        XMVECTOR ab = b - a;
+        float t = max(0.0f, min(1.0f, XMVectorGetX(XMVector3Dot(p - a, ab) / XMVector3Dot(ab, ab))));
+        XMVECTOR point = a + t * ab;
+        float distSq = XMVectorGetX(XMVector3LengthSq(point - p));
+        if (distSq < minDistSq) {
+            minDistSq = distSq;
+            closestPoint = point;
+        }
+    };
 
-    // q0q1
-    edgeDistSq = XMVectorGetX(XMVector3LengthSq(XMVectorClamp(p, q0, q1) - p));
-    if (edgeDistSq < minDistSq) {
-        minDistSq = edgeDistSq;
-        edgeClosestPoint = XMVectorClamp(p, q0, q1);
-    }
+    updateClosestPoint(q0, q1);
+    updateClosestPoint(q0, q2);
+    updateClosestPoint(q1, q2);
 
-    // q0q2
-    edgeDistSq = XMVectorGetX(XMVector3LengthSq(XMVectorClamp(p, q0, q2) - p));
-    if (edgeDistSq < minDistSq) {
-        minDistSq = edgeDistSq;
-        edgeClosestPoint = XMVectorClamp(p, q0, q2);
-    }
-
-    // q1q2
-    edgeDistSq = XMVectorGetX(XMVector3LengthSq(XMVectorClamp(p, q1, q2) - p));
-    if (edgeDistSq < minDistSq) {
-        minDistSq = edgeDistSq;
-        edgeClosestPoint = XMVectorClamp(p, q1, q2);
-    }
-
-    // 最小距離の計算
+    //最小距離が球の半径以内かどうか
     float minDist = sqrtf(minDistSq);
-    outDistanceVector = (minDist <= circle->size_.x) ? (p - closestPoint) : XMVectorZero();
-    return minDist <= circle->size_.x;
+    bool hit = minDist < circle->size_.x;
+    
+    if (hit) {
+        XMVECTOR vec = p - closestPoint;
+        outDistanceVector = vec * (circle->size_.x - XMVectorGetX(XMVector3Length(vec)));
+    }
+    else outDistanceVector = XMVectorZero();
+
+    return hit;
 }

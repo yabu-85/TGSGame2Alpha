@@ -117,17 +117,18 @@ float4 PS(VS_OUT inData) : SV_Target
     speculer = pow(saturate(dot(R, inData.eye)), shininess) * specColor; //ハイライトを求める
 
 	//最終的な色
-    float4 color = diffuse * shade + diffuse * ambient + speculer;
+    float4 color = diffuse * shade + ambient * diffuse + speculer;
     
     inData.lightTex /= inData.lightTex.w;
     float TexValue = g_depthTexture.Sample(g_depthSampler, inData.lightTex.xy).r;
     float LightLength = length(inData.lightViewPos - lightPos) / 50.0f;
+    
     //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
-    if (TexValue + 0.005 < LightLength)
+    //誤差いい感じの値で調整
+    if (TexValue + -0.001 < LightLength)
     {
-        float red = color.r * 2.0f;
-        color *= 0.3f;
-        color.r = red;
+        //ライトに照らされない場所は影の効果を低く
+        color -= color * shade * 0.3f;
     }
        
 	//もしアルファ値がすこしでも透明でなければ

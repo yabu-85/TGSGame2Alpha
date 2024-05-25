@@ -39,15 +39,19 @@ const int PLAYER_ANIMATION_DATA[(int)PLAYER_ANIMATION::MAX][2] {
 class Player : public GameObject
 {
     int testModel_;
+    float moveSpeed;          //移動スピード
 
     int hModel_;                //モデル番号
     float gradually_;           //移動スピードの加減の値
     XMFLOAT3 playerMovement_;   //Normalizeの移動量を保存する用
 
+
     Aim* pAim_;
     
     void CalcRotate(XMFLOAT3 pos, float ratio);
 public:
+    float gra;
+   
     Player(GameObject* parent);
     ~Player();
     void Initialize() override;

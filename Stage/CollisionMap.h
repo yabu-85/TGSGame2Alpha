@@ -40,5 +40,7 @@ public:
 
     bool CellRayCast(XMFLOAT3 plaPos, RayCastData* _data);
 
+    bool CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
+
 };
 

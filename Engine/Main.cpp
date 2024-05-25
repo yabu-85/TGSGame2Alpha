@@ -150,7 +150,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				XMFLOAT3 pos = Camera::GetPosition();
 				XMFLOAT3 tar = Camera::GetTarget();
 				Camera::SetPosition(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z));
-				Camera::SetTarget(XMFLOAT3(0, 0, 0));
+				Camera::SetTarget(XMFLOAT3(50, 0, 50));
 				Camera::Update();
 				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
 				
@@ -193,7 +193,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				//二つ目のウィンドウ描画
 				XMFLOAT3 cpos = XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z);
-				XMFLOAT3 ctar = XMFLOAT3(0, 0, 0);
+				XMFLOAT3 ctar = XMFLOAT3(50, 0, 50);
 				if (Direct3D::isTwoWindowShadowDraw_) {
 					Camera::SetPosition(cpos);
 					Camera::SetTarget(ctar);

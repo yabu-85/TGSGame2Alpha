@@ -14,22 +14,16 @@
 #include "../Stage/Stage.h"
 
 namespace {
-    float moveSpeed = 0.08f;          //移動スピード
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
     const float moveGradually = 0.09f;      //移動スピードの加減の値移動時
     const float maxMoveSpeed = 0.7f;        //最大移動スピード
     const float rotateRatio = 0.1f;         //通常時のRotateRatio
 
     const float JumpPower = 0.09f;
-    const float gravity = 0.0015f;
-
+    const float gravity = 0.002f;
     const float PlayerHeightSize = 1.3f;    //一番上
-    const float PlayerHeadSize = 0.3f;      //首のとこ
-    const float PlayerBesideSize = 0.3f;    //横判定サイズ
-    const float CheckDistance[2] = { 0.3f, PlayerHeightSize };  //足元、頭
 
     //デバッグ用
-    float gra = 0.0f;
     bool isGround = false;
     bool isFly = false;
     bool isCollider = true; //当たり判定するかどうか
@@ -54,19 +48,19 @@ void Player::Initialize()
     testModel_ = Model::Load("DebugCollision/SphereCollider.fbx");
     assert(testModel_ >= 0);
 
-    moveSpeed = 0.05f;
+    moveSpeed = 0.15f;
     Direct3D::playerSpeed = moveSpeed;
 
     transform_.position_ = start;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
 
-#if 1
+#if 0
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
     pCollid = new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f, vec);
     AddCollider(pCollid);
 #else
-    AddCollider(new SphereCollider(XMFLOAT3(), 1.0f));
+    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.7f, 0.0f), 0.5f));
 #endif
 
 }
@@ -95,54 +89,68 @@ void Player::Update()
         transform_.position_.y -= gra;
     }
 
-    isGround = false;
     CollisionMap* pStage = (CollisionMap*)FindObject("CollisionMap");
-    RayCastData rayData = RayCastData();
-    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
-    rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-    pStage->CellRayCast(transform_.position_, &rayData);
-    if (rayData.hit && rayData.dist < PlayerHeightSize) {
-        transform_.position_.y += PlayerHeightSize - rayData.dist;
-        gra = 0.0f;
-        isGround = true;
+    SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
+    XMVECTOR push = XMVectorZero();
+    pStage->CellSphereVsTriangle(collid, push);
+
+#if 1
+    float addPos = -1.0f;
+    isGround = false;
+    for (int i = 0; i < 2; i++) {
+        RayCastData rayData = RayCastData();
+        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
+        rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+        XMFLOAT3 pos = transform_.position_;
+        pos.y += addPos;
+        pStage->CellRayCast(pos, &rayData);
+        if (rayData.hit && rayData.dist < PlayerHeightSize) {
+            transform_.position_.y += PlayerHeightSize - rayData.dist;
+            gra = 0.0f;
+            isGround = true;
+        }
+        addPos = 0.0f;
     }
-
-
-
+#endif
 
     //デバッグ用
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = start;
     if (Input::IsKeyDown(DIK_T)) isCollider = !isCollider;
-    if (Input::IsKey(DIK_NUMPAD7)) {
-        XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
-        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-        pCollid->direction_ = rotatedDirection;
+
+    //カプセル
+    if (pCollid && pCollid->GetColliderType() == COLLIDER_CAPSULE) {
+        if (Input::IsKey(DIK_NUMPAD7)) {
+            XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
+            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+            pCollid->direction_ = rotatedDirection;
+        }
+        if (Input::IsKey(DIK_NUMPAD8)) {
+            XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(-1.0f));
+            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+            pCollid->direction_ = rotatedDirection;
+        }
+        if (Input::IsKey(DIK_NUMPAD4)) {
+            XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(1.0f));
+            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+            pCollid->direction_ = rotatedDirection;
+        }
+        if (Input::IsKey(DIK_NUMPAD5)) {
+            XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(-1.0f));
+            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+            pCollid->direction_ = rotatedDirection;
+        }
+        if (Input::IsKey(DIK_NUMPAD1)) {
+            XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(1.0f));
+            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+            pCollid->direction_ = rotatedDirection;
+        }
+        if (Input::IsKey(DIK_NUMPAD2)) {
+            XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(-1.0f));
+            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
+            pCollid->direction_ = rotatedDirection;
+        }
     }
-    if (Input::IsKey(DIK_NUMPAD8)) {
-        XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(-1.0f));
-        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-        pCollid->direction_ = rotatedDirection;
-    }
-    if (Input::IsKey(DIK_NUMPAD4)) {
-        XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(1.0f));
-        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-        pCollid->direction_ = rotatedDirection;
-    }
-    if (Input::IsKey(DIK_NUMPAD5)) {
-        XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(-1.0f));
-        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-        pCollid->direction_ = rotatedDirection;
-    }
-    if (Input::IsKey(DIK_NUMPAD1)) {
-        XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(1.0f));
-        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-        pCollid->direction_ = rotatedDirection;
-    }
-    if (Input::IsKey(DIK_NUMPAD2)) {
-        XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(-1.0f));
-        XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-        pCollid->direction_ = rotatedDirection;
-    }
+    
 }
 
 void Player::Draw()
@@ -152,7 +160,7 @@ void Player::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-    CollisionDraw();
+   // CollisionDraw();
 }
 
 void Player::Release()

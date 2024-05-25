@@ -708,6 +708,56 @@ namespace Direct3D
 		return true;
 	}
 
+	bool Intersect(XMFLOAT3& start, XMFLOAT3& direction, XMVECTOR& v0, XMVECTOR& v1, XMVECTOR& v2, float* distance)
+	{
+		// 微小な定数([M?ller97] での値)
+		constexpr float kEpsilon = 1e-6f;
+
+		XMVECTOR edge1 = v1 - v0;
+		XMVECTOR edge2 = v2 - v0;
+
+		XMVECTOR alpha = XMVector3Cross(XMLoadFloat3(&direction), edge2);
+		float det = XMVector3Dot(edge1, alpha).m128_f32[0];
+
+		// 三角形に対して、レイが平行に入射するような場合 det = 0 となる。
+		// det が小さすぎると 1/det が大きくなりすぎて数値的に不安定になるので
+		// det ? 0 の場合は交差しないこととする。
+		if (-kEpsilon < det && det < kEpsilon)
+		{
+			return false;
+		}
+
+		float invDet = 1.0f / det;
+		XMVECTOR r = XMLoadFloat3(&start) - v0;
+
+		// u が 0 <= u <= 1 を満たしているかを調べる。
+		float u = XMVector3Dot(alpha, r).m128_f32[0] * invDet;
+		if (u < 0.0f || u > 1.0f)
+		{
+			return false;
+		}
+
+		XMVECTOR beta = XMVector3Cross(r, edge1);
+
+		// v が 0 <= v <= 1 かつ u + v <= 1 を満たすことを調べる。
+		// すなわち、v が 0 <= v <= 1 - u をみたしているかを調べればOK。
+		float v = XMVector3Dot(XMLoadFloat3(&direction), beta).m128_f32[0] * invDet;
+		if (v < 0.0f || u + v > 1.0f)
+		{
+			return false;
+		}
+
+		// t が 0 <= t を満たすことを調べる。
+		float t = XMVector3Dot(edge2, beta).m128_f32[0] * invDet;
+		if (t < 0.0f)
+		{
+			return false;
+		}
+
+		*distance = t;
+		return true;
+	}
+
 	//Zバッファへの書き込みON/OFF
 	void SetDepthBafferWriteEnable(bool isWrite)
 	{

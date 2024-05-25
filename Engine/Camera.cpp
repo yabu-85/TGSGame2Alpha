@@ -23,14 +23,6 @@ void Camera::Initialize()
 	//プロジェクション行列
 	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, (FLOAT)Direct3D::screenWidth_ / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 
-	/*
-	lightViewMatrix = XMMatrixLookAtLH(
-		XMVectorSet(50, 760, -50, 0),
-		XMVectorSet(0, 0, 0, 0),
-		XMVectorSet(0, 1, 0, 0));
-	lightPrjMatrix_ = XMMatrixPerspectiveFovLH(XM_PIDIV4, (FLOAT)screenWidth / (FLOAT)screenHeight, 330, 800);
-	*/
-	
 }
 
 //更新（ビュー行列作成）

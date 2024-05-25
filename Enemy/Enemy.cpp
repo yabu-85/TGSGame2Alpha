@@ -6,17 +6,14 @@
 #include "../Engine/CapsuleCollider.h"
 #include "../Engine/SphereCollider.h"
 #include "../Engine/Direct3D.h"
+#include "../Stage/CollisionMap.h"
+#include "../Player/Player.h"
 
 namespace {
-    bool isFly = false;
-    float gra = 0.0f;
-    const float gravity = 0.0015f;
-    const float pushPower = 0.1f;
+    const float gravity = 0.002f;
+    const float PlayerHeightSize = 1.3f;    //一番上
+    XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
-    const float EnemyHeightSize = 1.3f;    //一番上
-    const float EnemyHeadSize = 0.3f;      //首のとこ
-    const float EnemyBesideSize = 0.3f;    //横判定サイズ
-    const float CheckDistance[2] = { 0.3f, EnemyHeightSize };  //足元、頭
 }
 
 Enemy::Enemy(GameObject* parent)
@@ -33,108 +30,57 @@ void Enemy::Initialize()
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
+   
+    transform_.position_ = start;
+    MoveSpeed = 0.05f + rand() % 100 * 0.001f;
 
-#if 1
+#if 0
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
     AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5, vec));
 #else
-    AddCollider(new SphereCollider(XMFLOAT3(), 1.0f));
+    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.7f, 0.0f), 0.5));
 #endif
 
 }
 
 void Enemy::Update()
 {
-    //重力
-    if (!isFly) {
+    if (!isGround) {
         gra += gravity;
         transform_.position_.y -= gra;
     }
 
-    if (transform_.position_.y < 0.0f) {
-        gra = 0;
-        transform_.position_.y = 0.0f;
+    //移動
+    Player* p = static_cast<Player*>(FindObject("Player"));
+    XMFLOAT3 move = Float3Sub(p->GetPosition(), transform_.position_);
+    float dist = sqrtf(move.x * move.x + move.y * move.y + move.z * move.z);
+    if (dist > 1.0f) {
+        move = Float3Multiply(Float3Normalize(move), MoveSpeed);
+        transform_.position_ = Float3Add(transform_.position_, move);
     }
 
-    /*
-    //ステージ当たり判定
-    Stage* pStage = (Stage*)FindObject("Stage");
-    //上
-    if(gra < 0.0f) {
+    //壁との当たり判定
+    CollisionMap* pStage = (CollisionMap*)FindObject("CollisionMap");
+    SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
+    XMVECTOR push = XMVectorZero();
+    pStage->CellSphereVsTriangle(collid, push);
+
+    float addPos = -1.0f;
+    isGround = false;
+    for (int i = 0; i < 2; i++) {
         RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y, transform_.position_.z);
-        rayData.dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
-        Model::RayCastSurface(pStage->GetModelHandle(), &rayData);
-        if (rayData.hit && rayData.dist < EnemyHeightSize) {
-            transform_.position_.y -= EnemyHeightSize - rayData.dist;
-            gra = 0.0f;
-        }
-    }
-    //下
-    else {
-        RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + EnemyHeightSize, transform_.position_.z);
+        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
         rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-        Model::RayCast(pStage->GetModelHandle(), &rayData);
-        if (rayData.hit && rayData.dist < EnemyHeightSize) {
-            float d = EnemyHeightSize - rayData.dist;
-            transform_.position_.y += d;
-            if (transform_.position_.y == 0.0f) {
-                int a = 0;
-            }
+        XMFLOAT3 pos = transform_.position_;
+        pos.y += addPos;
+        pStage->CellRayCast(pos, &rayData);
+        if (rayData.hit && rayData.dist < PlayerHeightSize) {
+            transform_.position_.y += PlayerHeightSize - rayData.dist;
             gra = 0.0f;
+            isGround = true;
         }
+        addPos = 0.0f;
     }
-    //右
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(1.0f, 0.0f, 0.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < EnemyBesideSize) {
-                transform_.position_.x += rayData.dist - EnemyBesideSize;
-            }
-        }
-    }
-    //左
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(-1.0f, 0.0f, 0.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < EnemyBesideSize) {
-                transform_.position_.x -= rayData.dist - EnemyBesideSize;
-            }
-        }
-    }
-    //前
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(0.0f, 0.0f, 1.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < EnemyBesideSize) {
-                transform_.position_.z += rayData.dist - EnemyBesideSize;
-            }
-        }
-    }
-    //後ろ
-    {
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + CheckDistance[i], transform_.position_.z);
-            rayData.dir = XMFLOAT3(0.0f, 0.0f, -1.0f);
-            Model::RayCast(pStage->GetModelHandle(), &rayData);
-            if (rayData.hit && rayData.dist < EnemyBesideSize) {
-                transform_.position_.z -= rayData.dist - EnemyBesideSize;
-            }
-        }
-    }
-    */
-    
     
 }
 
@@ -145,7 +91,7 @@ void Enemy::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-    CollisionDraw();
+    //CollisionDraw();
 
 }
 

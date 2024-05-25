@@ -5,6 +5,10 @@ class Enemy : public GameObject
 {
     int hModel_;
 
+    float MoveSpeed = 0.0f;
+    float gra = 0.0f;
+    bool isGround = false;
+
 public:
     Enemy(GameObject* parent);
     ~Enemy();

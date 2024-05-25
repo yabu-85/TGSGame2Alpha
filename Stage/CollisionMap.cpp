@@ -74,8 +74,9 @@ void CollisionMap::Update()
 void CollisionMap::Draw()
 {
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
-    Direct3D::SetShader(Direct3D::SHADER_UNLIT);
+    //Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
+#if 0
     Transform trans = transform_;
     trans.position_ = targetPos_;
     trans.position_.x += boxSize * 0.5f;
@@ -84,6 +85,7 @@ void CollisionMap::Draw()
     trans.scale_ = XMFLOAT3(boxSize, boxSize, boxSize);
     Model::SetTransform(handle_, trans);
     Model::Draw(handle_);
+#endif
 
     for (auto e : modelList_) {
         Model::SetTransform(e.hRayModelNum, e.transform);
@@ -103,20 +105,27 @@ void CollisionMap::CreatIntersectDataTriangle()
     StageModelData data1 = StageModelData();
     data1.hRayModelNum = Model::Load("Model/planeStage.fbx");
     data1.transform.pParent_ = &transform_;
-    data1.transform.position_ = XMFLOAT3(50.0f, 0.0f, 50.0f);
+    data1.transform.position_ = XMFLOAT3(50.0f, 5.0f, 50.0f);
+    data1.transform.scale_ = XMFLOAT3(2.0f, 2.0f, 2.0f);
     assert(data1.hRayModelNum >= 0);
     modelList_.push_back(data1);
 
-    data1.transform.position_ = XMFLOAT3(55.0f, 0.0f, 55.0f);
-    data1.hRayModelNum = Model::Load("Model/RayStageT3.fbx");
-    assert(data1.hRayModelNum >= 0);
-    modelList_.push_back(data1); 
-
-    data1.transform.position_ = XMFLOAT3(55.0f, 0.0f, 52.0f);
+    data1.hRayModelNum = Model::Load("Model/Box.fbx");
+    data1.transform.position_ = XMFLOAT3(53.0f, 5.5f, 48.0f);
     modelList_.push_back(data1);
 
-    data1.transform.position_ = XMFLOAT3(55.0f, 1.0f, 54.0f);
-    data1.transform.rotate_.y = 40.0f;
+    data1.transform.position_ = XMFLOAT3(47.0f, 7.5f, 48.0f);
+    data1.transform.scale_ = XMFLOAT3(2.0f, 2.0f, 2.0f);
+    modelList_.push_back(data1);
+
+    data1.hRayModelNum = Model::Load("Model/plane.fbx");
+    data1.transform.position_ = XMFLOAT3(55.0f, 5.5f, 44.0f);
+    data1.transform.scale_ = XMFLOAT3(3.0f, 3.0f, 3.0f);
+    data1.transform.rotate_ = XMFLOAT3(40.0f, 30.0f, 0.0f);
+    modelList_.push_back(data1);
+
+    data1.transform.position_ = XMFLOAT3(42.0f, 5.5f, 42.0f);
+    data1.transform.rotate_ = XMFLOAT3(80.0f, 80.0f, 0.0f);
     modelList_.push_back(data1);
 
     for (int i = 0; i < modelList_.size(); i++) {
@@ -159,6 +168,15 @@ bool CollisionMap::CellRayCast(XMFLOAT3 plaPos, RayCastData* _data)
     Cell* cell = GetCell(plaPos);
     if (!cell) return false;
     return cell->SegmentVsFloarTriangle(_data);
+}
+
+bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
+{
+    XMFLOAT3 pos = Float3Add(collid->center_, collid->pGameObject_->GetWorldPosition());
+    Cell* cell = GetCell(pos);
+    if (!cell) return false;
+
+    return cell->SphereVsTriangle(collid, push);
 }
 
 Cell* CollisionMap::GetCell(XMFLOAT3 pos)
