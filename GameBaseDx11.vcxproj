@@ -149,6 +149,7 @@
     <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Main.cpp" />
     <ClCompile Include="Engine\Model.cpp" />
+    <ClCompile Include="Engine\StageEditor.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
     <ClCompile Include="Engine\RootObject.cpp" />
     <ClCompile Include="Engine\SceneManager.cpp" />
@@ -165,7 +166,6 @@
     <ClCompile Include="Stage\Cell.cpp" />
     <ClCompile Include="Stage\CollisionMap.cpp" />
     <ClCompile Include="Stage\Stage.cpp" />
-    <ClCompile Include="Stage\StageEditor.cpp" />
     <ClCompile Include="Stage\Triangle.cpp" />
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
@@ -197,6 +197,7 @@
     <ClInclude Include="Engine\Input.h" />
     <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Model.h" />
+    <ClInclude Include="Engine\StageEditor.h" />
     <ClInclude Include="Engine\VFX.h" />
     <ClInclude Include="Engine\RootObject.h" />
     <ClInclude Include="Engine\SceneManager.h" />
@@ -214,7 +215,6 @@
     <ClInclude Include="Stage\Cell.h" />
     <ClInclude Include="Stage\CollisionMap.h" />
     <ClInclude Include="Stage\Stage.h" />
-    <ClInclude Include="Stage\StageEditor.h" />
     <ClInclude Include="Stage\Triangle.h" />
     <ClInclude Include="State\PlayerState.h" />
     <ClInclude Include="State\StateBase.h" />

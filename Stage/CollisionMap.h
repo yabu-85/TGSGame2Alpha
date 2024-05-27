@@ -1,6 +1,7 @@
 #pragma once
 #include "../Engine/GameObject.h"
 #include <vector>
+#include <string>
 
 class Triangle;
 class Cell;
@@ -8,6 +9,7 @@ struct RayCastData;
 
 struct StageModelData {
     int hRayModelNum;
+    std::string fileName;
     Transform transform;
     StageModelData() : hRayModelNum(-1) { }
 };
@@ -37,15 +39,18 @@ public:
 
     //Stageからデータ取得してTriangle作成
     void CreatIntersectDataTriangle();
+    //作ったCollisionMapリセット
+    void IntersectDataReset();
 
     //Triangleに当たった場合の最小距離を返す
     bool CellFloarRayCast(XMFLOAT3 plaPos, RayCastData* _data);
     bool CellWallRayCast(XMFLOAT3 plaPos, RayCastData* _data);
 
+    //壁と天井に対して判定する
     bool CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
 
-
-    std::vector<StageModelData> GetModelList() { return modelList_; }
+    //ゲット関数
+    std::vector<StageModelData>& GetModelList() { return modelList_; }
 
 };
 

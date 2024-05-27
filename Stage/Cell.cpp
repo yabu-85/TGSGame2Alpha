@@ -45,6 +45,12 @@ bool Cell::SetTriangle(Triangle& t)
 	return false;
 }
 
+void Cell::ResetTriangles()
+{
+	floarTriangles_.clear();
+	wallTriangles_.clear();
+}
+
 bool Cell::SegmentVsFloarTriangle(RayCastData* _data)
 {
 	bool hit = false;

@@ -2,7 +2,6 @@
 #include "Cell.h"
 #include "Stage.h"
 #include "Triangle.h"
-#include "StageEditor.h"
 #include <vector>
 
 #include "../Engine/Fbx.h"
@@ -10,6 +9,7 @@
 #include "../Engine/Global.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/SphereCollider.h"
+#include "../Engine/StageEditor.h"
 
 namespace {
     const float boxSize = 5.0f;
@@ -29,6 +29,7 @@ namespace {
 CollisionMap::CollisionMap(GameObject* parent)
     : GameObject(parent, "CollisionMap"), handle_(-1), targetPos_(XMFLOAT3())
 {
+    StageEditor::SetCollisionMap(this);
 }
 
 CollisionMap::~CollisionMap()
@@ -72,8 +73,6 @@ void CollisionMap::Initialize()
 
 void CollisionMap::Update()
 {
-    //StageEditor::DrawStageEditor();
-
 }
 
 void CollisionMap::Draw()
@@ -104,38 +103,8 @@ void CollisionMap::Release()
 {
 }
 
-#include "StageEditor.h"
-
 void CollisionMap::CreatIntersectDataTriangle()
 {
-    //Cell‚É’Ç‰Á‚·‚é—\’è‚ÌTriangle‚ð‚·‚×‚ÄŒvŽZ‚µ‚ÄCreat‚·‚é
-    std::vector<LoadStageModel> fileList;
-    LoadStageModel data1 = LoadStageModel();
-    data1.fileName = "Model/planeStage.fbx";
-    data1.transform.pParent_ = &transform_;
-    data1.transform.position_ = XMFLOAT3(50.0f, 5.0f, 50.0f);
-    data1.transform.scale_ = XMFLOAT3(2.0f, 2.0f, 2.0f);
-    fileList.push_back(data1);
-
-    data1.fileName = "Model/Box.fbx";
-    data1.transform.position_ = XMFLOAT3(53.0f, 5.5f, 48.0f);
-    fileList.push_back(data1);
-
-    data1.transform.position_ = XMFLOAT3(47.0f, 7.5f, 48.0f);
-    data1.transform.scale_ = XMFLOAT3(2.0f, 2.0f, 2.0f);
-    fileList.push_back(data1);
-
-    data1.fileName = "Model/plane.fbx";
-    data1.transform.position_ = XMFLOAT3(55.0f, 5.5f, 44.0f);
-    data1.transform.scale_ = XMFLOAT3(3.0f, 3.0f, 3.0f);
-    data1.transform.rotate_ = XMFLOAT3(40.0f, 30.0f, 0.0f);
-    fileList.push_back(data1);
-
-    data1.transform.position_ = XMFLOAT3(42.0f, 5.5f, 42.0f);
-    data1.transform.rotate_ = XMFLOAT3(80.0f, 80.0f, 0.0f);
-    fileList.push_back(data1);
-
-    StageEditor::SaveFileStage(fileList, "TestStage.json");
     modelList_ = StageEditor::LoadFileStage("TestStage.json");
 
     for (int i = 0; i < modelList_.size(); i++) {
@@ -169,6 +138,19 @@ void CollisionMap::CreatIntersectDataTriangle()
         for (int i = 0; i < polyList.size(); i++) {
             Triangle* tri = new Triangle(polyList[i].position_[0], polyList[i].position_[1], polyList[i].position_[2]);
             SetCellTriangle(*tri);
+        }
+    }
+}
+
+void CollisionMap::IntersectDataReset()
+{
+    //uŠeCELLv‚ÉŠÜ‚Ü‚ê‚éŽOŠpƒ|ƒŠƒSƒ“‚ð“o˜^
+    for (int y = 0; y < numY; y++) {
+        for (int z = 0; z < numZ; z++) {
+            for (int x = 0; x < numX; x++) {
+                Cell* c = &cells_[y][z][x];
+                c->ResetTriangles(); // ŽOŠpŒ`‚ÌƒŠƒXƒg‚ðƒNƒŠƒA
+            }
         }
     }
 }

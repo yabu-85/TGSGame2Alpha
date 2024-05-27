@@ -188,8 +188,8 @@
     <ClCompile Include="Scene\TestScene.cpp">
       <Filter>08Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Stage\StageEditor.cpp">
-      <Filter>06Stage</Filter>
+    <ClCompile Include="Engine\StageEditor.cpp">
+      <Filter>01Engine\Gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -334,8 +334,8 @@
     <ClInclude Include="Scene\TestScene.h">
       <Filter>08Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Stage\StageEditor.h">
-      <Filter>06Stage</Filter>
+    <ClInclude Include="Engine\StageEditor.h">
+      <Filter>01Engine\Gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

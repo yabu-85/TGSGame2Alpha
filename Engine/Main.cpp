@@ -12,6 +12,7 @@
 #include "Input.h"
 #include "Audio.h"
 #include "Light.h"
+#include "StageEditor.h"
 #include "../Other/InputManager.h"
 
 //ImGui関連のデータ
@@ -57,8 +58,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
 #if _DEBUG
-	screenWidth = 400;
-	screenHeight = 300;
+	screenWidth = 800;
+	screenHeight = 600;
 #endif
 
 	int screenWidth2 = 400;
@@ -168,6 +169,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplWin32_NewFrame();
 				ImGui::NewFrame();
+
+				StageEditor::DrawStageEditor();
+
 				ImGui::Begin("Hello");//ImGuiの処理を開始
 				{
 					//ImGui::Text("");		テキスト

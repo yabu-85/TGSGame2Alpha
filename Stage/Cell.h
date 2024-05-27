@@ -29,11 +29,15 @@ class Cell
 
 public:
 	Cell();
-
+	
+	//Cellの基本データセット
 	void SetPosLeng(XMFLOAT3 pos, float leng);
 
 	//三角ポリゴンがAABに触れていたらこのCELLに登録
 	bool SetTriangle(Triangle& t);
+
+	//登録されてるTriangles初期化
+	void ResetTriangles();
 
 	//FloarTriangleに当たった場合の最小距離を返す
 	bool SegmentVsFloarTriangle(RayCastData* _data);
