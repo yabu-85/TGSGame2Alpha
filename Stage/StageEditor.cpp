@@ -1,6 +1,7 @@
 #include "StageEditor.h"
 #include "CollisionMap.h"
 #include "../Json/JsonReader.h"
+#include "../Engine/Model.h"
 #include "../Engine/ImGui/imgui.h"
 #include "../Engine/ImGui/imgui_impl_dx11.h"
 #include "../Engine/ImGui/imgui_impl_win32.h"
@@ -34,7 +35,7 @@ std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileNa
     for (const auto& objJson : j["objects"])
     {
         StageModelData obj;
-        obj.hRayModelNum = objJson["modelHandle"];
+        obj.hRayModelNum = Model::Load(objJson["fileName"]);
         obj.transform.position_ = { objJson["position"]["x"], objJson["position"]["y"], objJson["position"]["z"] };
         obj.transform.scale_ = { objJson["scale"]["x"], objJson["scale"]["y"], objJson["scale"]["z"] };
         obj.transform.rotate_ = { objJson["rotate"]["x"], objJson["rotate"]["y"], objJson["rotate"]["z"] };
@@ -44,13 +45,13 @@ std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileNa
     return stage;
 }
 
-void StageEditor::SaveFileStage(const std::vector<StageModelData>& stage, const std::string& fileName)
+void StageEditor::SaveFileStage(const std::vector<LoadStageModel>& stage, const std::string& fileName)
 {
     nlohmann::json j;
     for (const auto& obj : stage)
     {
         nlohmann::json objJson;
-        objJson["modelHandle"] = obj.hRayModelNum;
+        objJson["fileName"] = obj.fileName;
         objJson["position"] = { {"x", obj.transform.position_.x}, {"y", obj.transform.position_.y}, {"z", obj.transform.position_.z} };
         objJson["scale"] = { {"x", obj.transform.scale_.x}, {"y", obj.transform.scale_.y}, {"z", obj.transform.scale_.z} };
         objJson["rotate"] = { {"x", obj.transform.rotate_.x}, {"y", obj.transform.rotate_.y}, {"z", obj.transform.rotate_.z} };

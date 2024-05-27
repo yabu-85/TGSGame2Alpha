@@ -1,7 +1,7 @@
 {
     "objects": [
         {
-            "modelHandle": 1,
+            "fileName": "Model/planeStage.fbx",
             "position": {
                 "x": 50.0,
                 "y": 5.0,
@@ -19,7 +19,7 @@
             }
         },
         {
-            "modelHandle": 2,
+            "fileName": "Model/Box.fbx",
             "position": {
                 "x": 53.0,
                 "y": 5.5,
@@ -37,7 +37,7 @@
             }
         },
         {
-            "modelHandle": 2,
+            "fileName": "Model/Box.fbx",
             "position": {
                 "x": 47.0,
                 "y": 7.5,
@@ -55,7 +55,7 @@
             }
         },
         {
-            "modelHandle": 3,
+            "fileName": "Model/plane.fbx",
             "position": {
                 "x": 55.0,
                 "y": 5.5,
@@ -73,7 +73,7 @@
             }
         },
         {
-            "modelHandle": 3,
+            "fileName": "Model/plane.fbx",
             "position": {
                 "x": 42.0,
                 "y": 5.5,
