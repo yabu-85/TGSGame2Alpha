@@ -38,9 +38,14 @@ public:
     //Stage‚©‚çƒf[ƒ^æ“¾‚µ‚ÄTriangleì¬
     void CreatIntersectDataTriangle();
 
-    bool CellRayCast(XMFLOAT3 plaPos, RayCastData* _data);
+    //Triangle‚É“–‚½‚Á‚½ê‡‚ÌÅ¬‹——£‚ğ•Ô‚·
+    bool CellFloarRayCast(XMFLOAT3 plaPos, RayCastData* _data);
+    bool CellWallRayCast(XMFLOAT3 plaPos, RayCastData* _data);
 
     bool CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
+
+
+    std::vector<StageModelData> GetModelList() { return modelList_; }
 
 };
 

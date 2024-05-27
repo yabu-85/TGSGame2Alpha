@@ -1,11 +1,11 @@
 #include "TestScene.h"
-#include "Player/Player.h"
-#include "Stage/Stage.h"
-#include "Enemy/Enemy.h"
+#include "../Player/Player.h"
+#include "../Stage/Stage.h"
+#include "../Enemy/Enemy.h"
 
-#include "Engine/Input.h"
-#include "Engine/Light.h"
-#include "Engine/Direct3D.h"
+#include "../Engine/Input.h"
+#include "../Engine/Light.h"
+#include "../Engine/Direct3D.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -16,10 +16,10 @@ TestScene::TestScene(GameObject * parent)
 //初期化
 void TestScene::Initialize()
 {
-	Instantiate<Player>(this);
 	Instantiate<Stage>(this);
+	Instantiate<Player>(this);
 
-	int count = 3;
+	int count = 0;
 	for(int i = 0;i < count;i++) Instantiate<Enemy>(this);
 
 }

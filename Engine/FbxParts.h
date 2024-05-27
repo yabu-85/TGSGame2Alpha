@@ -161,7 +161,5 @@ public:
 
 	std::vector<PolygonData> GetAllPolygon(FbxNode* pNode);
 
-	void GetAllPolygonRecursive(FbxNode* pNode, std::vector<PolygonData>& list);
-
 };
 

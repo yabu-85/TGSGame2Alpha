@@ -64,6 +64,25 @@ bool Cell::SegmentVsFloarTriangle(RayCastData* _data)
 	return hit;
 }
 
+bool Cell::SegmentVsWallTriangle(RayCastData* _data)
+{
+	bool hit = false;
+	float minDist = FBXSDK_FLOAT_MAX;
+
+	for (int i = 0; i < (int)wallTriangles_.size(); i++) {
+		wallTriangles_.at(i).RayCast(_data);
+
+		//ƒŒƒC“–‚½‚Á‚½EÅ¬‹——£‚¾‚Á‚½‚çã‘‚«
+		if (_data->hit && minDist > _data->dist) {
+			minDist = _data->dist;
+			hit = true;
+		}
+	}
+
+	_data->dist = minDist;
+	return hit;
+}
+
 #include "../Engine/GameObject.h"
 #include "../Engine/Global.h"
 bool Cell::SphereVsTriangle(SphereCollider* collid, XMVECTOR& push)

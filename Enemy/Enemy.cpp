@@ -73,7 +73,7 @@ void Enemy::Update()
         rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
         XMFLOAT3 pos = transform_.position_;
         pos.y += addPos;
-        pStage->CellRayCast(pos, &rayData);
+        pStage->CellFloarRayCast(pos, &rayData);
         if (rayData.hit && rayData.dist < PlayerHeightSize) {
             transform_.position_.y += PlayerHeightSize - rayData.dist;
             gra = 0.0f;

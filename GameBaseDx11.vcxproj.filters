@@ -39,11 +39,23 @@
     <Filter Include="04Enemy">
       <UniqueIdentifier>{888ef92a-f8aa-4c29-b0ac-e1e0b9ba689f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="05Stage">
+    <Filter Include="05State">
+      <UniqueIdentifier>{9309f86f-8dbd-49b2-a29b-5e9088508f33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06Stage">
       <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
     </Filter>
-    <Filter Include="06Other">
+    <Filter Include="07Other">
       <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="08Scene">
+      <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="05State\Player">
+      <UniqueIdentifier>{3bf0fa3a-6c35-4632-8232-28dfc6e986ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="05State\Base">
+      <UniqueIdentifier>{a4cb25ad-6640-4be3-a367-7126332f6485}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -101,7 +113,6 @@
     <ClCompile Include="Engine\Transform.cpp">
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="TestScene.cpp" />
     <ClCompile Include="Engine\Audio.cpp">
       <Filter>01Engine\ResourceManager</Filter>
     </ClCompile>
@@ -124,10 +135,10 @@
       <Filter>03Player</Filter>
     </ClCompile>
     <ClCompile Include="Other\InputManager.cpp">
-      <Filter>06Other</Filter>
+      <Filter>07Other</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Stage.cpp">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
     </ClCompile>
     <ClCompile Include="Json\jsonReader.cpp">
       <Filter>01Engine\Json</Filter>
@@ -160,13 +171,25 @@
       <Filter>04Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Cell.cpp">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
     </ClCompile>
     <ClCompile Include="Stage\CollisionMap.cpp">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Triangle.cpp">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="State\PlayerState.cpp">
+      <Filter>05State\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="State\StateManager.cpp">
+      <Filter>05State\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\TestScene.cpp">
+      <Filter>08Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage\StageEditor.cpp">
+      <Filter>06Stage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -224,7 +247,6 @@
     <ClInclude Include="Engine\Transform.h">
       <Filter>01Engine\GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="TestScene.h" />
     <ClInclude Include="Engine\Audio.h">
       <Filter>01Engine\ResourceManager</Filter>
     </ClInclude>
@@ -247,10 +269,10 @@
       <Filter>03Player</Filter>
     </ClInclude>
     <ClInclude Include="Other\InputManager.h">
-      <Filter>06Other</Filter>
+      <Filter>07Other</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Stage.h">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
     </ClInclude>
     <ClInclude Include="Json\json.hpp">
       <Filter>01Engine\Json</Filter>
@@ -292,13 +314,28 @@
       <Filter>04Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Cell.h">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
     </ClInclude>
     <ClInclude Include="Stage\CollisionMap.h">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Triangle.h">
-      <Filter>05Stage</Filter>
+      <Filter>06Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="State\PlayerState.h">
+      <Filter>05State\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="State\StateBase.h">
+      <Filter>05State\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="State\StateManager.h">
+      <Filter>05State\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\TestScene.h">
+      <Filter>08Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage\StageEditor.h">
+      <Filter>06Stage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

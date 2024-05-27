@@ -3,15 +3,10 @@
 #include <list>
 #include <string>
 #include <assert.h>
-#include "SphereCollider.h"
-#include "BoxCollider.h"
 #include "Transform.h"
-
-
-
+#include "Collider.h"
 
 using namespace DirectX;
-
 
 //-----------------------------------------------------------
 //全てのゲームオブジェクト（シーンも含めて）が継承するインターフェース

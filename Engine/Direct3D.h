@@ -70,6 +70,9 @@ namespace Direct3D
 	extern XMFLOAT3	EnemyPosition;
 	extern float	playerSpeed;
 
+	extern bool		playerClimb;
+	extern bool		playerFaly;
+
 	////////////////////////‚±‚±‚©‚ç‚ÍŠÖ”///////////////////////////////
 
 	//‰Šú‰»ˆ—

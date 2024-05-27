@@ -184,7 +184,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					ImGui::Text("Enemy : (%.2f, %.2f, %.2f)", Direct3D::EnemyPosition.x, Direct3D::EnemyPosition.y, Direct3D::EnemyPosition.z);
 					ImGui::Separator();
 					ImGui::SliderFloat("Player Speed", &Direct3D::playerSpeed, 0.0f, 1.0f);
-				
+
+					if (Direct3D::playerFaly) ImGui::Text("Player Faly   : true");
+					else ImGui::Text("Player Faly  : false");
+
+					if (Direct3D::playerClimb) ImGui::Text("Player Climb : true");
+					else ImGui::Text("Player Climb : false");
+
 				}
 				ImGui::End();//ImGui‚Ìˆ—‚ğI—¹
 				ImGui::Render();

@@ -1,39 +1,39 @@
 #include "Player.h"
 #include "Aim.h"
+#include "../State/StateBase.h"
+#include "../State/PlayerState.h"
+#include "../State/StateManager.h"
+
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
-#include "../Engine/CapsuleCollider.h"
 
 #include "../Other/InputManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
 
 #include "../Stage/CollisionMap.h"
-#include "../Stage/Cell.h"
-#include "../Stage/Triangle.h"
-#include "../Stage/Stage.h"
+#include "../Engine/SphereCollider.h"
+#include "../Engine/CapsuleCollider.h"
 
 namespace {
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
     const float moveGradually = 0.09f;      //移動スピードの加減の値移動時
-    const float maxMoveSpeed = 0.7f;        //最大移動スピード
+    const float maxmoveSpeed_ = 0.7f;        //最大移動スピード
     const float rotateRatio = 0.1f;         //通常時のRotateRatio
 
-    const float JumpPower = 0.09f;
-    const float gravity = 0.002f;
-    const float PlayerHeightSize = 1.3f;    //一番上
+    const float JumpPower = 0.12f;
+    const float WorldGravity = 0.005f;
+    const float PlayerHeightSize = 1.3f;
 
-    //デバッグ用
-    bool isGround = false;
-    bool isFly = false;
-    bool isCollider = true; //当たり判定するかどうか
-    XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
+    const XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
+    XMFLOAT3 testPos = XMFLOAT3();
+    CollisionMap* pCMap = nullptr;
 
-    CapsuleCollider* pCollid = nullptr;
 }
 
 Player::Player(GameObject* parent)
-    : GameObject(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), testModel_(-1)
+    : GameObject(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), testModel_(-1), climbPos_(XMFLOAT3()),
+    isFly_(true), isClimb_(false)
 {
 }
 
@@ -48,77 +48,95 @@ void Player::Initialize()
     testModel_ = Model::Load("DebugCollision/SphereCollider.fbx");
     assert(testModel_ >= 0);
 
-    moveSpeed = 0.15f;
-    Direct3D::playerSpeed = moveSpeed;
+    moveSpeed_ = 0.15f;
+    Direct3D::playerSpeed = moveSpeed_;
 
     transform_.position_ = start;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
 
+    pStateManager_ = new StateManager(this);
+    pStateManager_->AddState(new PlayerWait(pStateManager_));
+    pStateManager_->AddState(new PlayerMove(pStateManager_));
+    pStateManager_->AddState(new PlayerJump(pStateManager_));
+    pStateManager_->AddState(new PlayerClimb(pStateManager_));
+    pStateManager_->ChangeState("Wait");
+
+    pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
+    assert(pCMap);
+
 #if 0
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    pCollid = new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f, vec);
+    CapsuleCollider* pCollid = new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f, vec);
     AddCollider(pCollid);
 #else
-    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.7f, 0.0f), 0.5f));
+    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.5f, 0.0f), 0.5f));
 #endif
 
 }
 
 void Player::Update()
 {
-    if (Input::IsKeyDown(DIK_T)) isFly = !isFly;
-    moveSpeed = Direct3D::playerSpeed;
+    //空中にいる
+    if (isFly_) {
+        //登り処理
+        if (InputManager::IsCmd(InputManager::JUMP) && !IsClimb()) {
+            CheckWallClimb();
+            if(IsClimb()) pStateManager_->ChangeState("Climb");
+        }
 
-    if (InputManager::CmdWalk()) {
-        CalcMove();
-        Rotate();
+        //重力処理
+        if (!IsClimb()) {
+            gravity_ += WorldGravity;
+            transform_.position_.y -= gravity_;
+        }
+
+        StageFloarBounce();
     }
     else {
-        CalcNoMove();
-    }
-    
-    if (isFly && Input::IsKey(DIK_SPACE)) playerMovement_.y += 0.1f;
-    else if (isFly &&Input::IsKey(DIK_F)) playerMovement_.y -= 0.1f;
-    Move();
-    
-    //重力＆ジャンプ
-    if (!isFly) {
-        if (isGround && InputManager::IsCmdDown(InputManager::JUMP)) gra = -JumpPower;
-        gra += gravity;
-        transform_.position_.y -= gra;
-    }
+        //Yだけジャンプ出来なくなる奴の対策で、前のWallBounce前の値に
+        transform_.position_.y = testPos.y;
 
-    CollisionMap* pStage = (CollisionMap*)FindObject("CollisionMap");
-    SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
-    XMVECTOR push = XMVectorZero();
-    pStage->CellSphereVsTriangle(collid, push);
+        float addPos = -1.0f;
+        for (int i = 0; i < 2; i++) {
+            RayCastData rayData = RayCastData();
+            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
+            rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+            XMFLOAT3 pos = transform_.position_;
+            pos.y += addPos;
+            pCMap->CellFloarRayCast(pos, &rayData);
 
-#if 1
-    float addPos = -1.0f;
-    isGround = false;
-    for (int i = 0; i < 2; i++) {
-        RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
-        rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-        XMFLOAT3 pos = transform_.position_;
-        pos.y += addPos;
-        pStage->CellRayCast(pos, &rayData);
-        if (rayData.hit && rayData.dist < PlayerHeightSize) {
-            transform_.position_.y += PlayerHeightSize - rayData.dist;
-            gra = 0.0f;
-            isGround = true;
+            if (rayData.hit && rayData.dist < PlayerHeightSize) {
+                transform_.position_.y += PlayerHeightSize - rayData.dist;
+            }
+
+            //誤差考えた値で判定
+            else if(rayData.dist > PlayerHeightSize + 0.001f) {
+                isFly_ = true;
+                break;
+            }
+            addPos = 0.0f;
         }
-        addPos = 0.0f;
     }
-#endif
 
-    //デバッグ用
+    pStateManager_->Update();
+    testPos = transform_.position_;
+    StageWallBounce();
+
+    //重力＆ジャンプ
+    moveSpeed_ = Direct3D::playerSpeed;
+    Direct3D::PlayerPosition = transform_.position_;
+    Direct3D::playerClimb = isClimb_;
+    Direct3D::playerFaly = isFly_;
+
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = start;
-    if (Input::IsKeyDown(DIK_T)) isCollider = !isCollider;
 
     //カプセル
-    if (pCollid && pCollid->GetColliderType() == COLLIDER_CAPSULE) {
+#if 0
+    if (!GetAllColliderList().empty()) {
+        CapsuleCollider* pCollid = static_cast<CapsuleCollider*>(GetAllColliderList().front());
+        if (pCollid) return;
+       
         if (Input::IsKey(DIK_NUMPAD7)) {
             XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
             XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
@@ -150,17 +168,16 @@ void Player::Update()
             pCollid->direction_ = rotatedDirection;
         }
     }
-    
+#endif
+
 }
 
 void Player::Draw()
 {
-    Direct3D::PlayerPosition = transform_.position_;
-
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-   // CollisionDraw();
+    //CollisionDraw();
 }
 
 void Player::Release()
@@ -196,7 +213,6 @@ XMFLOAT3 Player::GetInputMove()
         XMFLOAT3 aimDirection = pAim_->GetAimDirection();
         if (InputManager::IsCmd(InputManager::MOVE_UP)) {
             fMove.x += aimDirection.x;
-            if(isFly) fMove.y += aimDirection.y;
             fMove.z += aimDirection.z;
         }
         if (InputManager::IsCmd(InputManager::MOVE_LEFT)) {
@@ -205,7 +221,6 @@ XMFLOAT3 Player::GetInputMove()
         }
         if (InputManager::IsCmd(InputManager::MOVE_DOWN)) {
             fMove.x -= aimDirection.x;
-            if (isFly) fMove.y -= aimDirection.y;
             fMove.z -= aimDirection.z;
         }
         if (InputManager::IsCmd(InputManager::MOVE_RIGHT)) {
@@ -223,9 +238,18 @@ XMFLOAT3 Player::GetInputMove()
 
 void Player::Move(float f)
 {
-    transform_.position_.x += ((playerMovement_.x * moveSpeed) * f);
-    transform_.position_.y += ((playerMovement_.y * moveSpeed) * f);
-    transform_.position_.z += ((playerMovement_.z * moveSpeed) * f);
+    transform_.position_.x += ((playerMovement_.x * moveSpeed_) * f);
+    transform_.position_.y += ((playerMovement_.y * moveSpeed_) * f);
+    transform_.position_.z += ((playerMovement_.z * moveSpeed_) * f);
+}
+
+XMVECTOR Player::GetDirectionVec()
+{
+    XMVECTOR vMove = { 0.0, 0.0, 1.0, 0.0 };
+    XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
+    vMove = XMVector3TransformCoord(vMove, mRotY);
+    vMove = XMVector3Normalize(vMove);
+    return vMove;
 }
 
 void Player::CalcMove()
@@ -238,11 +262,11 @@ void Player::CalcMove()
 
     //MaxSpeed超えていたら正規化・MaxSpeedの値にする
     float currentSpeed = XMVectorGetX(XMVector3Length(XMLoadFloat3(&playerMovement_)));
-    if (currentSpeed > maxMoveSpeed) {
+    if (currentSpeed > maxmoveSpeed_) {
         XMVECTOR vMove;
         vMove = XMLoadFloat3(&playerMovement_);
         vMove = XMVector3Normalize(vMove);
-        vMove *= maxMoveSpeed;
+        vMove *= maxmoveSpeed_;
         XMStoreFloat3(&playerMovement_, vMove);
     }
 }
@@ -253,4 +277,96 @@ void Player::CalcNoMove()
     gradually_ = stopGradually;
     move = { ((move.x - playerMovement_.x) * gradually_) , ((move.y - playerMovement_.y) * gradually_) , ((move.z - playerMovement_.z) * gradually_) };
     playerMovement_ = { playerMovement_.x + move.x , playerMovement_.y + move.y , playerMovement_.z + move.z };
+}
+
+void Player::StageFloarBounce()
+{
+    float addPos = -1.0f;
+    for (int i = 0; i < 2; i++) {
+        RayCastData rayData = RayCastData();
+        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
+        rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+        XMFLOAT3 pos = transform_.position_;
+        pos.y += addPos;
+        pCMap->CellFloarRayCast(pos, &rayData);
+        if (rayData.hit && rayData.dist < PlayerHeightSize) {
+            transform_.position_.y += PlayerHeightSize - rayData.dist;
+            gravity_= 0.0f;
+            isFly_ = false;
+            return;
+        }
+        addPos = 0.0f;
+    }
+}
+
+void Player::StageWallBounce()
+{
+    SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
+    XMVECTOR push = XMVectorZero();
+    pCMap->CellSphereVsTriangle(collid, push);
+}
+
+bool Player::IsReadyJump()
+{
+    return (!IsClimb() && !IsFly());
+}
+
+void Player::Jump()
+{
+    isFly_ = true;
+    gravity_= -JumpPower;
+
+}
+
+void Player::WallClimb()
+{
+    XMFLOAT3 move = Float3Sub(climbPos_, transform_.position_);
+    float dist = sqrtf(move.x * move.x + move.y * move.y + move.z * move.z);
+    const float climdmoveSpeed_ = 0.1f;
+
+    if (dist > climdmoveSpeed_) move = Float3Multiply(Float3Normalize(move), climdmoveSpeed_);
+    transform_.position_ = Float3Add(transform_.position_, move);
+
+    move = Float3Sub(climbPos_, transform_.position_);
+    dist = sqrtf(move.x * move.x + move.y * move.y + move.z * move.z);
+    if (dist <= 0.1f) {
+        transform_.position_ = climbPos_;
+        isClimb_ = false;
+    }
+}
+
+void Player::CheckWallClimb()
+{
+    //判定方向取得
+    XMFLOAT3 move = XMFLOAT3();
+    if (InputManager::CmdWalk()) move = GetInputMove();
+    else XMStoreFloat3(&move, GetDirectionVec());
+
+    XMFLOAT3 calcCellPos = Float3Add(move, transform_.position_);
+    RayCastData rayData = RayCastData();
+    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y, transform_.position_.z);
+    rayData.dir = move;
+    pCMap->CellWallRayCast(calcCellPos, &rayData);
+
+    //ちょいタス
+    const float playerHarf = 0.5f + 0.3f;
+    if (rayData.hit && rayData.dist <= playerHarf) {
+        rayData = RayCastData();
+        rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+
+        const float climbedHeightDist = 1.5f;
+        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + climbedHeightDist, transform_.position_.z);
+        rayData.start = Float3Add(rayData.start, Float3Multiply(move, playerHarf));
+        calcCellPos = rayData.start;
+        pCMap->CellFloarRayCast(calcCellPos, &rayData);
+
+        const float climbedDistance = 0.5f;
+        if (rayData.hit && rayData.dist <= climbedDistance) {
+            XMFLOAT3 nPos = rayData.start;
+            nPos.y -= rayData.dist;
+            isClimb_ = true;
+            climbPos_ = nPos;
+            gravity_= 0.0f;
+        }
+    }
 }

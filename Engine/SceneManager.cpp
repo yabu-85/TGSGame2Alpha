@@ -1,6 +1,6 @@
 #include "sceneManager.h"
 
-#include "../TestScene.h"
+#include "../Scene/TestScene.h"
 #include "Model.h"
 #include "Image.h"
 #include "Audio.h"

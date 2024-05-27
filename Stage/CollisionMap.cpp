@@ -2,11 +2,14 @@
 #include "Cell.h"
 #include "Stage.h"
 #include "Triangle.h"
+#include "StageEditor.h"
 #include <vector>
+
 #include "../Engine/Fbx.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 #include "../Engine/Direct3D.h"
+#include "../Engine/SphereCollider.h"
 
 namespace {
     const float boxSize = 5.0f;
@@ -69,6 +72,8 @@ void CollisionMap::Initialize()
 
 void CollisionMap::Update()
 {
+    //StageEditor::DrawStageEditor();
+
 }
 
 void CollisionMap::Draw()
@@ -99,34 +104,11 @@ void CollisionMap::Release()
 {
 }
 
+#include "StageEditor.h"
+
 void CollisionMap::CreatIntersectDataTriangle()
 {
-    //Cellに追加する予定のTriangleをすべて計算してCreatする
-    StageModelData data1 = StageModelData();
-    data1.hRayModelNum = Model::Load("Model/planeStage.fbx");
-    data1.transform.pParent_ = &transform_;
-    data1.transform.position_ = XMFLOAT3(50.0f, 5.0f, 50.0f);
-    data1.transform.scale_ = XMFLOAT3(2.0f, 2.0f, 2.0f);
-    assert(data1.hRayModelNum >= 0);
-    modelList_.push_back(data1);
-
-    data1.hRayModelNum = Model::Load("Model/Box.fbx");
-    data1.transform.position_ = XMFLOAT3(53.0f, 5.5f, 48.0f);
-    modelList_.push_back(data1);
-
-    data1.transform.position_ = XMFLOAT3(47.0f, 7.5f, 48.0f);
-    data1.transform.scale_ = XMFLOAT3(2.0f, 2.0f, 2.0f);
-    modelList_.push_back(data1);
-
-    data1.hRayModelNum = Model::Load("Model/plane.fbx");
-    data1.transform.position_ = XMFLOAT3(55.0f, 5.5f, 44.0f);
-    data1.transform.scale_ = XMFLOAT3(3.0f, 3.0f, 3.0f);
-    data1.transform.rotate_ = XMFLOAT3(40.0f, 30.0f, 0.0f);
-    modelList_.push_back(data1);
-
-    data1.transform.position_ = XMFLOAT3(42.0f, 5.5f, 42.0f);
-    data1.transform.rotate_ = XMFLOAT3(80.0f, 80.0f, 0.0f);
-    modelList_.push_back(data1);
+    modelList_ = StageEditor::LoadFileStage("TestStage.json");
 
     for (int i = 0; i < modelList_.size(); i++) {
         //コリジョン用モデル内なら飛ばす
@@ -163,11 +145,18 @@ void CollisionMap::CreatIntersectDataTriangle()
     }
 }
 
-bool CollisionMap::CellRayCast(XMFLOAT3 plaPos, RayCastData* _data)
+bool CollisionMap::CellFloarRayCast(XMFLOAT3 plaPos, RayCastData* _data)
 {
     Cell* cell = GetCell(plaPos);
     if (!cell) return false;
     return cell->SegmentVsFloarTriangle(_data);
+}
+
+bool CollisionMap::CellWallRayCast(XMFLOAT3 plaPos, RayCastData* _data)
+{
+    Cell* cell = GetCell(plaPos);
+    if (!cell) return false;
+    return cell->SegmentVsWallTriangle(_data);
 }
 
 bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)

@@ -161,11 +161,14 @@
     <ClCompile Include="Other\InputManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
     <ClCompile Include="Player\Player.cpp" />
+    <ClCompile Include="Scene\TestScene.cpp" />
     <ClCompile Include="Stage\Cell.cpp" />
     <ClCompile Include="Stage\CollisionMap.cpp" />
     <ClCompile Include="Stage\Stage.cpp" />
+    <ClCompile Include="Stage\StageEditor.cpp" />
     <ClCompile Include="Stage\Triangle.cpp" />
-    <ClCompile Include="TestScene.cpp" />
+    <ClCompile Include="State\PlayerState.cpp" />
+    <ClCompile Include="State\StateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enemy\Enemy.h" />
@@ -207,11 +210,15 @@
     <ClInclude Include="Other\InputManager.h" />
     <ClInclude Include="Player\Aim.h" />
     <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Scene\TestScene.h" />
     <ClInclude Include="Stage\Cell.h" />
     <ClInclude Include="Stage\CollisionMap.h" />
     <ClInclude Include="Stage\Stage.h" />
+    <ClInclude Include="Stage\StageEditor.h" />
     <ClInclude Include="Stage\Triangle.h" />
-    <ClInclude Include="TestScene.h" />
+    <ClInclude Include="State\PlayerState.h" />
+    <ClInclude Include="State\StateBase.h" />
+    <ClInclude Include="State\StateManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">

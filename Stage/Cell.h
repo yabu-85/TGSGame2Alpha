@@ -37,6 +37,8 @@ public:
 
 	//FloarTriangle‚É“–‚½‚Á‚½ê‡‚ÌÅ¬‹——£‚ğ•Ô‚·
 	bool SegmentVsFloarTriangle(RayCastData* _data);
+	//Wall‚Æ‚â‚é
+	bool SegmentVsWallTriangle(RayCastData* _data);
 
 	bool SphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
 

@@ -74,6 +74,9 @@ namespace Direct3D
 	XMFLOAT3	EnemyPosition;
 	float playerSpeed = 0.0f;
 
+	bool		playerClimb;
+	bool		playerFaly;
+
 	//-------------------------------------------------------
 
 	//‰Šú‰»ˆ—
