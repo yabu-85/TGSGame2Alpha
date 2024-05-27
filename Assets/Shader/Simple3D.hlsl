@@ -109,15 +109,8 @@ float4 PS(VS_OUT inData) : SV_Target
 	//これはMaya側で指定し、グローバル変数で受け取ったものをそのまま
     float4 ambient = float4(0.2f, 0.2f, 0.2f, 1.0f);
 
-	//鏡面反射光（スペキュラー）
-    float4 speculer = float4(0.0f, 0.0f, 0.0f, 1.0f); //とりあえずハイライトは無しにしておいて…
-    float4 specColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    
-    float4 R = reflect(lightDir, inData.normal); //正反射ベクトル
-    speculer = pow(saturate(dot(R, inData.eye)), shininess) * specColor; //ハイライトを求める
-
 	//最終的な色
-    float4 color = diffuse * shade + ambient * diffuse + speculer;
+    float4 color = diffuse * shade + ambient * diffuse;
     
     inData.lightTex /= inData.lightTex.w;
     float TexValue = g_depthTexture.Sample(g_depthSampler, inData.lightTex.xy).r;
@@ -129,6 +122,18 @@ float4 PS(VS_OUT inData) : SV_Target
     {
         //ライトに照らされない場所は影の効果を低く
         color -= color * shade * 0.3f;
+    }
+    else
+    {
+        //鏡面反射光（スペキュラー）
+        float4 speculer = float4(0.0f, 0.0f, 0.0f, 1.0f); //とりあえずハイライトは無しにしておいて…
+        float4 specColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    
+        float4 R = reflect(lightDir, inData.normal); //正反射ベクトル
+        speculer = pow(saturate(dot(R, inData.eye)), shininess) * specColor; //ハイライトを求める
+        
+        //影無しのところは反射光追加
+        color += speculer;
     }
        
 	//もしアルファ値がすこしでも透明でなければ

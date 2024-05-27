@@ -1,6 +1,7 @@
 #include "StageEditor.h"
 #include "../Json/JsonReader.h"
 #include "../Stage/CollisionMap.h"
+#include "../AI/Node.h"
 #include "../Engine/Model.h"
 #include "../Engine/ImGui/imgui.h"
 #include "../Engine/ImGui/imgui_impl_dx11.h"
@@ -76,6 +77,8 @@ void StageEditor::SetCollisionMap(CollisionMap* map)
 
 void StageEditor::DrawStageEditor()
 {
+    if (!pCMap) return;
+
     //パスの数カウント用
     int count = 0;
 
@@ -174,4 +177,159 @@ void StageEditor::DrawStageEditor()
     }
     ImGui::End();
 
+}
+
+//----------------------------------------------------------------------------------
+
+std::vector<Node*> StageEditor::LoadFileNode(const std::string& fileName)
+{
+    std::ifstream ifs(fileName);
+    if (!ifs.is_open())
+    {
+        assert(false);
+        return {};
+    }
+
+    nlohmann::json j;
+    ifs >> j;
+    if (j.empty())
+    {
+        assert(false);
+        return {};
+    }
+
+    std::vector<Node*> nodes;
+    std::unordered_map<int, Node*> nodeMap;
+
+    for (const auto& nodeJson : j["nodes"]) {
+        int id = nodeJson["id"];
+        XMFLOAT3 position = {
+            nodeJson["position"]["x"],
+            nodeJson["position"]["y"],
+            nodeJson["position"]["z"]
+        };
+        Node* node = new Node(id, position);
+        //if (nodeJson["type"] == "jump") { node = new JumpNode(id, position); }
+        
+        nodes.push_back(node);
+        nodeMap[id] = node;
+    }
+    
+    for (const auto& edgeJson : j["edges"]) {
+        int from = edgeJson["from"];
+        int to = edgeJson["to"];
+        float cost = edgeJson["cost"];
+        if (nodeMap.find(from) != nodeMap.end() && nodeMap.find(to) != nodeMap.end()) {
+            nodeMap[from]->GetEdges().push_back({ to, cost });
+        }
+    }
+
+    return nodes;
+}
+
+void StageEditor::SaveFileNode(std::vector<Node*>& nodes, const std::string& fileName)
+{
+    nlohmann::json j;
+    for (auto& node : nodes) {
+        nlohmann::json nodeJson;
+        nodeJson["id"] = node->GetId();
+        nodeJson["position"] = {
+            {"x", node->GetPosition().x},
+            {"y", node->GetPosition().y},
+            {"z", node->GetPosition().z}
+        };
+        nodeJson["type"] = "normal";
+        j["nodes"].push_back(nodeJson);
+    }
+
+    for (auto& node : nodes) {
+        for (auto& edge : node->GetEdges()) {
+            nlohmann::json edgeJson;
+            edgeJson["from"] = node->GetId();
+            edgeJson["to"] = edge.connectId;
+            edgeJson["cost"] = edge.cost;
+            j["edges"].push_back(edgeJson);
+        }
+    }
+    std::ofstream file(fileName);
+    file << j.dump(4);
+}
+
+#include "../AI/RouteSearch.h"
+void StageEditor::DrawNodeEditor()
+{
+    std::vector<Node*>& nodeList = RouteSearch::GetNodeList();
+    ImGui::Begin("StageNodeEditor");
+
+    //セーブボタン
+    if (ImGui::Button("Save NodeList")) {
+        SaveFileNode(nodeList, "TestStageNode.json");
+    }
+
+    //Node追加ボタン
+    if (ImGui::Button("Add Node")) {
+        Node* data = new Node(nodeList.size(), XMFLOAT3(50.0f, 5.0f, 50.0f));
+        nodeList.push_back(data);
+    }
+
+    //区切り線
+    ImGui::Separator();
+
+    for (int index = 0; index < nodeList.size(); ++index)
+    {
+        Node* modelData = nodeList[index];
+
+        // バッファサイズを増やす
+        char name[256];
+        sprintf_s(name, sizeof(name), "id : %d", modelData->GetId());
+
+        if (ImGui::TreeNode(name)) {
+            const float PosMaxValue = 100.0f;
+
+            //Positionセット
+            if (ImGui::TreeNode("Position")) {
+                XMFLOAT3 pos = modelData->GetPosition();
+                ImGui::SliderFloat("x", &pos.x, 0.0f, PosMaxValue);
+                ImGui::SliderFloat("y", &pos.y, 0.0f, PosMaxValue);
+                ImGui::SliderFloat("z", &pos.z, 0.0f, PosMaxValue);
+                ImGui::TreePop();
+                modelData->SetPosition(pos);
+            }
+
+            //Edge
+            if (ImGui::TreeNode("Edge")) {
+                std::vector<Edge>& edgeList = modelData->GetEdges();
+                for (int i = 0; i < edgeList.size(); i++) {
+                    ImGui::InputFloat("cost", &edgeList.at(i).cost, 0, 100.0f);
+                    ImGui::InputInt("connectId", &edgeList.at(i).connectId, 0, 100);
+
+                    //Edge削除
+                    if (ImGui::Button("Remove Edge")) {
+                        edgeList.erase(edgeList.begin() + i);
+                    }
+
+                    //区切り線
+                    ImGui::Separator();
+                }
+
+                //Edge追加
+                if (ImGui::Button("Add Edge")) {
+                    Edge edge = Edge();
+                    edgeList.push_back(edge);
+
+                }
+
+                ImGui::TreePop();
+            }
+
+            //削除ボタン
+            if (ImGui::Button("Remove Node")) {
+                nodeList.erase(nodeList.begin() + index);
+                --index;
+            }
+
+            ImGui::TreePop();
+        }
+    }
+    ImGui::End();
 }

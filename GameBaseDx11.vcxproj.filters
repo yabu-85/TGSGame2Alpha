@@ -45,17 +45,20 @@
     <Filter Include="06Stage">
       <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
     </Filter>
-    <Filter Include="07Other">
-      <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="08Scene">
-      <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="05State\Player">
       <UniqueIdentifier>{3bf0fa3a-6c35-4632-8232-28dfc6e986ee}</UniqueIdentifier>
     </Filter>
     <Filter Include="05State\Base">
       <UniqueIdentifier>{a4cb25ad-6640-4be3-a367-7126332f6485}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="07AI">
+      <UniqueIdentifier>{df51c2cc-3028-4682-ac7b-57c0db1aa6ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="08Other">
+      <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="09Scene">
+      <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +138,7 @@
       <Filter>03Player</Filter>
     </ClCompile>
     <ClCompile Include="Other\InputManager.cpp">
-      <Filter>07Other</Filter>
+      <Filter>08Other</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Stage.cpp">
       <Filter>06Stage</Filter>
@@ -186,10 +189,16 @@
       <Filter>05State\Base</Filter>
     </ClCompile>
     <ClCompile Include="Scene\TestScene.cpp">
-      <Filter>08Scene</Filter>
+      <Filter>09Scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\StageEditor.cpp">
       <Filter>01Engine\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="AI\Node.cpp">
+      <Filter>07AI</Filter>
+    </ClCompile>
+    <ClCompile Include="AI\RouteSearch.cpp">
+      <Filter>07AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -269,7 +278,7 @@
       <Filter>03Player</Filter>
     </ClInclude>
     <ClInclude Include="Other\InputManager.h">
-      <Filter>07Other</Filter>
+      <Filter>08Other</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Stage.h">
       <Filter>06Stage</Filter>
@@ -332,10 +341,16 @@
       <Filter>05State\Base</Filter>
     </ClInclude>
     <ClInclude Include="Scene\TestScene.h">
-      <Filter>08Scene</Filter>
+      <Filter>09Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\StageEditor.h">
       <Filter>01Engine\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\Node.h">
+      <Filter>07AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\RouteSearch.h">
+      <Filter>07AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

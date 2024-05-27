@@ -78,8 +78,9 @@ void CollisionMap::Update()
 void CollisionMap::Draw()
 {
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
-    //Direct3D::SetShader(Direct3D::SHADER_UNLIT);
+    Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
+    //CellBox
 #if 0
     Transform trans = transform_;
     trans.position_ = targetPos_;
@@ -90,13 +91,23 @@ void CollisionMap::Draw()
     Model::SetTransform(handle_, trans);
     Model::Draw(handle_);
 #endif
-
+    
+#if 0
     for (auto e : modelList_) {
         Model::SetTransform(e.hRayModelNum, e.transform);
         Model::Draw(e.hRayModelNum);
     }
+#endif
 
     Direct3D::SetShader(type);
+
+#if 1
+    for (auto e : modelList_) {
+        Model::SetTransform(e.hRayModelNum, e.transform);
+        Model::Draw(e.hRayModelNum);
+    }
+#endif
+
 }
 
 void CollisionMap::Release()

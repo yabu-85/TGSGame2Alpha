@@ -6,6 +6,7 @@
 #include "../Engine/Input.h"
 #include "../Engine/Light.h"
 #include "../Engine/Direct3D.h"
+#include "../AI/RouteSearch.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -22,6 +23,7 @@ void TestScene::Initialize()
 	int count = 0;
 	for(int i = 0;i < count;i++) Instantiate<Enemy>(this);
 
+	RouteSearch::InitializeList();
 }
 
 //更新
@@ -45,6 +47,8 @@ void TestScene::Update()
 //描画
 void TestScene::Draw()
 {
+	RouteSearch::NodeModelDraw();
+
 }
 
 //開放

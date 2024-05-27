@@ -171,6 +171,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				ImGui::NewFrame();
 
 				StageEditor::DrawStageEditor();
+				StageEditor::DrawNodeEditor();
 
 				ImGui::Begin("Hello");//ImGui‚Ìˆ—‚ğŠJn
 				{
