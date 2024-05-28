@@ -27,6 +27,13 @@ namespace {
 
 const float CollisionMap::boxSize = 5.0f;
 
+StageModelData::StageModelData() : hRayModelNum(-1), transform{ }
+{
+    transform.position_ = XMFLOAT3(50.0f, 5.0f, 50.0f);
+}
+
+//---------------------------------------------------------------------------------
+
 CollisionMap::CollisionMap(GameObject* parent)
     : GameObject(parent, "CollisionMap"), handle_(-1), targetPos_(XMFLOAT3())
 {

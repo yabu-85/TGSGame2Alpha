@@ -20,15 +20,24 @@ std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileNa
     std::ifstream ifs(fileName);
     if (!ifs.is_open())
     {
-        assert(false);
+        // ファイルが開けない場合のエラーハンドリング
         return {};
     }
 
     nlohmann::json j;
-    ifs >> j;
+    try
+    {
+        ifs >> j;
+    }
+    catch (const nlohmann::json::parse_error& e)
+    {
+        // JSONのパースエラーのエラーハンドリング
+        return {};
+    }
+
     if (j.empty())
     {
-        assert(false);
+        // JSONが空の場合のエラーハンドリング
         return {};
     }
 
@@ -186,15 +195,24 @@ std::vector<Node*> StageEditor::LoadFileNode(const std::string& fileName)
     std::ifstream ifs(fileName);
     if (!ifs.is_open())
     {
-        assert(false);
+        // ファイルが開けない場合のエラーハンドリング
         return {};
     }
 
     nlohmann::json j;
-    ifs >> j;
+    try
+    {
+        ifs >> j;
+    }
+    catch (const nlohmann::json::parse_error& e)
+    {
+        // JSONのパースエラーのエラーハンドリング
+        return {};
+    }
+
     if (j.empty())
     {
-        assert(false);
+        // JSONが空の場合のエラーハンドリング
         return {};
     }
 

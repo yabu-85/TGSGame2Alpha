@@ -11,7 +11,7 @@ struct StageModelData {
     int hRayModelNum;
     std::string fileName;
     Transform transform;
-    StageModelData() : hRayModelNum(-1) { }
+    StageModelData();
 };
 
 class CollisionMap : public GameObject

@@ -7,4 +7,6 @@ namespace JsonReader
 
 	// 指定したセクションを取得
 	const nlohmann::json& GetSection(const std::string& key);
+	const nlohmann::json& GetSection(const std::string& key1, const std::string& key2);
+
 };
