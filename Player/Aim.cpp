@@ -47,6 +47,7 @@ void Aim::Initialize()
 
 void Aim::Update()
 {
+    if (Input::IsMouseButtonDown(1)) isValid_ = !isValid_;
     if (!IsValid()) return;
 
     //デバッグ用

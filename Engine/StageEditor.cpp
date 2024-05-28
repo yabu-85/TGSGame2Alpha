@@ -272,6 +272,24 @@ void StageEditor::DrawNodeEditor()
         nodeList.push_back(data);
     }
 
+    //地面にくっつかせる
+    if (ImGui::Button("StickToGround")) {
+        for (int index = 0; index < nodeList.size(); ++index)
+        {
+            Node* modelData = nodeList[index];
+            XMFLOAT3 cellPos = modelData->GetPosition();
+            RayCastData rayData = RayCastData();
+            rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+            rayData.start = cellPos;
+            pCMap->CellFloarRayCast(cellPos, &rayData);
+            if (rayData.hit && rayData.dist <= 100.0f) {
+                XMFLOAT3 newPos = { cellPos.x, cellPos.y - rayData.dist, cellPos.z };
+                modelData->SetPosition(newPos);
+            }
+
+        }
+    }
+
     //区切り線
     ImGui::Separator();
 
@@ -286,40 +304,38 @@ void StageEditor::DrawNodeEditor()
         if (ImGui::TreeNode(name)) {
             const float PosMaxValue = 100.0f;
 
-            //Positionセット
-            if (ImGui::TreeNode("Position")) {
-                XMFLOAT3 pos = modelData->GetPosition();
-                ImGui::SliderFloat("x", &pos.x, 0.0f, PosMaxValue);
-                ImGui::SliderFloat("y", &pos.y, 0.0f, PosMaxValue);
-                ImGui::SliderFloat("z", &pos.z, 0.0f, PosMaxValue);
-                ImGui::TreePop();
-                modelData->SetPosition(pos);
+            XMFLOAT3 pos = modelData->GetPosition();
+            ImGui::SliderFloat("x", &pos.x, 0.0f, PosMaxValue);
+            ImGui::SliderFloat("y", &pos.y, 0.0f, PosMaxValue);
+            ImGui::SliderFloat("z", &pos.z, 0.0f, PosMaxValue);
+            modelData->SetPosition(pos);
+
+            //区切り線
+            ImGui::Separator();
+
+            //Edge追加
+            std::vector<Edge>& edgeList = modelData->GetEdges();
+            if (ImGui::Button("Add Edge")) {
+                Edge edge = Edge();
+                edgeList.push_back(edge);
             }
 
-            //Edge
-            if (ImGui::TreeNode("Edge")) {
-                std::vector<Edge>& edgeList = modelData->GetEdges();
-                for (int i = 0; i < edgeList.size(); i++) {
-                    ImGui::InputFloat("cost", &edgeList.at(i).cost, 0, 100.0f);
-                    ImGui::InputInt("connectId", &edgeList.at(i).connectId, 0, 100);
+            for (int i = 0; i < (int)edgeList.size(); i++) {
+                char edgeName[256];
+                sprintf_s(edgeName, "Remove Edge %d", i);
 
-                    //Edge削除
-                    if (ImGui::Button("Remove Edge")) {
-                        edgeList.erase(edgeList.begin() + i);
-                    }
-
-                    //区切り線
-                    ImGui::Separator();
+                //Edge削除
+                if (ImGui::Button(edgeName)) {
+                    edgeList.erase(edgeList.begin() + i);
+                    --i;
+                    continue;
                 }
 
-                //Edge追加
-                if (ImGui::Button("Add Edge")) {
-                    Edge edge = Edge();
-                    edgeList.push_back(edge);
+                ImGui::InputFloat("cost", &edgeList.at(i).cost, 0, 100.0f);
+                ImGui::InputInt("connectId", &edgeList.at(i).connectId, 0, 100);
 
-                }
-
-                ImGui::TreePop();
+                //区切り線
+                ImGui::Separator();
             }
 
             //削除ボタン

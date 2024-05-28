@@ -70,3 +70,13 @@ XMMATRIX Camera::GetProjectionMatrix() { return _proj; }
 
 //ビルボード用回転行列を取得
 XMMATRIX Camera::GetBillboardMatrix(){	return _billBoard; }
+
+XMFLOAT3 Camera::CalcScreenPosition(XMFLOAT3 pos)
+{
+	XMVECTOR v2 = XMVector3TransformCoord(XMLoadFloat3(&pos), Camera::GetViewMatrix());
+	v2 = XMVector3TransformCoord(v2, Camera::GetProjectionMatrix());
+	pos.x = XMVectorGetX(v2);
+	pos.y = XMVectorGetY(v2);
+	pos.z = XMVectorGetZ(v2);
+	return pos;
+}

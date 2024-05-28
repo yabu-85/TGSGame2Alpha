@@ -3,6 +3,8 @@
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
 #include "../Engine/StageEditor.h"
+#include "../Engine/Text.h"
+#include "../Engine/Camera.h"
 
 #include <unordered_map>
 #include <cmath>
@@ -11,12 +13,16 @@
 #include <queue>
 
 namespace RouteSearch {
+    Text* pText = nullptr;
     int nodeHandle = -1;
     int edgeHandle = -1;
     std::vector<Node*> nodes;
 
     void InitializeList()
     {
+        pText = new Text();
+        pText->Initialize();
+
         nodes = StageEditor::LoadFileNode("TestStageNode.json");
         nodeHandle = Model::Load("DebugCollision/SphereCollider.fbx");
         edgeHandle = Model::Load("DebugCollision/BoxCollider.fbx");
@@ -32,11 +38,25 @@ namespace RouteSearch {
     void NodeModelDraw()
     {
         for (Node* node : nodes) {
+            XMFLOAT3 vec = Float3Sub(Camera::GetPosition(), node->GetPosition());
+            float dist = CalculationDistance(vec);
+            if (dist > 30.0f) continue;
+
             Transform t = Transform();
             t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
             t.position_ = node->GetPosition();
             Model::SetTransform(nodeHandle, t);
             Model::Draw(nodeHandle);
+
+            //Id‚Ì•\Ž¦
+            if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
+                XMFLOAT3 camVPos = Camera::CalcScreenPosition(t.position_);
+                camVPos.x = ((camVPos.x + 1.0f) * 0.5f);
+                camVPos.y = 1.0f - ((camVPos.y + 1.0f) * 0.5f);
+                camVPos.x *= Direct3D::screenWidth_;
+                camVPos.y *= Direct3D::screenHeight_;
+                pText->Draw((int)camVPos.x, (int)camVPos.y, node->GetId());
+            }
 
             for (Edge edge : node->GetEdges()) {
                 //ƒGƒ‰[ˆ—
@@ -45,9 +65,13 @@ namespace RouteSearch {
                 XMFLOAT3 vec = Float3Sub(nodes[edge.connectId]->GetPosition(), node->GetPosition());
                 vec = Float3Multiply(vec, 0.2f);
                 XMFLOAT3 pos = t.position_;
-                for (int i = 0; i < 5; i++) {
+
+                int count = 5;
+                float size = 0.05f;
+                for (int i = 0; i < count; i++) {
                     pos = Float3Add(pos, vec);
-                    t.scale_ = XMFLOAT3(0.1f, 0.1f, 0.1f);
+                    float sca = (float)count - (float)i;
+                    t.scale_ = XMFLOAT3(size * sca, size * sca, size * sca);
                     t.position_ = pos;
                     Model::SetTransform(edgeHandle, t);
                     Model::Draw(edgeHandle);
