@@ -33,7 +33,7 @@ namespace {
 
 Player::Player(GameObject* parent)
     : GameObject(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), testModel_(-1), climbPos_(XMFLOAT3()),
-    isFly_(true), isClimb_(false)
+    isFly_(true), isClimb_(false), isCreative_(false)
 {
 }
 
@@ -77,6 +77,23 @@ void Player::Initialize()
 
 void Player::Update()
 {
+    if (Input::IsKeyDown(DIK_Z)) transform_.position_ = start;
+    if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
+    if (isCreative_) {
+        if (Input::IsKey(DIK_SPACE)) playerMovement_.y += moveSpeed_ * 0.5f;
+        else if (Input::IsKey(DIK_F)) playerMovement_.y -= moveSpeed_ * 0.5f;
+        if (InputManager::CmdWalk()) CalcMove();
+        else CalcNoMove();
+        Move();
+        Rotate();
+
+        moveSpeed_ = Direct3D::playerSpeed;
+        Direct3D::PlayerPosition = transform_.position_;
+        Direct3D::playerClimb = isClimb_;
+        Direct3D::playerFaly = isFly_;
+        return;
+    }
+
     //空中にいる
     if (isFly_) {
         //登り処理
@@ -123,13 +140,10 @@ void Player::Update()
     testPos = transform_.position_;
     StageWallBounce();
 
-    //重力＆ジャンプ
     moveSpeed_ = Direct3D::playerSpeed;
     Direct3D::PlayerPosition = transform_.position_;
     Direct3D::playerClimb = isClimb_;
     Direct3D::playerFaly = isFly_;
-
-    if (Input::IsKeyDown(DIK_Z)) transform_.position_ = start;
 
     //カプセル
 #if 0
@@ -213,6 +227,7 @@ XMFLOAT3 Player::GetInputMove()
         XMFLOAT3 aimDirection = pAim_->GetAimDirection();
         if (InputManager::IsCmd(InputManager::MOVE_UP)) {
             fMove.x += aimDirection.x;
+            if (isCreative_) fMove.y += aimDirection.y;
             fMove.z += aimDirection.z;
         }
         if (InputManager::IsCmd(InputManager::MOVE_LEFT)) {
@@ -221,6 +236,7 @@ XMFLOAT3 Player::GetInputMove()
         }
         if (InputManager::IsCmd(InputManager::MOVE_DOWN)) {
             fMove.x -= aimDirection.x;
+            if (isCreative_) fMove.y -= aimDirection.y;
             fMove.z -= aimDirection.z;
         }
         if (InputManager::IsCmd(InputManager::MOVE_RIGHT)) {

@@ -268,7 +268,7 @@ void StageEditor::DrawNodeEditor()
 
     //Node’Ç‰Áƒ{ƒ^ƒ“
     if (ImGui::Button("Add Node")) {
-        Node* data = new Node(nodeList.size(), XMFLOAT3(50.0f, 5.0f, 50.0f));
+        Node* data = new Node((int)nodeList.size(), XMFLOAT3(50.0f, 5.0f, 50.0f));
         nodeList.push_back(data);
     }
 
@@ -282,11 +282,21 @@ void StageEditor::DrawNodeEditor()
             rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
             rayData.start = cellPos;
             pCMap->CellFloarRayCast(cellPos, &rayData);
-            if (rayData.hit && rayData.dist <= 100.0f) {
-                XMFLOAT3 newPos = { cellPos.x, cellPos.y - rayData.dist, cellPos.z };
+            float minDist = rayData.dist;
+
+            rayData = RayCastData();
+            rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+            rayData.start = cellPos;
+            cellPos.y -= CollisionMap::boxSize;
+            pCMap->CellFloarRayCast(cellPos, &rayData);
+            if (rayData.dist < minDist) minDist = rayData.dist;
+
+            const float ErrorValue = 0.00001f;  //Œë·
+            if (minDist <= 100.0f) {
+                XMFLOAT3 newPos = modelData->GetPosition();
+                newPos.y -= minDist;
                 modelData->SetPosition(newPos);
             }
-
         }
     }
 
@@ -322,7 +332,7 @@ void StageEditor::DrawNodeEditor()
 
             for (int i = 0; i < (int)edgeList.size(); i++) {
                 char edgeName[256];
-                sprintf_s(edgeName, "Remove Edge %d", i);
+                sprintf_s(edgeName, "Remove Edge %d##%d_%d", i, index, i);
 
                 //Edgeíœ
                 if (ImGui::Button(edgeName)) {
@@ -331,9 +341,14 @@ void StageEditor::DrawNodeEditor()
                     continue;
                 }
 
-                ImGui::InputFloat("cost", &edgeList.at(i).cost, 0, 100.0f);
-                ImGui::InputInt("connectId", &edgeList.at(i).connectId, 0, 100);
+                char costName[256];
+                sprintf_s(costName, "cost##%d_%d", index, i);
+                ImGui::InputFloat(costName, &edgeList.at(i).cost, 0, 100.0f);
 
+                char connectIdName[256];
+                sprintf_s(connectIdName, "connectId##%d_%d", index, i);
+                ImGui::InputInt(connectIdName, &edgeList.at(i).connectId, 0, 100);
+                
                 //‹æØ‚èü
                 ImGui::Separator();
             }

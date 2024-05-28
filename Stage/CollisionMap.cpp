@@ -12,7 +12,6 @@
 #include "../Engine/StageEditor.h"
 
 namespace {
-    const float boxSize = 5.0f;
     float minX = 0;
     float maxX = 100;
     float minY = 0;
@@ -25,6 +24,8 @@ namespace {
     int numY = 0;
     int numZ = 0;
 }
+
+const float CollisionMap::boxSize = 5.0f;
 
 CollisionMap::CollisionMap(GameObject* parent)
     : GameObject(parent, "CollisionMap"), handle_(-1), targetPos_(XMFLOAT3())
@@ -82,6 +83,12 @@ void CollisionMap::Draw()
 
     //CellBox
 #if 0
+    OutputDebugString("Floar triangles : ");
+    OutputDebugStringA(std::to_string(GetCell(targetPos_)->GetFloarTriangles().size()).c_str());
+    OutputDebugString("\nWall  triangles : ");
+    OutputDebugStringA(std::to_string(GetCell(targetPos_)->GetWallTriangles().size()).c_str());
+    OutputDebugString("\n\n");
+
     Transform trans = transform_;
     trans.position_ = targetPos_;
     trans.position_.x += boxSize * 0.5f;

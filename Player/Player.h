@@ -8,7 +8,8 @@ class Player : public GameObject
 {
     bool isFly_;                //空中かどうか
     bool isClimb_;              //登り状態かどうか
-    
+    bool isCreative_;           //クリエイティブモード
+
     int testModel_;             //デバッグ用
     int hModel_;                //モデル番号
 

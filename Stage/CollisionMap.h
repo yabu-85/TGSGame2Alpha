@@ -21,6 +21,10 @@ class CollisionMap : public GameObject
 
     Cell*** cells_ = 0;
 
+public:
+    static const float boxSize; //Cellのサイズ
+
+private:
     //指定したCellのポインタを取得(範囲外ならnullptr)
     Cell* GetCell(XMFLOAT3 pos);
 
@@ -30,6 +34,7 @@ class CollisionMap : public GameObject
     std::vector<StageModelData> modelList_;
 
 public:
+
     CollisionMap(GameObject* parent);
     ~CollisionMap();
     void Initialize() override;

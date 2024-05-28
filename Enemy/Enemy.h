@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "../Engine/GameObject.h"
 
 class Enemy : public GameObject
@@ -9,6 +10,12 @@ class Enemy : public GameObject
     float gra = 0.0f;
     bool isGround = false;
 
+    int lastTarget = 0;
+    float moveRange_ = 0.2f;
+    float moveSpeed_ = 0.05f;
+    float outRange = 3.0f;
+    std::vector<XMFLOAT3> targetList_;
+
 public:
     Enemy(GameObject* parent);
     ~Enemy();
@@ -18,4 +25,5 @@ public:
     void Release() override;
     void OnCollision(GameObject* pTarget) override;
 
+    void  Move();
 };

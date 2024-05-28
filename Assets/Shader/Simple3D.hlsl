@@ -107,7 +107,7 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	//環境光（アンビエント）
 	//これはMaya側で指定し、グローバル変数で受け取ったものをそのまま
-    float4 ambient = float4(0.2f, 0.2f, 0.2f, 1.0f);
+    float4 ambient = float4(0.1f, 0.1f, 0.1f, 1.0f);
 
 	//最終的な色
     float4 color = diffuse * shade + ambient * diffuse;
@@ -121,7 +121,7 @@ float4 PS(VS_OUT inData) : SV_Target
     if (TexValue + -0.001 < LightLength)
     {
         //ライトに照らされない場所は影の効果を低く
-        color -= color * shade * 0.3f;
+        color -= color * shade * 0.2f;
     }
     else
     {

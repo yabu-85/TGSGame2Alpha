@@ -46,4 +46,7 @@ public:
 
 	bool SphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
 
+	std::vector<Triangle> GetFloarTriangles() { return floarTriangles_; }
+	std::vector<Triangle> GetWallTriangles() { return wallTriangles_; }
+
 };

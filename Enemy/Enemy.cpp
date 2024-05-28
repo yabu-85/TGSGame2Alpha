@@ -27,7 +27,7 @@ Enemy::~Enemy()
 
 void Enemy::Initialize()
 {
-    hModel_ = Model::Load("Model/desiFiter.fbx");
+    hModel_ = Model::Load("Model/Scarecrow.fbx");
     assert(hModel_ >= 0);
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
    
@@ -51,13 +51,7 @@ void Enemy::Update()
     }
 
     //移動
-    Player* p = static_cast<Player*>(FindObject("Player"));
-    XMFLOAT3 move = Float3Sub(p->GetPosition(), transform_.position_);
-    float dist = sqrtf(move.x * move.x + move.y * move.y + move.z * move.z);
-    if (dist > 1.0f) {
-        move = Float3Multiply(Float3Normalize(move), MoveSpeed);
-        transform_.position_ = Float3Add(transform_.position_, move);
-    }
+    Move();
 
     //壁との当たり判定
     CollisionMap* pStage = (CollisionMap*)FindObject("CollisionMap");
@@ -109,4 +103,44 @@ void Enemy::OnCollision(GameObject* pTarget)
 
     }
 
+}
+
+#include "../AI/RouteSearch.h"
+void Enemy::Move()
+{
+    if (targetList_.empty() && rand() % 100 == 0) {
+        int random = -1;
+        do { random = rand() % RouteSearch::GetNodeList().size(); } while (random == lastTarget);
+        int l = lastTarget;
+        targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), random, lastTarget);
+        if (targetList_.empty()) {
+            lastTarget = l;
+        }
+        else {
+            lastTarget = random;
+        }
+    }
+
+    //移動終了した
+    if (targetList_.empty()) {
+        return;
+    }
+
+    //移動方向計算
+    XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
+    XMVECTOR vTar = XMLoadFloat3(&targetList_.back());
+    XMVECTOR vMove = vTar - vPos;
+
+    //移動スピード抑制
+    float moveDist = XMVectorGetX(XMVector3Length(vMove));
+    if (moveDist > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
+
+    if (moveDist <= moveRange_) {
+        targetList_.pop_back();
+        Update();
+        return;
+    }
+
+    vPos += vMove;
+    XMStoreFloat3(&transform_.position_, vPos);
 }
