@@ -155,15 +155,6 @@ void Fbx::RayCast(RayCastData * data)
 	}
 }
 
-void Fbx::RayCastSurface(RayCastData* data)
-{
-	//‚·‚×‚Ä‚Ìƒp[ƒc‚Æ”»’è
-	for (int i = 0; i < parts_.size(); i++)
-	{
-		parts_[i]->RayCast(data);
-	}
-}
-
 void Fbx::GetAllPolygon(std::vector<PolygonData>& list)
 {
 	FbxNode* rootNode = pFbxScene_->GetRootNode();

@@ -1,20 +1,20 @@
 #pragma once
 #include <vector>
 #include "../Engine/GameObject.h"
+#include "../AI/RouteSearch.h"
 
 class Enemy : public GameObject
 {
     int hModel_;
 
     float MoveSpeed = 0.0f;
-    float gra = 0.0f;
+    float gravity_ = 0.0f;
     bool isGround = false;
 
     int lastTarget = 0;
     float moveRange_ = 0.2f;
-    float moveSpeed_ = 0.05f;
     float outRange = 3.0f;
-    std::vector<XMFLOAT3> targetList_;
+    std::vector<RouteData> targetList_;
 
 public:
     Enemy(GameObject* parent);

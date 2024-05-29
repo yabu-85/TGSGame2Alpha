@@ -17,7 +17,7 @@ namespace {
 }
 
 Enemy::Enemy(GameObject* parent)
-    : GameObject(parent, "Enemy"), hModel_(-1)
+    : GameObject(parent, "Enemy"), hModel_(-1), gravity_(0.0f)
 {
 }
 
@@ -46,8 +46,8 @@ void Enemy::Initialize()
 void Enemy::Update()
 {
     if (!isGround) {
-        gra += gravity;
-        transform_.position_.y -= gra;
+        gravity_ += gravity;
+        transform_.position_.y -= gravity_;
     }
 
     //移動
@@ -70,7 +70,7 @@ void Enemy::Update()
         pStage->CellFloarRayCast(pos, &rayData);
         if (rayData.hit && rayData.dist < PlayerHeightSize) {
             transform_.position_.y += PlayerHeightSize - rayData.dist;
-            gra = 0.0f;
+            gravity_ = 0.0f;
             isGround = true;
         }
         addPos = 0.0f;
@@ -111,12 +111,9 @@ void Enemy::Move()
     if (targetList_.empty() && rand() % 100 == 0) {
         int random = -1;
         do { random = rand() % RouteSearch::GetNodeList().size(); } while (random == lastTarget);
-        int l = lastTarget;
         targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), lastTarget, random);
-        if (targetList_.empty()) {
-            lastTarget = l;
-        }
-        else {
+        if (!targetList_.empty()) {
+            //経路表示
             OutputDebugStringA(std::to_string(lastTarget).c_str());
             OutputDebugString(" , ");
             OutputDebugStringA(std::to_string(random).c_str());
@@ -131,14 +128,16 @@ void Enemy::Move()
         return;
     }
 
+    if (targetList_.back().type == EdgeType::JUMP) gravity_ = 0.0f;
+
     //移動方向計算
     XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
-    XMVECTOR vTar = XMLoadFloat3(&targetList_.back());
+    XMVECTOR vTar = XMLoadFloat3(&targetList_.back().pos);
     XMVECTOR vMove = vTar - vPos;
 
     //移動スピード抑制
     float moveDist = XMVectorGetX(XMVector3Length(vMove));
-    if (moveDist > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
+    if (moveDist > MoveSpeed) vMove = XMVector3Normalize(vMove) * MoveSpeed;
 
     if (moveDist <= moveRange_) {
         targetList_.pop_back();

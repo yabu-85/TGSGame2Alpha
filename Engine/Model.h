@@ -100,11 +100,6 @@ namespace Model
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(int handle, RayCastData *data);
 
-	//レイキャスト（レイを飛ばして当たり判定）
-	//引数：handle	判定したいモデルの番号
-	//引数：data	必要なものをまとめたデータ
-	void RayCastSurface(int handle, RayCastData* data);
-
 	Fbx* GetFbx(int handle);
 
 };

@@ -3,11 +3,17 @@
 #include <vector>
 using namespace DirectX;
 
+enum EdgeType {
+    NORMAL = 0,
+    JUMP,
+};
+
 struct Edge {
+    EdgeType type;
     int connectId;  //Œq‚ª‚Á‚Ä‚éæ‚ÌID
     float cost;
-    Edge() : connectId(-1), cost(-1) {}
-    Edge(int t, float c) : connectId(t), cost(c) {}
+    Edge(EdgeType t) : connectId(-1), cost(-1), type(t) {}
+    Edge(int t, float c, EdgeType ty) : connectId(t), cost(c), type(ty) {}
 };
 
 class Node {

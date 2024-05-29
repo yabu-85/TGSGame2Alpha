@@ -61,7 +61,7 @@ namespace RouteSearch {
 
             for (Edge edge : node->GetEdges()) {
                 //エラー処理
-                if (edge.connectId <= -1 || edge.connectId > nodes.size()) continue;
+                if (edge.connectId <= -1 || (edge.connectId > nodes.size() - 1)) continue;
 
                 int count = 5;
                 XMFLOAT3 vec = Float3Sub(nodes[edge.connectId]->GetPosition(), node->GetPosition());
@@ -96,12 +96,12 @@ namespace RouteSearch {
     }
 
     // A*アルゴリズムの実装
-    std::vector<XMFLOAT3> AStar(const std::vector<Node*>& nodes, int start_id, int goal_id) {
-        std::unordered_map<int, int> came_from; // 経路再構築のためのマップ
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int start_id, int goal_id) {
+        std::unordered_map<int, std::pair<int, EdgeType>> came_from_with_edge; // 経路再構築のためのマップ (ノードID, (親ノードID, 使用されたエッジのタイプ))
         std::unordered_map<int, float> g_score; // スタートから各ノードまでのコスト
         std::unordered_map<int, float> f_score; // スタートからゴールまでの推定コスト
         std::priority_queue<std::pair<int, float>, std::vector<std::pair<int, float>>, std::greater<>> open_set;
-        std::vector<XMFLOAT3> path;
+        std::vector<RouteData> path;
 
         for (const auto& node : nodes) {
             g_score[node->GetId()] = std::numeric_limits<float>::infinity();
@@ -118,9 +118,12 @@ namespace RouteSearch {
 
             if (current_id == goal_id) {
                 // 経路の再構築
-                while (came_from.find(current_id) != came_from.end()) {
-                    path.push_back(nodes[current_id]->GetPosition());
-                    current_id = came_from[current_id];
+                while (came_from_with_edge.find(current_id) != came_from_with_edge.end()) {
+                    RouteData data;
+                    data.pos = nodes[current_id]->GetPosition();
+                    data.type = came_from_with_edge[current_id].second;
+                    path.push_back(data);
+                    current_id = came_from_with_edge[current_id].first;
                 }
                 return path;
             }
@@ -130,7 +133,7 @@ namespace RouteSearch {
                 float tentative_g_score = g_score[current_id] + edge.cost;
 
                 if (tentative_g_score < g_score[neighbor_id]) {
-                    came_from[neighbor_id] = current_id;
+                    came_from_with_edge[neighbor_id] = std::make_pair(current_id, edge.type);
                     g_score[neighbor_id] = tentative_g_score;
                     f_score[neighbor_id] = tentative_g_score + Heuristic(nodes[neighbor_id]->GetPosition(), nodes[goal_id]->GetPosition());
                     open_set.emplace(neighbor_id, f_score[neighbor_id]);
@@ -138,7 +141,7 @@ namespace RouteSearch {
             }
         }
 
-        // ゴールへの経路が見つからなかった場合、空のベクトルを返す
-        return std::vector<XMFLOAT3>();
+        //ゴールまでたどり着けなかった
+        return std::vector<RouteData>();
     }
 }

@@ -660,7 +660,7 @@ namespace Direct3D
 
 	//三角形と線分の衝突判定（衝突判定に使用）
 	//https://pheema.hatenablog.jp/entry/ray-triangle-intersection
-	bool Intersect(XMFLOAT3 & start, XMFLOAT3 & direction, XMFLOAT3 & v0, XMFLOAT3 & v1, XMFLOAT3 & v2, float* distance)
+	bool Intersect(XMFLOAT3 & start, XMFLOAT3 & direction, XMFLOAT3 & v0, XMFLOAT3 & v1, XMFLOAT3 & v2, float* distance, XMVECTOR* normal)
 	{
 		// 微小な定数([M?ller97] での値)
 		constexpr float kEpsilon = 1e-6f;
@@ -668,6 +668,10 @@ namespace Direct3D
 		//三角形の２辺
 		XMVECTOR edge1 = XMVectorSet(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z, 0.0f);
 		XMVECTOR edge2 = XMVectorSet(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z, 0.0f);
+
+		//平面の法線ベクトルを求める
+		*normal = XMVector3Cross(edge1, edge2);
+		*normal /= XMVectorGetX(XMVector3Length(*normal));
 
 		XMVECTOR alpha = XMVector3Cross(XMLoadFloat3(&direction), edge2);
 		float det = XMVector3Dot(edge1, alpha).m128_f32[0];
@@ -711,13 +715,17 @@ namespace Direct3D
 		return true;
 	}
 
-	bool Intersect(XMFLOAT3& start, XMFLOAT3& direction, XMVECTOR& v0, XMVECTOR& v1, XMVECTOR& v2, float* distance)
+	bool Intersect(XMFLOAT3& start, XMFLOAT3& direction, XMVECTOR& v0, XMVECTOR& v1, XMVECTOR& v2, float* distance, XMVECTOR* normal)
 	{
 		// 微小な定数([M?ller97] での値)
 		constexpr float kEpsilon = 1e-6f;
 
 		XMVECTOR edge1 = v1 - v0;
 		XMVECTOR edge2 = v2 - v0;
+
+		//平面の法線ベクトルを求める
+		//*normal = XMVector3Cross(edge1, edge2);
+		//*normal /= XMVectorGetX(XMVector3Length(*normal));
 
 		XMVECTOR alpha = XMVector3Cross(XMLoadFloat3(&direction), edge2);
 		float det = XMVector3Dot(edge1, alpha).m128_f32[0];

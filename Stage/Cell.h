@@ -23,8 +23,6 @@ class Cell
 	bool IsPointInAABB(XMFLOAT3& point);
 	bool IsTriangleInAABB(Triangle& tri);
 	bool IntersectSegmentAABB(XMFLOAT3& p0, XMFLOAT3& p1);
-	bool IsPointInTriangle(XMFLOAT3& pt, XMVECTOR& v0, XMVECTOR& v1, XMVECTOR& v2);
-	bool IsAABBInsideTriangle(Triangle& triangle);
 	bool IntersectTriangleAABB(Triangle& tri);
 
 public:
@@ -33,7 +31,7 @@ public:
 	//Cellの基本データセット
 	void SetPosLeng(XMFLOAT3 pos, float leng);
 
-	//三角ポリゴンがAABに触れていたらこのCELLに登録
+	//三角ポリゴンがAABに触れていたらこのCELLに登録（点も線も通らない場合登録できない）
 	bool SetTriangle(Triangle& t);
 
 	//登録されてるTriangles初期化

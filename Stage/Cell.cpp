@@ -35,13 +35,6 @@ bool Cell::SetTriangle(Triangle& t)
 		return true;
 	}
 
-	// AABBの各頂点が三角形内にあるかをチェック
-	if (IsAABBInsideTriangle(t)) {
-		if (t.IsMovable()) floarTriangles_.push_back(t);
-		else wallTriangles_.push_back(t);
-		return true;
-	}
-
 	return false;
 }
 
@@ -120,7 +113,6 @@ bool Cell::IsPointInAABB(XMFLOAT3& point) {
 bool Cell::IsTriangleInAABB(Triangle& tri) {
 	XMFLOAT3 pos[3];
 	for (int i = 0; i < 3; i++) XMStoreFloat3(&pos[i], tri.GetPosition(i));
-
 	return (IsPointInAABB(pos[0]) || IsPointInAABB(pos[1]) || IsPointInAABB(pos[2]));
 }
 
@@ -138,56 +130,9 @@ bool Cell::IntersectSegmentAABB(XMFLOAT3& p0, XMFLOAT3& p1) {
 	return tminF <= tmaxF && tmaxF >= 0.0f && tminF <= 1.0f;
 }
 
-//すっぽり埋まってるやつの対策
-bool Cell::IsPointInTriangle(XMFLOAT3& pt, XMVECTOR& v0, XMVECTOR& v1, XMVECTOR& v2) {
-	XMVECTOR P = XMLoadFloat3(&pt);
-	XMVECTOR v0v1 = v1 - v0;
-	XMVECTOR v0v2 = v2 - v0;
-	XMVECTOR v0p = P - v0;
-
-	float dot00 = XMVectorGetX(XMVector3Dot(v0v2, v0v2));
-	float dot01 = XMVectorGetX(XMVector3Dot(v0v2, v0v1));
-	float dot02 = XMVectorGetX(XMVector3Dot(v0v2, v0p));
-	float dot11 = XMVectorGetX(XMVector3Dot(v0v1, v0v1));
-	float dot12 = XMVectorGetX(XMVector3Dot(v0v1, v0p));
-
-	float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-
-	return (u >= 0) && (v >= 0) && (u + v < 1);
-}
-
-bool Cell::IsAABBInsideTriangle(Triangle& triangle) {
-	// AABBの8つの頂点を計算
-	XMFLOAT3 vertices[8] = {
-		{min_.x, min_.y, min_.z},
-		{max_.x, min_.y, min_.z},
-		{min_.x, max_.y, min_.z},
-		{max_.x, max_.y, min_.z},
-		{min_.x, min_.y, max_.z},
-		{max_.x, min_.y, max_.z},
-		{min_.x, max_.y, max_.z},
-		{max_.x, max_.y, max_.z},
-	};
-
-	// AABBの各頂点が三角形内にあるかをチェック
-	for (int i = 0; i < 8; ++i) {
-		XMVECTOR p1 = triangle.GetPosition(0);
-		XMVECTOR p2 = triangle.GetPosition(1);
-		XMVECTOR p3 = triangle.GetPosition(2);
-		if (IsPointInTriangle(vertices[i], p1, p2, p3)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 //三角形の各辺について判定
 bool Cell::IntersectTriangleAABB(Triangle& tri) {
 	XMFLOAT3 pos[3];
 	for (int i = 0; i < 3; i++) XMStoreFloat3(&pos[i], tri.GetPosition(i));
-
 	return (IntersectSegmentAABB(pos[0], pos[1]) || IntersectSegmentAABB(pos[1], pos[2]) || IntersectSegmentAABB(pos[2], pos[0]));
 }

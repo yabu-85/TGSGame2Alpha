@@ -40,7 +40,8 @@ void Triangle::RayCast(RayCastData* data)
 {
 	BOOL  hit = FALSE;
 	float dist = 0.0f;
-	hit = Direct3D::Intersect(data->start, data->dir, position[0], position[1], position[2], &dist);
+	XMVECTOR normal = XMVectorZero();
+	hit = Direct3D::Intersect(data->start, data->dir, position[0], position[1], position[2], &dist, &normal);
 
 	if (hit && dist < data->dist)
 	{

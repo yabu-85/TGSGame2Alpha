@@ -3,13 +3,13 @@
 #include "../State/StateBase.h"
 #include "../State/PlayerState.h"
 #include "../State/StateManager.h"
-
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 
 #include "../Other/InputManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
+#include "../Engine/StageEditor.h"
 
 #include "../Stage/CollisionMap.h"
 #include "../Engine/SphereCollider.h"
@@ -26,14 +26,13 @@ namespace {
     const float PlayerHeightSize = 1.3f;
 
     const XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
-    XMFLOAT3 testPos = XMFLOAT3();
     CollisionMap* pCMap = nullptr;
 
 }
 
 Player::Player(GameObject* parent)
     : GameObject(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), testModel_(-1), climbPos_(XMFLOAT3()),
-    isFly_(true), isClimb_(false), isCreative_(false)
+    isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr)
 {
 }
 
@@ -62,6 +61,7 @@ void Player::Initialize()
     pStateManager_->AddState(new PlayerClimb(pStateManager_));
     pStateManager_->ChangeState("Wait");
 
+    StageEditor::SetPlayer(this);
     pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
     assert(pCMap);
 
@@ -111,9 +111,6 @@ void Player::Update()
         StageFloarBounce();
     }
     else {
-        //Yだけジャンプ出来なくなる奴の対策で、前のWallBounce前の値に
-        transform_.position_.y = testPos.y;
-
         float addPos = -1.0f;
         for (int i = 0; i < 2; i++) {
             RayCastData rayData = RayCastData();
@@ -123,21 +120,19 @@ void Player::Update()
             pos.y += addPos;
             pCMap->CellFloarRayCast(pos, &rayData);
 
-            if (rayData.hit && rayData.dist < PlayerHeightSize) {
+            //この値より地面と離れると浮いていると判定される
+            const float WalkFalDist = 0.2f;
+            if (rayData.hit && rayData.dist < WalkFalDist + PlayerHeightSize) {
                 transform_.position_.y += PlayerHeightSize - rayData.dist;
             }
-
-            //誤差考えた値で判定
-            else if(rayData.dist > PlayerHeightSize + 0.001f) {
+            else {
                 isFly_ = true;
-                break;
             }
             addPos = 0.0f;
         }
     }
 
     pStateManager_->Update();
-    testPos = transform_.position_;
     StageWallBounce();
 
     moveSpeed_ = Direct3D::playerSpeed;

@@ -20,7 +20,7 @@ void TestScene::Initialize()
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
 
-	int count = 1;
+	int count = 30;
 	for(int i = 0;i < count;i++) Instantiate<Enemy>(this);
 
 	RouteSearch::InitializeList();

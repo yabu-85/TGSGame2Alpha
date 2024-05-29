@@ -1,6 +1,7 @@
 #include "StageEditor.h"
 #include "../Json/JsonReader.h"
 #include "../Stage/CollisionMap.h"
+#include "../Player/Player.h"
 #include "../AI/Node.h"
 #include "../Engine/Model.h"
 #include "../Engine/ImGui/imgui.h"
@@ -12,7 +13,7 @@ using namespace std;
 
 namespace StageEditor {
     CollisionMap* pCMap = nullptr;
-
+    Player* pPlayer = nullptr;
 }
 
 std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileName)
@@ -55,11 +56,6 @@ void StageEditor::SaveFileStage(const std::vector<StageModelData>& stage, const 
     }
 
     ofs << j.dump(4);
-}
-
-void StageEditor::SetCollisionMap(CollisionMap* map)
-{
-    pCMap = map;
 }
 
 void StageEditor::DrawStageEditor()
@@ -175,6 +171,7 @@ std::vector<Node*> StageEditor::LoadFileNode(const std::string& fileName)
     std::vector<Node*> nodes;
     std::unordered_map<int, Node*> nodeMap;
 
+    //Nodeñ{ëÃÇÃí«â¡
     for (const auto& nodeJson : JsonReader::GetAll()["nodes"]) {
         int id = nodeJson["id"];
         XMFLOAT3 position = {
@@ -183,18 +180,19 @@ std::vector<Node*> StageEditor::LoadFileNode(const std::string& fileName)
             nodeJson["position"]["z"]
         };
         Node* node = new Node(id, position);
-        //if (nodeJson["type"] == "jump") { node = new JumpNode(id, position); }
-        
         nodes.push_back(node);
         nodeMap[id] = node;
     }
     
+    //EdgeÇÃí«â¡
     for (const auto& edgeJson : JsonReader::GetAll()["edges"]) {
+        EdgeType type = EdgeType::NORMAL;
+        if(edgeJson["type"] == "jump") type = EdgeType::JUMP;
         int from = edgeJson["from"];
         int to = edgeJson["to"];
         float cost = edgeJson["cost"];
         if (nodeMap.find(from) != nodeMap.end() && nodeMap.find(to) != nodeMap.end()) {
-            nodeMap[from]->GetEdges().push_back({ to, cost });
+            nodeMap[from]->GetEdges().push_back({ to, cost, type });
         }
     }
 
@@ -212,13 +210,14 @@ void StageEditor::SaveFileNode(std::vector<Node*>& nodes, const std::string& fil
             {"y", node->GetPosition().y},
             {"z", node->GetPosition().z}
         };
-        nodeJson["type"] = "normal";
         j["nodes"].push_back(nodeJson);
     }
 
     for (auto& node : nodes) {
         for (auto& edge : node->GetEdges()) {
             nlohmann::json edgeJson;
+            if(edge.type == EdgeType::NORMAL) edgeJson["type"] = "normal";
+            else if(edge.type == EdgeType::JUMP) edgeJson["type"] = "jump";
             edgeJson["from"] = node->GetId();
             edgeJson["to"] = edge.connectId;
             edgeJson["cost"] = edge.cost;
@@ -242,7 +241,12 @@ void StageEditor::DrawNodeEditor()
 
     //Nodeí«â¡É{É^Éì
     if (ImGui::Button("Add Node")) {
-        Node* data = new Node((int)nodeList.size(), XMFLOAT3(50.0f, 5.0f, 50.0f));
+        Node* data = new Node((int)nodeList.size(), XMFLOAT3(50.0f, 7.0f, 50.0f));
+        nodeList.push_back(data);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Add Node Player Position")) {
+        Node* data = new Node((int)nodeList.size(), pPlayer->GetPosition());
         nodeList.push_back(data);
     }
 
@@ -286,21 +290,33 @@ void StageEditor::DrawNodeEditor()
         sprintf_s(name, sizeof(name), "id : %d", modelData->GetId());
 
         if (ImGui::TreeNode(name)) {
-            const float PosMaxValue = 100.0f;
+            const float PosMinValue = 30.0f;
+            const float PosMaxValue = 70.0f;
 
+            ImGui::Columns(3);
             XMFLOAT3 pos = modelData->GetPosition();
-            ImGui::SliderFloat("x", &pos.x, 0.0f, PosMaxValue);
-            ImGui::SliderFloat("y", &pos.y, 0.0f, PosMaxValue);
-            ImGui::SliderFloat("z", &pos.z, 0.0f, PosMaxValue);
+            ImGui::SliderFloat("x", &pos.x, PosMinValue, PosMaxValue);
+            ImGui::NextColumn();
+            ImGui::SliderFloat("y", &pos.y, 0, 30.0f);
+            ImGui::NextColumn(); 
+            ImGui::SliderFloat("z", &pos.z, PosMinValue, PosMaxValue);
             modelData->SetPosition(pos);
+            ImGui::Columns(1);
 
             //ãÊêÿÇËê¸
             ImGui::Separator();
 
             //Edgeí«â¡
             std::vector<Edge>& edgeList = modelData->GetEdges();
-            if (ImGui::Button("Add Edge")) {
-                Edge edge = Edge();
+
+            //óÒÇ2Ç¬Ç…ï™äÑ
+            if (ImGui::Button("Add Edge Normal")) {
+                Edge edge = Edge(EdgeType::NORMAL);
+                edgeList.push_back(edge);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Add Edge Jump")) {
+                Edge edge = Edge(EdgeType::JUMP);
                 edgeList.push_back(edge);
             }
 
@@ -337,4 +353,16 @@ void StageEditor::DrawNodeEditor()
         }
     }
     ImGui::End();
+}
+
+//---------------------------------------------------------------------
+
+void StageEditor::SetCollisionMap(CollisionMap* map)
+{
+    pCMap = map;
+}
+
+void StageEditor::SetPlayer(Player* player)
+{
+    pPlayer = player;
 }

@@ -25,10 +25,9 @@ namespace JsonReader
         {
             ifs >> j;
         }
-        catch (const nlohmann::json::parse_error& e)
+        catch (const nlohmann::json::parse_error)
         {
             //何もデータがないとjsonだと認識できないやつの対策
-            OutputDebugString("Some kind of error");
             assert(false);
             return;
         }
@@ -37,7 +36,6 @@ namespace JsonReader
         {
             //JSONが空の場合のエラーハンドリング
             OutputDebugString("Json none");
-            assert(false); 
             return;
         }
 

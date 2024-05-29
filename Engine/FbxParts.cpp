@@ -599,67 +599,14 @@ void FbxParts::RayCast(RayCastData * data)
 
 			BOOL  hit = FALSE;
 			float dist = 0.0f;
-			hit = Direct3D::Intersect(data->start, data->dir, ver[0], ver[1], ver[2], &dist);
+			XMVECTOR normal = XMVectorZero();
+			hit = Direct3D::Intersect(data->start, data->dir, ver[0], ver[1], ver[2], &dist, &normal);
 
 			if (hit && dist < data->dist)
 			{
 				data->hit = TRUE;
 				data->dist = dist;
-			}
-		}
-	}
-}
-
-void FbxParts::RayCastSurface(RayCastData* data)
-{
-	data->hit = FALSE;
-
-	//マテリアル毎
-	for (DWORD i = 0; i < materialCount_; i++)
-	{
-		//そのマテリアルのポリゴン毎
-		for (DWORD j = 0; j < pMaterial_[i].polygonCount; j++)
-		{
-			//3頂点
-			XMFLOAT3 ver[3];
-			ver[0] = pVertexData_[ppIndexData_[i][j * 3 + 0]].position;
-			ver[1] = pVertexData_[ppIndexData_[i][j * 3 + 1]].position;
-			ver[2] = pVertexData_[ppIndexData_[i][j * 3 + 2]].position;
-
-			// 法線ベクトルの計算
-			XMFLOAT3 edge1, edge2, normal;
-			edge1.x = ver[1].x - ver[0].x;
-			edge1.y = ver[1].y - ver[0].y;
-			edge1.z = ver[1].z - ver[0].z;
-
-			edge2.x = ver[2].x - ver[0].x;
-			edge2.y = ver[2].y - ver[0].y;
-			edge2.z = ver[2].z - ver[0].z;
-
-			normal.x = edge1.y * edge2.z - edge1.z * edge2.y;
-			normal.y = edge1.z * edge2.x - edge1.x * edge2.z;
-			normal.z = edge1.x * edge2.y - edge1.y * edge2.x;
-
-			// 法線ベクトルを正規化
-			float length = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
-			normal.x /= length;
-			normal.y /= length;
-			normal.z /= length;
-
-			// レイと法線ベクトルの内積を計算
-			float dot = normal.x * data->dir.x + normal.y * data->dir.y + normal.z * data->dir.z;
-
-			// 背面のポリゴンを無視（法線ベクトルとレイの方向が同じ場合）
-			if (dot >= 0) continue;
-
-			BOOL  hit = FALSE;
-			float dist = 0.0f;
-			hit = Direct3D::Intersect(data->start, data->dir, ver[0], ver[1], ver[2], &dist);
-
-			if (hit && dist < data->dist)
-			{
-				data->hit = TRUE;
-				data->dist = dist;
+				XMStoreFloat3(&data->normal, normal);
 			}
 		}
 	}

@@ -58,9 +58,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//ÉXÉNÉäÅ[ÉìÇÃçÇÇ≥
 
 #if _DEBUG
-	screenWidth = 400;
-	screenHeight = 300;
+
 #endif
+	screenWidth = 600;
+	screenHeight = 450;
 
 	int screenWidth2 = 400;
 	int screenHeight2 = 300;

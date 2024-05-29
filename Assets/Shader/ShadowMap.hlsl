@@ -12,7 +12,6 @@ cbuffer global
     float4 diffuseColor; //マテリアルの色
     float4 speculer; //スペキュラーカラー
     float4 camPos; //カメラの座標
-    float4 lightPos; //ライトの座標
 };
 
 //───────────────────────────────────────
@@ -30,7 +29,6 @@ struct VS_OUT
 VS_OUT VS(float4 pos : POSITION)
 {
     VS_OUT outData;
-    
     outData.pos = mul(pos, matWVP);
     outData.depth = length(camPos - mul(pos, matWorld)) / 50.0;
     return outData;
@@ -41,5 +39,5 @@ VS_OUT VS(float4 pos : POSITION)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-    return float4(inData.depth, inData.depth, inData.depth, 1);
+    return float4(inData.depth, inData.depth, inData.depth, 1.0f);
 }

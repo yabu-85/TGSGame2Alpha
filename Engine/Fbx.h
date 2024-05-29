@@ -37,7 +37,6 @@ class Fbx
 	friend class FbxParts;
 
 
-
 	//モデルの各パーツ（複数あるかも）
 	std::vector<FbxParts*>	parts_;
 
@@ -46,7 +45,6 @@ class Fbx
 
 	//FBXファイルのシーン（Mayaで作ったすべての物体）を扱う
 	FbxScene*	pFbxScene_;
-
 
 	// アニメーションのフレームレート
 	FbxTime::EMode	_frameRate;
@@ -58,15 +56,10 @@ class Fbx
 	int _startFrame, _endFrame;
 
 
-
-
-
 	//ノードの中身を調べる
 	//引数：pNode		調べるノード
 	//引数：pPartsList	パーツのリスト
 	void CheckNode(FbxNode* pNode, std::vector<FbxParts*> *pPartsList);
-
-
 
 
 public:
@@ -93,10 +86,6 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
-
-	//レイキャスト（レイを飛ばして当たり判定）
-	//引数：data	必要なものをまとめたデータ
-	void RayCastSurface(RayCastData* data);
 
 	void GetAllPolygon(std::vector<PolygonData>& list);
 	void GetAllPolygonRecursive(FbxNode* pNode, std::vector<PolygonData>& list);
