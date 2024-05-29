@@ -41,7 +41,7 @@ namespace RouteSearch {
             Node* node = nodes[i];
             XMFLOAT3 vec = Float3Sub(Camera::GetPosition(), node->GetPosition());
             float dist = CalculationDistance(vec);
-            if (dist > 30.0f) continue;
+            if (dist > 40.0f) continue;
 
             Transform t = Transform();
             t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
@@ -71,7 +71,7 @@ namespace RouteSearch {
                 float size = 0.05f;
                 for (int i = 0; i < count; i++) {
                     pos = Float3Add(pos, vec);
-                    float sca = (float)i;
+                    float sca = (float)count - (float)i;
                     t.scale_ = XMFLOAT3(size * sca, size * sca, size * sca);
                     t.position_ = pos;
                     Model::SetTransform(edgeHandle, t);
@@ -122,8 +122,6 @@ namespace RouteSearch {
                     path.push_back(nodes[current_id]->GetPosition());
                     current_id = came_from[current_id];
                 }
-                path.push_back(nodes[start_id]->GetPosition());
-                std::reverse(path.begin(), path.end());
                 return path;
             }
 

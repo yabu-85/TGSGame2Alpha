@@ -112,11 +112,16 @@ void Enemy::Move()
         int random = -1;
         do { random = rand() % RouteSearch::GetNodeList().size(); } while (random == lastTarget);
         int l = lastTarget;
-        targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), random, lastTarget);
+        targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), lastTarget, random);
         if (targetList_.empty()) {
             lastTarget = l;
         }
         else {
+            OutputDebugStringA(std::to_string(lastTarget).c_str());
+            OutputDebugString(" , ");
+            OutputDebugStringA(std::to_string(random).c_str());
+            OutputDebugString("\n\n");
+
             lastTarget = random;
         }
     }

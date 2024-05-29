@@ -17,32 +17,10 @@ namespace StageEditor {
 
 std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileName)
 {
-    std::ifstream ifs(fileName);
-    if (!ifs.is_open())
-    {
-        // ファイルが開けない場合のエラーハンドリング
-        return {};
-    }
-
-    nlohmann::json j;
-    try
-    {
-        ifs >> j;
-    }
-    catch (const nlohmann::json::parse_error& e)
-    {
-        // JSONのパースエラーのエラーハンドリング
-        return {};
-    }
-
-    if (j.empty())
-    {
-        // JSONが空の場合のエラーハンドリング
-        return {};
-    }
+    JsonReader::Load(fileName);
 
     std::vector<StageModelData> stage;
-    for (const auto& objJson : j["objects"])
+    for (const auto& objJson : JsonReader::GetAll()["objects"])
     {
         StageModelData obj;
         obj.fileName = objJson["fileName"];
@@ -192,34 +170,12 @@ void StageEditor::DrawStageEditor()
 
 std::vector<Node*> StageEditor::LoadFileNode(const std::string& fileName)
 {
-    std::ifstream ifs(fileName);
-    if (!ifs.is_open())
-    {
-        // ファイルが開けない場合のエラーハンドリング
-        return {};
-    }
-
-    nlohmann::json j;
-    try
-    {
-        ifs >> j;
-    }
-    catch (const nlohmann::json::parse_error& e)
-    {
-        // JSONのパースエラーのエラーハンドリング
-        return {};
-    }
-
-    if (j.empty())
-    {
-        // JSONが空の場合のエラーハンドリング
-        return {};
-    }
+    JsonReader::Load(fileName);
 
     std::vector<Node*> nodes;
     std::unordered_map<int, Node*> nodeMap;
 
-    for (const auto& nodeJson : j["nodes"]) {
+    for (const auto& nodeJson : JsonReader::GetAll()["nodes"]) {
         int id = nodeJson["id"];
         XMFLOAT3 position = {
             nodeJson["position"]["x"],
@@ -233,7 +189,7 @@ std::vector<Node*> StageEditor::LoadFileNode(const std::string& fileName)
         nodeMap[id] = node;
     }
     
-    for (const auto& edgeJson : j["edges"]) {
+    for (const auto& edgeJson : JsonReader::GetAll()["edges"]) {
         int from = edgeJson["from"];
         int to = edgeJson["to"];
         float cost = edgeJson["cost"];

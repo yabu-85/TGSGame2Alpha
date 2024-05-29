@@ -1,7 +1,7 @@
 #include "jsonReader.h"
-
 #include <string>
 #include <fstream>
+#include <Windows.h>
 
 namespace JsonReader
 {
@@ -11,11 +11,11 @@ namespace JsonReader
     // JSONファイルの読み込み
     void Load(const std::string& fileName)
     {
-
         std::ifstream ifs(fileName);
         if (!ifs.is_open())
         {
-            //ファイルが開けない
+            //ファイルが開けない場合のエラーハンドリング
+            OutputDebugString("Not open file");
             assert(false);
             return;
         }
@@ -23,24 +23,30 @@ namespace JsonReader
         nlohmann::json j;
         try
         {
-            //データ読み込み
             ifs >> j;
         }
         catch (const nlohmann::json::parse_error& e)
         {
-            //JSONオブジェクトじゃないからエラー
+            //何もデータがないとjsonだと認識できないやつの対策
+            OutputDebugString("Some kind of error");
             assert(false);
             return;
         }
 
         if (j.empty())
         {
-            //空の場合
-            assert(false);
+            //JSONが空の場合のエラーハンドリング
+            OutputDebugString("Json none");
+            assert(false); 
             return;
         }
 
         data_ = j;
+    }
+
+    nlohmann::json& GetAll()
+    {
+        return data_;
     }
 
     const nlohmann::json& GetSection(const std::string& key)
