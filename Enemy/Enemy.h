@@ -11,7 +11,6 @@ class Enemy : public GameObject
     float gravity_ = 0.0f;
     bool isGround = false;
 
-    int lastTarget = 0;
     float moveRange_ = 0.2f;
     float outRange = 3.0f;
     std::vector<RouteData> targetList_;
@@ -26,4 +25,6 @@ public:
     void OnCollision(GameObject* pTarget) override;
 
     void  Move();
+    void ReflectCharacter();
+
 };

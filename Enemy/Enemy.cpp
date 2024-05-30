@@ -8,26 +8,44 @@
 #include "../Engine/Direct3D.h"
 #include "../Stage/CollisionMap.h"
 #include "../Player/Player.h"
+#include "../Scene/TestScene.h"
 
 namespace {
     const float gravity = 0.002f;
     const float PlayerHeightSize = 1.3f;    //一番上
     XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
+    float bodyRange_ = 0.5f;
+    float bodyWeight_ = 1.0f;
+
 }
 
 Enemy::Enemy(GameObject* parent)
     : GameObject(parent, "Enemy"), hModel_(-1), gravity_(0.0f)
 {
+    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
+    pScene->GetEnemyList().push_back(this);
+
 }
 
 Enemy::~Enemy()
 {
+    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
+    std::vector<Enemy*> list = pScene->GetEnemyList();
+    for (auto it = list.begin(); it != list.end();) {
+        if (*it == this) {
+            it = list.erase(it);
+            break;
+        }
+        else {
+            ++it;
+        }
+    }
 }
 
 void Enemy::Initialize()
 {
-    hModel_ = Model::Load("Model/Box.fbx");
+    hModel_ = Model::Load("Model/Scarecrow.fbx");
     assert(hModel_ >= 0);
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
    
@@ -52,6 +70,7 @@ void Enemy::Update()
 
     //移動
     Move();
+    ReflectCharacter();
 
     //壁との当たり判定
     CollisionMap* pStage = (CollisionMap*)FindObject("CollisionMap");
@@ -109,17 +128,17 @@ void Enemy::OnCollision(GameObject* pTarget)
 void Enemy::Move()
 {
     if (targetList_.empty() && rand() % 100 == 0) {
-        int random = -1;
-        do { random = rand() % RouteSearch::GetNodeList().size(); } while (random == lastTarget);
-        targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), lastTarget, random);
+        int random = rand() % RouteSearch::GetNodeList().size();
+        targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), random, transform_.position_);
+        
         if (!targetList_.empty()) {
+#if 1
             //経路表示
-            OutputDebugStringA(std::to_string(lastTarget).c_str());
+            OutputDebugStringA(std::to_string(RouteSearch::GetNodeToPosition(transform_.position_)).c_str());
             OutputDebugString(" , ");
             OutputDebugStringA(std::to_string(random).c_str());
             OutputDebugString("\n\n");
-
-            lastTarget = random;
+#endif
         }
     }
 
@@ -147,4 +166,45 @@ void Enemy::Move()
 
     vPos += vMove;
     XMStoreFloat3(&transform_.position_, vPos);
+}
+
+void Enemy::ReflectCharacter()
+{
+    float sY = transform_.position_.y;
+    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
+    std::vector<Enemy*> list = pScene->GetEnemyList();
+    for (Enemy* c : list) {
+        //自分は飛ばす
+        if (c == this) continue;
+        float oY = c->transform_.position_.y;
+
+        XMFLOAT3 targetPos = c->GetPosition();
+        XMFLOAT3 direction = Float3Sub(targetPos, transform_.position_);
+
+        //当たってないなら次
+        float addRange = bodyRange_ + bodyRange_;
+        float range = CalculationDistance(direction);
+        if (range > addRange) continue;
+
+        //押し出しの強さ（0になるの防ぐためにちょい足す）
+        float w = bodyWeight_ + bodyWeight_;
+        float sWeight = bodyWeight_ / w + 0.001f;
+        float oWeight = bodyWeight_ / w + 0.001f;
+
+        //押し出しベクトル計算
+        XMFLOAT3 extrusion = Float3Multiply(Float3Normalize(direction), addRange - range);
+
+        //押し出す
+        XMFLOAT3 outPos = Float3Multiply(extrusion, -sWeight);
+        outPos = Float3Add(outPos, transform_.position_);
+        transform_.position_ = outPos;
+
+        outPos = Float3Multiply(extrusion, oWeight);
+        outPos = Float3Add(outPos, targetPos);
+        c->transform_.position_ = outPos;
+
+        //y座標は戻す
+        c->transform_.position_.y = oY;
+    }
+    transform_.position_.y = sY;
 }

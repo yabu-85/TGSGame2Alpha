@@ -88,6 +88,21 @@ namespace RouteSearch {
         return CalculationDistance(Float3Sub(aP, bP));
     }
 
+    int GetNodeToPosition(const XMFLOAT3& pos)
+    {
+        float minDist = 999999;
+        int minId = -1;
+        for (int i = 0; i < nodes.size(); i++) {
+            Node* node = nodes[i];
+            float dist = CalculationDistance(pos, node->GetPosition());
+            if (dist <= minDist) {
+                minDist = dist;
+                minId = nodes[i]->GetId();
+            }
+        }
+        return minId;
+    }
+
     // ヒューリスティック関数：ユークリッド距離
     float Heuristic(const XMFLOAT3& a, const XMFLOAT3& b) {
         XMFLOAT3 diff;
@@ -96,18 +111,18 @@ namespace RouteSearch {
     }
 
     // A*アルゴリズムの実装
-    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int start_id, int goal_id) {
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& pos) {
         std::unordered_map<int, std::pair<int, EdgeType>> came_from_with_edge; // 経路再構築のためのマップ (ノードID, (親ノードID, 使用されたエッジのタイプ))
         std::unordered_map<int, float> g_score; // スタートから各ノードまでのコスト
         std::unordered_map<int, float> f_score; // スタートからゴールまでの推定コスト
         std::priority_queue<std::pair<int, float>, std::vector<std::pair<int, float>>, std::greater<>> open_set;
-        std::vector<RouteData> path;
 
         for (const auto& node : nodes) {
             g_score[node->GetId()] = std::numeric_limits<float>::infinity();
             f_score[node->GetId()] = std::numeric_limits<float>::infinity();
         }
 
+        int start_id = GetNodeToPosition(pos);
         g_score[start_id] = 0.0f;
         f_score[start_id] = Heuristic(nodes[start_id]->GetPosition(), nodes[goal_id]->GetPosition());
         open_set.emplace(start_id, f_score[start_id]);
@@ -117,9 +132,14 @@ namespace RouteSearch {
             open_set.pop();
 
             if (current_id == goal_id) {
-                // 経路の再構築
+                //経路の再構築
+                std::vector<RouteData> path;
+                RouteData data;
+                data.pos = pos;
+                data.type = EdgeType::NORMAL;
+                path.push_back(data);
+
                 while (came_from_with_edge.find(current_id) != came_from_with_edge.end()) {
-                    RouteData data;
                     data.pos = nodes[current_id]->GetPosition();
                     data.type = came_from_with_edge[current_id].second;
                     path.push_back(data);

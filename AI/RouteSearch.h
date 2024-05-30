@@ -22,7 +22,11 @@ namespace RouteSearch {
     //ノード間の距離を計算する関数
     float distance(Node& a, Node& b);
 
+    //ポジションに対して最適なノード番号を計算
+    //見つからなかった・遠すぎた場合：-1が帰ってくる
+    int GetNodeToPosition(const XMFLOAT3& pos);
+
     //A*アルゴリズムによる経路探索
-    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int start_id, int goal_id);
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& pos);
 
 }

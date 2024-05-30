@@ -20,7 +20,7 @@ void TestScene::Initialize()
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
 
-	int count = 10;
+	int count = 2;
 	for(int i = 0;i < count;i++) Instantiate<Enemy>(this);
 
 	RouteSearch::InitializeList();
@@ -29,6 +29,12 @@ void TestScene::Initialize()
 //çXêV
 void TestScene::Update()
 {
+	if (Input::IsKeyDown(DIK_M)) Instantiate<Enemy>(this);
+	if (Input::IsKeyDown(DIK_N)) {
+		Enemy* e = static_cast<Enemy*>(FindObject("Enemy"));
+		e->KillMe();
+	}
+
 	static const float speed = 0.3f;
 	XMFLOAT4 pos = Light::GetPosition(0);
 	if (Input::IsKey(DIK_LEFTARROW)) pos.x += speed;
