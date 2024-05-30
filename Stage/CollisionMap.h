@@ -17,8 +17,6 @@ struct StageModelData {
 class CollisionMap : public GameObject
 {
     int handle_;
-    XMFLOAT3 targetPos_;
-
     Cell*** cells_ = 0;
 
 public:

@@ -20,10 +20,8 @@ class Cell
 	std::vector<Triangle> wallTriangles_;
 	
 	//TriangleÇ™îÕàÕì‡Ç©í≤Ç◊ÇÈä÷êî
-	bool IsPointInAABB(XMFLOAT3& point);
-	bool IsTriangleInAABB(Triangle& tri);
-	bool IntersectSegmentAABB(XMFLOAT3& p0, XMFLOAT3& p1);
-	bool IntersectTriangleAABB(Triangle& tri);
+	bool AABB_Tri_SAT(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& aabbExtents, const XMVECTOR& axis);
+	bool AABB_Tri_Intersect(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& aabbCentre, const XMVECTOR& aabbExtents);
 
 public:
 	Cell();

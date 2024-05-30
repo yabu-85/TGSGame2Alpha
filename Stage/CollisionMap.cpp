@@ -35,7 +35,7 @@ StageModelData::StageModelData() : hRayModelNum(-1), transform{ }
 //---------------------------------------------------------------------------------
 
 CollisionMap::CollisionMap(GameObject* parent)
-    : GameObject(parent, "CollisionMap"), handle_(-1), targetPos_(XMFLOAT3())
+    : GameObject(parent, "CollisionMap"), handle_(-1)
 {
     StageEditor::SetCollisionMap(this);
 }
@@ -89,15 +89,11 @@ void CollisionMap::Draw()
     Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
     //CellBox
-#if 0
-    OutputDebugString("Floar triangles : ");
-    OutputDebugStringA(std::to_string(GetCell(targetPos_)->GetFloarTriangles().size()).c_str());
-    OutputDebugString("\nWall  triangles : ");
-    OutputDebugStringA(std::to_string(GetCell(targetPos_)->GetWallTriangles().size()).c_str());
-    OutputDebugString("\n\n");
-
+#if 1
     Transform trans = transform_;
-    trans.position_ = targetPos_;
+    trans.position_.x = int((Direct3D::PlayerPosition.x - minX) / boxSize) * boxSize;
+    trans.position_.y = int((Direct3D::PlayerPosition.y - minY) / boxSize) * boxSize;
+    trans.position_.z = int((Direct3D::PlayerPosition.z - minZ) / boxSize) * boxSize;
     trans.position_.x += boxSize * 0.5f;
     trans.position_.y += boxSize * 0.5f;
     trans.position_.z += boxSize * 0.5f;
@@ -105,8 +101,19 @@ void CollisionMap::Draw()
     Model::SetTransform(handle_, trans);
     Model::Draw(handle_);
 #endif
+
+#if 1
+    Cell* pCell = GetCell(Direct3D::PlayerPosition);
+    if (pCell) {
+        OutputDebugString("Floar triangles : ");
+        OutputDebugStringA(std::to_string(GetCell(Direct3D::PlayerPosition)->GetFloarTriangles().size()).c_str());
+        OutputDebugString("\nWall  triangles : ");
+        OutputDebugStringA(std::to_string(GetCell(Direct3D::PlayerPosition)->GetWallTriangles().size()).c_str());
+        OutputDebugString("\n\n");
+    }
+#endif
     
-#if 0
+#if 1
     for (auto e : modelList_) {
         Model::SetTransform(e.hRayModelNum, e.transform);
         Model::Draw(e.hRayModelNum);
@@ -283,7 +290,6 @@ Cell* CollisionMap::GetCell(XMFLOAT3 pos)
         return nullptr;
     }
 
-    targetPos_ = XMFLOAT3((float)x * boxSize, (float)y * boxSize, (float)z * boxSize);
     return &cells_[y][z][x];
 }
 

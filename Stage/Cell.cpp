@@ -21,21 +21,16 @@ void Cell::SetPosLeng(XMFLOAT3 pos, float leng)
 
 bool Cell::SetTriangle(Triangle& t)
 {
-	//ŽOŠpŒ`‚Ì’¸“_‚ªAABB‚Ì“à•”‚É‚ ‚é‚©
-	if (IsTriangleInAABB(t)) {
+	XMVECTOR boxExtents = (XMLoadFloat3(&max_) - XMLoadFloat3(&min_)) * 0.5f;
+	XMVECTOR boxCentre = XMLoadFloat3(&min_) + boxExtents;
+	
+	if (AABB_Tri_Intersect(t.GetPosition(0), t.GetPosition(1), t.GetPosition(2), boxCentre, boxExtents)) {
 		if (t.IsMovable()) floarTriangles_.push_back(t);
 		else wallTriangles_.push_back(t);
 		return true;
 	}
-
-	//ŽOŠpŒ`‚Ì•Ó‚ªAABB‚ÆŒð·‚µ‚Ä‚¢‚é‚©
-	if (IntersectTriangleAABB(t)) {
-		if (t.IsMovable()) floarTriangles_.push_back(t);
-		else wallTriangles_.push_back(t);
-		return true;
-	}
-
 	return false;
+
 }
 
 void Cell::ResetTriangles()
@@ -104,35 +99,60 @@ bool Cell::SphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 
 //--------------------------------------------------------------------
 
-bool Cell::IsPointInAABB(XMFLOAT3& point) {
-	return (point.x >= min_.x && point.x <= max_.x &&
-		point.y >= min_.y && point.y <= max_.y &&
-		point.z >= min_.z && point.z <= max_.z);
+//https://gist.github.com/zvonicek/fe73ba9903f49d57314cf7e8e0f05dcf
+XMVECTOR xDir = XMVectorSet(1, 0, 0, 0);
+XMVECTOR yDir = XMVectorSet(0, 1, 0, 0);
+XMVECTOR zDir = XMVectorSet(0, 0, 1, 0);
+bool Cell::AABB_Tri_SAT(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& aabbExtents, const XMVECTOR& axis) {
+	float p0 = XMVectorGetX(XMVector3Dot(v0, axis));
+	float p1 = XMVectorGetX(XMVector3Dot(v1, axis));
+	float p2 = XMVectorGetX(XMVector3Dot(v2, axis));
+	float r = XMVectorGetX(aabbExtents) * abs(XMVectorGetX(XMVector3Dot(xDir, axis))) +
+		      XMVectorGetY(aabbExtents) * abs(XMVectorGetX(XMVector3Dot(yDir, axis))) +
+			  XMVectorGetZ(aabbExtents) * abs(XMVectorGetX(XMVector3Dot(zDir, axis)));
+
+	float maxP = max(p0, max(p1, p2));
+	float minP = min(p0, min(p1, p2));
+
+	return !(max(-maxP, minP) > r);
 }
 
-bool Cell::IsTriangleInAABB(Triangle& tri) {
-	XMFLOAT3 pos[3];
-	for (int i = 0; i < 3; i++) XMStoreFloat3(&pos[i], tri.GetPosition(i));
-	return (IsPointInAABB(pos[0]) || IsPointInAABB(pos[1]) || IsPointInAABB(pos[2]));
-}
+bool Cell::AABB_Tri_Intersect(const XMVECTOR& v0, const XMVECTOR& v1, const XMVECTOR& v2, const XMVECTOR& aabbCentre, const XMVECTOR& aabbExtents) {
+	XMVECTOR v0Rel = v0 - aabbCentre;
+	XMVECTOR v1Rel = v1 - aabbCentre;
+	XMVECTOR v2Rel = v2 - aabbCentre;
 
-//Še•Ó‚ª“ü‚Á‚Ä‚¢‚é‚©
-bool Cell::IntersectSegmentAABB(XMFLOAT3& p0, XMFLOAT3& p1) {
-	//‹t”‚ÌŒvŽZi‚P0.5, 40.25j
-	XMVECTOR invD = XMVectorReciprocal(XMVectorSubtract(XMLoadFloat3(&p1), XMLoadFloat3(&p0)));
-	XMVECTOR t0s = XMVectorMultiply(XMVectorSubtract(XMLoadFloat3(&min_), XMLoadFloat3(&p0)), invD);
-	XMVECTOR t1s = XMVectorMultiply(XMVectorSubtract(XMLoadFloat3(&max_), XMLoadFloat3(&p0)), invD);
-	XMVECTOR tmin = XMVectorMin(t0s, t1s);
-	XMVECTOR tmax = XMVectorMax(t0s, t1s);
+	XMVECTOR ab = XMVector3Normalize(v1Rel - v0Rel);
+	XMVECTOR bc = XMVector3Normalize(v2Rel - v1Rel);
+	XMVECTOR ca = XMVector3Normalize(v0Rel - v2Rel);
 
-	float tminF = max(max(XMVectorGetX(tmin), XMVectorGetY(tmin)), XMVectorGetZ(tmin));
-	float tmaxF = min(min(XMVectorGetX(tmax), XMVectorGetY(tmax)), XMVectorGetZ(tmax));
-	return tminF <= tmaxF && tmaxF >= 0.0f && tminF <= 1.0f;
-}
+	XMVECTOR a00 = XMVectorSet(0.0f, XMVectorGetZ(-ab), XMVectorGetY(ab), 0.0f);
+	XMVECTOR a01 = XMVectorSet(0.0f, XMVectorGetZ(-bc), XMVectorGetY(bc), 0.0f);
+	XMVECTOR a02 = XMVectorSet(0.0f, XMVectorGetZ(-ca), XMVectorGetY(ca), 0.0f);
 
-//ŽOŠpŒ`‚ÌŠe•Ó‚É‚Â‚¢‚Ä”»’è
-bool Cell::IntersectTriangleAABB(Triangle& tri) {
-	XMFLOAT3 pos[3];
-	for (int i = 0; i < 3; i++) XMStoreFloat3(&pos[i], tri.GetPosition(i));
-	return (IntersectSegmentAABB(pos[0], pos[1]) || IntersectSegmentAABB(pos[1], pos[2]) || IntersectSegmentAABB(pos[2], pos[0]));
+	XMVECTOR a10 = XMVectorSet(XMVectorGetZ(ab), 0.0f, XMVectorGetX(-ab), 0.0f);
+	XMVECTOR a11 = XMVectorSet(XMVectorGetZ(bc), 0.0f, XMVectorGetX(-bc), 0.0f);
+	XMVECTOR a12 = XMVectorSet(XMVectorGetZ(ca), 0.0f, XMVectorGetX(-ca), 0.0f);
+
+	XMVECTOR a20 = XMVectorSet(XMVectorGetY(-ab), XMVectorGetX(ab), 0.0f, 0.0f);
+	XMVECTOR a21 = XMVectorSet(XMVectorGetY(-bc), XMVectorGetX(bc), 0.0f, 0.0f);
+	XMVECTOR a22 = XMVectorSet(XMVectorGetY(-ca), XMVectorGetX(ca), 0.0f, 0.0f);
+
+	if (!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a00) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a01) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a02) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a10) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a11) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a12) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a20) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a21) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, a22) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, xDir) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, yDir) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, zDir) ||
+		!AABB_Tri_SAT(v0Rel, v1Rel, v2Rel, aabbExtents, XMVector3Dot(ab, bc))) {
+		return false;
+	}
+
+	return true;
 }

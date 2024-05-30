@@ -53,7 +53,7 @@ void Enemy::Initialize()
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
    
     transform_.position_ = start;
-    MoveSpeed = 0.1f + rand() % 100 * 0.001f;
+    MoveSpeed = 0.075f;
 
 #if 0
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
@@ -121,7 +121,7 @@ void Enemy::OnCollision(GameObject* pTarget)
 #include "../AI/RouteSearch.h"
 void Enemy::Move()
 {
-    static const float RayMoveDist = 10.0f;
+    static const float RayMoveDist = 3.0f;
     XMVECTOR vPos2 = XMLoadFloat3(&transform_.position_);
     XMFLOAT3 playerPos = pPlayer->GetPosition();
     XMVECTOR vPlaPos2 = XMLoadFloat3(&playerPos);
@@ -129,6 +129,8 @@ void Enemy::Move()
 
     float plaDist = XMVectorGetX(XMVector3Length(vec2));
     if (plaDist <= RayMoveDist) {
+        targetList_.clear();
+
         XMFLOAT3 plaPos = pPlayer->GetPosition();
         plaPos.y += 0.01f;
         XMVECTOR vPlaPos = XMLoadFloat3(&plaPos);
@@ -137,29 +139,22 @@ void Enemy::Move()
         rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + 0.01f, transform_.position_.z);
         XMStoreFloat3(&rayData.dir, XMVector3Normalize(vec2));
 
+        OutputDebugString("hit");
+        OutputDebugStringA(std::to_string(plaDist).c_str());
+        OutputDebugString("\n");
+
         pCMap->RaySelectWallCellVsSegment(pPlayer->GetPosition(), &rayData);
-        if (rayData.hit) {
-            OutputDebugString("hit");
-            OutputDebugStringA(std::to_string(rayData.dist).c_str());
-            OutputDebugString("\n");
+        //移動スピード抑制
+        float moveDist = XMVectorGetX(XMVector3Length(vec2));
+        if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
 
-            //移動スピード抑制
-            float moveDist = XMVectorGetX(XMVector3Length(vec2));
-            if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
-        
-            //回避計算
-            CalcDodge(vec2);
+        //回避計算
+        CalcDodge(vec2);
 
-            //移動
-            vPos2 -= vec2;
-            XMStoreFloat3(&transform_.position_, vPos2);
-            return;
-        }
-        else {
-            OutputDebugString("no hit");
-            OutputDebugStringA(std::to_string(rayData.dist).c_str());
-            OutputDebugString("\n");
-        }
+        //移動
+        vPos2 -= vec2;
+        XMStoreFloat3(&transform_.position_, vPos2);
+        return;
     }
 
     if (targetList_.empty() && rand() % 10 == 0) {

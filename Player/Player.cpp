@@ -112,6 +112,7 @@ void Player::Update()
     }
     else {
         float addPos = -1.0f;
+        bool fly = true;
         for (int i = 0; i < 2; i++) {
             RayCastData rayData = RayCastData();
             rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
@@ -122,14 +123,14 @@ void Player::Update()
 
             //‚±‚Ì’l‚æ‚è’n–Ê‚Æ—£‚ê‚é‚Æ•‚‚¢‚Ä‚¢‚é‚Æ”»’è‚³‚ê‚é
             const float WalkFalDist = 0.3f;
-            if (rayData.hit && rayData.dist < WalkFalDist + PlayerHeightSize) {
+            if (rayData.hit && rayData.dist <= WalkFalDist + PlayerHeightSize) {
                 transform_.position_.y += PlayerHeightSize - rayData.dist;
-            }
-            else {
-                isFly_ = true;
+                fly = false;
+                break;
             }
             addPos = 0.0f;
         }
+        if (fly) isFly_ = true;
     }
 
     pStateManager_->Update();
