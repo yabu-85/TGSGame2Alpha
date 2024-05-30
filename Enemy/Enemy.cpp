@@ -27,7 +27,7 @@ Enemy::~Enemy()
 
 void Enemy::Initialize()
 {
-    hModel_ = Model::Load("Model/Scarecrow.fbx");
+    hModel_ = Model::Load("Model/Box.fbx");
     assert(hModel_ >= 0);
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
    

@@ -449,7 +449,6 @@ void FbxParts::Draw(Transform& transform)
 		cb.shininess = pMaterial_[i].shininess;
 		cb.camPos = XMFLOAT4(Camera::GetPosition().x, Camera::GetPosition().y, Camera::GetPosition().z, 0);
 		cb.lightPos = Light::GetPosition(0);
-		
 		cb.mWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());
 		cb.mWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
 

@@ -121,7 +121,7 @@ void Player::Update()
             pCMap->CellFloarRayCast(pos, &rayData);
 
             //‚±‚Ì’l‚æ‚è’n–Ê‚Æ—£‚ê‚é‚Æ•‚‚¢‚Ä‚¢‚é‚Æ”»’è‚³‚ê‚é
-            const float WalkFalDist = 0.2f;
+            const float WalkFalDist = 0.3f;
             if (rayData.hit && rayData.dist < WalkFalDist + PlayerHeightSize) {
                 transform_.position_.y += PlayerHeightSize - rayData.dist;
             }
