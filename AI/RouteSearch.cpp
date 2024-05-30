@@ -111,7 +111,8 @@ namespace RouteSearch {
     }
 
     // A*アルゴリズムの実装
-    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& pos) {
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, int start_id)
+    {
         std::unordered_map<int, std::pair<int, EdgeType>> came_from_with_edge; // 経路再構築のためのマップ (ノードID, (親ノードID, 使用されたエッジのタイプ))
         std::unordered_map<int, float> g_score; // スタートから各ノードまでのコスト
         std::unordered_map<int, float> f_score; // スタートからゴールまでの推定コスト
@@ -122,7 +123,6 @@ namespace RouteSearch {
             f_score[node->GetId()] = std::numeric_limits<float>::infinity();
         }
 
-        int start_id = GetNodeToPosition(pos);
         g_score[start_id] = 0.0f;
         f_score[start_id] = Heuristic(nodes[start_id]->GetPosition(), nodes[goal_id]->GetPosition());
         open_set.emplace(start_id, f_score[start_id]);
@@ -134,17 +134,14 @@ namespace RouteSearch {
             if (current_id == goal_id) {
                 //経路の再構築
                 std::vector<RouteData> path;
-                RouteData data;
-                data.pos = pos;
-                data.type = EdgeType::NORMAL;
-                path.push_back(data);
-
                 while (came_from_with_edge.find(current_id) != came_from_with_edge.end()) {
+                    RouteData data;
                     data.pos = nodes[current_id]->GetPosition();
                     data.type = came_from_with_edge[current_id].second;
                     path.push_back(data);
                     current_id = came_from_with_edge[current_id].first;
                 }
+
                 return path;
             }
 
@@ -163,5 +160,31 @@ namespace RouteSearch {
 
         //ゴールまでたどり着けなかった
         return std::vector<RouteData>();
+    }
+
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& s_pos) {
+        int start_id = GetNodeToPosition(s_pos);
+        std::vector<RouteData> path = AStar(nodes, goal_id, start_id);
+
+        //スタート地点の追加
+        RouteData data;
+        data.pos = s_pos;
+        data.type = EdgeType::NORMAL;
+        path.push_back(data);
+        return path;
+    }
+
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, const XMFLOAT3& t_pos, const XMFLOAT3& s_pos)
+    {
+        int start_id = GetNodeToPosition(s_pos);
+        int goal_id = GetNodeToPosition(t_pos);
+        std::vector<RouteData> path = AStar(nodes, goal_id, start_id);
+
+        //スタート地点の追加
+        RouteData data;
+        data.pos = s_pos;
+        data.type = EdgeType::NORMAL;
+        path.push_back(data);
+        return path;
     }
 }

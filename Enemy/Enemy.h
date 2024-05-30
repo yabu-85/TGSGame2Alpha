@@ -24,7 +24,8 @@ public:
     void Release() override;
     void OnCollision(GameObject* pTarget) override;
 
-    void  Move();
+    void Move();
+    void CalcDodge(XMVECTOR& move);
     void ReflectCharacter();
 
 };

@@ -27,6 +27,8 @@ namespace RouteSearch {
     int GetNodeToPosition(const XMFLOAT3& pos);
 
     //A*ƒAƒ‹ƒSƒŠƒYƒ€‚É‚æ‚éŒo˜H’Tõ
-    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& pos);
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, int start_id);
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& s_pos);
+    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, const XMFLOAT3& t_pos, const XMFLOAT3& s_pos);
 
 }

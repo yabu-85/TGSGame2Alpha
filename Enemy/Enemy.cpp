@@ -12,12 +12,13 @@
 
 namespace {
     const float gravity = 0.002f;
-    const float PlayerHeightSize = 1.3f;    //一番上
+    const float HeightSize = 1.3f;    //一番上
     XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
     float bodyRange_ = 0.5f;
     float bodyWeight_ = 1.0f;
-
+    Player* pPlayer = nullptr;
+    CollisionMap* pCMap = nullptr;
 }
 
 Enemy::Enemy(GameObject* parent)
@@ -26,6 +27,8 @@ Enemy::Enemy(GameObject* parent)
     TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
     pScene->GetEnemyList().push_back(this);
 
+    pPlayer = static_cast<Player*>(FindObject("Player"));
+    pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
 }
 
 Enemy::~Enemy()
@@ -50,7 +53,7 @@ void Enemy::Initialize()
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
    
     transform_.position_ = start;
-    MoveSpeed = 0.05f + rand() % 100 * 0.001f;
+    MoveSpeed = 0.1f + rand() % 100 * 0.001f;
 
 #if 0
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
@@ -73,22 +76,21 @@ void Enemy::Update()
     ReflectCharacter();
 
     //壁との当たり判定
-    CollisionMap* pStage = (CollisionMap*)FindObject("CollisionMap");
     SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
     XMVECTOR push = XMVectorZero();
-    pStage->CellSphereVsTriangle(collid, push);
+    pCMap->CellSphereVsTriangle(collid, push);
 
     float addPos = -1.0f;
     isGround = false;
     for (int i = 0; i < 2; i++) {
         RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
+        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + HeightSize, transform_.position_.z);
         rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
         XMFLOAT3 pos = transform_.position_;
         pos.y += addPos;
-        pStage->CellFloarRayCast(pos, &rayData);
-        if (rayData.hit && rayData.dist < PlayerHeightSize) {
-            transform_.position_.y += PlayerHeightSize - rayData.dist;
+        pCMap->CellFloarRayCast(pos, &rayData);
+        if (rayData.hit && rayData.dist < HeightSize) {
+            transform_.position_.y += HeightSize - rayData.dist;
             gravity_ = 0.0f;
             isGround = true;
         }
@@ -114,29 +116,61 @@ void Enemy::Release()
 
 void Enemy::OnCollision(GameObject* pTarget)
 {
-    std::list<Collider*> list = pTarget->GetAllColliderList();
-    auto it = colliderList_.begin();
-    if ((*it)->GetColliderType() == COLLIDER_CAPSULE) {
-        CapsuleCollider* capsule = static_cast<CapsuleCollider*>((*it));
-        capsule->targetDit_;
-
-    }
-
 }
 
 #include "../AI/RouteSearch.h"
 void Enemy::Move()
 {
-    if (targetList_.empty() && rand() % 100 == 0) {
-        int random = rand() % RouteSearch::GetNodeList().size();
-        targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), random, transform_.position_);
+    static const float RayMoveDist = 10.0f;
+    XMVECTOR vPos2 = XMLoadFloat3(&transform_.position_);
+    XMFLOAT3 playerPos = pPlayer->GetPosition();
+    XMVECTOR vPlaPos2 = XMLoadFloat3(&playerPos);
+    XMVECTOR vec2 = vPos2 - vPlaPos2;
+
+    float plaDist = XMVectorGetX(XMVector3Length(vec2));
+    if (plaDist <= RayMoveDist) {
+        XMFLOAT3 plaPos = pPlayer->GetPosition();
+        plaPos.y += 0.01f;
+        XMVECTOR vPlaPos = XMLoadFloat3(&plaPos);
+
+        RayCastData rayData = RayCastData();
+        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + 0.01f, transform_.position_.z);
+        XMStoreFloat3(&rayData.dir, XMVector3Normalize(vec2));
+
+        pCMap->RaySelectWallCellVsSegment(pPlayer->GetPosition(), &rayData);
+        if (rayData.hit) {
+            OutputDebugString("hit");
+            OutputDebugStringA(std::to_string(rayData.dist).c_str());
+            OutputDebugString("\n");
+
+            //移動スピード抑制
+            float moveDist = XMVectorGetX(XMVector3Length(vec2));
+            if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
+        
+            //回避計算
+            CalcDodge(vec2);
+
+            //移動
+            vPos2 -= vec2;
+            XMStoreFloat3(&transform_.position_, vPos2);
+            return;
+        }
+        else {
+            OutputDebugString("no hit");
+            OutputDebugStringA(std::to_string(rayData.dist).c_str());
+            OutputDebugString("\n");
+        }
+    }
+
+    if (targetList_.empty() && rand() % 10 == 0) {
+        targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), pPlayer->GetPosition(), transform_.position_);
         
         if (!targetList_.empty()) {
 #if 1
             //経路表示
             OutputDebugStringA(std::to_string(RouteSearch::GetNodeToPosition(transform_.position_)).c_str());
             OutputDebugString(" , ");
-            OutputDebugStringA(std::to_string(random).c_str());
+            OutputDebugStringA(std::to_string(RouteSearch::GetNodeToPosition(pPlayer->GetPosition())).c_str());
             OutputDebugString("\n\n");
 #endif
         }
@@ -158,14 +192,41 @@ void Enemy::Move()
     float moveDist = XMVectorGetX(XMVector3Length(vMove));
     if (moveDist > MoveSpeed) vMove = XMVector3Normalize(vMove) * MoveSpeed;
 
+    //ターゲット位置ついた
     if (moveDist <= moveRange_) {
         targetList_.pop_back();
         Update();
         return;
     }
 
+    //回避計算
+    CalcDodge(vMove);
+    
     vPos += vMove;
     XMStoreFloat3(&transform_.position_, vPos);
+}
+
+void Enemy::CalcDodge(XMVECTOR& move)
+{
+    const float safeSize = 1.0f;
+    XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
+    XMVECTOR vSafeMove = XMVectorZero();
+    
+    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
+    std::vector<Enemy*> list = pScene->GetEnemyList();
+    for (auto& e : list) {
+        if (e == this) continue;
+        XMFLOAT3 f = e->GetPosition();
+        XMVECTOR vTarget = XMLoadFloat3(&f);
+        XMVECTOR vec = vTarget - vPos;
+        float range = XMVectorGetX(XMVector3Length(vec));
+
+        if (range < safeSize) {
+            range -= safeSize;
+            vSafeMove += XMVector3Normalize(vec) * range;
+        }
+    }
+    move += vSafeMove;
 }
 
 void Enemy::ReflectCharacter()

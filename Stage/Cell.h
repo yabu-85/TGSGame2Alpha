@@ -42,6 +42,7 @@ public:
 	//Wall‚Æ‚â‚é
 	bool SegmentVsWallTriangle(RayCastData* _data);
 
+	//‹…‚Æƒ|ƒŠƒSƒ“”»’è‚µ‚ÄA‰Ÿ‚µo‚µ‚à‚â‚éŠÖ”
 	bool SphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
 
 	std::vector<Triangle> GetFloarTriangles() { return floarTriangles_; }

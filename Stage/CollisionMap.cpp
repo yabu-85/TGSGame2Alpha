@@ -203,6 +203,75 @@ bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
     return cell->SphereVsTriangle(collid, push);
 }
 
+void CollisionMap::RaySelectWallCellVsSegment(XMFLOAT3 target, RayCastData* _data)
+{
+    int startX = int((_data->start.x - minX) / boxSize);
+    int startY = int((_data->start.y - minY) / boxSize);
+    int startZ = int((_data->start.z - minZ) / boxSize);
+    int targetX = int((target.x - minX) / boxSize);
+    int targetY = int((target.y - minY) / boxSize);
+    int targetZ = int((target.z - minZ) / boxSize);
+
+    // 座標の範囲を制限
+    startX = (int)max(0, min(startX, maxX / boxSize - 1));
+    startY = (int)max(0, min(startY, maxY / boxSize - 1));
+    startZ = (int)max(0, min(startZ, maxZ / boxSize - 1));
+    targetX = (int)max(0, min(targetX, maxX / boxSize - 1));
+    targetY = (int)max(0, min(targetY, maxY / boxSize - 1));
+    targetZ = (int)max(0, min(targetZ, maxZ / boxSize - 1));
+
+    int stepX = (targetX >= startX) ? 1 : -1;
+    int stepY = (targetY >= startY) ? 1 : -1;
+    int stepZ = (targetZ >= startZ) ? 1 : -1;
+
+    // 座標の処理 : 常にStartPositionからループ回したいから座標によって増減を決める
+    for (int x = startX; x != targetX + stepX; x += stepX) {
+        for (int y = startY; y != targetY + stepY; y += stepY) {
+            for (int z = startZ; z != targetZ + stepZ; z += stepZ) {
+
+                // line ベクトルに垂直なベクトルを計算
+                XMVECTOR upVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // もし他のベクトルが必要なら変更
+                XMVECTOR lineNormal = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&_data->dir), upVector));
+
+                const XMFLOAT3 floatBoxPos[4] = {
+                    { 0.0f, 0.0f, 0.0f},
+                    { boxSize, 0.0f, 0.0f },
+                    { boxSize, 0.0f, boxSize },
+                    { 0.0f, 0.0f, boxSize }
+                };
+
+                // 四角形の四隅の点を求める / その点からstartまでの距離を計算 / 内積により線の方向を計算
+                XMVECTOR lineBase = XMLoadFloat3(&_data->start);
+                XMVECTOR c[4];
+                float dp[4] = {};
+                for (int i = 0; i < 4; i++) {
+                    // 四角形の四隅の点の座標を求める
+                    XMFLOAT3 boxPos = XMFLOAT3(x * boxSize + floatBoxPos[i].x, y * boxSize + floatBoxPos[i].y, z * boxSize + floatBoxPos[i].z);
+                    c[i] = XMLoadFloat3(&boxPos);
+
+                    // その点からstartまでの距離を計算
+                    c[i] -= lineBase;
+
+                    // 内積により線の方向を求める
+                    dp[i] = XMVectorGetY(XMVector3Dot(lineNormal, c[i]));
+                }
+
+
+                // 全部同じ方向にあれば、線と四角形が当たっていることはない
+                if ((dp[0] * dp[1] <= 0) || (dp[1] * dp[2] <= 0) || (dp[2] * dp[3] <= 0)) {
+                    Cell* cell = &cells_[y][z][x];
+                    if (!cell) continue;
+
+                    // Ray内にあったからそのCellで当たり判定をする
+                    if (cell->SegmentVsWallTriangle(_data)) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
 Cell* CollisionMap::GetCell(XMFLOAT3 pos)
 {
     int x = int((pos.x - minX) / boxSize);
