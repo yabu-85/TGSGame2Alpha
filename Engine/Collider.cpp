@@ -492,10 +492,11 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle,
     //Å¬‹——£‚ª‹…‚Ì”¼ŒaˆÈ“à‚©‚Ç‚¤‚©
     float minDist = sqrtf(minDistSq);
     bool hit = minDist < circle->size_.x;
-    
+
     if (hit) {
         XMVECTOR vec = p - closestPoint;
-        outDistanceVector = vec * (circle->size_.x - XMVectorGetX(XMVector3Length(vec)));
+        outDistanceVector = normal * (circle->size_.x - XMVectorGetX(XMVector3Length(vec)));
+     //   outDistanceVector = (circle->size_.x - distanceToPlane) * normal;
     }
     else outDistanceVector = XMVectorZero();
 

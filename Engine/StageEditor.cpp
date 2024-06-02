@@ -115,44 +115,54 @@ void StageEditor::DrawStageEditor()
         sprintf_s(name, sizeof(name), "number : %d %s", count++, modelData.fileName.c_str());
 
         if (ImGui::TreeNode(name)) {
-            const float PosMaxValue = 100.0f;
+            const float PosMaxValue = 70.0f;            
+            const float PosMinValue = 30.0f;
             const float ScaMaxValue = 10.0f;
             const float RotMaxValue = 360.0f;
 
             //Positionセット
-            if (ImGui::TreeNode("Position")) {
-                XMFLOAT3 pos = modelData.transform.position_;
-                ImGui::SliderFloat("x", &pos.x, 0.0f, PosMaxValue);
-                ImGui::SliderFloat("y", &pos.y, 0.0f, PosMaxValue);
-                ImGui::SliderFloat("z", &pos.z, 0.0f, PosMaxValue);
-                ImGui::TreePop();
-                modelData.transform.position_ = pos;
-            }
+            ImGui::Columns(3);
+            XMFLOAT3 pos = modelData.transform.position_;
+            ImGui::SliderFloat("Px", &pos.x, PosMinValue, PosMaxValue);
+            ImGui::NextColumn();
+            ImGui::SliderFloat("Py", &pos.y, 0, 30.0f);
+            ImGui::NextColumn();
+            ImGui::SliderFloat("Pz", &pos.z, PosMinValue, PosMaxValue);
+            modelData.transform.position_ = pos;
+            ImGui::Columns(1);
 
             //Scaleセット
-            if (ImGui::TreeNode("Scale")) {
-                XMFLOAT3 sca = modelData.transform.scale_;
-                ImGui::SliderFloat("x", &sca.x, 0.0f, ScaMaxValue);
-                ImGui::SliderFloat("y", &sca.y, 0.0f, ScaMaxValue);
-                ImGui::SliderFloat("z", &sca.z, 0.0f, ScaMaxValue);
-                ImGui::TreePop();
-                modelData.transform.scale_ = sca;
-            }
+            ImGui::Columns(3);
+            XMFLOAT3 sca = modelData.transform.scale_;
+            ImGui::SliderFloat("Sx", &sca.x, 0.0f, ScaMaxValue);
+            ImGui::NextColumn();
+            ImGui::SliderFloat("Sy", &sca.y, 0.0f, ScaMaxValue);
+            ImGui::NextColumn();
+            ImGui::SliderFloat("Sz", &sca.z, 0.0f, ScaMaxValue);
+            modelData.transform.scale_ = sca;
+            ImGui::Columns(1);
 
             //Rotateセット
-            if (ImGui::TreeNode("Rotate")) {
-                XMFLOAT3 rot = modelData.transform.rotate_;
-                ImGui::SliderFloat("x", &rot.x, 0.0f, RotMaxValue);
-                ImGui::SliderFloat("y", &rot.y, 0.0f, RotMaxValue);
-                ImGui::SliderFloat("z", &rot.z, 0.0f, RotMaxValue);
-                ImGui::TreePop();
-                modelData.transform.rotate_ = rot;
-            }
+            ImGui::Columns(3);
+            XMFLOAT3 rot = modelData.transform.rotate_;
+            ImGui::SliderFloat("Rx", &rot.x, 0.0f, RotMaxValue);
+            ImGui::NextColumn();
+            ImGui::SliderFloat("Ry", &rot.y, 0.0f, RotMaxValue);
+            ImGui::NextColumn();
+            ImGui::SliderFloat("Rz", &rot.z, 0.0f, RotMaxValue);
+            modelData.transform.rotate_ = rot;
+            ImGui::Columns(1);
 
             //削除ボタン
             if (ImGui::Button("Remove")) {
                 stageList.erase(stageList.begin() + index);
                 --index;
+            }
+            ImGui::SameLine();
+            //コピーボタン
+            if (ImGui::Button("Copy&Paste")) {
+                StageModelData data = *(stageList.begin() + index);
+                stageList.push_back(data);
             }
 
             ImGui::TreePop();

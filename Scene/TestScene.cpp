@@ -29,10 +29,10 @@ void TestScene::Initialize()
 //çXêV
 void TestScene::Update()
 {
-	if (Input::IsKeyDown(DIK_M)) Instantiate<Enemy>(this);
-	if (Input::IsKeyDown(DIK_N)) {
+	if (Input::IsKeyDown(DIK_F1)) Instantiate<Enemy>(this);
+	if (Input::IsKeyDown(DIK_F2)) {
 		Enemy* e = static_cast<Enemy*>(FindObject("Enemy"));
-		e->KillMe();
+		if(e) e->KillMe();
 	}
 
 	static const float speed = 0.3f;

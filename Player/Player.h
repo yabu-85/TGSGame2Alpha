@@ -46,8 +46,8 @@ public:
     void CalcMove();                //Inputを考慮したやつ
     void CalcNoMove();              //Input考慮してない、滑るやつとかの計算用
 
-    //当たり判定
-    void StageFloarBounce();
+    //当たり判定(perDist=許容範囲)
+    void StageFloarBounce(float perDist = 0.0f, float calcHeight = 0.0f);
     void StageWallBounce();
 
     //Jump

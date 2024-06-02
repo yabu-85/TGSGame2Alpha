@@ -102,7 +102,7 @@ void CollisionMap::Draw()
     Model::Draw(handle_);
 #endif
 
-#if 1
+#if 0
     Cell* pCell = GetCell(Direct3D::PlayerPosition);
     if (pCell) {
         OutputDebugString("Floar triangles : ");
@@ -113,7 +113,7 @@ void CollisionMap::Draw()
     }
 #endif
     
-#if 1
+#if 0
     for (auto e : modelList_) {
         Model::SetTransform(e.hRayModelNum, e.transform);
         Model::Draw(e.hRayModelNum);
@@ -207,7 +207,13 @@ bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
     Cell* cell = GetCell(pos);
     if (!cell) return false;
 
-    return cell->SphereVsTriangle(collid, push);
+    bool hit = cell->SphereVsTriangle(collid, push);
+
+    pos.y -= collid->size_.x;
+    cell = GetCell(pos);
+    if (cell->SphereVsTriangle(collid, push)) hit = true;
+
+    return hit;
 }
 
 void CollisionMap::RaySelectWallCellVsSegment(XMFLOAT3 target, RayCastData* _data)

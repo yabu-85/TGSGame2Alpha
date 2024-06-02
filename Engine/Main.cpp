@@ -82,6 +82,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX11_Init(Direct3D::pDevice_, Direct3D::pContext_);
 
+	//マウス制限
+	if (isCursorLimited) LimitMousePointer(hWnd);
+
 	//カメラを準備
 	Camera::Initialize();
 
@@ -300,9 +303,6 @@ HWND InitApp(HINSTANCE hInstance, int screenWidth, int screenHeight, int nCmdSho
 	if(!isCursorVisible)
 	while (ShowCursor(FALSE) >= 0);
 
-	//マウス制限
-	if (isCursorLimited) LimitMousePointer(hWnd);
-
 	return hWnd;
 }
 
@@ -342,11 +342,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (wParam == 'L') {
 			isCursorLimited = !isCursorLimited;
 			
-			OutputDebugStringA(std::to_string(isCursorLimited).c_str());
-			OutputDebugString("\n");
-
 			if (isCursorLimited) LimitMousePointer(hWnd);
 			else ReleaseMousePointer();
+		}
+
+		if (wParam == VK_ESCAPE)
+		{
+			while (ShowCursor(TRUE) < 0);
+			int result = MessageBox(hWnd, "プログラムを終了しますか？", "確認", MB_OKCANCEL | MB_ICONQUESTION);
+
+			if (result == IDOK)
+			{
+				ReleaseMousePointer();
+				PostQuitMessage(0);
+				return 0;
+			}
 		}
 	}
 

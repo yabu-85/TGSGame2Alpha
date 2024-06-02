@@ -70,7 +70,7 @@ void Player::Initialize()
     CapsuleCollider* pCollid = new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f, vec);
     AddCollider(pCollid);
 #else
-    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.5f, 0.0f), 0.5f));
+    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.35f, 0.0f), 0.3f));
 #endif
 
 }
@@ -108,29 +108,14 @@ void Player::Update()
             transform_.position_.y -= gravity_;
         }
 
-        StageFloarBounce();
+        StageFloarBounce(0.0f, 1.0f);
+        if (isFly_) StageFloarBounce();
+
     }
     else {
-        float addPos = -1.0f;
-        bool fly = true;
-        for (int i = 0; i < 2; i++) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
-            rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-            XMFLOAT3 pos = transform_.position_;
-            pos.y += addPos;
-            pCMap->CellFloarRayCast(pos, &rayData);
-
-            //この値より地面と離れると浮いていると判定される
-            const float WalkFalDist = 0.3f;
-            if (rayData.hit && rayData.dist <= WalkFalDist + PlayerHeightSize) {
-                transform_.position_.y += PlayerHeightSize - rayData.dist;
-                fly = false;
-                break;
-            }
-            addPos = 0.0f;
-        }
-        if (fly) isFly_ = true;
+        //この値より地面と離れると浮いていると判定される
+        isFly_ = true;
+        StageFloarBounce(1.0f);
     }
 
     pStateManager_->Update();
@@ -187,7 +172,7 @@ void Player::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-    //CollisionDraw();
+    CollisionDraw();
 }
 
 void Player::Release()
@@ -291,23 +276,17 @@ void Player::CalcNoMove()
     playerMovement_ = { playerMovement_.x + move.x , playerMovement_.y + move.y , playerMovement_.z + move.z };
 }
 
-void Player::StageFloarBounce()
+void Player::StageFloarBounce(float perDist, float calcHeight)
 {
-    float addPos = -1.0f;
-    for (int i = 0; i < 2; i++) {
-        RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
-        rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-        XMFLOAT3 pos = transform_.position_;
-        pos.y += addPos;
-        pCMap->CellFloarRayCast(pos, &rayData);
-        if (rayData.hit && rayData.dist < PlayerHeightSize) {
-            transform_.position_.y += PlayerHeightSize - rayData.dist;
-            gravity_= 0.0f;
-            isFly_ = false;
-            return;
-        }
-        addPos = 0.0f;
+    RayCastData rayData = RayCastData();
+    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
+    rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+    XMFLOAT3 pos = XMFLOAT3(transform_.position_.x, transform_.position_.y + +calcHeight, transform_.position_.z);
+    pCMap->CellFloarRayCast(pos, &rayData);
+    if (rayData.hit && rayData.dist <= PlayerHeightSize + perDist) {
+        transform_.position_.y += PlayerHeightSize - rayData.dist;
+        gravity_ = 0.0f;
+        isFly_ = false;
     }
 }
 

@@ -82,6 +82,18 @@ bool Cell::SegmentVsWallTriangle(RayCastData* _data)
 bool Cell::SphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 {
 	bool hit = false;
+	for (int i = 0; i < (int)floarTriangles_.size(); i++) {
+		if (collid->IsHitCircleVsTriangle(collid, &floarTriangles_[i], push)) {
+			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
+			XMFLOAT3 fP = XMFLOAT3();
+			XMStoreFloat3(&fP, push);
+
+			pos = Float3Add(pos, fP);
+			collid->pGameObject_->SetPosition(pos);
+			hit = true;
+		}
+	}
+	
 	for (int i = 0; i < (int)wallTriangles_.size(); i++) {
 		if (collid->IsHitCircleVsTriangle(collid, &wallTriangles_[i], push)) {
 			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
