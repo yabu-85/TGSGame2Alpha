@@ -31,4 +31,7 @@ namespace RouteSearch {
     std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& s_pos);
     std::vector<RouteData> AStar(const std::vector<Node*>& nodes, const XMFLOAT3& t_pos, const XMFLOAT3& s_pos);
 
+    //パスのスムージング
+    void PathSmoothing(std::vector<RouteData>& path);
+
 }

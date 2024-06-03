@@ -171,6 +171,8 @@ namespace RouteSearch {
         data.pos = s_pos;
         data.type = EdgeType::NORMAL;
         path.push_back(data);
+
+        PathSmoothing(path);
         return path;
     }
 
@@ -185,6 +187,32 @@ namespace RouteSearch {
         data.pos = s_pos;
         data.type = EdgeType::NORMAL;
         path.push_back(data);
+       
+        PathSmoothing(path);
         return path;
+    }
+
+    void PathSmoothing(std::vector<RouteData>& path) {
+        const std::vector<RouteData> prePath = path;
+        const float alpha = 0.8f;			//大きいほど、元のPathに似ているPathができる。　　　　 大きいほど処理が速い
+        const float beta = 0.2f;			//大きいほど、隣接する点間での滑らかさが向上する。　   大きいほど処理が遅い
+        const float tolerance = 0.8f;		//変化量がこの値以下の時平滑化を終了。　　　　　　　　 大きいほど処理が速い
+        float change = tolerance;			//パスの位置の変化量
+
+        while (change >= tolerance) {
+            change = 0.0f;
+
+            for (int i = 1; i < path.size() - 1; ++i) {
+                XMVECTOR currentPathVector = XMLoadFloat3(&path[i].pos);
+                XMVECTOR previousPathVector = XMLoadFloat3(&path[i - 1].pos);
+                XMVECTOR nextPathVector = XMLoadFloat3(&path[i + 1].pos);
+
+                XMVECTOR smoothedPathVector = currentPathVector - alpha * (currentPathVector - XMLoadFloat3(&prePath[i].pos));
+                smoothedPathVector = smoothedPathVector - beta * (2.0f * currentPathVector - previousPathVector - nextPathVector);
+                XMStoreFloat3(&path[i].pos, smoothedPathVector);
+
+                change += XMVectorGetX(XMVector3Length(smoothedPathVector - currentPathVector));
+            }
+        }
     }
 }

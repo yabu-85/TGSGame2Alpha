@@ -7,6 +7,7 @@
 #include "../Engine/ImGui/imgui.h"
 #include "../Engine/ImGui/imgui_impl_dx11.h"
 #include "../Engine/ImGui/imgui_impl_win32.h"
+#include "../Engine/Global.h"
 
 #include <fstream>
 using namespace std;
@@ -248,18 +249,7 @@ void StageEditor::DrawNodeEditor()
     if (ImGui::Button("Save NodeList")) {
         SaveFileNode(nodeList, "TestStageNode.json");
     }
-
-    //Node追加ボタン
-    if (ImGui::Button("Add Node")) {
-        Node* data = new Node((int)nodeList.size(), XMFLOAT3(50.0f, 7.0f, 50.0f));
-        nodeList.push_back(data);
-    }
     ImGui::SameLine();
-    if (ImGui::Button("Add Node Player Position")) {
-        Node* data = new Node((int)nodeList.size(), pPlayer->GetPosition());
-        nodeList.push_back(data);
-    }
-
     //地面にくっつかせる
     if (ImGui::Button("StickToGround")) {
         for (int index = 0; index < nodeList.size(); ++index)
@@ -288,6 +278,72 @@ void StageEditor::DrawNodeEditor()
         }
     }
 
+    //Node追加ボタン
+    if (ImGui::Button("Add Node")) {
+        Node* data = new Node((int)nodeList.size(), XMFLOAT3(50.0f, 7.0f, 50.0f));
+        nodeList.push_back(data);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Add Node Player Position")) {
+        Node* data = new Node((int)nodeList.size(), pPlayer->GetPosition());
+        nodeList.push_back(data);
+    }
+
+    //相互接続
+    static bool interconnection = false;
+    static int preNodeId = -1;
+    if (interconnection) {
+        ImGui::Text("InterConnection On , PreId : %d", preNodeId);
+        XMFLOAT3 pPos = pPlayer->GetPosition();
+        for (int i = 0; i < (int)nodeList.size(); i++) {
+            XMFLOAT3 nPos = nodeList.at(i)->GetPosition();
+            float dist = CalculationDistance(pPos, nPos);
+            if (dist <= 1.0f) { 
+
+                //距離範囲内だから、相互接続させる
+                if (preNodeId != i && preNodeId != -1) {
+                    //プレイヤーと距離が近い奴
+                    bool exist = false;
+                    for (int j = 0; j < (int)nodeList.at(i)->GetEdges().size(); j++) {
+                        int id = nodeList.at(i)->GetEdges().at(j).connectId;
+                        if (id == preNodeId) {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist) {
+                        Edge edge = Edge(EdgeType::NORMAL);
+                        edge.connectId = preNodeId;
+                        nodeList.at(i)->GetEdges().push_back(edge);
+                    }
+
+                    //前に接触したPreNode
+                    exist = false;
+                    for (int j = 0; j < (int)nodeList.at(preNodeId)->GetEdges().size(); j++) {
+                        int id = nodeList.at(preNodeId)->GetEdges().at(j).connectId;
+                        if (id == i) {
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist) {
+                        Edge edge = Edge(EdgeType::NORMAL);
+                        edge.connectId = i;
+                        nodeList.at(preNodeId)->GetEdges().push_back(edge);
+                    }
+                }
+                preNodeId = i; 
+                break;
+            }
+        }
+    }
+    else ImGui::Text("InterConnection Off");
+    //相互接続、切り替え
+    ImGui::SameLine();
+    if (ImGui::Button("Change Mode")) {
+        interconnection = !interconnection;
+    }
+
     //区切り線
     ImGui::Separator();
 
@@ -298,10 +354,18 @@ void StageEditor::DrawNodeEditor()
         // バッファサイズを増やす
         char name[256];
         sprintf_s(name, sizeof(name), "id : %d", modelData->GetId());
-
+        
         if (ImGui::TreeNode(name)) {
             const float PosMinValue = 30.0f;
             const float PosMaxValue = 70.0f;
+
+            ImGui::SameLine();
+
+            //削除ボタン
+            if (ImGui::Button("Remove Node")) {
+                nodeList.erase(nodeList.begin() + index);
+                --index;
+            }
 
             ImGui::Columns(3);
             XMFLOAT3 pos = modelData->GetPosition();
@@ -313,7 +377,6 @@ void StageEditor::DrawNodeEditor()
             modelData->SetPosition(pos);
             ImGui::Columns(1);
 
-            //区切り線
             ImGui::Separator();
 
             //Edge追加
@@ -332,33 +395,31 @@ void StageEditor::DrawNodeEditor()
 
             for (int i = 0; i < (int)edgeList.size(); i++) {
                 char edgeName[256];
-                sprintf_s(edgeName, "Remove Edge %d##%d_%d", i, index, i);
+                if (edgeList.at(i).type == EdgeType::NORMAL) sprintf_s(edgeName, "Edge %d type: Normal", i);
+                else if (edgeList.at(i).type == EdgeType::JUMP) sprintf_s(edgeName, "Edge %d type: Jump", i);
 
-                //Edge削除
-                if (ImGui::Button(edgeName)) {
-                    edgeList.erase(edgeList.begin() + i);
-                    --i;
-                    continue;
+                if (ImGui::TreeNode(edgeName)) {
+                    char costName[256];
+                    sprintf_s(costName, "cost##%d_%d", index, i);
+                    ImGui::InputFloat(costName, &edgeList.at(i).cost, 0, 100.0f);
+
+                    char connectIdName[256];
+                    sprintf_s(connectIdName, "connectId##%d_%d", index, i);
+                    ImGui::InputInt(connectIdName, &edgeList.at(i).connectId, 0, 100);
+                    
+                    //Edge削除
+                    if (ImGui::Button("Remove Edge")) {
+                        edgeList.erase(edgeList.begin() + i);
+                        --i;
+                        continue;
+                    }
+
+                    ImGui::TreePop();
                 }
 
-                char costName[256];
-                sprintf_s(costName, "cost##%d_%d", index, i);
-                ImGui::InputFloat(costName, &edgeList.at(i).cost, 0, 100.0f);
-
-                char connectIdName[256];
-                sprintf_s(connectIdName, "connectId##%d_%d", index, i);
-                ImGui::InputInt(connectIdName, &edgeList.at(i).connectId, 0, 100);
-                
-                //区切り線
-                ImGui::Separator();
             }
-
-            //削除ボタン
-            if (ImGui::Button("Remove Node")) {
-                nodeList.erase(nodeList.begin() + index);
-                --index;
-            }
-
+            
+            ImGui::Separator();
             ImGui::TreePop();
         }
     }

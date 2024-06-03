@@ -10,6 +10,7 @@ class Enemy : public GameObject
     float MoveSpeed = 0.0f;
     float gravity_ = 0.0f;
     bool isGround = false;
+    bool moveReady = false;
 
     float moveRange_ = 0.2f;
     float outRange = 3.0f;

@@ -12,7 +12,7 @@ struct Edge {
     EdgeType type;
     int connectId;  //Œq‚ª‚Á‚Ä‚éæ‚ÌID
     float cost;
-    Edge(EdgeType t) : connectId(-1), cost(-1), type(t) {}
+    Edge(EdgeType t) : connectId(-1), cost(1), type(t) {}
     Edge(int t, float c, EdgeType ty) : connectId(t), cost(c), type(ty) {}
 };
 

@@ -269,17 +269,20 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
                     dp[i] = XMVectorGetY(XMVector3Dot(lineNormal, c[i]));
                 }
 
-
                 // 全部同じ方向にあれば、線と四角形が当たっていることはない
                 if ((dp[0] * dp[1] <= 0) || (dp[1] * dp[2] <= 0) || (dp[2] * dp[3] <= 0)) {
                     Cell* cell = &cells_[y][z][x];
                     if (!cell) continue;
 
+                    // Ray内にあったからそのCellで当たり判定をする
                     bool isHitWall = cell->SegmentVsWallTriangle(_data);
+                    float wallDist = _data->dist;
                     bool isHitFloar = cell->SegmentVsFloarTriangle(_data);
 
-                    // Ray内にあったからそのCellで当たり判定をする
+                    //どれかに当たった時点で終了
                     if (isHitWall || isHitFloar) {
+                        //短い距離に合わせる
+                        if (_data->dist > wallDist) _data->dist = wallDist;
                         return;
                     }
                 }

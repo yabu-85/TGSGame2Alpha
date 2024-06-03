@@ -130,25 +130,28 @@ void Enemy::Move()
     XMVECTOR vec2 = vPos2 - vPlaPos2;
 
     float plaDist = XMVectorGetX(XMVector3Length(vec2));
-    if (plaDist <= RayMoveDist && plaDist >= 1.0f) {
+    if (plaDist <= 1.0f) {
         targetList_.clear();
+        return;
+    }
+    
+    if (plaDist <= RayMoveDist) {
 
-        XMFLOAT3 plaPos = pPlayer->GetPosition();
-        plaPos.y += 0.01f;
-        XMVECTOR vPlaPos = XMLoadFloat3(&plaPos);
+        if (rand() % 10 == 0) {
+            RayCastData rayData = RayCastData();
+            rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + RayHeight, transform_.position_.z);
 
-        RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + RayHeight, transform_.position_.z);
+            XMVECTOR vec = XMVector3Normalize(vec2) * -1.0f;
+            XMStoreFloat3(&rayData.dir, vec);
+
+            XMFLOAT3 target = XMFLOAT3(pPlayer->GetPosition().x, pPlayer->GetPosition().y + RayHeight, pPlayer->GetPosition().z);
+            pCMap->RaySelectCellVsSegment(target, &rayData);
+            moveReady = rayData.dist >= plaDist;
+        }
         
-        XMVECTOR vec = XMVector3Normalize(vec2) * -1.0f;
-        XMFLOAT3 nve = XMFLOAT3();
-        XMStoreFloat3(&nve, vec);
-        rayData.dir = nve;
-
-        XMFLOAT3 target = XMFLOAT3(pPlayer->GetPosition().x, pPlayer->GetPosition().y + RayHeight, pPlayer->GetPosition().z);
-        pCMap->RaySelectCellVsSegment(target, &rayData);
-        
-        if (rayData.dist >= plaDist) {
+        if (moveReady) {
+            targetList_.clear();
+            
             //移動スピード抑制
             float moveDist = XMVectorGetX(XMVector3Length(vec2));
             if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
@@ -163,7 +166,8 @@ void Enemy::Move()
         }
     }
 
-    if (targetList_.empty() && rand() % 10 == 0) {
+    //一定の時間で、リスト経路更新する
+    if ( (targetList_.empty() || rand() % 30 == 0) && rand() % 10 == 0) {
         targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), pPlayer->GetPosition(), transform_.position_);
     }
 
@@ -172,7 +176,29 @@ void Enemy::Move()
         return;
     }
 
-    if (targetList_.back().type == EdgeType::JUMP) gravity_ = 0.0f;
+    //ジャンプ移動
+    if (targetList_.back().type == EdgeType::JUMP) {
+        gravity_ = 0.0f;
+        //移動方向計算
+        XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
+        XMVECTOR vTar = XMLoadFloat3(&targetList_.back().pos);
+        XMVECTOR vMove = vTar - vPos;
+
+        //移動スピード抑制
+        float moveDist = XMVectorGetX(XMVector3Length(vMove));
+        if (moveDist > MoveSpeed) vMove = XMVector3Normalize(vMove) * MoveSpeed;
+
+        //ターゲット位置ついた
+        if (moveDist <= moveRange_) {
+            targetList_.pop_back();
+            Move();
+            return;
+        }
+
+        vPos += vMove;
+        XMStoreFloat3(&transform_.position_, vPos);
+        return;
+    }
 
     //移動方向計算
     XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
@@ -186,7 +212,7 @@ void Enemy::Move()
     //ターゲット位置ついた
     if (moveDist <= moveRange_) {
         targetList_.pop_back();
-        Update();
+        Move();
         return;
     }
 
