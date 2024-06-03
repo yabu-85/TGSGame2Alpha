@@ -55,6 +55,7 @@ bool Cell::SegmentVsFloarTriangle(RayCastData* _data)
 	}
 
 	_data->dist = minDist;
+	_data->hit = hit;
 	return hit;
 }
 
@@ -74,6 +75,7 @@ bool Cell::SegmentVsWallTriangle(RayCastData* _data)
 	}
 
 	_data->dist = minDist;
+	_data->hit = hit;
 	return hit;
 }
 

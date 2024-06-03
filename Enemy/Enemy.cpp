@@ -121,14 +121,16 @@ void Enemy::OnCollision(GameObject* pTarget)
 #include "../AI/RouteSearch.h"
 void Enemy::Move()
 {
-    static const float RayMoveDist = 3.0f;
+    static const float RayMoveDist = 10.0f;
+    static const float RayHeight = 0.5f;
+
     XMVECTOR vPos2 = XMLoadFloat3(&transform_.position_);
     XMFLOAT3 playerPos = pPlayer->GetPosition();
     XMVECTOR vPlaPos2 = XMLoadFloat3(&playerPos);
     XMVECTOR vec2 = vPos2 - vPlaPos2;
 
     float plaDist = XMVectorGetX(XMVector3Length(vec2));
-    if (plaDist <= RayMoveDist) {
+    if (plaDist <= RayMoveDist && plaDist >= 1.0f) {
         targetList_.clear();
 
         XMFLOAT3 plaPos = pPlayer->GetPosition();
@@ -136,39 +138,33 @@ void Enemy::Move()
         XMVECTOR vPlaPos = XMLoadFloat3(&plaPos);
 
         RayCastData rayData = RayCastData();
-        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + 0.01f, transform_.position_.z);
-        XMStoreFloat3(&rayData.dir, XMVector3Normalize(vec2));
+        rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + RayHeight, transform_.position_.z);
+        
+        XMVECTOR vec = XMVector3Normalize(vec2) * -1.0f;
+        XMFLOAT3 nve = XMFLOAT3();
+        XMStoreFloat3(&nve, vec);
+        rayData.dir = nve;
 
-        OutputDebugString("hit");
-        OutputDebugStringA(std::to_string(plaDist).c_str());
-        OutputDebugString("\n");
+        XMFLOAT3 target = XMFLOAT3(pPlayer->GetPosition().x, pPlayer->GetPosition().y + RayHeight, pPlayer->GetPosition().z);
+        pCMap->RaySelectCellVsSegment(target, &rayData);
+        
+        if (rayData.dist >= plaDist) {
+            //移動スピード抑制
+            float moveDist = XMVectorGetX(XMVector3Length(vec2));
+            if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
 
-        pCMap->RaySelectWallCellVsSegment(pPlayer->GetPosition(), &rayData);
-        //移動スピード抑制
-        float moveDist = XMVectorGetX(XMVector3Length(vec2));
-        if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
+            //回避計算
+            CalcDodge(vec2);
 
-        //回避計算
-        CalcDodge(vec2);
-
-        //移動
-        vPos2 -= vec2;
-        XMStoreFloat3(&transform_.position_, vPos2);
-        return;
+            //移動
+            vPos2 -= vec2;
+            XMStoreFloat3(&transform_.position_, vPos2);
+            return;
+        }
     }
 
     if (targetList_.empty() && rand() % 10 == 0) {
         targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), pPlayer->GetPosition(), transform_.position_);
-        
-        if (!targetList_.empty()) {
-#if 1
-            //経路表示
-            OutputDebugStringA(std::to_string(RouteSearch::GetNodeToPosition(transform_.position_)).c_str());
-            OutputDebugString(" , ");
-            OutputDebugStringA(std::to_string(RouteSearch::GetNodeToPosition(pPlayer->GetPosition())).c_str());
-            OutputDebugString("\n\n");
-#endif
-        }
     }
 
     //移動終了した

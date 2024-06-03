@@ -53,7 +53,7 @@ public:
     bool CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
 
     //ray.Startからtargetの長方形の範囲で、Ray.Dirが通るCellを計算してそこでCellRay判定する
-    void RaySelectWallCellVsSegment(XMFLOAT3 target, RayCastData* _data);
+    void RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data);
 
     //ゲット関数
     std::vector<StageModelData>& GetModelList() { return modelList_; }

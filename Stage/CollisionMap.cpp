@@ -216,7 +216,7 @@ bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
     return hit;
 }
 
-void CollisionMap::RaySelectWallCellVsSegment(XMFLOAT3 target, RayCastData* _data)
+void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
 {
     int startX = int((_data->start.x - minX) / boxSize);
     int startY = int((_data->start.y - minY) / boxSize);
@@ -275,8 +275,11 @@ void CollisionMap::RaySelectWallCellVsSegment(XMFLOAT3 target, RayCastData* _dat
                     Cell* cell = &cells_[y][z][x];
                     if (!cell) continue;
 
+                    bool isHitWall = cell->SegmentVsWallTriangle(_data);
+                    bool isHitFloar = cell->SegmentVsFloarTriangle(_data);
+
                     // Ray“à‚É‚ ‚Á‚½‚©‚ç‚»‚ÌCell‚Å“–‚½‚è”»’è‚ð‚·‚é
-                    if (cell->SegmentVsWallTriangle(_data)) {
+                    if (isHitWall || isHitFloar) {
                         return;
                     }
                 }
