@@ -11,8 +11,7 @@ class Enemy : public GameObject
     float gravity_ = 0.0f;
     bool isGround = false;
     bool moveReady = false;
-
-    float moveRange_ = 0.2f;
+    float moveRange_ = 0.3f;
     float outRange = 3.0f;
     std::vector<RouteData> targetList_;
 
@@ -23,7 +22,6 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
-    void OnCollision(GameObject* pTarget) override;
 
     void Move();
     void CalcDodge(XMVECTOR& move);

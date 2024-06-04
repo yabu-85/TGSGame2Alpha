@@ -30,6 +30,7 @@ bool BoxCollider::IsHit(Collider* target)
 	case COLLIDER_BOX:		return IsHitBoxVsBox((BoxCollider*)target, this);
 	case COLLIDER_CIRCLE:	return IsHitBoxVsCircle(this, (SphereCollider*)target);
 	case COLLIDER_CAPSULE:	return IsHitBoxVsCapsule(this, (CapsuleCollider*)target);
+	case COLLIDER_SEGMENT:	return IsHitBoxVsSegment(this, (SegmentCollider*)target);
 	}
 
 	return false;

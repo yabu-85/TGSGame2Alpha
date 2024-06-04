@@ -54,10 +54,13 @@
     <Filter Include="07AI">
       <UniqueIdentifier>{df51c2cc-3028-4682-ac7b-57c0db1aa6ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="08Other">
+    <Filter Include="08Weapon">
+      <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="09Other">
       <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
     </Filter>
-    <Filter Include="09Scene">
+    <Filter Include="10Scene">
       <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -138,7 +141,7 @@
       <Filter>03Player</Filter>
     </ClCompile>
     <ClCompile Include="Other\InputManager.cpp">
-      <Filter>08Other</Filter>
+      <Filter>09Other</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Stage.cpp">
       <Filter>06Stage</Filter>
@@ -189,7 +192,7 @@
       <Filter>05State\Base</Filter>
     </ClCompile>
     <ClCompile Include="Scene\TestScene.cpp">
-      <Filter>09Scene</Filter>
+      <Filter>10Scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\StageEditor.cpp">
       <Filter>01Engine\Gui</Filter>
@@ -199,6 +202,18 @@
     </ClCompile>
     <ClCompile Include="AI\RouteSearch.cpp">
       <Filter>07AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon\Bullet_Normal.cpp">
+      <Filter>08Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon\Gun.cpp">
+      <Filter>08Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\SegmentCollider.cpp">
+      <Filter>01Engine\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\PolyLine.cpp">
+      <Filter>01Engine\GameObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,7 +293,7 @@
       <Filter>03Player</Filter>
     </ClInclude>
     <ClInclude Include="Other\InputManager.h">
-      <Filter>08Other</Filter>
+      <Filter>09Other</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Stage.h">
       <Filter>06Stage</Filter>
@@ -341,7 +356,7 @@
       <Filter>05State\Base</Filter>
     </ClInclude>
     <ClInclude Include="Scene\TestScene.h">
-      <Filter>09Scene</Filter>
+      <Filter>10Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\StageEditor.h">
       <Filter>01Engine\Gui</Filter>
@@ -351,6 +366,21 @@
     </ClInclude>
     <ClInclude Include="AI\RouteSearch.h">
       <Filter>07AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\Bullet_Normal.h">
+      <Filter>08Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\BulletBase.h">
+      <Filter>08Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\Gun.h">
+      <Filter>08Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\SegmentCollider.h">
+      <Filter>01Engine\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\PolyLine.h">
+      <Filter>01Engine\GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

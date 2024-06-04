@@ -34,16 +34,11 @@ Enemy::Enemy(GameObject* parent)
 Enemy::~Enemy()
 {
     TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<Enemy*> list = pScene->GetEnemyList();
-    for (auto it = list.begin(); it != list.end();) {
-        if (*it == this) {
-            it = list.erase(it);
-            break;
-        }
-        else {
-            ++it;
-        }
-    }
+    std::vector<Enemy*>& list = pScene->GetEnemyList();
+    list.erase(std::remove_if(list.begin(), list.end(), [this](Enemy* enemy) {
+        return enemy == this;
+    }), list.end());
+
 }
 
 void Enemy::Initialize()
@@ -52,6 +47,7 @@ void Enemy::Initialize()
     assert(hModel_ >= 0);
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
    
+    type_ = ObjectType::Enemy;
     transform_.position_ = start;
     MoveSpeed = 0.075f;
 
@@ -59,13 +55,20 @@ void Enemy::Initialize()
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
     AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5, vec));
 #else
-    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.7f, 0.0f), 0.5));
+    SphereCollider* collid = new SphereCollider(XMFLOAT3(0.0f, 0.7f, 0.0f), 0.5f);
+    collid->typeList_.push_back(ObjectType::Stage);
+    AddCollider(collid);
 #endif
 
 }
 
 void Enemy::Update()
 {
+    if (transform_.position_.y <= -30.0f) {
+        KillMe();
+        return;
+    }
+
     if (!isGround) {
         gravity_ += gravity;
         transform_.position_.y -= gravity_;
@@ -106,15 +109,11 @@ void Enemy::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-    //CollisionDraw();
+    CollisionDraw();
 
 }
 
 void Enemy::Release()
-{
-}
-
-void Enemy::OnCollision(GameObject* pTarget)
 {
 }
 

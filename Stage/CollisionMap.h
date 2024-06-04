@@ -5,6 +5,7 @@
 
 class Triangle;
 class Cell;
+class SphereCollider;
 struct RayCastData;
 
 struct StageModelData {

@@ -277,6 +277,11 @@ void StageEditor::DrawNodeEditor()
             }
         }
     }
+    ImGui::SameLine();
+    //リスト初期化
+    if (ImGui::Button("NodeList Clear")) {
+        nodeList.clear();
+    }
 
     //Node追加ボタン
     if (ImGui::Button("Add Node")) {
@@ -337,7 +342,10 @@ void StageEditor::DrawNodeEditor()
             }
         }
     }
-    else ImGui::Text("InterConnection Off");
+    else {
+        ImGui::Text("InterConnection Off");
+        preNodeId = -1;
+    }
     //相互接続、切り替え
     ImGui::SameLine();
     if (ImGui::Button("Change Mode")) {

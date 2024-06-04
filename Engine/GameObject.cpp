@@ -1,6 +1,8 @@
 #include "gameObject.h"
-#include <assert.h>
+#include "Collider.h"
 #include "global.h"
+#include <vector>
+#include <assert.h>
 
 //コンストラクタ（親も名前もなし）
 GameObject::GameObject(void) :
@@ -239,23 +241,28 @@ void GameObject::Collision(GameObject * pTarget)
 		return;
 	}
 
+	ObjectType selfObjType = this->GetType();
+	ObjectType targetObjType = pTarget->GetType();
+
 	//自分とpTargetのコリジョン情報を使って当たり判定
 	//1つのオブジェクトが複数のコリジョン情報を持ってる場合もあるので二重ループ
+	int sIndex = 0;
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
 	{
+		int tIndex = 0;
 		for (auto j = pTarget->colliderList_.begin(); j != pTarget->colliderList_.end(); j++)
 		{
-			if ((*i)->IsHit(*j))
-			{
-				//当たった
-				this->OnCollision(pTarget);
+			if ((*j)->typeList_.at(tIndex++) == selfObjType || (*i)->typeList_.at(sIndex++) == targetObjType) {
+				if ((*i)->IsHit(*j)) {
+					//当たった
+					this->OnCollision(pTarget);
+				}
 			}
 		}
 	}
 
 	//子供がいないなら終わり
-	if (pTarget->childList_.empty())
-		return;
+	if (pTarget->childList_.empty()) return;
 
 	//子供も当たり判定
 	for (auto i = pTarget->childList_.begin(); i != pTarget->childList_.end(); i++)
@@ -295,7 +302,6 @@ GameObject * GameObject::GetRootJob()
 void GameObject::UpdateSub()
 {
 	Update();
-	Transform();
 
 	for (auto it = childList_.begin(); it != childList_.end(); it++)
 	{

@@ -14,6 +14,7 @@
 #include "../Stage/CollisionMap.h"
 #include "../Engine/SphereCollider.h"
 #include "../Engine/CapsuleCollider.h"
+#include "../Weapon/Gun.h"
 
 namespace {
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
@@ -50,9 +51,11 @@ void Player::Initialize()
     moveSpeed_ = 0.15f;
     Direct3D::playerSpeed = moveSpeed_;
 
+    type_ = ObjectType::Player;
     transform_.position_ = start;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
     pAim_ = Instantiate<Aim>(this);
+    Instantiate<Gun>(this);
 
     pStateManager_ = new StateManager(this);
     pStateManager_->AddState(new PlayerWait(pStateManager_));
@@ -70,7 +73,9 @@ void Player::Initialize()
     CapsuleCollider* pCollid = new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f, vec);
     AddCollider(pCollid);
 #else
-    AddCollider(new SphereCollider(XMFLOAT3(0.0f, 0.35f, 0.0f), 0.3f));
+    SphereCollider* collid = new SphereCollider(XMFLOAT3(0.0f, 0.35f, 0.0f), 0.3f);
+    collid->typeList_.push_back(ObjectType::Stage);
+    AddCollider(collid);
 #endif
 
 }
@@ -120,6 +125,9 @@ void Player::Update()
 
     pStateManager_->Update();
     StageWallBounce();
+
+    XMFLOAT3 targetRot = Float3Add(transform_.position_, pAim_->GetAimDirection());
+    TargetRotate(targetRot, 1.0f);
 
     moveSpeed_ = Direct3D::playerSpeed;
     Direct3D::PlayerPosition = transform_.position_;
@@ -193,7 +201,7 @@ void Player::CalcRotate(XMFLOAT3 pos, float ratio)
     transform_.rotate_.y += XMConvertToDegrees(-atan2f(cross, dot) * ratio);
 }
 
-void Player::TargetRotate(XMFLOAT3 pos, float ratio) { CalcRotate(XMFLOAT3(pos.x - transform_.position_.x, 0.0f, pos.z - transform_.position_.z), ratio); }
+void Player::TargetRotate(XMFLOAT3 pos, float ratio) { CalcRotate(Float3Sub(pos, transform_.position_), ratio); }
 void Player::Rotate() { Rotate(rotateRatio); }
 void Player::Rotate(float ratio) { CalcRotate(GetInputMove(), ratio); }
 
@@ -206,6 +214,9 @@ XMFLOAT3 Player::GetInputMove()
         gradually_ = moveGradually;
 
         XMFLOAT3 aimDirection = pAim_->GetAimDirection();
+        aimDirection.y = 0.0f;
+        aimDirection = Float3Normalize(aimDirection);
+
         if (InputManager::IsCmd(InputManager::MOVE_UP)) {
             fMove.x += aimDirection.x;
             if (isCreative_) fMove.y += aimDirection.y;

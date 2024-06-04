@@ -205,13 +205,12 @@ bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 {
     XMFLOAT3 pos = Float3Add(collid->center_, collid->pGameObject_->GetWorldPosition());
     Cell* cell = GetCell(pos);
-    if (!cell) return false;
-
-    bool hit = cell->SphereVsTriangle(collid, push);
+    bool hit = false;
+    if (cell) hit = cell->SphereVsTriangle(collid, push);
 
     pos.y -= collid->size_.x;
     cell = GetCell(pos);
-    if (cell->SphereVsTriangle(collid, push)) hit = true;
+    if (cell && cell->SphereVsTriangle(collid, push)) hit = true;
 
     return hit;
 }

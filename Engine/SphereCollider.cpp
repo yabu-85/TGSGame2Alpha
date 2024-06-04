@@ -27,8 +27,9 @@ bool SphereCollider::IsHit(Collider* target)
 	switch (target->type_)
 	{
 	case COLLIDER_BOX:		return IsHitBoxVsCircle((BoxCollider*)target, this);
-	case COLLIDER_CIRCLE:	return IsHitCircleVsCircle((SphereCollider*)target, this);
+	case COLLIDER_CIRCLE:	return IsHitCircleVsCircle(this, (SphereCollider*)target);
 	case COLLIDER_CAPSULE:	return IsHitCircleVsCapsule(this, (CapsuleCollider*)target);
+	case COLLIDER_SEGMENT:	return IsHitCircleVsSegment(this, (SegmentCollider*)target);
 	}
 
 	return false;

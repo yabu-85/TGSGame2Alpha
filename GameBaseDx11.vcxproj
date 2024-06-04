@@ -151,6 +151,8 @@
     <ClCompile Include="Engine\Light.cpp" />
     <ClCompile Include="Engine\Main.cpp" />
     <ClCompile Include="Engine\Model.cpp" />
+    <ClCompile Include="Engine\PolyLine.cpp" />
+    <ClCompile Include="Engine\SegmentCollider.cpp" />
     <ClCompile Include="Engine\StageEditor.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
     <ClCompile Include="Engine\RootObject.cpp" />
@@ -171,6 +173,8 @@
     <ClCompile Include="Stage\Triangle.cpp" />
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
+    <ClCompile Include="Weapon\Bullet_Normal.cpp" />
+    <ClCompile Include="Weapon\Gun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AI\Node.h" />
@@ -201,6 +205,8 @@
     <ClInclude Include="Engine\Input.h" />
     <ClInclude Include="Engine\Light.h" />
     <ClInclude Include="Engine\Model.h" />
+    <ClInclude Include="Engine\PolyLine.h" />
+    <ClInclude Include="Engine\SegmentCollider.h" />
     <ClInclude Include="Engine\StageEditor.h" />
     <ClInclude Include="Engine\VFX.h" />
     <ClInclude Include="Engine\RootObject.h" />
@@ -223,6 +229,9 @@
     <ClInclude Include="State\PlayerState.h" />
     <ClInclude Include="State\StateBase.h" />
     <ClInclude Include="State\StateManager.h" />
+    <ClInclude Include="Weapon\BulletBase.h" />
+    <ClInclude Include="Weapon\Bullet_Normal.h" />
+    <ClInclude Include="Weapon\Gun.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">

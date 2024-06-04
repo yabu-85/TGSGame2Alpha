@@ -12,6 +12,7 @@ namespace InputManager {
 		std::make_pair(KEY, DIK_W),	//MOVE_UP
 		std::make_pair(KEY, DIK_S),	//MOVE_DOWN
 
+		std::make_pair(MOUSE, 0),		//ATTACK
 		std::make_pair(KEY, DIK_E),		//ACTION
 		std::make_pair(KEY, DIK_SPACE),	//JUMP
 	};

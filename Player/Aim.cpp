@@ -4,19 +4,20 @@
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
 #include "../Engine/Image.h"
+#include "../Engine/Fbx.h"
+#include "../Stage/CollisionMap.h"
 #include "../Other/InputManager.h"
 #include <vector>
-#include "../Engine/Fbx.h"
 
 namespace {
-    static const float UP_MOUSE_LIMIT = -80.0f;
+    static const float UP_MOUSE_LIMIT = -80.0f;                     //回転限界値
     static const float DOWN_MOUSE_LIMIT = 80.0f;
     
     static const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
     static const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
     static const float MOUSE_SPEED = 0.05f;                         //感度
-    static const float DISTANCE_BEHIND_DEFAULT = 12.0f;              //どのくらい後ろから移すかのデフォルト値
+    static const float DISTANCE_BEHIND_DEFAULT = 6.0f;              //どのくらい後ろから移すかのデフォルト値
     static const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
     float HEIGHT_DISTANCE = 1.5f;                                   //Aimの高さ
 }
@@ -116,19 +117,31 @@ void Aim::SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar, int returnTime, float comple
 
 void Aim::DefaultAim()
 {
-    XMVECTOR direction = CalculationVectorDirection(transform_.rotate_);
-    XMStoreFloat3(&aimDirection_, -direction);
-
-    //プレイヤーの位置をカメラの焦点とする        
     XMFLOAT3 plaPos = pPlayer_->GetPosition();
-    cameraTarget_ = { plaPos.x + cameraOffset_.x, plaPos.y + HEIGHT_DISTANCE, plaPos.z + cameraOffset_.z };
-
     CameraShake();
 
-    //RayCastの前に情報を入れる
+    XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));
+    XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
+    XMMATRIX mView = mRotX * mRotY;
+
+    const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+    XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
+    XMStoreFloat3(&aimDirection_, -caDire);
+
+    const XMVECTOR rightVector = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+    caDire = XMVector3TransformNormal(rightVector, mRotY);
+    XMFLOAT3 camDir = XMFLOAT3();
+    XMStoreFloat3(&camDir, caDire);
+    cameraTarget_.x = plaPos.x - (camDir.x * 0.5f);
+    cameraTarget_.y = plaPos.y + 1.0f;
+    cameraTarget_.z = plaPos.z - (camDir.z * 0.5f);
+
+    XMVECTOR caTarget = XMLoadFloat3(&cameraTarget_);
+    XMVECTOR forwardV = XMVector3TransformNormal(forwardVector, mView);
     distanceBehind_ = distanceBehind_ + ((targetDistanceBehind_ - distanceBehind_) * 0.1f);
-    XMVECTOR camPos = XMLoadFloat3(&cameraTarget_) + (direction * distanceBehind_);
+    XMVECTOR camPos = caTarget + (forwardV * distanceBehind_);
     XMStoreFloat3(&cameraPosition_, camPos);
+    XMStoreFloat3(&cameraTarget_, caTarget);
 
     //RayCastしてその値を上書きする
     RayCastStage();
@@ -146,11 +159,7 @@ void Aim::Compulsion()
     XMVECTOR dir = XMLoadFloat3(&cameraPosition_) - XMLoadFloat3(&cameraTarget_);
     distanceBehind_ = XMVectorGetX(XMVector3Length(dir));
 
-    OutputDebugStringA(std::to_string(distanceBehind_).c_str());
-    OutputDebugString("\n");
-
     RayCastStage();
-
     Camera::SetPosition(cameraPosition_);
     Camera::SetTarget(cameraTarget_);
 
@@ -174,9 +183,6 @@ void Aim::BackCompulsion()
     XMVECTOR dir = XMLoadFloat3(&cameraPosition_) - XMLoadFloat3(&cameraTarget_);
     float dist = XMVectorGetX(XMVector3Length(dir));
     distanceBehind_ = distanceBehind_ - ((dist - targetDistanceBehind_) / (float)compulsionTime_);
-
-    OutputDebugStringA(std::to_string(distanceBehind_).c_str());
-    OutputDebugString("\n");
 
     //戻り中のPositionとTargetを計算する
     XMFLOAT3 position = pPlayer_->GetPosition();
@@ -209,8 +215,6 @@ void Aim::BackCompulsion()
 
 void Aim::RayCastStage()
 {
-    return;
-
     RayCastData data;
     XMFLOAT3 start = cameraTarget_;
     XMVECTOR vDir = XMLoadFloat3(&cameraPosition_) - XMLoadFloat3(&cameraTarget_);
@@ -219,16 +223,16 @@ void Aim::RayCastStage()
     XMStoreFloat3(&dir, vDir);
     data.start = start;
     data.dir = dir;
-    float min = 0.0f;
+    CollisionMap* cMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
+    cMap->RaySelectCellVsSegment(cameraPosition_, &data);
 
     //レイ当たった・判定距離内だったら
-    if (min <= (targetDistanceBehind_)) {
-        distanceBehind_ = min - HEIGHT_RAY;
+    if (data.dist <= (targetDistanceBehind_)) {
+        distanceBehind_ = data.dist - HEIGHT_RAY;
     }
 
     XMVECTOR camPos = XMLoadFloat3(&cameraTarget_) + (vDir * distanceBehind_);
     XMStoreFloat3(&cameraPosition_, camPos);
-
 }
 
 void Aim::CalcMouseMove()

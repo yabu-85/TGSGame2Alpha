@@ -4,9 +4,19 @@
 #include <string>
 #include <assert.h>
 #include "Transform.h"
-#include "Collider.h"
-
 using namespace DirectX;
+
+class Collider;
+
+//コリジョンの判定対象設定とかで使う
+enum class ObjectType
+{
+	Player,
+	Bullet,
+	Enemy,
+	Item,
+	Stage,
+};
 
 //-----------------------------------------------------------
 //全てのゲームオブジェクト（シーンも含めて）が継承するインターフェース
@@ -25,6 +35,9 @@ protected:
 
 	//衝突判定リスト
 	std::list<Collider*>	colliderList_;	
+
+	//オブジェクトのType
+	ObjectType				type_;
 
 public:
 	//コンストラクタ
@@ -154,6 +167,7 @@ private:
 	//引数：obj　削除するオブジェクト
 	void KillObjectSub(GameObject* obj);
 
+	ObjectType GetType() const { return type_; }
 
 private:
 	//フラグ
@@ -165,7 +179,7 @@ private:
 		unsigned dead : 1;			//削除するか
 	};
 	OBJECT_STATE state_;
-
+	
 	//親オブジェクト
 	GameObject* pParent_;
 

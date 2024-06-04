@@ -13,6 +13,8 @@
 #include <queue>
 
 namespace RouteSearch {
+    bool nodeDraw = false;
+
     Text* pText = nullptr;
     int nodeHandle = -1;
     int edgeHandle = -1;
@@ -24,7 +26,7 @@ namespace RouteSearch {
         pText->Initialize();
 
         nodes = StageEditor::LoadFileNode("TestStageNode.json");
-        nodeHandle = Model::Load("DebugCollision/SphereCollider.fbx");
+        nodeHandle = Model::Load("DebugCollision/BoxCollider.fbx");
         edgeHandle = Model::Load("DebugCollision/BoxCollider.fbx");
         assert(nodeHandle >= 0);
         assert(edgeHandle >= 0);
@@ -37,14 +39,18 @@ namespace RouteSearch {
 
     void NodeModelDraw()
     {
+        if (!nodeDraw) return;
+
+        static const float DrawDist = 50.0f;
         for (int i = 0; i < nodes.size(); i++) {
             Node* node = nodes[i];
             XMFLOAT3 vec = Float3Sub(Camera::GetPosition(), node->GetPosition());
             float dist = CalculationDistance(vec);
-            if (dist > 40.0f) continue;
+            //最大描画距離
+            if (dist > DrawDist) continue;
 
             Transform t = Transform();
-            t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
+            t.scale_ = XMFLOAT3(0.4f, 0.4f, 0.4f);
             t.position_ = node->GetPosition();
             Model::SetTransform(nodeHandle, t);
             Model::Draw(nodeHandle);
@@ -63,12 +69,12 @@ namespace RouteSearch {
                 //エラー処理
                 if (edge.connectId <= -1 || (edge.connectId > nodes.size() - 1)) continue;
 
-                int count = 5;
+                int count = 3;
                 XMFLOAT3 vec = Float3Sub(nodes[edge.connectId]->GetPosition(), node->GetPosition());
                 vec = Float3Multiply(vec, 1.0f / ((float)count + 1.0f));
                 XMFLOAT3 pos = node->GetPosition();
 
-                float size = 0.05f;
+                float size = 0.08f;
                 for (int i = 0; i < count; i++) {
                     pos = Float3Add(pos, vec);
                     float sca = (float)count - (float)i;
@@ -113,6 +119,9 @@ namespace RouteSearch {
     // A*アルゴリズムの実装
     std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, int start_id)
     {
+        //エラー
+        if (nodes.empty()) return std::vector<RouteData>();
+
         std::unordered_map<int, std::pair<int, EdgeType>> came_from_with_edge; // 経路再構築のためのマップ (ノードID, (親ノードID, 使用されたエッジのタイプ))
         std::unordered_map<int, float> g_score; // スタートから各ノードまでのコスト
         std::unordered_map<int, float> f_score; // スタートからゴールまでの推定コスト

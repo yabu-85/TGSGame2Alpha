@@ -3,6 +3,7 @@
 #include "../Stage/Stage.h"
 #include "../Enemy/Enemy.h"
 
+#include "../Engine/Model.h"
 #include "../Engine/Input.h"
 #include "../Engine/Light.h"
 #include "../Engine/Direct3D.h"
@@ -24,15 +25,22 @@ void TestScene::Initialize()
 	for(int i = 0;i < count;i++) Instantiate<Enemy>(this);
 
 	RouteSearch::InitializeList();
+
+	Model::Load("Model/Bullet.fbx");
+
 }
 
 //çXêV
 void TestScene::Update()
 {
-	if (Input::IsKeyDown(DIK_F1)) Instantiate<Enemy>(this);
+	if (Input::IsKey(DIK_F1)) Instantiate<Enemy>(this);
 	if (Input::IsKeyDown(DIK_F2)) {
 		Enemy* e = static_cast<Enemy*>(FindObject("Enemy"));
 		if(e) e->KillMe();
+	}
+	if (Input::IsKeyDown(DIK_F3)) {
+		OutputDebugStringA(std::to_string(enemyList_.size()).c_str());
+		OutputDebugString("\n");
 	}
 
 	static const float speed = 0.3f;
