@@ -3,6 +3,7 @@
 #include "../Engine/Global.h"
 #include "../Engine/SphereCollider.h"
 #include "../Engine/SegmentCollider.h"
+#include "../Engine/PolyLine.h"
 #include "../Enemy/Enemy.h"
 #include "../Scene/TestScene.h"
 #include "../Stage/CollisionMap.h"
@@ -14,12 +15,12 @@ namespace
 }
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
-    :BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), hModel_(-1)
+    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), hModel_(-1)
 {
     // パラメータを取得
     parameter_.damage_ = 1;
     parameter_.shotCoolTime_ = 3;
-    parameter_.speed_ = 3.0f;
+    parameter_.speed_ = 0.05f;
     parameter_.killTimer_ = 30;
     parameter_.collisionScale_ = 0.2f;
     parameter_.isPenetration_ = 0;
@@ -35,6 +36,10 @@ void Bullet_Normal::Initialize()
     assert(hModel_ >= 0);
     type_ = ObjectType::Bullet;
 
+    pPolyLine_ = new PolyLine;
+    pPolyLine_->Load("PolyImage/BulletLine.png");
+    pPolyLine_->SetLength(10);
+    pPolyLine_->SetWidth(0.1f);
 }
 
 void Bullet_Normal::Update()
@@ -42,15 +47,18 @@ void Bullet_Normal::Update()
     //座標計算
     transform_.position_ = Float3Add(transform_.position_, move_);
 
+    pPolyLine_->AddPosition(transform_.position_);
+
     parameter_.killTimer_--;
     if (parameter_.killTimer_ <= 0) KillMe();
-
 }
 
 void Bullet_Normal::Draw()
 {
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
+
+    pPolyLine_->Draw();
 
 }
 
@@ -74,6 +82,7 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 void Bullet_Normal::Shot()
 {
     static const float ShotDistance = 30.0f;
+    pPolyLine_->AddPosition(transform_.position_);
 
     SegmentCollider* collid = new SegmentCollider(collisionOffset, XMVector3Normalize(XMLoadFloat3(&move_)));
     collid->size_ = XMFLOAT3(ShotDistance, ShotDistance, ShotDistance);
@@ -89,7 +98,11 @@ void Bullet_Normal::Shot()
 
     //ここで死ぬって時間を計算する
     if (data.hit) {
-        parameter_.killTimer_ = data.dist / CalculationDistance(move_);
+        float mDist = CalculationDistance(move_);
+        parameter_.killTimer_ = (int)(data.dist / mDist);
+        OutputDebugStringA(std::to_string(parameter_.killTimer_).c_str());
+        OutputDebugString("\n\n");
+
     }
 
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));

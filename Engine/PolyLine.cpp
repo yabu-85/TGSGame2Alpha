@@ -14,7 +14,7 @@ void PolyLine::ResetPosition()
 {
 	//リストの先頭に現在位置を追加
 	positions_.clear();
-	positions_.push_front(XMFLOAT3(0, 0, 0));
+	positions_.push_back(XMFLOAT3(0, 0, 0));
 	first_ = true;
 
 	//頂点バッファをクリア（今から作るから）
@@ -43,11 +43,11 @@ void PolyLine::ClearLastPositions()
 	if (first_) return;
 	
 	//後ろから頂点消してく
-	positions_.pop_back();
+	positions_.pop_front();
 
 	//何もないとバグるので1つ追加
 	if (positions_.empty()) {
-		positions_.push_front(XMFLOAT3(0, 0, 0));
+		positions_.push_back(XMFLOAT3(0, 0, 0));
 		first_ = true;
 	}
 
@@ -125,12 +125,12 @@ void PolyLine::AddPosition(XMFLOAT3 pos)
 		first_ = false;
 	}
 
-	positions_.push_front(pos);
+	positions_.push_back(pos);
 
 	//指定の長さを超えてたら終端のデータを削除
 	if (positions_.size() > length_)
 	{
-		positions_.pop_back();
+		positions_.pop_front();
 	}
 
 	//頂点バッファをクリア（今から作るから）
@@ -213,6 +213,7 @@ HRESULT PolyLine::Load(std::string fileName)
 
 void PolyLine::Draw()
 {
+	Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
 	Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
 	Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
 
@@ -262,6 +263,8 @@ void PolyLine::Draw()
 	Direct3D::pContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
+	Direct3D::SetShader(type);
+
 }
 
 void PolyLine::Release()
