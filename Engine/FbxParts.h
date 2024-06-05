@@ -39,8 +39,8 @@ class FbxParts
 		XMFLOAT4	specular;
 		XMFLOAT4	camPos;
 		XMFLOAT4	lightPos;
-		float		shininess;
-		int			isTexture;
+		FLOAT		shininess;
+		BOOL		isTexture;
 	};
 
 	// マテリアル情報（質感の情報）

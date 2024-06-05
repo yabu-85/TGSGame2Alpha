@@ -36,7 +36,7 @@ void Bullet_Normal::Initialize()
     assert(hModel_ >= 0);
 
     type_ = ObjectType::Bullet;
-    pPolyLine_ = new PolyLine;
+    pPolyLine_ = new DoublePolyLine;
     pPolyLine_->Load("PolyImage/BulletLine.png");
 
 }
@@ -46,8 +46,12 @@ void Bullet_Normal::Update()
     //’e‚ð”ò‚Î‚·
     transform_.position_ = Float3Add(transform_.position_, move_);
 
+    XMFLOAT3 pos = Float3Normalize(transform_.position_);
+    XMFLOAT3 pos1 = XMFLOAT3(transform_.position_.x + pos.x, transform_.position_.y, transform_.position_.z + pos.z);
+    XMFLOAT3 pos2 = XMFLOAT3(transform_.position_.x - pos.x, transform_.position_.y, transform_.position_.z - pos.z);
+    pPolyLine_->AddPosition(pos1, pos2);
+    
     parameter_.killTimer_--;
-    pPolyLine_->AddPosition(transform_.position_);
     if (parameter_.killTimer_ <= 0) KillMe();
 
 }

@@ -60,8 +60,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #if _DEBUG
 
 #endif
-	screenWidth = 1000;
-	screenHeight = 800;
+	screenWidth = 500;
+	screenHeight = 440;
 
 	int screenWidth2 = 400;
 	int screenHeight2 = 300;
