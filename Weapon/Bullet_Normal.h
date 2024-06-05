@@ -2,14 +2,11 @@
 #include "BulletBase.h"
 
 class BulletBase;
-class DoublePolyLine;
 
 // e’e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Bullet_Normal : public BulletBase
 {
     int hModel_;
-
-    DoublePolyLine* pPolyLine_;
 
 public:
     Bullet_Normal(GameObject* parent);
