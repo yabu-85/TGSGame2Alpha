@@ -21,15 +21,16 @@ class Aim : public GameObject
     bool isMove_;                   //エイムを動かすかどうか
     bool isCompulsion_;             //強制的に移動させる状態か
     
+    int hPict_;                     //画像番号
     int compulsionTime_;            //強制から戻るのに掛かる時間
+    int iterations_;                //反復回数
 
-    int iterations_;            //反復回数
-    float sign_;                //計算用CameraShake
-    float shakeSpeed_;          //Shakeする速さ
-    float range_;               //Shakeする強さ（長さ）
-    float moveDistance_;        //計算用rangeの値を入れる
-    float distanceDecrease_;    //反復ごとのspeed減衰地
-    float rangeDecrease_;       //反復ごとのrange減衰地
+    float sign_;                    //計算用CameraShake
+    float shakeSpeed_;              //Shakeする速さ
+    float range_;                   //Shakeする強さ（長さ）
+    float moveDistance_;            //計算用rangeの値を入れる
+    float distanceDecrease_;        //反復ごとのspeed減衰地
+    float rangeDecrease_;           //反復ごとのrange減衰地
     XMVECTOR center_;
     XMVECTOR shakeDirection_;
 

@@ -11,9 +11,11 @@
 #include "Camera.h"
 #include "Input.h"
 #include "Audio.h"
+#include "VFX.h"
 #include "Light.h"
 #include "StageEditor.h"
 #include "../Other/InputManager.h"
+#include "../Other/VFXManager.h"
 
 //ImGui関連のデータ
 #include "ImGui/imgui.h"
@@ -60,8 +62,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 #if _DEBUG
 
 #endif
-	screenWidth = 1000;
-	screenHeight = 800;
+	screenWidth = 500;
+	screenHeight = 440;
 
 	int screenWidth2 = 400;
 	int screenHeight2 = 300;
@@ -92,10 +94,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Input::Initialize(hWnd);
 
 	InputManager::SetDefaultKeyConfig();
-
-	//オーディオ（効果音）の準備
 	Audio::Initialize();
-	
+	VFXManager::Initialize();
 	Light::Initialize();
 
 	//ルートオブジェクト準備
@@ -149,6 +149,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				Input::Update();
 				Camera::Update();
+				VFX::Update();
 				pRootObject->UpdateSub();
 
 				//１回目
@@ -169,6 +170,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
+				VFX::Draw();
+
 				//ImGuiの更新処理
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplWin32_NewFrame();
@@ -235,6 +238,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	//いろいろ解放
+	VFX::Release();
 	Audio::AllRelease();
 	Model::AllRelease();
 	Image::AllRelease();

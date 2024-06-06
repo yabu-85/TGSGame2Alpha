@@ -221,6 +221,9 @@
     <ClCompile Include="Engine\PolyLine.cpp">
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="Other\VFXManager.cpp">
+      <Filter>09Other</Filter>
+    </ClCompile>
     <ClCompile Include="UI\HPGauge.cpp">
       <Filter>10UI</Filter>
     </ClCompile>
@@ -399,6 +402,9 @@
     </ClInclude>
     <ClInclude Include="Character\Character.h">
       <Filter>09Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Other\VFXManager.h">
+      <Filter>09Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

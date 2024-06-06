@@ -165,6 +165,7 @@
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Json\jsonReader.cpp" />
     <ClCompile Include="Other\InputManager.cpp" />
+    <ClCompile Include="Other\VFXManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Scene\TestScene.cpp" />
@@ -222,6 +223,7 @@
     <ClInclude Include="Json\json.hpp" />
     <ClInclude Include="Json\JsonReader.h" />
     <ClInclude Include="Other\InputManager.h" />
+    <ClInclude Include="Other\VFXManager.h" />
     <ClInclude Include="Player\Aim.h" />
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Scene\TestScene.h" />
