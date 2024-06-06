@@ -108,15 +108,22 @@ public:
 	//戻値：接触していればtrue
 	bool IsHitCircleVsSegment(SphereCollider* circle, SegmentCollider* seg);
 
-	//ポリゴンと
+	//ポリゴンとTriangle
+	//押し出しのベクトルを求める
 	bool IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle, XMVECTOR& outDistanceVector);
 
 	//ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
     
-	//カプセル
+	//カプセルとカプセル衝突判定
+	//引数：capsule1	１つ目のカプセル判定
+	//引数：capsule2	２つ目のカプセル判定
+	//戻値：接触していればtrue
 	bool IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider* capsule2);
-	
-	//カプセル
+
+	//カプセルとカプセル衝突判定
+	//引数：capsule1	１つ目のカプセル判定
+	//引数：seg			２つ目の直線判定
+	//戻値：接触していればtrue
 	bool IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg);
 
 };

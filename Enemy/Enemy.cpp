@@ -53,7 +53,8 @@ void Enemy::Initialize()
 
 #if 0
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    AddCollider(new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5, vec));
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5, vec);
+    AddCollider(collid);
 #else
     SphereCollider* collid = new SphereCollider(XMFLOAT3(0.0f, 0.7f, 0.0f), 0.5f);
     collid->typeList_.push_back(ObjectType::Stage);

@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="AI\Node.cpp" />
     <ClCompile Include="AI\RouteSearch.cpp" />
+    <ClCompile Include="Character\Character.cpp" />
     <ClCompile Include="Enemy\Enemy.cpp" />
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
@@ -173,12 +174,14 @@
     <ClCompile Include="Stage\Triangle.cpp" />
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
+    <ClCompile Include="UI\HPGauge.cpp" />
     <ClCompile Include="Weapon\Bullet_Normal.cpp" />
     <ClCompile Include="Weapon\Gun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AI\Node.h" />
     <ClInclude Include="AI\RouteSearch.h" />
+    <ClInclude Include="Character\Character.h" />
     <ClInclude Include="Enemy\Enemy.h" />
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />
@@ -229,6 +232,7 @@
     <ClInclude Include="State\PlayerState.h" />
     <ClInclude Include="State\StateBase.h" />
     <ClInclude Include="State\StateManager.h" />
+    <ClInclude Include="UI\HPGauge.h" />
     <ClInclude Include="Weapon\BulletBase.h" />
     <ClInclude Include="Weapon\Bullet_Normal.h" />
     <ClInclude Include="Weapon\Gun.h" />

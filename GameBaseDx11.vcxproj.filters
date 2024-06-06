@@ -57,10 +57,16 @@
     <Filter Include="08Weapon">
       <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="09Other">
+    <Filter Include="09Character">
+      <UniqueIdentifier>{6b9b0eff-404e-4fe0-9bd3-d5e05bb5e037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10UI">
+      <UniqueIdentifier>{56492477-deab-4633-8a0b-1511a12c6d28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="11Other">
       <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10Scene">
+    <Filter Include="12Scene">
       <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -141,7 +147,7 @@
       <Filter>03Player</Filter>
     </ClCompile>
     <ClCompile Include="Other\InputManager.cpp">
-      <Filter>09Other</Filter>
+      <Filter>11Other</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Stage.cpp">
       <Filter>06Stage</Filter>
@@ -192,7 +198,7 @@
       <Filter>05State\Base</Filter>
     </ClCompile>
     <ClCompile Include="Scene\TestScene.cpp">
-      <Filter>10Scene</Filter>
+      <Filter>12Scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\StageEditor.cpp">
       <Filter>01Engine\Gui</Filter>
@@ -214,6 +220,12 @@
     </ClCompile>
     <ClCompile Include="Engine\PolyLine.cpp">
       <Filter>01Engine\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\HPGauge.cpp">
+      <Filter>10UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Character\Character.cpp">
+      <Filter>09Character</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -293,7 +305,7 @@
       <Filter>03Player</Filter>
     </ClInclude>
     <ClInclude Include="Other\InputManager.h">
-      <Filter>09Other</Filter>
+      <Filter>11Other</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Stage.h">
       <Filter>06Stage</Filter>
@@ -356,7 +368,7 @@
       <Filter>05State\Base</Filter>
     </ClInclude>
     <ClInclude Include="Scene\TestScene.h">
-      <Filter>10Scene</Filter>
+      <Filter>12Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\StageEditor.h">
       <Filter>01Engine\Gui</Filter>
@@ -381,6 +393,12 @@
     </ClInclude>
     <ClInclude Include="Engine\PolyLine.h">
       <Filter>01Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\HPGauge.h">
+      <Filter>10UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Character\Character.h">
+      <Filter>09Character</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

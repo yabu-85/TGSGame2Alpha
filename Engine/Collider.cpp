@@ -8,9 +8,55 @@
 #include "Global.h"
 #include "../Stage/Triangle.h"
 
+namespace {
+    const float EPSILON = 0.00001f;     //許容誤差の定義
+
+}
+
+//線分（始まりと終わりがある有限の線）
+struct Segment {
+    XMFLOAT3 pos;   //線分の始点
+    XMVECTOR vec;   //線分の方向ベクトル
+    Segment(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
+
+    XMFLOAT3 GetEndPoint() {
+        XMFLOAT3 endPoint;
+        XMVECTOR endPointVec = XMVectorAdd(XMLoadFloat3(&pos), vec);
+        XMStoreFloat3(&endPoint, endPointVec);
+        return endPoint;
+    }
+
+    //直線上の点を取得する
+    XMFLOAT3 GetPosition(float dot) const {
+        XMFLOAT3 p = XMFLOAT3();
+        XMStoreFloat3(&p, (XMLoadFloat3(&pos) + (vec * dot)));
+        return  p;
+    }
+};
+
+//直線（直線上の一点と方向ベクトル）
+struct Line {
+    XMFLOAT3 pos;   //始
+    XMVECTOR vec;   //線の方向ベクトル
+    Line(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
+
+    //直線上の点を取得する
+    XMFLOAT3 GetPosition(float dot) const {
+        XMFLOAT3 p = XMFLOAT3();
+        XMStoreFloat3(&p, (XMLoadFloat3(&pos) + (vec * dot)));
+        return  p;
+    }
+};
+
+void Clamp01(float& v);
+bool IsSharpAngle(XMFLOAT3& p1, XMFLOAT3& p2, XMFLOAT3& p3);
+float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t);
+float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
+float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
+
 //コンストラクタ
 Collider::Collider():
-    pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f)), hDebugModel_(-1)
+    pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f)), hDebugModel_(-1), type_(ColliderType::COLLIDER_BOX)
 {
 }
 
@@ -33,10 +79,6 @@ void Collider::Draw(XMFLOAT3 position)
 #endif
 }
 
-//箱型同士の衝突判定
-//引数：boxA	１つ目の箱型判定
-//引数：boxB	２つ目の箱型判定
-//戻値：接触していればtrue
 bool Collider::IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB)
 {
 
@@ -55,10 +97,6 @@ bool Collider::IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB)
 	return false;
 }
 
-//箱型と球体の衝突判定
-//引数：box	箱型判定
-//引数：sphere	２つ目の箱型判定
-//戻値：接触していればtrue
 bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 {
 	XMFLOAT3 circlePos = Transform::Float3Add(sphere->pGameObject_->GetWorldPosition(), sphere->center_);
@@ -87,10 +125,8 @@ bool Collider::IsHitBoxVsSegment(BoxCollider* box, SegmentCollider* seg)
     return false;
 }
 
-//球体同士の衝突判定
-//引数：circleA	１つ目の球体判定
-//引数：circleB	２つ目の球体判定
-//戻値：接触していればtrue
+//-------------------------------------------------------------------------------------------
+
 bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circleB)
 {
 	XMFLOAT3 centerA = circleA->center_;
@@ -106,6 +142,25 @@ bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circ
 	}
 
 	return false;
+}
+
+bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule)
+{
+    XMFLOAT3 center = circle->center_;
+    XMFLOAT3 position = Float3Add(circle->pGameObject_->GetWorldPosition(), center);
+
+    XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
+    XMVECTOR dir = XMVector3Normalize(capsule->direction_);
+    dir *= capsule->height_;
+    XMVECTOR vPos = XMLoadFloat3(&capPos) - dir * 0.5f;
+    XMStoreFloat3(&capPos, vPos);
+    Segment seg1 = Segment(capPos, dir);
+
+    XMFLOAT3 hit = XMFLOAT3();
+    float t = 0.0f;
+    float dist = CalcPointSegmentDist(position, seg1, hit, t);
+    bool b = dist < (circle->size_.x + capsule->size_.x);
+    return b;
 }
 
 bool Collider::IsHitCircleVsSegment(SphereCollider* circle, SegmentCollider* seg)
@@ -140,51 +195,145 @@ bool Collider::IsHitCircleVsSegment(SphereCollider* circle, SegmentCollider* seg
     return false;
 }
 
+bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle, XMVECTOR& outDistanceVector)
+{
+    XMFLOAT3 pos = Float3Add(circle->center_, circle->pGameObject_->GetWorldPosition());
+    XMVECTOR p = XMLoadFloat3(&pos);
+
+    XMVECTOR q0 = triangle->GetPosition(0);
+    XMVECTOR q1 = triangle->GetPosition(1);
+    XMVECTOR q2 = triangle->GetPosition(2);
+    XMVECTOR normal = triangle->GetNormal();
+
+    //球の中心から平面への距離を計算
+    float distanceToPlane = XMVectorGetX(XMVector3Dot(normal, p - q0));
+
+    //平面と球の中心の距離が球の半径より大きい場合、非交差と判定
+    if (fabs(distanceToPlane) > circle->size_.x) {
+        return false;
+    }
+
+    // 球の中心から三角形の平面への垂線の足
+    XMVECTOR pointOnPlane = p - distanceToPlane * normal;
+
+    //三角形の辺ベクトルを計算
+    XMVECTOR edge0 = q1 - q0;
+    XMVECTOR edge1 = q2 - q0;
+
+    // 三角形内の点をパラメトリックに表現
+    XMVECTOR v0ToPoint = pointOnPlane - q0;
+    float d00 = XMVectorGetX(XMVector3Dot(edge0, edge0));
+    float d01 = XMVectorGetX(XMVector3Dot(edge0, edge1));
+    float d11 = XMVectorGetX(XMVector3Dot(edge1, edge1));
+    float d20 = XMVectorGetX(XMVector3Dot(v0ToPoint, edge0));
+    float d21 = XMVectorGetX(XMVector3Dot(v0ToPoint, edge1));
+    float denom = d00 * d11 - d01 * d01;
+    float v = (d11 * d20 - d01 * d21) / denom;
+    float w = (d00 * d21 - d01 * d20) / denom;
+    float u = 1.0f - v - w;
+
+    //平面上の点が三角形内部かどうか
+    if ((u >= 0.0f) && (v >= 0.0f) && (w >= 0.0f)) {
+        outDistanceVector = (circle->size_.x - distanceToPlane) * normal;
+        bool output = fabs(distanceToPlane) < circle->size_.x;
+        return output;
+    }
+
+    // 三角形の各頂点と球の中心との距離を計算
+    float distSqToV0 = XMVectorGetX(XMVector3LengthSq(p - q0));
+    float distSqToV1 = XMVectorGetX(XMVector3LengthSq(p - q1));
+    float distSqToV2 = XMVectorGetX(XMVector3LengthSq(p - q2));
+
+    float minDistSq = distSqToV0;
+    XMVECTOR closestPoint = q0;
+
+    if (distSqToV1 < minDistSq) {
+        minDistSq = distSqToV1;
+        closestPoint = q1;
+    }
+
+    if (distSqToV2 < minDistSq) {
+        minDistSq = distSqToV2;
+        closestPoint = q2;
+    }
+
+    // 各辺と球の中心との最小距離を計算
+    auto updateClosestPoint = [&](XMVECTOR a, XMVECTOR b) {
+        XMVECTOR ab = b - a;
+        float t = max(0.0f, min(1.0f, XMVectorGetX(XMVector3Dot(p - a, ab) / XMVector3Dot(ab, ab))));
+        XMVECTOR point = a + t * ab;
+        float distSq = XMVectorGetX(XMVector3LengthSq(point - p));
+        if (distSq < minDistSq) {
+            minDistSq = distSq;
+            closestPoint = point;
+        }
+        };
+
+    updateClosestPoint(q0, q1);
+    updateClosestPoint(q0, q2);
+    updateClosestPoint(q1, q2);
+
+    //最小距離が球の半径以内かどうか
+    float minDist = sqrtf(minDistSq);
+    bool hit = minDist < circle->size_.x;
+
+    if (hit) {
+        XMVECTOR vec = p - closestPoint;
+        outDistanceVector = normal * (circle->size_.x - XMVectorGetX(XMVector3Length(vec)));
+        //   outDistanceVector = (circle->size_.x - distanceToPlane) * normal;
+    }
+    else outDistanceVector = XMVectorZero();
+
+    return hit;
+}
+
 //-------------------------------------------------------------------------------------------
 
-// 許容誤差の定義
-const float EPSILON = 0.00001f;
+bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider* capsule2) {
+    XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
+    float t1 = 0.0f,t2 = 0.0f;
+
+    XMFLOAT3 capPos1 = Transform::Float3Add(capsule1->pGameObject_->GetWorldPosition(), capsule1->center_);
+    XMFLOAT3 capPos2 = Transform::Float3Add(capsule2->pGameObject_->GetWorldPosition(), capsule2->center_);
+    XMVECTOR dir1 = XMVector3Normalize(capsule1->direction_);
+    XMVECTOR dir2 = XMVector3Normalize(capsule2->direction_);
+    dir1 *= capsule1->height_;
+    dir2 *= capsule2->height_;
+
+    XMVECTOR vPos1 = XMLoadFloat3(&capPos1) - dir1 * 0.5f;
+    XMVECTOR vPos2 = XMLoadFloat3(&capPos2) - dir2 * 0.5f;
+    XMStoreFloat3(&capPos1, vPos1);
+    XMStoreFloat3(&capPos2, vPos2);
+
+    Segment seg1 = Segment(capPos1, dir1);
+    Segment seg2 = Segment(capPos2, dir2);
+
+    float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
+    bool out = (d <= capsule1->size_.x + capsule2->size_.x);
+    capsule1->targetDit_ = d;
+    capsule2->targetDit_ = d;
+    return out;
+}
+
+bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg)
+{
+    XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
+    Segment segment = Segment(Transform::Float3Add(seg->pGameObject_->GetWorldPosition(), seg->center_), seg->vec_);
+
+    XMFLOAT3 hit = XMFLOAT3();
+    float t = 0.0f;
+    float dist = CalcPointSegmentDist(capPos, segment, hit, t);
+    
+    return (dist < capsule->size_.x);
+}
+
+//ーーーーーーーーーーーーーーーーーーーーー球とTriangleに使うーーーーーーーーーーーーーーーーーーーーーー
 
 // 0～1の間にクランプ
 void Clamp01(float& v) {
     if (v < 0.0f) v = 0.0f;
     else if (v > 1.0f) v = 1.0f;
 }
-
-//線分（始まりと終わりがある有限の線）
-struct Segment {
-    XMFLOAT3 pos;   //線分の始点
-    XMVECTOR vec;   //線分の方向ベクトル
-    Segment(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
-
-    XMFLOAT3 GetEndPoint() {
-        XMFLOAT3 endPoint;
-        XMVECTOR endPointVec = XMVectorAdd(XMLoadFloat3(&pos), vec);
-        XMStoreFloat3(&endPoint, endPointVec);
-        return endPoint;
-    }
-    
-    //直線上の点を取得する
-    XMFLOAT3 GetPosition(float dot) const {
-        XMFLOAT3 p = XMFLOAT3();
-        XMStoreFloat3(&p, (XMLoadFloat3(&pos) + (vec * dot)));
-        return  p;
-    }
-};
-
-//直線（直線上の一点と方向ベクトル）
-struct Line {
-    XMFLOAT3 pos;   //始
-    XMVECTOR vec;   //線の方向ベクトル
-    Line(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
-    
-    //直線上の点を取得する
-    XMFLOAT3 GetPosition(float dot) const {
-        XMFLOAT3 p = XMFLOAT3();
-        XMStoreFloat3(&p, (XMLoadFloat3(&pos) + (vec * dot)) );
-        return  p;
-    }
-};
 
 // 点と直線の最短距離
 // p : 点
@@ -298,7 +447,7 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
     float t1D1 = DV1V2 * XMVectorGetX(XMVector3Dot(vecN2, P21P11));
     float t1D2 = DV2V2 * XMVectorGetX(XMVector3Dot(vecN1, P21P11));
     float t1D3 = (DV1V1 * DV2V2 - DV1V2 * DV1V2);
-    
+
     t1 = t1D1 - t1D2 / t1D3;
     p1 = l1.GetPosition(t1);
     t2 = XMVectorGetX(XMVector3Dot(vecN2, (XMLoadFloat3(&p1) - XMLoadFloat3(&l2.pos)))) / DV2V2;
@@ -315,7 +464,7 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
 // t2 : S2側のベクトル係数（戻り値）
 // 戻り値: 最短距離
 float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
-    
+
     // S1が縮退している？
     // (縮退：線分の両端が一致して一点になり、線分と呼べなくなった)
     if (XMVectorGetX(XMVector3LengthSq(s1.vec)) < EPSILON) {
@@ -339,7 +488,7 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
         float len = CalcPointSegmentDist(s2.pos, s1, p1, t1);
         p2 = s2.pos;
         Clamp01(t1);
-        t2 = 0.0f; 
+        t2 = 0.0f;
         return len;
     }
 
@@ -387,146 +536,4 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
     Clamp01(t1);
     p1 = s1.GetPosition(t1);
     return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
-}
-
-bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider* capsule2) {
-    XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
-    float t1 = 0.0f,t2 = 0.0f;
-
-    XMFLOAT3 capPos1 = Transform::Float3Add(capsule1->pGameObject_->GetWorldPosition(), capsule1->center_);
-    XMFLOAT3 capPos2 = Transform::Float3Add(capsule2->pGameObject_->GetWorldPosition(), capsule2->center_);
-    XMVECTOR dir1 = XMVector3Normalize(capsule1->direction_);
-    XMVECTOR dir2 = XMVector3Normalize(capsule2->direction_);
-    dir1 *= capsule1->height_;
-    dir2 *= capsule2->height_;
-
-    XMVECTOR vPos1 = XMLoadFloat3(&capPos1) - dir1 * 0.5f;
-    XMVECTOR vPos2 = XMLoadFloat3(&capPos2) - dir2 * 0.5f;
-    XMStoreFloat3(&capPos1, vPos1);
-    XMStoreFloat3(&capPos2, vPos2);
-
-    Segment seg1 = Segment(capPos1, dir1);
-    Segment seg2 = Segment(capPos2, dir2);
-
-    float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
-    bool out = (d <= capsule1->size_.x + capsule2->size_.x);
-    capsule1->targetDit_ = d;
-    capsule2->targetDit_ = d;
-    return out;
-}
-
-bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg)
-{
-    return false;
-}
-
-bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* capsule)
-{
-    XMFLOAT3 center = circle->center_;
-    XMFLOAT3 position = Float3Add(circle->pGameObject_->GetWorldPosition(), center);
-
-    XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
-    XMVECTOR dir = XMVector3Normalize(capsule->direction_);
-    dir *= capsule->height_;
-    XMVECTOR vPos = XMLoadFloat3(&capPos) - dir * 0.5f;
-    XMStoreFloat3(&capPos, vPos);
-    Segment seg1 = Segment(capPos, dir);
-
-    XMFLOAT3 hit = XMFLOAT3();
-    float t = 0.0f;
-    float dist = CalcPointSegmentDist(position, seg1, hit, t);
-    bool b = dist < (circle->size_.x + capsule->size_.x);
-    return b;
-}
-
-bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle, XMVECTOR& outDistanceVector)
-{
-    XMFLOAT3 pos = Float3Add(circle->center_, circle->pGameObject_->GetWorldPosition());
-    XMVECTOR p = XMLoadFloat3(&pos);
-
-    XMVECTOR q0 = triangle->GetPosition(0);
-    XMVECTOR q1 = triangle->GetPosition(1);
-    XMVECTOR q2 = triangle->GetPosition(2);
-    XMVECTOR normal = triangle->GetNormal();
-
-    //球の中心から平面への距離を計算
-    float distanceToPlane = XMVectorGetX(XMVector3Dot(normal, p - q0));
-
-    //平面と球の中心の距離が球の半径より大きい場合、非交差と判定
-    if (fabs(distanceToPlane) > circle->size_.x) {
-        return false;
-    }
-
-    // 球の中心から三角形の平面への垂線の足
-    XMVECTOR pointOnPlane = p - distanceToPlane * normal;
-
-    //三角形の辺ベクトルを計算
-    XMVECTOR edge0 = q1 - q0;
-    XMVECTOR edge1 = q2 - q0;
-
-    // 三角形内の点をパラメトリックに表現
-    XMVECTOR v0ToPoint = pointOnPlane - q0;
-    float d00 = XMVectorGetX(XMVector3Dot(edge0, edge0));
-    float d01 = XMVectorGetX(XMVector3Dot(edge0, edge1));
-    float d11 = XMVectorGetX(XMVector3Dot(edge1, edge1));
-    float d20 = XMVectorGetX(XMVector3Dot(v0ToPoint, edge0));
-    float d21 = XMVectorGetX(XMVector3Dot(v0ToPoint, edge1));
-    float denom = d00 * d11 - d01 * d01;
-    float v = (d11 * d20 - d01 * d21) / denom;
-    float w = (d00 * d21 - d01 * d20) / denom;
-    float u = 1.0f - v - w;
-
-    //平面上の点が三角形内部かどうか
-    if ((u >= 0.0f) && (v >= 0.0f) && (w >= 0.0f)) {
-        outDistanceVector = (circle->size_.x - distanceToPlane) * normal;
-        bool output = fabs(distanceToPlane) < circle->size_.x;
-        return output;
-    }
-
-    // 三角形の各頂点と球の中心との距離を計算
-    float distSqToV0 = XMVectorGetX(XMVector3LengthSq(p - q0));
-    float distSqToV1 = XMVectorGetX(XMVector3LengthSq(p - q1));
-    float distSqToV2 = XMVectorGetX(XMVector3LengthSq(p - q2));
-
-    float minDistSq = distSqToV0;
-    XMVECTOR closestPoint = q0;
-
-    if (distSqToV1 < minDistSq) {
-        minDistSq = distSqToV1;
-        closestPoint = q1;
-    }
-
-    if (distSqToV2 < minDistSq) {
-        minDistSq = distSqToV2;
-        closestPoint = q2;
-    }
-
-    // 各辺と球の中心との最小距離を計算
-    auto updateClosestPoint = [&](XMVECTOR a, XMVECTOR b) {
-        XMVECTOR ab = b - a;
-        float t = max(0.0f, min(1.0f, XMVectorGetX(XMVector3Dot(p - a, ab) / XMVector3Dot(ab, ab))));
-        XMVECTOR point = a + t * ab;
-        float distSq = XMVectorGetX(XMVector3LengthSq(point - p));
-        if (distSq < minDistSq) {
-            minDistSq = distSq;
-            closestPoint = point;
-        }
-    };
-
-    updateClosestPoint(q0, q1);
-    updateClosestPoint(q0, q2);
-    updateClosestPoint(q1, q2);
-
-    //最小距離が球の半径以内かどうか
-    float minDist = sqrtf(minDistSq);
-    bool hit = minDist < circle->size_.x;
-
-    if (hit) {
-        XMVECTOR vec = p - closestPoint;
-        outDistanceVector = normal * (circle->size_.x - XMVectorGetX(XMVector3Length(vec)));
-     //   outDistanceVector = (circle->size_.x - distanceToPlane) * normal;
-    }
-    else outDistanceVector = XMVectorZero();
-
-    return hit;
 }
