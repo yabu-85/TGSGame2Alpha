@@ -7,7 +7,7 @@ class PolyLine;
 // e’e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Bullet_Normal : public BulletBase
 {
-    int hModel_;
+    bool rayHit_;
     PolyLine* pPolyLine_;
 
 public:

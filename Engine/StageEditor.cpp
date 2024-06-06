@@ -297,8 +297,11 @@ void StageEditor::DrawNodeEditor()
     //‘ŠŒİÚ‘±
     static bool interconnection = false;
     static int preNodeId = -1;
+    static EdgeType setEdgeType = EdgeType::NORMAL;
     if (interconnection) {
-        ImGui::Text("InterConnection On , PreId : %d", preNodeId);
+        if(setEdgeType == EdgeType::NORMAL) ImGui::Text("InterConnection On , PreId : %d , type : Normalr", preNodeId);
+        else if(setEdgeType == EdgeType::JUMP) ImGui::Text("InterConnection On , PreId : %d , type : Jump", preNodeId);
+
         XMFLOAT3 pPos = pPlayer->GetPosition();
         for (int i = 0; i < (int)nodeList.size(); i++) {
             XMFLOAT3 nPos = nodeList.at(i)->GetPosition();
@@ -317,9 +320,16 @@ void StageEditor::DrawNodeEditor()
                         }
                     }
                     if (!exist) {
-                        Edge edge = Edge(EdgeType::NORMAL);
-                        edge.connectId = preNodeId;
-                        nodeList.at(i)->GetEdges().push_back(edge);
+                        if (setEdgeType == EdgeType::NORMAL) {
+                            Edge edge = Edge(EdgeType::NORMAL);
+                            edge.connectId = preNodeId;
+                            nodeList.at(i)->GetEdges().push_back(edge);
+                        }
+                        else if (setEdgeType == EdgeType::JUMP) {
+                            Edge edge = Edge(EdgeType::JUMP);
+                            edge.connectId = preNodeId;
+                            nodeList.at(i)->GetEdges().push_back(edge);
+                        }
                     }
 
                     //‘O‚ÉÚG‚µ‚½PreNode
@@ -350,6 +360,11 @@ void StageEditor::DrawNodeEditor()
     ImGui::SameLine();
     if (ImGui::Button("Change Mode")) {
         interconnection = !interconnection;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Change Type")) {
+        if (setEdgeType == EdgeType::NORMAL) setEdgeType = EdgeType::JUMP;
+        else if (setEdgeType == EdgeType::JUMP) setEdgeType = EdgeType::NORMAL;
     }
 
     //‹æØ‚èü

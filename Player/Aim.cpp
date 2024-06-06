@@ -16,7 +16,7 @@ namespace {
     static const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
     static const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
-    static const float MOUSE_SPEED = 0.05f;                         //感度
+    static const float MOUSE_SPEED = 0.15f;                         //感度
     static const float DISTANCE_BEHIND_DEFAULT = 6.0f;              //どのくらい後ろから移すかのデフォルト値
     static const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
     float HEIGHT_DISTANCE = 1.5f;                                   //Aimの高さ
@@ -24,7 +24,7 @@ namespace {
 
 Aim::Aim(GameObject* parent)
     : GameObject(parent, "Aim"), cameraPosition_{ 0,0,0 }, cameraTarget_{ 0,0,0 }, aimDirection_{ 0,0,0 }, cameraOffset_{ 0,0,0 },
-    compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), 
+    compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), hPict_(-1),
     isMove_(true), isCompulsion_(false), compulsionTime_(0), iterations_(0), sign_(1), range_(0), moveDistance_(0),
     distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
     shakeDirection_{ 1,0,0,0 }, isValid_(true)
@@ -41,6 +41,9 @@ Aim::~Aim()
 
 void Aim::Initialize()
 {
+    hPict_ = Image::Load("cross.png");
+    assert(hPict_ >= 0);
+
     pPlayer_ = static_cast<Player*>(FindObject("Player"));
     DefaultAim();
 
@@ -75,6 +78,13 @@ void Aim::Update()
 
 void Aim::Draw()
 {
+    if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
+        Transform t;
+        t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
+        Image::SetTransform(hPict_, t);
+        Image::Draw(hPict_);
+    }
+
 }
 
 void Aim::Release()
