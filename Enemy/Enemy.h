@@ -4,6 +4,7 @@
 #include "../AI/RouteSearch.h"
 
 class HealthGauge;
+class DamageSystem;
 
 class Enemy : public GameObject
 {
@@ -17,7 +18,10 @@ class Enemy : public GameObject
     float outRange = 3.0f;
     std::vector<RouteData> targetList_;
 
+    float damageTime = 0.0f;
+
     HealthGauge* pHealthGauge_;
+    DamageSystem* pDamageSystem_;
 
 public:
     Enemy(GameObject* parent);
@@ -30,5 +34,8 @@ public:
     void Move();
     void CalcDodge(XMVECTOR& move);
     void ReflectCharacter();
+
+    void SetDamageTime(float t) { damageTime = t; }
+    DamageSystem* GetDamageSystem() { return pDamageSystem_; }
 
 };

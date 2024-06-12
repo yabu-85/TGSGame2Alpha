@@ -89,7 +89,7 @@ void CollisionMap::Draw()
     Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
     //CellBox
-#if 0
+#if 1
     Transform trans = transform_;
     trans.position_.x = int((Direct3D::PlayerPosition.x - minX) / boxSize) * boxSize;
     trans.position_.y = int((Direct3D::PlayerPosition.y - minY) / boxSize) * boxSize;

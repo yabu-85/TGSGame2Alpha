@@ -10,6 +10,7 @@
 #include "../Player/Player.h"
 #include "../Scene/TestScene.h"
 #include "../UI/HealthGauge.h"
+#include "../Character/DamageSystem.h"
 
 namespace {
     const float gravity = 0.002f;
@@ -32,6 +33,11 @@ Enemy::Enemy(GameObject* parent)
     pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
 
     pHealthGauge_ = new HealthGauge(this);
+    pHealthGauge_->SetHeight(1.7f);
+
+    pDamageSystem_ = new DamageSystem();
+    pDamageSystem_->SetMaxHP(100);
+    pDamageSystem_->SetHP(100);
 
 }
 
@@ -111,10 +117,17 @@ void Enemy::Draw()
 {
     Direct3D::EnemyPosition = transform_.position_;
 
+    if (damageTime > 0.0f) damageTime -= 0.1f;
+    Direct3D::emphasisTime_ = damageTime;
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
+    Direct3D::emphasisTime_ = 0.0f;
 
-    pHealthGauge_->Draw();
+    if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
+        float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
+        pHealthGauge_->SetParcent(r);
+        pHealthGauge_->Draw();
+    }
 
     CollisionDraw();
 

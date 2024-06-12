@@ -53,9 +53,6 @@ void TestScene::Update()
 	if (Input::IsKey(DIK_Q)) pos.y -= speed;
 	Light::SetPosition(0, pos);
 
-	//2‰æ–Ê‚Ì•\¦“à—eØ‚è‘Ö‚¦
-	if (Input::IsKeyDown(DIK_R)) Direct3D::isTwoWindowShadowDraw_ = !Direct3D::isTwoWindowShadowDraw_;
-
 }
 
 //•`‰æ

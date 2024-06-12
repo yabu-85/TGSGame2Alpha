@@ -4,8 +4,13 @@
 
 namespace VFXManager
 {
+	//”š”­
 	EmitterData sparks;
 	EmitterData explode;
+
+	//‰Œ
+	EmitterData smoke;
+
 }
 
 void VFXManager::Initialize()
@@ -44,6 +49,23 @@ void VFXManager::Initialize()
 	explode.deltaColor = XMFLOAT4(0.0f, -1.0f / 20.0f, 0.0f, -1.0f / 20.0f);
 	explode.gravity = 0.001f;
 
+	//‰Œ
+	smoke.textureFileName = "Particle/cloudA.png";
+	smoke.delay = 0;
+	smoke.number = 6;
+	smoke.lifeTime = 30;
+	smoke.position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	smoke.positionRnd = XMFLOAT3(0.2f, 0.1f, 0.2f);
+	smoke.direction = XMFLOAT3(2.0f, 0.5f, 0.0f);
+	smoke.directionRnd = XMFLOAT3(20.0f, 180.0f, 0.0f);
+	smoke.speed = 0.0f;
+	smoke.speedRnd = 0.0f;
+	smoke.size = XMFLOAT2(1.3f, 1.3f);
+	smoke.sizeRnd = XMFLOAT2(0.3f, 0.3f);
+	smoke.scale = XMFLOAT2(1.02f, 1.02f);
+	smoke.color = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	smoke.deltaColor = XMFLOAT4(0.0f, 0.0f, 0.0f, -1.0f / smoke.lifeTime);
+	smoke.gravity = 0.0f;
 }
 
 void VFXManager::CreateVfxExplode1(XMFLOAT3 pos)
@@ -55,4 +77,10 @@ void VFXManager::CreateVfxExplode1(XMFLOAT3 pos)
 	//”š”­
 	explode.position = pos;
 	VFX::Start(explode);
+}
+
+void VFXManager::CreateVfxSmoke(XMFLOAT3 pos)
+{
+	smoke.position = pos;
+	VFX::Start(smoke);
 }

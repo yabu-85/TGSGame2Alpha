@@ -2,14 +2,13 @@
 #include "BulletBase.h"
 
 class PolyLine;
-class SegmentCollider;
 
 // e’e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Bullet_Normal : public BulletBase
 {
     bool rayHit_;
     PolyLine* pPolyLine_;
-    SegmentCollider* pSegment_;
+    XMFLOAT3 hitPos_;
 
 public:
     Bullet_Normal(GameObject* parent);

@@ -41,7 +41,7 @@ Aim::~Aim()
 
 void Aim::Initialize()
 {
-    hPict_ = Image::Load("cross.png");
+    hPict_ = Image::Load("Image/cross.png");
     assert(hPict_ >= 0);
 
     pPlayer_ = static_cast<Player*>(FindObject("Player"));

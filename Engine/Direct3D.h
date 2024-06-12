@@ -62,8 +62,8 @@ namespace Direct3D
 	extern int		screenWidth_;			//スクリーンの幅
 	extern int		screenHeight_;			//スクリーンの高さ
 	extern bool		isDrawCollision_;		//コリジョンを表示するかフラグ
-	extern bool		isTwoWindowShadowDraw_;	//２ウィンドウにShadowMap表示するかどうか（falseは定点カメラ）
-	
+	extern float	emphasisTime_;			//強調表示、弾丸に当たった時用の
+
 	extern D3D11_VIEWPORT vp1;
 	extern D3D11_VIEWPORT vp2;
 	extern XMFLOAT3	PlayerPosition;

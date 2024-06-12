@@ -31,7 +31,7 @@ void Bullet_Normal::Initialize()
 
     pPolyLine_ = new PolyLine;
     pPolyLine_->Load("PolyImage/BulletLine.png");
-    pPolyLine_->SetLength(10);
+    pPolyLine_->SetLength(5);
     pPolyLine_->SetWidth(0.1f);
 
 }
@@ -40,7 +40,7 @@ void Bullet_Normal::Update()
 {
     if (parameter_.killTimer_ <= 0) {
         KillMe();
-        VFXManager::CreateVfxExplode1(transform_.position_);
+        VFXManager::CreateVfxSmoke(hitPos_);
         return;
     }
     parameter_.killTimer_--;
@@ -61,13 +61,21 @@ void Bullet_Normal::Release()
 {
 }
 
+#include "../Character/DamageSystem.h"
 void Bullet_Normal::OnCollision(GameObject* pTarget)
 {
     // 敵に当たったとき
     if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
     {
         Enemy* pEnemy = dynamic_cast<Enemy*>(pTarget);
-        pEnemy->KillMe();
+        DamageInfo info = DamageInfo(5);
+        pEnemy->GetDamageSystem()->ApplyDamageDirectly(info);
+        if (pEnemy->GetDamageSystem()->IsDead()) {
+            pEnemy->KillMe();
+        }
+        else {
+            pEnemy->SetDamageTime(1.0f);
+        }
         rayHit_ = true;
     }
 }
@@ -94,10 +102,13 @@ void Bullet_Normal::Shot()
     if (data.hit && newKillTime < parameter_.killTimer_) {
         parameter_.killTimer_ = newKillTime;
     }
+    hitPos_ = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
 
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
-    for (Enemy* e : scene->GetEnemyList()) {
+    std::vector<Enemy*> enemyList = scene->GetEnemyList();
+    int minIndex = -1;
 
+    for (Enemy* e : enemyList) {
         //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
         XMFLOAT3 eneHitPos = Float3Add(e->GetPosition(), e->GetAllColliderList().front()->center_);
         XMFLOAT3 vec = Float3Sub(e->GetPosition(), transform_.position_);
@@ -110,7 +121,7 @@ void Bullet_Normal::Shot()
 
         //当たってたら終了（貫通ならいらない）
         if (rayHit_) {
-            VFXManager::CreateVfxExplode1(eneHitPos);
+            VFXManager::CreateVfxSmoke(eneHitPos);
             KillMe();
             break;
         }

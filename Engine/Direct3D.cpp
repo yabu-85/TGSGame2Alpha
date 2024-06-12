@@ -31,16 +31,15 @@ namespace Direct3D
 	//半透明のものをどのように表現するか
 	ID3D11BlendState*	pBlendState[BLEND_MAX];
 
-	bool isDrawCollision_ = true;		//コリジョンを表示するか
-	bool isTwoWindowShadowDraw_ = true;	//２ウィンドウにShadowMap表示するかどうか（falseは定点カメラ）
-
 	//extern宣言した変数の初期化
 	ID3D11Device*           pDevice_ = nullptr;
 	ID3D11DeviceContext*    pContext_ = nullptr;
 	SHADER_BUNDLE			shaderBundle[SHADER_MAX] = { 0 };
 
+	bool					isDrawCollision_ = true;	//コリジョンを表示するか
 	int						screenWidth_ = 0;
 	int						screenHeight_ = 0;
+	float					emphasisTime_ = 0.0f;
 
 	// シェーダーバンドルの保存用の変数
 	SHADER_TYPE currentType;

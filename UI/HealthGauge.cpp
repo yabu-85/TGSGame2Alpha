@@ -7,8 +7,8 @@
 
 namespace {
 	static const float MAX_DRAW_LENGTH = 50.0f;	//HPの最大描画距離
-	static const float DEFAULT_SIZE_X = 2.0f;	//HPの描画サイズ
-	static const float DEFAULT_SIZE_Y = 0.5f;	//HPの描画サイズ
+	static const float DEFAULT_SIZE_X = 0.6f;	//HPの描画サイズ
+	static const float DEFAULT_SIZE_Y = 0.2f;	//HPの描画サイズ
 	static const float DRAW_RANGE = 0.9f;		//HPの描画範囲（スクリーン）
 	static const int MAX_ALPHA = 255;
 	static const int ALPHA_VALUE = 30;
@@ -38,7 +38,7 @@ HealthGauge::HealthGauge(GameObject* parent) : parcent(1.0f), height_(0.0f), gau
 		assert(hPict_[i] >= 0);
 	}
 
-	halfSize = PngSizeX / (float)Direct3D::screenWidth_;
+	halfSize = PngSizeX / (float)Direct3D::screenWidth_ * (DEFAULT_SIZE_X / 2.0f);
 	transform_[0].scale_.x = DEFAULT_SIZE_X;
 	transform_[0].scale_.y = DEFAULT_SIZE_Y;
 	transform_[1] = transform_[0];
@@ -62,9 +62,12 @@ void HealthGauge::Draw()
 		return;
 	}
 
+	//ゲージ満タンは非表示
+	if (parcent >= 1.0f) return;
+
 	//敵の位置
 	XMFLOAT3 pos = pParent_->GetPosition();
-	pos.y += 0.3f;
+	pos.y += height_;
 
 	//スクリーンポジション
 	XMFLOAT3 scrPos = Camera::CalcScreenPosition(pos);
@@ -73,15 +76,8 @@ void HealthGauge::Draw()
 	if (!Camera::IsScreenPositionWithinScreen(scrPos, DRAW_RANGE)) {
 		SetGaugeAlpha(-ALPHA_VALUE);
 	}
-	//距離で制限
 	else {
 		SetGaugeAlpha(ALPHA_VALUE);
-		/*
-		float dist = CalculationDistance(Camera::GetTarget(), pos);
-		if (dist < MAX_DRAW_LENGTH) SetGaugeAlpha(ALPHA_VALUE);
-		else SetGaugeAlpha(-ALPHA_VALUE);
-		*/
-
 	}
 
 	//透明度１以上ならHealthGauge表示

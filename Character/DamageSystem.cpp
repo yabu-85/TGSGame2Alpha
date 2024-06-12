@@ -69,8 +69,7 @@ void DamageController::AddAttackList(GameObject* obj)
 void DamageController::ResetAttackList()
 {
 	for (auto i : attackList) {
-		
-		i->RemoveDamageInfo(currentDamage);
+	//	i->RemoveDamageInfo(currentDamage);
 	}
 	attackList.clear();
 }

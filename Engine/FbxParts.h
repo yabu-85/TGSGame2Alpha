@@ -40,6 +40,7 @@ class FbxParts
 		XMFLOAT4	camPos;
 		XMFLOAT4	lightPos;
 		FLOAT		shininess;
+		FLOAT		emphasis;
 		BOOL		isTexture;
 	};
 

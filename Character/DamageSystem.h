@@ -63,6 +63,8 @@ public:
     void AddDamageInfo(const DamageInfo& damageInfo);
     void RemoveDamageInfo(const DamageInfo& damageInfo);
 
+    bool IsDead() { return hp_ <= 0; }
+
     //アクセサ
     void SetHP(int i) { hp_ = i; }
     void SetMaxHP(int i) { maxHp_ = i; }

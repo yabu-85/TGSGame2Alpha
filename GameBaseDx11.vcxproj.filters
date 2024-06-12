@@ -221,14 +221,17 @@
     <ClCompile Include="Engine\PolyLine.cpp">
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Other\VFXManager.cpp">
-      <Filter>09Other</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\HPGauge.cpp">
-      <Filter>10UI</Filter>
-    </ClCompile>
     <ClCompile Include="Character\Character.cpp">
       <Filter>09Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Character\DamageSystem.cpp">
+      <Filter>09Character</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\HealthGauge.cpp">
+      <Filter>10UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Other\VFXManager.cpp">
+      <Filter>11Other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -397,14 +400,17 @@
     <ClInclude Include="Engine\PolyLine.h">
       <Filter>01Engine\GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="UI\HPGauge.h">
-      <Filter>10UI</Filter>
-    </ClInclude>
     <ClInclude Include="Character\Character.h">
       <Filter>09Character</Filter>
     </ClInclude>
+    <ClInclude Include="Character\DamageSystem.h">
+      <Filter>09Character</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\HealthGauge.h">
+      <Filter>10UI</Filter>
+    </ClInclude>
     <ClInclude Include="Other\VFXManager.h">
-      <Filter>09Other</Filter>
+      <Filter>11Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
