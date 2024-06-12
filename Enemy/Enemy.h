@@ -3,6 +3,8 @@
 #include "../Engine/GameObject.h"
 #include "../AI/RouteSearch.h"
 
+class HealthGauge;
+
 class Enemy : public GameObject
 {
     int hModel_;
@@ -14,6 +16,8 @@ class Enemy : public GameObject
     float moveRange_ = 0.3f;
     float outRange = 3.0f;
     std::vector<RouteData> targetList_;
+
+    HealthGauge* pHealthGauge_;
 
 public:
     Enemy(GameObject* parent);

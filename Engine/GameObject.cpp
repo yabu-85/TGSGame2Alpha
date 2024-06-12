@@ -246,13 +246,13 @@ void GameObject::Collision(GameObject * pTarget)
 
 	//自分とpTargetのコリジョン情報を使って当たり判定
 	//1つのオブジェクトが複数のコリジョン情報を持ってる場合もあるので二重ループ
-	int sIndex = 0;
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
 	{
-		int tIndex = 0;
 		for (auto j = pTarget->colliderList_.begin(); j != pTarget->colliderList_.end(); j++)
 		{
-			if ((*j)->typeList_.at(tIndex++) == selfObjType || (*i)->typeList_.at(sIndex++) == targetObjType) {
+			bool findS = std::find(begin((*j)->typeList_), end((*j)->typeList_), selfObjType) != end((*j)->typeList_);
+			bool findT = std::find(begin((*i)->typeList_), end((*i)->typeList_), targetObjType) != end((*i)->typeList_);
+			if (findS || findT) {
 				if ((*i)->IsHit(*j)) {
 					//当たった
 					this->OnCollision(pTarget);

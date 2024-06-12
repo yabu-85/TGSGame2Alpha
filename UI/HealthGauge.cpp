@@ -1,11 +1,9 @@
-#include "HPGauge.h"
+#include "HealthGauge.h"
 #include "../Engine/Image.h"
-#include "../Player/Player.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/Camera.h"
 #include "../Engine/Global.h"
-
-//#include "EnemyBase.h"
+#include "../Player/Player.h"
 
 namespace {
 	static const float MAX_DRAW_LENGTH = 50.0f;	//HPの最大描画距離
@@ -19,7 +17,7 @@ namespace {
 }
 
 //これ処理減らせるのでは
-void HPGauge::SetGaugeAlpha(int value)
+void HealthGauge::SetGaugeAlpha(int value)
 {
 	gaugeAlpha_ += value;
 	if (gaugeAlpha_ > MAX_ALPHA) {
@@ -32,20 +30,8 @@ void HPGauge::SetGaugeAlpha(int value)
 	Image::SetAlpha(hPict_[1], gaugeAlpha_);
 }
 
-HPGauge::HPGauge(EnemyBase* parent)
-	: pParent_(parent), parcent(1.0f), height_(0.0f), gaugeAlpha_(0), isDraw_(true)
+HealthGauge::HealthGauge(GameObject* parent) : parcent(1.0f), height_(0.0f), gaugeAlpha_(0), isDraw_(true), pParent_(parent)
 {
-	for (int i = 0; i < PNG_INDEX::MAX; i++) hPict_[i] = -1;
-}
-
-HPGauge::~HPGauge()
-{
-}
-
-void HPGauge::Initialize(float height)
-{
-    height_ = height;
-
 	std::string fileName[] = { "Gauge", "GaugeFrame" };
 	for (int i = 0; i < MAX; i++) {
 		hPict_[i] = Image::Load("Image/" + fileName[i] + ".png");
@@ -53,13 +39,16 @@ void HPGauge::Initialize(float height)
 	}
 
 	halfSize = PngSizeX / (float)Direct3D::screenWidth_;
-
 	transform_[0].scale_.x = DEFAULT_SIZE_X;
 	transform_[0].scale_.y = DEFAULT_SIZE_Y;
 	transform_[1] = transform_[0];
 }
 
-void HPGauge::Draw()
+HealthGauge::~HealthGauge()
+{
+}
+
+void HealthGauge::Draw()
 {
 	//表示しない
 	if (!isDraw_) {
@@ -75,13 +64,10 @@ void HPGauge::Draw()
 
 	//敵の位置
 	XMFLOAT3 pos = pParent_->GetPosition();
-	pos.y += height_; 
-	
+	pos.y += 0.3f;
+
 	//スクリーンポジション
 	XMFLOAT3 scrPos = Camera::CalcScreenPosition(pos);
-
-	//HP最大の場合・後ろに表示されている場合処理終わり
-	if (parcent >= 1.0f) return;
 
 	//画角制限する
 	if (!Camera::IsScreenPositionWithinScreen(scrPos, DRAW_RANGE)) {
@@ -89,12 +75,16 @@ void HPGauge::Draw()
 	}
 	//距離で制限
 	else {
-		float dist = CalculationDistance(GameManager::GetPlayer()->GetPosition(), pos);
+		SetGaugeAlpha(ALPHA_VALUE);
+		/*
+		float dist = CalculationDistance(Camera::GetTarget(), pos);
 		if (dist < MAX_DRAW_LENGTH) SetGaugeAlpha(ALPHA_VALUE);
 		else SetGaugeAlpha(-ALPHA_VALUE);
+		*/
+
 	}
 
-	//透明度１以上ならHPGauge表示
+	//透明度１以上ならHealthGauge表示
 	if (gaugeAlpha_ > 0) {
 		for (int i = 0; i < 2; i++) {
 			transform_[i].position_.x = scrPos.x - halfSize;
@@ -105,18 +95,33 @@ void HPGauge::Draw()
 	}
 }
 
-void HPGauge::SetParcent(float f)
+void HealthGauge::SetHeight(float h)
+{
+	height_ = h;
+}
+
+void HealthGauge::SetParcent(float f)
 {
 	parcent = f;
 	transform_[0].scale_.x = parcent * DEFAULT_SIZE_X;
 }
 
-void HPGauge::SetIsDraw(bool b)
+void HealthGauge::SetIsDraw(bool b)
 {
 	isDraw_ = b;
 }
 
-void HPGauge::SetAlphaMax()
+void HealthGauge::SetAlphaMax()
 {
 	gaugeAlpha_ = MAX_ALPHA;
+}
+
+//--------------------------------------------------------------------------------
+
+BossGauge::BossGauge(GameObject* parent) : HealthGauge(parent)
+{
+}
+
+BossGauge::~BossGauge()
+{
 }

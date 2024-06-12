@@ -71,6 +71,19 @@ XMMATRIX Camera::GetProjectionMatrix() { return _proj; }
 //ビルボード用回転行列を取得
 XMMATRIX Camera::GetBillboardMatrix(){	return _billBoard; }
 
+bool Camera::IsWorldPositionWithinScreen(XMFLOAT3 pos, float size)
+{
+	pos = CalcScreenPosition(pos);
+	if (pos.x >= size || pos.y >= size || pos.x <= -size || pos.y <= -size || pos.z >= 1.0f) return false;
+	return true;
+}
+
+bool Camera::IsScreenPositionWithinScreen(XMFLOAT3 pos, float size)
+{
+	if (pos.x >= size || pos.y >= size || pos.x <= -size || pos.y <= -size || pos.z >= 1.0f) return false;
+	return true;
+}
+
 XMFLOAT3 Camera::CalcScreenPosition(XMFLOAT3 pos)
 {
 	XMVECTOR v2 = XMVector3TransformCoord(XMLoadFloat3(&pos), Camera::GetViewMatrix());

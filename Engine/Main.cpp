@@ -65,16 +65,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	screenWidth = 500;
 	screenHeight = 440;
 
-	int screenWidth2 = 400;
-	int screenHeight2 = 300;
-
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
-	HWND hWndTool = InitApp(hInstance, screenWidth2, screenHeight2, nCmdShow);
 
 	//Direct3D準備
 	Direct3D::Initialize(hWnd, screenWidth, screenHeight);
-	Direct3D::InitializeTwo(hWndTool, screenWidth2, screenHeight2);
 
 	//ImGuiを初期化
 	IMGUI_CHECKVERSION();
@@ -208,27 +203,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				ImGui::Render();
 				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 				Direct3D::EndDraw();
-
-				//二つ目のウィンドウ描画
-				XMFLOAT3 cpos = XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z);
-				XMFLOAT3 ctar = XMFLOAT3(50, 0, 50);
-				if (Direct3D::isTwoWindowShadowDraw_) {
-					Camera::SetPosition(cpos);
-					Camera::SetTarget(ctar);
-					Camera::Update();
-				}
-				else {
-					//今のとこ定点だから毎回やる必要もない（変えるかも）
-					Camera::SetPosition2(cpos);
-					Camera::SetTarget2(ctar);
-					Camera::TwoWindowUpdate();
-				}
-				Direct3D::BeginDrawTwo();
-				pRootObject->DrawSub();
-				Direct3D::EndDraw();
-				Camera::SetPosition(pos);
-				Camera::SetTarget(tar);
-				Camera::Update();
 
 				//ちょっと休ませる
 				Sleep(1);

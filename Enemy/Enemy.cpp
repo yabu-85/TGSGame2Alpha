@@ -9,6 +9,7 @@
 #include "../Stage/CollisionMap.h"
 #include "../Player/Player.h"
 #include "../Scene/TestScene.h"
+#include "../UI/HealthGauge.h"
 
 namespace {
     const float gravity = 0.002f;
@@ -22,13 +23,16 @@ namespace {
 }
 
 Enemy::Enemy(GameObject* parent)
-    : GameObject(parent, "Enemy"), hModel_(-1), gravity_(0.0f)
+    : GameObject(parent, "Enemy"), hModel_(-1), gravity_(0.0f), pHealthGauge_(nullptr)
 {
     TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
     pScene->GetEnemyList().push_back(this);
 
     pPlayer = static_cast<Player*>(FindObject("Player"));
     pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
+
+    pHealthGauge_ = new HealthGauge(this);
+
 }
 
 Enemy::~Enemy()
@@ -109,6 +113,9 @@ void Enemy::Draw()
 
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
+
+    pHealthGauge_->Draw();
+
 
     CollisionDraw();
 

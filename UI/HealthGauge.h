@@ -1,8 +1,8 @@
 #pragma once
 #include "../Engine/Transform.h"
-class EnemyBase;
+class GameObject;
 
-class HPGauge
+class HealthGauge
 {
 	enum PNG_INDEX {
 		GAUGE = 0,
@@ -16,19 +16,26 @@ class HPGauge
 	float parcent;			//hpのパーセント
 	bool isDraw_;			//表示するかどうか
 	Transform transform_[2];//HpとHPBack用のTransform
-	EnemyBase* pParent_;	//親
+	GameObject* pParent_;
 
 	//Gaugeの透明度計算する
 	void SetGaugeAlpha(int value);
 
 public:
-	HPGauge(EnemyBase* parent);
-	~HPGauge();
-	void Initialize(float height); //height：Uiの高さ
-	void Draw();
+	HealthGauge(GameObject* parent);
+	virtual ~HealthGauge();
+	virtual void Draw();
+
+	void SetHeight(float h);
 	void SetParcent(float f);
 	void SetIsDraw(bool b);
 	void SetAlphaMax();
 
 };
 
+class BossGauge : public HealthGauge {
+public:
+	BossGauge(GameObject* parent);
+	~BossGauge() override;
+
+};
