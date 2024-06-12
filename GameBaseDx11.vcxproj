@@ -128,7 +128,7 @@
     <ClCompile Include="AI\Node.cpp" />
     <ClCompile Include="AI\RouteSearch.cpp" />
     <ClCompile Include="Character\Character.cpp" />
-    <ClCompile Include="Character\HealthSystem.cpp" />
+    <ClCompile Include="Character\DamageSystem.cpp" />
     <ClCompile Include="Enemy\Enemy.cpp" />
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
@@ -184,7 +184,7 @@
     <ClInclude Include="AI\Node.h" />
     <ClInclude Include="AI\RouteSearch.h" />
     <ClInclude Include="Character\Character.h" />
-    <ClInclude Include="Character\HealthSystem.h" />
+    <ClInclude Include="Character\DamageSystem.h" />
     <ClInclude Include="Enemy\Enemy.h" />
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />

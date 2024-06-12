@@ -116,7 +116,6 @@ void Enemy::Draw()
 
     pHealthGauge_->Draw();
 
-
     CollisionDraw();
 
 }

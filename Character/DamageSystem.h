@@ -4,17 +4,17 @@
 #include <DirectXMath.h>
 
 using namespace DirectX;
-class Character;
+class GameObject;
 
 //ダメージの情報
 struct DamageInfo {
-    Character* owner;   //ダメージを与えるキャラ
+    GameObject* owner;   //ダメージを与えるキャラ
     std::string name;   //攻撃の名前
     int damage;         //ダメージ
 
     DamageInfo() : owner(nullptr), name(""), damage(0) {};
     DamageInfo(int _damage) : owner(nullptr), name(""), damage(_damage) {};
-    DamageInfo(Character* _owner, std::string _name, int _damage) : owner(_owner), name(_name), damage(_damage) {};
+    DamageInfo(GameObject* _owner, std::string _name, int _damage) : owner(_owner), name(_name), damage(_damage) {};
 };
 
 enum class KNOCK_TYPE {
@@ -35,10 +35,17 @@ struct KnockBackInfo {
     KnockBackInfo(KNOCK_TYPE _type, int _time, float _power, XMFLOAT3 _pos) : type(_type), time(_time), power(_power), pos(_pos) {};
 };
 
-class HealthSystem {
+class DamageSystem {
 	int hp_;            //HP
 	int maxHp_;         //最大HP
 	std::vector<DamageInfo> damageInfoList_;    //ダメージを与えられた情報のリスト
+
+    int knockBackTime_;             //ノックバックの時間
+    int knockBackTimeMax_;          //ノックバックの時間保存用
+    XMFLOAT3 knockBackDirection_;   //ノックバックさせる方向
+    KNOCK_TYPE knockType_;          //ノックバックのタイプ
+
+    GameObject* pParent_;           //親
 
 public:
     //DamageInfoを考慮しないApplyDamage関数
@@ -62,20 +69,19 @@ public:
     int GetHP() { return hp_; }
     int GetMaxHP() { return maxHp_; }
 
-
 };
 
 /// <summary>
-/// 複数回攻撃が当たらないようにするクラス、攻撃をするCharacterに持たせて使う
-/// attackListに乗っているCharacterには攻撃が当たらない
+/// 複数回攻撃が当たらないようにするクラス、攻撃をするオブジェクトに持たせて使う
+/// attackListに乗っているオブジェクトには攻撃が当たらない
 /// </summary>
 class DamageController {
     DamageInfo currentDamage;           //今設定されているダメージの情報
     KnockBackInfo currentKnockBack;     //今設定されているノックバックの情報
-    std::vector<Character*> attackList; //攻撃を与えたCharacterのリスト
+    std::vector<GameObject*> attackList;//攻撃を与えたリスト
 
 public:
-    void AddAttackList(Character* chara);       //キャラをリストに登録
+    void AddAttackList(GameObject* obj);        //キャラをリストに登録
     void ResetAttackList();                     //リストリセット
 
     //ダメージ・ノックバックアクセサ
