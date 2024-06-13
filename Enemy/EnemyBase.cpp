@@ -1,4 +1,4 @@
-#include "Enemy.h"
+#include "EnemyBase.h"
 #include "../Stage/Stage.h"
 
 #include "../Engine/Model.h"
@@ -23,8 +23,8 @@ namespace {
     CollisionMap* pCMap = nullptr;
 }
 
-Enemy::Enemy(GameObject* parent)
-    : GameObject(parent, "Enemy"), hModel_(-1), gravity_(0.0f), pHealthGauge_(nullptr)
+EnemyBase::EnemyBase(GameObject* parent)
+    : GameObject(parent, "EnemyBase"), hModel_(-1), gravity_(0.0f), pHealthGauge_(nullptr)
 {
     TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
     pScene->GetEnemyList().push_back(this);
@@ -34,17 +34,17 @@ Enemy::Enemy(GameObject* parent)
 
 }
 
-Enemy::~Enemy()
+EnemyBase::~EnemyBase()
 {
     TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<Enemy*>& list = pScene->GetEnemyList();
-    list.erase(std::remove_if(list.begin(), list.end(), [this](Enemy* enemy) {
-        return enemy == this;
+    std::vector<EnemyBase*>& list = pScene->GetEnemyList();
+    list.erase(std::remove_if(list.begin(), list.end(), [this](EnemyBase* EnemyBase) {
+        return EnemyBase == this;
     }), list.end());
 
 }
 
-void Enemy::Initialize()
+void EnemyBase::Initialize()
 {
     hModel_ = Model::Load("Model/Scarecrow.fbx");
     assert(hModel_ >= 0);
@@ -73,7 +73,7 @@ void Enemy::Initialize()
 
 }
 
-void Enemy::Update()
+void EnemyBase::Update()
 {
     if (transform_.position_.y <= -30.0f) {
         KillMe();
@@ -113,7 +113,7 @@ void Enemy::Update()
     
 }
 
-void Enemy::Draw()
+void EnemyBase::Draw()
 {
     Direct3D::EnemyPosition = transform_.position_;
 
@@ -133,12 +133,12 @@ void Enemy::Draw()
 
 }
 
-void Enemy::Release()
+void EnemyBase::Release()
 {
 }
 
 #include "../AI/RouteSearch.h"
-void Enemy::Move()
+void EnemyBase::Move()
 {
     static const float RayMoveDist = 10.0f;
     static const float RayHeight = 0.5f;
@@ -242,14 +242,14 @@ void Enemy::Move()
     XMStoreFloat3(&transform_.position_, vPos);
 }
 
-void Enemy::CalcDodge(XMVECTOR& move)
+void EnemyBase::CalcDodge(XMVECTOR& move)
 {
     const float safeSize = 1.0f;
     XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
     XMVECTOR vSafeMove = XMVectorZero();
     
     TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<Enemy*> list = pScene->GetEnemyList();
+    std::vector<EnemyBase*> list = pScene->GetEnemyList();
     for (auto& e : list) {
         if (e == this) continue;
         XMFLOAT3 f = e->GetPosition();
@@ -265,12 +265,12 @@ void Enemy::CalcDodge(XMVECTOR& move)
     move += vSafeMove;
 }
 
-void Enemy::ReflectCharacter()
+void EnemyBase::ReflectCharacter()
 {
     float sY = transform_.position_.y;
     TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<Enemy*> list = pScene->GetEnemyList();
-    for (Enemy* c : list) {
+    std::vector<EnemyBase*> list = pScene->GetEnemyList();
+    for (EnemyBase* c : list) {
         //Ž©•ª‚Í”ò‚Î‚·
         if (c == this) continue;
         float oY = c->transform_.position_.y;

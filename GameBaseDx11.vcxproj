@@ -129,7 +129,8 @@
     <ClCompile Include="AI\RouteSearch.cpp" />
     <ClCompile Include="Character\Character.cpp" />
     <ClCompile Include="Character\DamageSystem.cpp" />
-    <ClCompile Include="Enemy\Enemy.cpp" />
+    <ClCompile Include="Enemy\EnemyBase.cpp" />
+    <ClCompile Include="Enemy\EnemyManager.cpp" />
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
     <ClCompile Include="Engine\BoxCollider.cpp" />
@@ -186,7 +187,8 @@
     <ClInclude Include="AI\RouteSearch.h" />
     <ClInclude Include="Character\Character.h" />
     <ClInclude Include="Character\DamageSystem.h" />
-    <ClInclude Include="Enemy\Enemy.h" />
+    <ClInclude Include="Enemy\EnemyBase.h" />
+    <ClInclude Include="Enemy\EnemyManager.h" />
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />
     <ClInclude Include="Engine\BoxCollider.h" />

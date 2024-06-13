@@ -6,7 +6,7 @@
 class HealthGauge;
 class DamageSystem;
 
-class Enemy : public GameObject
+class EnemyBase : public GameObject
 {
     int hModel_;
 
@@ -24,8 +24,8 @@ class Enemy : public GameObject
     DamageSystem* pDamageSystem_;
 
 public:
-    Enemy(GameObject* parent);
-    ~Enemy();
+    EnemyBase(GameObject* parent);
+    ~EnemyBase();
     void Initialize() override;
     void Update() override;
     void Draw() override;
