@@ -31,8 +31,9 @@ void Bullet_Normal::Initialize()
 
     pPolyLine_ = new PolyLine;
     pPolyLine_->Load("PolyImage/BulletLine.png");
-    pPolyLine_->SetLength(5);
+    pPolyLine_->SetLength(3);
     pPolyLine_->SetWidth(0.1f);
+    pPolyLine_->SetMoveAlphaFlag();
 
 }
 
@@ -40,7 +41,6 @@ void Bullet_Normal::Update()
 {
     if (parameter_.killTimer_ <= 0) {
         KillMe();
-        VFXManager::CreateVfxSmoke(hitPos_);
         return;
     }
     parameter_.killTimer_--;
@@ -52,13 +52,14 @@ void Bullet_Normal::Update()
 
 void Bullet_Normal::Draw()
 {
-    pPolyLine_->AddPosition(transform_.position_);
     pPolyLine_->Draw();
 
 }
 
 void Bullet_Normal::Release()
 {
+    SAFE_RELEASE(pPolyLine_);
+    SAFE_DELETE(pPolyLine_);
 }
 
 #include "../Character/DamageSystem.h"
@@ -67,15 +68,6 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
     // 敵に当たったとき
     if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
     {
-        Enemy* pEnemy = dynamic_cast<Enemy*>(pTarget);
-        DamageInfo info = DamageInfo(5);
-        pEnemy->GetDamageSystem()->ApplyDamageDirectly(info);
-        if (pEnemy->GetDamageSystem()->IsDead()) {
-            pEnemy->KillMe();
-        }
-        else {
-            pEnemy->SetDamageTime(1.0f);
-        }
         rayHit_ = true;
     }
 }
@@ -83,7 +75,6 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 void Bullet_Normal::Shot()
 {
     static const float ShotDistance = 30.0f;
-    for(int i = 0;i < 10;i++) pPolyLine_->AddPosition(transform_.position_);
 
     SegmentCollider* collid = new SegmentCollider(XMFLOAT3(), XMVector3Normalize(XMLoadFloat3(&move_)));
     collid->size_ = XMFLOAT3(ShotDistance, ShotDistance, ShotDistance);
@@ -97,37 +88,58 @@ void Bullet_Normal::Shot()
     CollisionMap* cMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
     cMap->RaySelectCellVsSegment(target, &data);
 
-    //ここで死ぬって時間を計算する
-    int newKillTime = (int)(data.dist / CalculationDistance(move_)) + 1;
-    if (data.hit && newKillTime < parameter_.killTimer_) {
-        parameter_.killTimer_ = newKillTime;
-    }
-    hitPos_ = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
-
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
     std::vector<Enemy*> enemyList = scene->GetEnemyList();
     int minIndex = -1;
+    float minDist = 999999;
+    XMFLOAT3 eneHitPos = XMFLOAT3();
 
-    for (Enemy* e : enemyList) {
+    for (int i = 0; i < enemyList.size();i++ ) {
         //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
-        XMFLOAT3 eneHitPos = Float3Add(e->GetPosition(), e->GetAllColliderList().front()->center_);
-        XMFLOAT3 vec = Float3Sub(e->GetPosition(), transform_.position_);
-        vec = Float3Multiply(Float3Normalize(vec), e->GetAllColliderList().front()->size_.x);
-        eneHitPos = Float3Add(eneHitPos, vec);
-        if (CalculationDistance(transform_.position_, eneHitPos) > data.dist) continue;
+        XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), transform_.position_);
+        eneHitPos = Float3Add(data.start, Float3Multiply(data.dir, CalculationDistance(vec)));
+
+        float dist = CalculationDistance(transform_.position_, eneHitPos);
+        if (dist > data.dist) continue;
 
         //壁に当たる距離じゃないから、当たり判定やる
-        this->Collision(e);
+        rayHit_ = false;
+        this->Collision(enemyList[i]);
 
         //当たってたら終了（貫通ならいらない）
-        if (rayHit_) {
-            VFXManager::CreateVfxSmoke(eneHitPos);
-            KillMe();
-            break;
+        if (rayHit_ && dist < minDist) {
+            minDist = dist;
+            minIndex = i;
         }
+    }
+
+    hitPos_ = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+    pPolyLine_->AddPosition(transform_.position_);
+
+    if (minIndex >= 0) {
+        VFXManager::CreateVfxExplode1(eneHitPos);
+        
+        pPolyLine_->AddPosition(eneHitPos);
+        pPolyLine_->AddPosition(eneHitPos);
+
+        DamageInfo info = DamageInfo(5);
+        enemyList[minIndex]->GetDamageSystem()->ApplyDamageDirectly(info);
+        if (enemyList[minIndex]->GetDamageSystem()->IsDead()) {
+            enemyList[minIndex]->KillMe();
+        }
+        else {
+            enemyList[minIndex]->SetDamageTime(1.0f);
+        }
+    }
+    else {
+        VFXManager::CreateVfxExplode1(hitPos_);
+        pPolyLine_->AddPosition(hitPos_);
+        pPolyLine_->AddPosition(hitPos_);
+
     }
 
     //削除状態の時余計な処理しないように削除
     ClearCollider();
+
 
 }

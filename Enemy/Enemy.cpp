@@ -32,13 +32,6 @@ Enemy::Enemy(GameObject* parent)
     pPlayer = static_cast<Player*>(FindObject("Player"));
     pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
 
-    pHealthGauge_ = new HealthGauge(this);
-    pHealthGauge_->SetHeight(1.7f);
-
-    pDamageSystem_ = new DamageSystem();
-    pDamageSystem_->SetMaxHP(100);
-    pDamageSystem_->SetHP(100);
-
 }
 
 Enemy::~Enemy()
@@ -60,6 +53,13 @@ void Enemy::Initialize()
     type_ = ObjectType::Enemy;
     transform_.position_ = start;
     MoveSpeed = 0.075f;
+
+    pHealthGauge_ = new HealthGauge(this);
+    pHealthGauge_->SetHeight(1.7f);
+
+    pDamageSystem_ = new DamageSystem();
+    pDamageSystem_->SetMaxHP(20);
+    pDamageSystem_->SetHP(20);
 
 #if 0
     XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };

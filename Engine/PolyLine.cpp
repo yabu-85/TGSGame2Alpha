@@ -4,6 +4,11 @@
 #include "Direct3D.h"
 #include <vector>
 
+namespace {
+	static const float ALPHA_VALUE = 0.02f;
+
+}
+
 PolyLine::PolyLine() : width_(0.3f), length_(50), alpha_(1.0f), moveAlpha_(false), clear_(false), allClearReset_(false), first_(true),
 	pVertexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr)
 {
@@ -217,7 +222,7 @@ void PolyLine::Draw()
 	Direct3D::SetShader(Direct3D::SHADER_BILLBOARD);
 	Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
 
-	if (moveAlpha_) alpha_ -= 0.005f;
+	if (moveAlpha_) alpha_ -= ALPHA_VALUE;
 	
 	if (clear_) {
 		ClearLastPositions();

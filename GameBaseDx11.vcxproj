@@ -177,6 +177,7 @@
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
     <ClCompile Include="UI\HealthGauge.cpp" />
+    <ClCompile Include="UI\UIManager.cpp" />
     <ClCompile Include="Weapon\Bullet_Normal.cpp" />
     <ClCompile Include="Weapon\Gun.cpp" />
   </ItemGroup>
@@ -237,6 +238,7 @@
     <ClInclude Include="State\StateBase.h" />
     <ClInclude Include="State\StateManager.h" />
     <ClInclude Include="UI\HealthGauge.h" />
+    <ClInclude Include="UI\UIManager.h" />
     <ClInclude Include="Weapon\BulletBase.h" />
     <ClInclude Include="Weapon\Bullet_Normal.h" />
     <ClInclude Include="Weapon\Gun.h" />

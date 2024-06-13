@@ -5,16 +5,17 @@
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
+#include "../Stage/CollisionMap.h"
 
 namespace
 {
-    XMFLOAT3 handOffset = { 0.3f, 0.5f, 0.1f };      // 移動量
-    XMFLOAT3 modelScale = { 0.3f, 0.3f, 0.3f };         // モデルサイズ
-    std::string modelName = "Model/Rifle.fbx";         // モデル名
+    XMFLOAT3 handOffset = { 0.3f, 0.7f, 0.1f };      // 移動量
+    XMFLOAT3 modelScale = { 0.3f, 0.3f, 0.3f };      // モデルサイズ
+    std::string modelName = "Model/Rifle.fbx";       // モデル名
 }
 
 Gun::Gun(GameObject* parent)
-    :GameObject(parent, "Gun"), hModel_(-1), moveDirection_{ 0,0,0 }
+    :GameObject(parent, "Gun"), hModel_(-1)
 {
 }
 
@@ -89,7 +90,6 @@ void Gun::ShootBullet(BulletType type)
     XMFLOAT3 GunTop = Model::GetBonePosition(hModel_, "Top");
     XMFLOAT3 GunRoot = Model::GetBonePosition(hModel_, "Root");
     XMFLOAT3 move = CalculateBulletMovement(GunTop, GunRoot, bulletSpeed);
-    moveDirection_ = move;
 
     pNewBullet->SetPosition(GunTop);
     pNewBullet->SetMove(move);

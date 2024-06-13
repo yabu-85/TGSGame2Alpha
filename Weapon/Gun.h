@@ -15,9 +15,6 @@ struct BulletInfo
 class Gun : public GameObject
 {
     int hModel_;                    // モデル番号
-    XMFLOAT3 moveDirection_;        // 動く方向
-
-    // バレットのリスト
     std::vector<BulletInfo> bulletInfoList_;
 
 public:
@@ -34,7 +31,4 @@ public:
     // 銃弾を生成する
     template<class T>
     void ShootBullet(BulletType type);
-
-    // 移動方向取得
-    XMFLOAT3 GetMoveDirection() const { return moveDirection_; }
 };

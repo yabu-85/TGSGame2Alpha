@@ -42,7 +42,7 @@ void Cell::ResetTriangles()
 bool Cell::SegmentVsFloarTriangle(RayCastData* _data)
 {
 	bool hit = false;
-	float minDist = FBXSDK_FLOAT_MAX;
+	float minDist = 99999.0f;
 
 	for (int i = 0; i < (int)floarTriangles_.size(); i++) {
 		floarTriangles_.at(i).RayCast(_data);
@@ -62,7 +62,7 @@ bool Cell::SegmentVsFloarTriangle(RayCastData* _data)
 bool Cell::SegmentVsWallTriangle(RayCastData* _data)
 {
 	bool hit = false;
-	float minDist = FBXSDK_FLOAT_MAX;
+	float minDist = 99999.0f;
 
 	for (int i = 0; i < (int)wallTriangles_.size(); i++) {
 		wallTriangles_.at(i).RayCast(_data);

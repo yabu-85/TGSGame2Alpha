@@ -11,12 +11,13 @@
 
 namespace {
     static const float UP_MOUSE_LIMIT = -80.0f;                     //回転限界値
-    static const float DOWN_MOUSE_LIMIT = 80.0f;
+    static const float DOWN_MOUSE_LIMIT = 80.0f;                    //回転限界値
     
     static const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
     static const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
     static const float MOUSE_SPEED = 0.15f;                         //感度
+    static const float DISTANCE_HORIZONTAL = 0.4f;                  //どのくらい左右にずらすか
     static const float DISTANCE_BEHIND_DEFAULT = 6.0f;              //どのくらい後ろから移すかのデフォルト値
     static const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
     float HEIGHT_DISTANCE = 1.5f;                                   //Aimの高さ
@@ -81,8 +82,12 @@ void Aim::Draw()
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
         Transform t;
         t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
+        Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
+        Direct3D::SetDepthBafferWriteEnable(false);
         Image::SetTransform(hPict_, t);
         Image::Draw(hPict_);
+        Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
+        Direct3D::SetDepthBafferWriteEnable(true);
     }
 
 }
@@ -142,9 +147,9 @@ void Aim::DefaultAim()
     caDire = XMVector3TransformNormal(rightVector, mRotY);
     XMFLOAT3 camDir = XMFLOAT3();
     XMStoreFloat3(&camDir, caDire);
-    cameraTarget_.x = plaPos.x - (camDir.x * 0.5f);
-    cameraTarget_.y = plaPos.y + 1.0f;
-    cameraTarget_.z = plaPos.z - (camDir.z * 0.5f);
+    cameraTarget_.x = plaPos.x - (camDir.x * DISTANCE_HORIZONTAL);
+    cameraTarget_.y = plaPos.y + HEIGHT_DISTANCE;
+    cameraTarget_.z = plaPos.z - (camDir.z * DISTANCE_HORIZONTAL);
 
     XMVECTOR caTarget = XMLoadFloat3(&cameraTarget_);
     XMVECTOR forwardV = XMVector3TransformNormal(forwardVector, mView);

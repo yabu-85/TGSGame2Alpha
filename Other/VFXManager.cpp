@@ -21,7 +21,7 @@ void VFXManager::Initialize()
 	sparks.number = 12;
 	sparks.lifeTime = 50;
 	sparks.directionRnd = XMFLOAT3(90.0f, 90.0f, 90.0f);
-	sparks.speed = 0.2f;
+	sparks.speed = 0.1f;
 	sparks.speedRnd = 1.0f;
 	sparks.accel = 0.9f;
 	sparks.size = XMFLOAT2(0.1f, 0.1f);
@@ -40,7 +40,7 @@ void VFXManager::Initialize()
 	explode.positionRnd = XMFLOAT3(0.5f, 0.0f, 0.5f);
 	explode.direction = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	explode.directionRnd = XMFLOAT3(90.0f, 90.0f, 90.0f);
-	explode.speed = 0.1f;
+	explode.speed = 0.07f;
 	explode.speedRnd = 0.8f;
 	explode.size = XMFLOAT2(0.4f, 0.4f);
 	explode.sizeRnd = XMFLOAT2(0.1f, 0.1f);

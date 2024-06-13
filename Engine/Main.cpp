@@ -59,11 +59,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");			//スクリーンの幅
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
-#if _DEBUG
-
-#endif
+#if 0 //_DEBUG
 	screenWidth = 500;
 	screenHeight = 440;
+#endif
 
 	//ウィンドウを作成
 	HWND hWnd = InitApp(hInstance, screenWidth, screenHeight, nCmdShow);
@@ -197,11 +196,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 					if (Direct3D::playerClimb) ImGui::Text("Player Climb : true");
 					else ImGui::Text("Player Climb : false");
-
 				}
 				ImGui::End();//ImGuiの処理を終了
 				ImGui::Render();
 				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 				Direct3D::EndDraw();
 
 				//ちょっと休ませる
