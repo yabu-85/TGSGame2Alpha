@@ -1,6 +1,7 @@
 #include "EnemyBase.h"
-#include "../Stage/Stage.h"
+#include "EnemyManager.h"
 
+#include "../Stage/Stage.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 #include "../Engine/CapsuleCollider.h"
@@ -8,7 +9,6 @@
 #include "../Engine/Direct3D.h"
 #include "../Stage/CollisionMap.h"
 #include "../Player/Player.h"
-#include "../Scene/TestScene.h"
 #include "../UI/HealthGauge.h"
 #include "../Character/DamageSystem.h"
 
@@ -26,9 +26,6 @@ namespace {
 EnemyBase::EnemyBase(GameObject* parent)
     : GameObject(parent, "EnemyBase"), hModel_(-1), gravity_(0.0f), pHealthGauge_(nullptr)
 {
-    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    pScene->GetEnemyList().push_back(this);
-
     pPlayer = static_cast<Player*>(FindObject("Player"));
     pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
 
@@ -36,8 +33,7 @@ EnemyBase::EnemyBase(GameObject* parent)
 
 EnemyBase::~EnemyBase()
 {
-    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<EnemyBase*>& list = pScene->GetEnemyList();
+    std::vector<EnemyBase*>& list = EnemyManager::GetAllEnemy();
     list.erase(std::remove_if(list.begin(), list.end(), [this](EnemyBase* EnemyBase) {
         return EnemyBase == this;
     }), list.end());
@@ -248,8 +244,7 @@ void EnemyBase::CalcDodge(XMVECTOR& move)
     XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
     XMVECTOR vSafeMove = XMVectorZero();
     
-    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<EnemyBase*> list = pScene->GetEnemyList();
+    std::vector<EnemyBase*>& list = EnemyManager::GetAllEnemy();
     for (auto& e : list) {
         if (e == this) continue;
         XMFLOAT3 f = e->GetPosition();
@@ -268,8 +263,7 @@ void EnemyBase::CalcDodge(XMVECTOR& move)
 void EnemyBase::ReflectCharacter()
 {
     float sY = transform_.position_.y;
-    TestScene* pScene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<EnemyBase*> list = pScene->GetEnemyList();
+    std::vector<EnemyBase*>& list = EnemyManager::GetAllEnemy();
     for (EnemyBase* c : list) {
         //Ž©•ª‚Í”ò‚Î‚·
         if (c == this) continue;

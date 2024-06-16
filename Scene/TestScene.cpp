@@ -1,13 +1,15 @@
 #include "TestScene.h"
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
-#include "../Enemy/Enemy.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
 #include "../Engine/Light.h"
 #include "../Engine/Direct3D.h"
 #include "../AI/RouteSearch.h"
+
+#include "../Enemy/EnemyBase.h"
+#include "../Enemy/EnemyManager.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -21,10 +23,8 @@ void TestScene::Initialize()
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
 
-	int count = 0;
-	for(int i = 0;i < count;i++) Instantiate<Enemy>(this);
-
 	RouteSearch::InitializeList();
+	EnemyManager::SetParent(this);
 
 	Model::Load("Model/Bullet.fbx");
 
@@ -33,13 +33,10 @@ void TestScene::Initialize()
 //更新
 void TestScene::Update()
 {
-	if (Input::IsKey(DIK_F1)) Instantiate<Enemy>(this);
-	if (Input::IsKeyDown(DIK_F2)) {
-		Enemy* e = static_cast<Enemy*>(FindObject("Enemy"));
-		if(e) e->KillMe();
-	}
+	if (Input::IsKey(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);
+	if (Input::IsKeyDown(DIK_F2)) EnemyManager::KillEnemy(static_cast<EnemyBase*>(FindObject("EnemyBase")));
 	if (Input::IsKeyDown(DIK_F3)) {
-		OutputDebugStringA(std::to_string(enemyList_.size()).c_str());
+		OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
 		OutputDebugString("\n");
 	}
 

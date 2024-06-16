@@ -5,9 +5,11 @@
 
 class HealthGauge;
 class DamageSystem;
+enum ENEMY_TYPE;
 
 class EnemyBase : public GameObject
 {
+    ENEMY_TYPE enemyType_;
     int hModel_;
 
     float MoveSpeed = 0.0f;
@@ -35,6 +37,7 @@ public:
     void CalcDodge(XMVECTOR& move);
     void ReflectCharacter();
 
+    void SetEnemyType(ENEMY_TYPE type) { enemyType_ = type; }
     void SetDamageTime(float t) { damageTime = t; }
     DamageSystem* GetDamageSystem() { return pDamageSystem_; }
 

@@ -4,7 +4,7 @@
 #include "../Engine/SphereCollider.h"
 #include "../Engine/SegmentCollider.h"
 #include "../Engine/PolyLine.h"
-#include "../Enemy/Enemy.h"
+#include "../Enemy/EnemyBase.h"
 #include "../Scene/TestScene.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/VFXManager.h"
@@ -63,6 +63,7 @@ void Bullet_Normal::Release()
 }
 
 #include "../Character/DamageSystem.h"
+#include "../Enemy/EnemyManager.h"
 void Bullet_Normal::OnCollision(GameObject* pTarget)
 {
     // “G‚É“–‚½‚Á‚½‚Æ‚«
@@ -88,8 +89,7 @@ void Bullet_Normal::Shot()
     CollisionMap* cMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
     cMap->RaySelectCellVsSegment(target, &data);
 
-    TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
-    std::vector<Enemy*> enemyList = scene->GetEnemyList();
+    std::vector<EnemyBase*>& enemyList = EnemyManager::GetAllEnemy();
     int minIndex = -1;
     float minDist = 999999;
     XMFLOAT3 eneHitPos = XMFLOAT3();
