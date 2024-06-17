@@ -4,6 +4,7 @@
 #include "../Stage/Stage.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
+#include "../Engine/Input.h"
 #include "../Engine/CapsuleCollider.h"
 #include "../Engine/SphereCollider.h"
 #include "../Engine/Direct3D.h"
@@ -59,7 +60,7 @@ void EnemyBase::Initialize()
 
 #if 1
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
-    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4, vec);
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4f, vec);
     collid->typeList_.push_back(ObjectType::Stage);
     AddCollider(collid);
 #else
@@ -72,7 +73,7 @@ void EnemyBase::Initialize()
 
 void EnemyBase::Update()
 {
-    return;
+    if(!Input::IsMouseButton(1)) return;
 
     if (transform_.position_.y <= -30.0f) {
         KillMe();

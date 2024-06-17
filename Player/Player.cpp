@@ -82,6 +82,7 @@ void Player::Initialize()
 
 void Player::Update()
 {
+    //デバッグ用
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = start;
     if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
     if (isCreative_) {
@@ -90,7 +91,9 @@ void Player::Update()
         if (InputManager::CmdWalk()) CalcMove();
         else CalcNoMove();
         Move();
-        Rotate();
+
+        XMFLOAT3 targetRot = Float3Add(transform_.position_, pAim_->GetAimDirection());
+        TargetRotate(targetRot, 1.0f);
 
         moveSpeed_ = Direct3D::playerSpeed;
         Direct3D::PlayerPosition = transform_.position_;
@@ -108,19 +111,17 @@ void Player::Update()
         }
 
         //重力処理
-        if (!IsClimb()) {
-            gravity_ += WorldGravity;
-            transform_.position_.y -= gravity_;
-        }
+        gravity_ += WorldGravity;
+        transform_.position_.y -= gravity_;
 
-        StageFloarBounce(0.0f, 1.0f);
-        if (isFly_) StageFloarBounce();
-
+        //床との当たり判定、貫通対策で２回違う場所で計算
+        StageFloarBounce(0.0f, -1.0f);
+        StageFloarBounce();
     }
-    else {
-        //この値より地面と離れると浮いていると判定される
-        isFly_ = true;
-        StageFloarBounce(1.0f);
+    else if(!isClimb_) {
+        //床との当たり判定、許容値より床と離れていたら空中
+        isFly_ = true; 
+        StageFloarBounce(0.2f);
     }
 
     pStateManager_->Update();
@@ -133,45 +134,6 @@ void Player::Update()
     Direct3D::PlayerPosition = transform_.position_;
     Direct3D::playerClimb = isClimb_;
     Direct3D::playerFaly = isFly_;
-
-    //カプセル
-#if 0
-    if (!GetAllColliderList().empty()) {
-        CapsuleCollider* pCollid = static_cast<CapsuleCollider*>(GetAllColliderList().front());
-        if (pCollid) return;
-       
-        if (Input::IsKey(DIK_NUMPAD7)) {
-            XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
-            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-            pCollid->direction_ = rotatedDirection;
-        }
-        if (Input::IsKey(DIK_NUMPAD8)) {
-            XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(-1.0f));
-            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-            pCollid->direction_ = rotatedDirection;
-        }
-        if (Input::IsKey(DIK_NUMPAD4)) {
-            XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(1.0f));
-            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-            pCollid->direction_ = rotatedDirection;
-        }
-        if (Input::IsKey(DIK_NUMPAD5)) {
-            XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(-1.0f));
-            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-            pCollid->direction_ = rotatedDirection;
-        }
-        if (Input::IsKey(DIK_NUMPAD1)) {
-            XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(1.0f));
-            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-            pCollid->direction_ = rotatedDirection;
-        }
-        if (Input::IsKey(DIK_NUMPAD2)) {
-            XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(-1.0f));
-            XMVECTOR rotatedDirection = XMVector3Transform(pCollid->direction_, rotationMatrix);
-            pCollid->direction_ = rotatedDirection;
-        }
-    }
-#endif
 
 }
 
@@ -292,7 +254,7 @@ void Player::StageFloarBounce(float perDist, float calcHeight)
     RayCastData rayData = RayCastData();
     rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
     rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-    XMFLOAT3 pos = XMFLOAT3(transform_.position_.x, transform_.position_.y + +calcHeight, transform_.position_.z);
+    XMFLOAT3 pos = XMFLOAT3(transform_.position_.x, transform_.position_.y + calcHeight, transform_.position_.z);
     pCMap->CellFloarRayCast(pos, &rayData);
     if (rayData.hit && rayData.dist <= PlayerHeightSize + perDist) {
         transform_.position_.y += PlayerHeightSize - rayData.dist;
@@ -366,6 +328,7 @@ void Player::CheckWallClimb()
         if (rayData.hit && rayData.dist <= climbedDistance) {
             XMFLOAT3 nPos = rayData.start;
             nPos.y -= rayData.dist;
+            isFly_ = false;
             isClimb_ = true;
             climbPos_ = nPos;
             gravity_= 0.0f;

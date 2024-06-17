@@ -291,9 +291,6 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle,
 //-------------------------------------------------------------------------------------------
 
 bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider* capsule2) {
-    XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
-    float t1 = 0.0f,t2 = 0.0f;
-
     XMFLOAT3 capPos1 = Transform::Float3Add(capsule1->pGameObject_->GetWorldPosition(), capsule1->center_);
     XMFLOAT3 capPos2 = Transform::Float3Add(capsule2->pGameObject_->GetWorldPosition(), capsule2->center_);
     XMVECTOR dir1 = XMVector3Normalize(capsule1->direction_);
@@ -308,19 +305,20 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
 
     Segment seg1 = Segment(capPos1, dir1);
     Segment seg2 = Segment(capPos2, dir2);
+    XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
+    float t1 = 0.0f, t2 = 0.0f;
 
     float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
     bool out = (d <= capsule1->size_.x + capsule2->size_.x);
     capsule1->targetDit_ = d;
+    capsule1->targetPos_ = p1;
     capsule2->targetDit_ = d;
+    capsule2->targetPos_ = p2;
     return out;
 }
 
 bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg)
 {
-    XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
-    float t1 = 0.0f, t2 = 0.0f;
-
     XMFLOAT3 capPos1 = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
     XMFLOAT3 capPos2 = Transform::Float3Add(seg->pGameObject_->GetWorldPosition(), seg->center_);
     XMVECTOR dir1 = XMVector3Normalize(capsule->direction_);
@@ -335,9 +333,16 @@ bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* 
 
     Segment seg1 = Segment(capPos1, dir1);
     Segment seg2 = Segment(capPos2, dir2);
+    XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
+    float t1 = 0.0f, t2 = 0.0f;
 
     float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
     bool out = (d <= capsule->size_.x);
+    capsule->targetDit_ = d;
+    capsule->targetPos_ = p1;
+    seg->targetDit_ = d;
+    seg->targetPos_ = p2;
+
     return out;
 }
 
