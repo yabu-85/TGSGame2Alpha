@@ -33,7 +33,7 @@ void TestScene::Initialize()
 //çXêV
 void TestScene::Update()
 {
-	if (Input::IsKey(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);
+	if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);
 	if (Input::IsKeyDown(DIK_F2)) EnemyManager::KillEnemy(static_cast<EnemyBase*>(FindObject("EnemyBase")));
 	if (Input::IsKeyDown(DIK_F3)) {
 		OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());

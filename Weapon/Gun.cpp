@@ -1,5 +1,6 @@
 #include "Gun.h"
 #include "Bullet_Normal.h"
+#include "../Engine/Global.h"
 #include "../Engine/Model.h"
 #include "../Engine/Direct3D.h"
 #include "../Player/Player.h"
@@ -90,6 +91,7 @@ void Gun::ShootBullet(BulletType type)
     XMFLOAT3 GunTop = Model::GetBonePosition(hModel_, "Top");
     XMFLOAT3 GunRoot = Model::GetBonePosition(hModel_, "Root");
     XMFLOAT3 move = CalculateBulletMovement(GunTop, GunRoot, bulletSpeed);
+    move = Float3Normalize(move);
 
     pNewBullet->SetPosition(GunTop);
     pNewBullet->SetMove(move);

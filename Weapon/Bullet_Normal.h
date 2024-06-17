@@ -8,7 +8,6 @@ class Bullet_Normal : public BulletBase
 {
     bool rayHit_;
     PolyLine* pPolyLine_;
-    XMFLOAT3 hitPos_;
 
 public:
     Bullet_Normal(GameObject* parent);

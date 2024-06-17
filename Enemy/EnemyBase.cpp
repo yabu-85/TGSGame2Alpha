@@ -57,9 +57,10 @@ void EnemyBase::Initialize()
     pDamageSystem_->SetMaxHP(20);
     pDamageSystem_->SetHP(20);
 
-#if 0
-    XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(), 0.5f, 1.5, vec);
+#if 1
+    XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4, vec);
+    collid->typeList_.push_back(ObjectType::Stage);
     AddCollider(collid);
 #else
     SphereCollider* collid = new SphereCollider(XMFLOAT3(0.0f, 0.7f, 0.0f), 0.5f);
@@ -71,6 +72,8 @@ void EnemyBase::Initialize()
 
 void EnemyBase::Update()
 {
+    return;
+
     if (transform_.position_.y <= -30.0f) {
         KillMe();
         return;

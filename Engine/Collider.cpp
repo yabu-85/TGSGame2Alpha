@@ -53,6 +53,7 @@ bool IsSharpAngle(XMFLOAT3& p1, XMFLOAT3& p2, XMFLOAT3& p3);
 float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t);
 float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
 float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
+float CalcPointLineDist(XMFLOAT3& p, Line& l, XMFLOAT3& h, float& t);
 
 //コンストラクタ
 Collider::Collider():
@@ -317,14 +318,27 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
 
 bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg)
 {
-    XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
-    Segment segment = Segment(Transform::Float3Add(seg->pGameObject_->GetWorldPosition(), seg->center_), seg->vec_);
+    XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
+    float t1 = 0.0f, t2 = 0.0f;
 
-    XMFLOAT3 hit = XMFLOAT3();
-    float t = 0.0f;
-    float dist = CalcPointSegmentDist(capPos, segment, hit, t);
-    
-    return (dist < capsule->size_.x);
+    XMFLOAT3 capPos1 = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
+    XMFLOAT3 capPos2 = Transform::Float3Add(seg->pGameObject_->GetWorldPosition(), seg->center_);
+    XMVECTOR dir1 = XMVector3Normalize(capsule->direction_);
+    XMVECTOR dir2 = seg->vec_;
+    dir1 *= capsule->height_;
+    dir2 *= seg->size_.x;
+
+    XMVECTOR vPos1 = XMLoadFloat3(&capPos1) - dir1 * 0.5f;
+    XMVECTOR vPos2 = XMLoadFloat3(&capPos2) - dir2 * 0.5f;
+    XMStoreFloat3(&capPos1, vPos1);
+    XMStoreFloat3(&capPos2, vPos2);
+
+    Segment seg1 = Segment(capPos1, dir1);
+    Segment seg2 = Segment(capPos2, dir2);
+
+    float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
+    bool out = (d <= capsule->size_.x);
+    return out;
 }
 
 //ーーーーーーーーーーーーーーーーーーーーー球とTriangleに使うーーーーーーーーーーーーーーーーーーーーーー

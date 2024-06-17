@@ -179,9 +179,6 @@
     <ClCompile Include="Engine\CapsuleCollider.cpp">
       <Filter>01Engine\Collider</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy\Enemy.cpp">
-      <Filter>04Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="Stage\Cell.cpp">
       <Filter>06Stage</Filter>
     </ClCompile>
@@ -232,6 +229,15 @@
     </ClCompile>
     <ClCompile Include="Other\VFXManager.cpp">
       <Filter>11Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy\EnemyBase.cpp">
+      <Filter>04Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy\EnemyManager.cpp">
+      <Filter>04Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIManager.cpp">
+      <Filter>10UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -352,9 +358,6 @@
     <ClInclude Include="Engine\CapsuleCollider.h">
       <Filter>01Engine\Collider</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy\Enemy.h">
-      <Filter>04Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="Stage\Cell.h">
       <Filter>06Stage</Filter>
     </ClInclude>
@@ -411,6 +414,15 @@
     </ClInclude>
     <ClInclude Include="Other\VFXManager.h">
       <Filter>11Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy\EnemyBase.h">
+      <Filter>04Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy\EnemyManager.h">
+      <Filter>04Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIManager.h">
+      <Filter>10UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

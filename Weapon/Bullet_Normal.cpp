@@ -8,6 +8,14 @@
 #include "../Scene/TestScene.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/VFXManager.h"
+#include "../Character/DamageSystem.h"
+#include "../Enemy/EnemyManager.h"
+
+namespace {
+    //当たり判定距離
+    static const float ShotDistance = 30.0f;
+
+}
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
     : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), rayHit_(false), pPolyLine_(nullptr)
@@ -45,9 +53,6 @@ void Bullet_Normal::Update()
     }
     parameter_.killTimer_--;
 
-    //座標計算
-    transform_.position_ = Float3Add(transform_.position_, move_);
-
 }
 
 void Bullet_Normal::Draw()
@@ -62,8 +67,6 @@ void Bullet_Normal::Release()
     SAFE_DELETE(pPolyLine_);
 }
 
-#include "../Character/DamageSystem.h"
-#include "../Enemy/EnemyManager.h"
 void Bullet_Normal::OnCollision(GameObject* pTarget)
 {
     // 敵に当たったとき
@@ -75,52 +78,58 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 
 void Bullet_Normal::Shot()
 {
-    static const float ShotDistance = 30.0f;
-
-    SegmentCollider* collid = new SegmentCollider(XMFLOAT3(), XMVector3Normalize(XMLoadFloat3(&move_)));
+    //コライダー登録
+    SegmentCollider* collid = new SegmentCollider(XMFLOAT3(), XMLoadFloat3(&move_));
     collid->size_ = XMFLOAT3(ShotDistance, ShotDistance, ShotDistance);
     collid->typeList_.push_back(ObjectType::Enemy);
     AddCollider(collid);
 
+    //コリジョンマップとRayCastで最短距離計算
     RayCastData data;
     data.start = transform_.position_;
-    data.dir = Float3Normalize(move_);
-    XMFLOAT3 target = Float3Add(transform_.position_, Float3Multiply(Float3Normalize(move_), ShotDistance));
+    data.dir = move_;
+    XMFLOAT3 target = Float3Add(transform_.position_, Float3Multiply(move_, ShotDistance));
     CollisionMap* cMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
     cMap->RaySelectCellVsSegment(target, &data);
 
     std::vector<EnemyBase*>& enemyList = EnemyManager::GetAllEnemy();
     int minIndex = -1;
     float minDist = 999999;
-    XMFLOAT3 eneHitPos = XMFLOAT3();
+    XMFLOAT3 minEneHitPos = XMFLOAT3();
 
     for (int i = 0; i < enemyList.size();i++ ) {
-        //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
-        XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), transform_.position_);
-        eneHitPos = Float3Add(data.start, Float3Multiply(data.dir, CalculationDistance(vec)));
 
-        float dist = CalculationDistance(transform_.position_, eneHitPos);
-        if (dist > data.dist) continue;
+        //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
+        float PEdist = CalculationDistance(enemyList[i]->GetPosition(), transform_.position_);
+        float CoDist = 0.0f;
+        
+        //Sphereコライダー
+        XMFLOAT3 hitPos = Float3Add(data.start, Float3Multiply(data.dir, PEdist));
+        CoDist = CalculationDistance(transform_.position_, hitPos);
+        if (CoDist > data.dist) continue;
+        
+        //Capsuleコライダー
+
+
 
         //壁に当たる距離じゃないから、当たり判定やる
         rayHit_ = false;
         this->Collision(enemyList[i]);
 
         //当たってたら終了（貫通ならいらない）
-        if (rayHit_ && dist < minDist) {
-            minDist = dist;
+        if (rayHit_ && CoDist < minDist) {
+            minDist = CoDist;
             minIndex = i;
         }
     }
 
-    hitPos_ = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
     pPolyLine_->AddPosition(transform_.position_);
 
     if (minIndex >= 0) {
-        VFXManager::CreateVfxExplode1(eneHitPos);
+        VFXManager::CreateVfxExplode1(minEneHitPos);
         
-        pPolyLine_->AddPosition(eneHitPos);
-        pPolyLine_->AddPosition(eneHitPos);
+        pPolyLine_->AddPosition(minEneHitPos);
+        pPolyLine_->AddPosition(minEneHitPos);
 
         DamageInfo info = DamageInfo(5);
         enemyList[minIndex]->GetDamageSystem()->ApplyDamageDirectly(info);
@@ -132,6 +141,7 @@ void Bullet_Normal::Shot()
         }
     }
     else {
+        XMFLOAT3 hitPos_ = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
         VFXManager::CreateVfxExplode1(hitPos_);
         pPolyLine_->AddPosition(hitPos_);
         pPolyLine_->AddPosition(hitPos_);
