@@ -8,6 +8,15 @@
 #include "../Other/InputManager.h"
 #include "../Stage/CollisionMap.h"
 
+//リロード
+//反動
+//覗き込み
+//覗き込みスナイパーの場合一人称に
+
+//フォートナイトとRemnant2を合わせた感じにする
+//HPGauge・銃弾数（5/30）・シールドかスタミナ・アイテム
+//その他の情報表示
+
 namespace
 {
     XMFLOAT3 handOffset = { 0.3f, 0.7f, 0.1f };      // 移動量

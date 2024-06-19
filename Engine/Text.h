@@ -3,11 +3,12 @@
 
 class Text
 {
-	int hPict_;
+	int hPict_;						//画像ハンドル
+	int	alpha;						//アルファ
 
 	unsigned int width_, height_;	//1文字分の幅と高さ
+	unsigned int rowLength_;		
 	char fileName_[MAX_PATH];
-	unsigned int rowLength_;
 
 public:
 	Text();
@@ -25,7 +26,6 @@ public:
 	//戻値：成功／失敗
 	HRESULT Initialize(const char* fileName, const unsigned int charWidth, const unsigned int charHeight, const unsigned int rowLength);
 
-
 	//描画（文字列）
 	//引数：x, y	表示位置（左上）
 	//引数：str		表示したい文字列
@@ -35,6 +35,9 @@ public:
 	//引数：x, y	表示位置（左上）
 	//引数：value	表示したい値
 	void Draw(int x, int y, int value);
+
+	//アルファ値を設定（不透明度）　0～255で指定
+	void SetAlpha(int _alpha);
 
 	//解放
 	void Release();

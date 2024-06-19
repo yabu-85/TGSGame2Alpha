@@ -24,6 +24,8 @@ namespace InputManager {
 		CMD_MAX,
 	};
 
+	void Initialize();
+
 	//KeyConfigデータをデフォルトの状態に戻す
 	void SetDefaultKeyConfig();
 

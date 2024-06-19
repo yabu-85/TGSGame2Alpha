@@ -18,6 +18,12 @@ namespace InputManager {
 	};
 }
 
+void InputManager::Initialize()
+{
+	SetDefaultKeyConfig();
+
+}
+
 void InputManager::SetDefaultKeyConfig()
 {
 	//DEFAULT_COMMANDÇ…ê›íË

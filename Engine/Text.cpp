@@ -68,6 +68,9 @@ void Text::Draw(int x, int y, const char* str)
 		//•\¦‚·‚é”ÍˆÍ
 		Image::SetRect(hPict_, width_ * x, height_ * y, width_, height_);
 		
+		//“§–¾“xİ’è
+		Image::SetAlpha(hPict_, alpha);
+
 		//•\¦
 		Image::Draw(hPict_);
 
@@ -84,6 +87,11 @@ void Text::Draw(int x, int y, int value)
 	sprintf_s(str, "%d", value);
 
 	Draw(x, y, str);
+}
+
+void Text::SetAlpha(int _alpha)
+{
+	alpha = _alpha;
 }
 
 //‰ğ•ú

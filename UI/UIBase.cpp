@@ -16,11 +16,9 @@ void UIBase::Draw()
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
 	//押してない時はfalse(0)だから１が表示される
-	Image::SetTransform(hButtonPict_[isBound_], buttonTransform_);
 	Image::Draw(hButtonPict_[isBound_]);
 
 	//テキストの表示
-	Image::SetTransform(hImagePict_, imageTransform_);
 	Image::Draw(hImagePict_);
 }
 
@@ -39,6 +37,7 @@ void UIBase::Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::func
 		hButtonPict_[i] = Image::Load(fileName[i]);
 		assert(hButtonPict_[i] >= 0);
 	}
+
 	hImagePict_ = Image::Load("Image/" + name + ".png");
 	assert(hImagePict_ >= 0);
 
@@ -49,9 +48,12 @@ void UIBase::Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::func
 	buttonTransform_.scale_ = XMFLOAT3(size.x, size.y, 1.0f);
 	buttonTransform_.position_.x = pos.x;
 	buttonTransform_.position_.y = pos.y;
+	Image::SetTransform(hButtonPict_[0], buttonTransform_);
+	Image::SetTransform(hButtonPict_[1], buttonTransform_);
 
 	imageTransform_.scale_ = XMFLOAT3(tsize.x, tsize.y, 1.0f);
 	imageTransform_.position_ = buttonTransform_.position_;
+	Image::SetTransform(hImagePict_, imageTransform_);
 
 	//継承先クラスのInitialize
 	Initialize();

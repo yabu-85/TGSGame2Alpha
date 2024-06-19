@@ -11,21 +11,20 @@ enum class BulletType
 // 銃弾の基底クラス
 class BulletBase : public GameObject
 {
-private:
     BulletType bulletType_;
     // バレットの共通パラメータ
     struct BulletParameter
     {
-        float damage_;          // ダメージ
-        int shotCoolTime_;      // クールタイム
-        float speed_;           // スピード
-        int killTimer_;         // 消失時間
-        float collisionScale_;  // 当たり判定のサイズ
-        int isPenetration_;     // 貫通   あり:1 なし:0
+        int damage_;            //ダメージ
+        int shotCoolTime_;      //クールタイム
+        float speed_;           //スピード
+        int killTimer_;         //消失時間
+        float collisionScale_;  //当たり判定のサイズ
+        int isPenetration_;     //貫通   あり:1 なし:0
     };
 protected:
-    BulletParameter parameter_; // パラメータ
-    XMFLOAT3 move_;             // 移動の速度と方向
+    BulletParameter parameter_; //パラメータ
+    XMFLOAT3 move_;             //移動の速度と方向
 
 public:
     BulletBase(GameObject* parent, BulletType bulletType, std::string name)

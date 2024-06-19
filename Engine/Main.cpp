@@ -17,6 +17,7 @@
 #include "../Other/InputManager.h"
 #include "../Other/VFXManager.h"
 #include "../UI/ScreenManager.h"
+#include "../UI/DamageUI.h"
 
 //ImGui関連のデータ
 #include "ImGui/imgui.h"
@@ -88,10 +89,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//入力処理（キーボード、マウス、コントローラー）の準備
 	Input::Initialize(hWnd);
 
-	InputManager::SetDefaultKeyConfig();
+	InputManager::Initialize();
 	Audio::Initialize();
 	VFXManager::Initialize();
 	Light::Initialize();
+	DamageUI::Initialize();
 
 	//ルートオブジェクト準備
 	//すべてのゲームオブジェクトの親となるオブジェクト
@@ -145,6 +147,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Input::Update();
 				Camera::Update();
 				VFX::Update();
+				DamageUI::Update();
 				ScreenManager::Update();
 				pRootObject->UpdateSub();
 
@@ -167,6 +170,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
 				VFX::Draw();
+				DamageUI::Draw();
 				ScreenManager::Draw();
 
 				//ImGuiの更新処理

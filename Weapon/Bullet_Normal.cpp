@@ -8,6 +8,7 @@
 #include "../Other/VFXManager.h"
 #include "../Character/DamageSystem.h"
 #include "../Enemy/EnemyManager.h"
+#include "../UI/DamageUI.h"
 
 namespace {
     //当たり判定距離
@@ -19,7 +20,7 @@ Bullet_Normal::Bullet_Normal(GameObject* parent)
     : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), rayHit_(false), pPolyLine_(nullptr)
 {
     // パラメータを取得
-    parameter_.damage_ = 1;
+    parameter_.damage_ = 5;
     parameter_.shotCoolTime_ = 3;
     parameter_.speed_ = 4.0f;
     parameter_.killTimer_ = 30;
@@ -122,10 +123,14 @@ void Bullet_Normal::Shot()
         pPolyLine_->AddPosition(minEneHitPos);
 
         //ダメージ与える（HP０以下なら倒すのここでやっとく
-        DamageInfo info = DamageInfo(5);
+        DamageInfo info = DamageInfo(parameter_.damage_);
         enemyList[minIndex]->GetDamageSystem()->ApplyDamageDirectly(info);
         if (enemyList[minIndex]->GetDamageSystem()->IsDead()) enemyList[minIndex]->KillMe();
         enemyList[minIndex]->SetDamageTime(1.0f);
+
+        //ダメージ表示
+        DamageUI::AddDamage(minEneHitPos, parameter_.damage_);
+
     }
     //敵に当たらなかった時の処理
     else {
