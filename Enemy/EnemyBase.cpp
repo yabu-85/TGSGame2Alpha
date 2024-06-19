@@ -1,5 +1,6 @@
 #include "EnemyBase.h"
 #include "EnemyManager.h"
+#include "HealthGauge.h"
 
 #include "../Stage/Stage.h"
 #include "../Engine/Model.h"
@@ -10,7 +11,6 @@
 #include "../Engine/Direct3D.h"
 #include "../Stage/CollisionMap.h"
 #include "../Player/Player.h"
-#include "../UI/HealthGauge.h"
 #include "../Character/DamageSystem.h"
 
 namespace {
