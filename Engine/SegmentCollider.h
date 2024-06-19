@@ -24,4 +24,7 @@ public:
 	SegmentCollider(XMFLOAT3 center, XMVECTOR vec);
 	void SetVector(XMVECTOR _vec);
 
+	float targetDit_;		//“–‚½‚Á‚½‹——£•Û‘¶—p
+	XMFLOAT3 targetPos_;		//“–‚½‚Á‚½êŠ•Û‘¶—p
+
 };

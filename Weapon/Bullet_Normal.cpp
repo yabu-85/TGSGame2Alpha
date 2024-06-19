@@ -1,11 +1,9 @@
 #include "Bullet_Normal.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
-#include "../Engine/SphereCollider.h"
 #include "../Engine/SegmentCollider.h"
 #include "../Engine/PolyLine.h"
 #include "../Enemy/EnemyBase.h"
-#include "../Scene/TestScene.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/VFXManager.h"
 #include "../Character/DamageSystem.h"
@@ -13,7 +11,7 @@
 
 namespace {
     //当たり判定距離
-    static const float ShotDistance = 30.0f;
+    static const float CALC_DISTANCE = 30.0f;
 
 }
 
@@ -47,18 +45,16 @@ void Bullet_Normal::Initialize()
 
 void Bullet_Normal::Update()
 {
+    parameter_.killTimer_--;
     if (parameter_.killTimer_ <= 0) {
         KillMe();
-        return;
     }
-    parameter_.killTimer_--;
 
 }
 
 void Bullet_Normal::Draw()
 {
     pPolyLine_->Draw();
-
 }
 
 void Bullet_Normal::Release()
@@ -80,7 +76,7 @@ void Bullet_Normal::Shot()
 {
     //コライダー登録
     SegmentCollider* collid = new SegmentCollider(XMFLOAT3(), XMLoadFloat3(&move_));
-    collid->size_ = XMFLOAT3(ShotDistance, ShotDistance, ShotDistance);
+    collid->size_ = XMFLOAT3(CALC_DISTANCE, CALC_DISTANCE, CALC_DISTANCE);
     collid->typeList_.push_back(ObjectType::Enemy);
     AddCollider(collid);
 
@@ -88,68 +84,62 @@ void Bullet_Normal::Shot()
     RayCastData data;
     data.start = transform_.position_;
     data.dir = move_;
-    XMFLOAT3 target = Float3Add(transform_.position_, Float3Multiply(move_, ShotDistance));
+    XMFLOAT3 target = Float3Add(transform_.position_, Float3Multiply(move_, CALC_DISTANCE));
     CollisionMap* cMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
     cMap->RaySelectCellVsSegment(target, &data);
 
+    //敵と当たったか、最短距離を計算
     std::vector<EnemyBase*>& enemyList = EnemyManager::GetAllEnemy();
     int minIndex = -1;
     float minDist = 999999;
     XMFLOAT3 minEneHitPos = XMFLOAT3();
 
     for (int i = 0; i < enemyList.size();i++ ) {
-
         //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
-        float PEdist = CalculationDistance(enemyList[i]->GetPosition(), transform_.position_);
-        float CoDist = 0.0f;
-        
-        //Sphereコライダー
-        XMFLOAT3 hitPos = Float3Add(data.start, Float3Multiply(data.dir, PEdist));
-        CoDist = CalculationDistance(transform_.position_, hitPos);
-        if (CoDist > data.dist) continue;
-        
-        //Capsuleコライダー
-
-
+        XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), transform_.position_);
+        float hitDist = CalculationDistance(vec);
+        if (hitDist > data.dist) continue;
 
         //壁に当たる距離じゃないから、当たり判定やる
         rayHit_ = false;
         this->Collision(enemyList[i]);
 
-        //当たってたら終了（貫通ならいらない）
-        if (rayHit_ && CoDist < minDist) {
-            minDist = CoDist;
+        //最短距離で当たった
+        if (rayHit_ && hitDist < minDist) {
+            minDist = hitDist;
             minIndex = i;
+            minEneHitPos = collid->targetPos_;
         }
     }
 
+    //発射地点のPolyLine追加
     pPolyLine_->AddPosition(transform_.position_);
 
+    //敵に当たった時の処理
     if (minIndex >= 0) {
-        VFXManager::CreateVfxExplode1(minEneHitPos);
-        
+        VFXManager::CreateVfxSmoke(minEneHitPos);
         pPolyLine_->AddPosition(minEneHitPos);
         pPolyLine_->AddPosition(minEneHitPos);
 
+        //ダメージ与える（HP０以下なら倒すのここでやっとく
         DamageInfo info = DamageInfo(5);
         enemyList[minIndex]->GetDamageSystem()->ApplyDamageDirectly(info);
-        if (enemyList[minIndex]->GetDamageSystem()->IsDead()) {
-            enemyList[minIndex]->KillMe();
-        }
-        else {
-            enemyList[minIndex]->SetDamageTime(1.0f);
-        }
+        if (enemyList[minIndex]->GetDamageSystem()->IsDead()) enemyList[minIndex]->KillMe();
+        enemyList[minIndex]->SetDamageTime(1.0f);
     }
+    //敵に当たらなかった時の処理
     else {
-        XMFLOAT3 hitPos_ = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
-        VFXManager::CreateVfxExplode1(hitPos_);
-        pPolyLine_->AddPosition(hitPos_);
-        pPolyLine_->AddPosition(hitPos_);
+        XMFLOAT3 hitPos = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+        pPolyLine_->AddPosition(hitPos);
+        pPolyLine_->AddPosition(hitPos);
 
+        //コリジョンマップに当たっていた時
+        if (data.dist <= CALC_DISTANCE) {
+            VFXManager::CreateVfxExplode1(hitPos);
+        }
     }
 
     //削除状態の時余計な処理しないように削除
     ClearCollider();
-
 
 }
