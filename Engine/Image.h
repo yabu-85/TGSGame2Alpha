@@ -36,7 +36,11 @@ namespace Image
 			fileName = "";
 			alpha = 1.0f;
 			pSprite = nullptr;
+			rect = RECT();
 		}
+		
+		XMFLOAT3 GetTextureSize() { return pSprite->GetTextureSize(); }
+
 	};
 
 
@@ -88,4 +92,8 @@ namespace Image
 	//引数：handle	知りたい画像の番号
 	//戻値：ワールド行列
 	XMMATRIX GetMatrix(int handle);
+
+	//画像サイズの取得
+	//戻値：画像サイズ
+	XMFLOAT3 GetTextureSize(int handle);
 }

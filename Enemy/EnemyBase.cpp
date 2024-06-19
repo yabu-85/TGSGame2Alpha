@@ -72,8 +72,6 @@ void EnemyBase::Initialize()
 
 void EnemyBase::Update()
 {
-    return;
-
     if (transform_.position_.y <= -30.0f) {
         KillMe();
         return;
