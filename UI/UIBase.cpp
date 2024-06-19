@@ -20,10 +20,8 @@ void UIBase::Draw()
 	Image::Draw(hButtonPict_[isBound_]);
 
 	//テキストの表示
-	Image::SetTransform(hImagePict_, uiTransform_);
+	Image::SetTransform(hImagePict_, imageTransform_);
 	Image::Draw(hImagePict_);
-
-	Direct3D::SetBlendMode(Direct3D::BLEND_ADD);
 }
 
 void UIBase::OnClick()
@@ -33,27 +31,28 @@ void UIBase::OnClick()
 	}
 }
 
-void UIBase::Initialize(std::string name, std::function<void()> onClick)
+void UIBase::Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
 {
+	//画像データ読み込み
 	const std::string fileName[] = { "Image/ButtonFrame1.png", "Image/ButtonFrame2.png" };
 	for (int i = 0; i < 2; i++) {
 		hButtonPict_[i] = Image::Load(fileName[i]);
 		assert(hButtonPict_[i] >= 0);
 	}
-
 	hImagePict_ = Image::Load("Image/" + name + ".png");
 	assert(hImagePict_ >= 0);
 
+	//関数登録
 	onClick_ = onClick;
-	Initialize(name, XMFLOAT2(0.0f, 0.0f), XMFLOAT2(1.0f, 1.0f), onClick);
 
-}
-
-void UIBase::Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick)
-{
+	//トランスフォーム
 	buttonTransform_.scale_ = XMFLOAT3(size.x, size.y, 1.0f);
 	buttonTransform_.position_.x = pos.x;
 	buttonTransform_.position_.y = pos.y;
 
+	imageTransform_.scale_ = XMFLOAT3(tsize.x, tsize.y, 1.0f);
+	imageTransform_.position_ = buttonTransform_.position_;
+
+	//継承先クラスのInitialize
 	Initialize();
 }

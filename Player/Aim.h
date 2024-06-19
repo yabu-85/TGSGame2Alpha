@@ -21,7 +21,6 @@ class Aim : public GameObject
     bool isMove_;                   //ƒGƒCƒ€‚ğ“®‚©‚·‚©‚Ç‚¤‚©
     bool isCompulsion_;             //‹­§“I‚ÉˆÚ“®‚³‚¹‚éó‘Ô‚©
     
-    int hPict_;                     //‰æ‘œ”Ô†
     int compulsionTime_;            //‹­§‚©‚ç–ß‚é‚Ì‚ÉŠ|‚©‚éŠÔ
     int iterations_;                //”½•œ‰ñ”
 

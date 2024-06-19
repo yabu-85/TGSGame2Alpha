@@ -1,6 +1,8 @@
 #include "TestScene.h"
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
+#include "../UI/ScreenManager.h"
+#include "../UI/PauseScreen.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
@@ -25,8 +27,12 @@ void TestScene::Initialize()
 
 	RouteSearch::InitializeList();
 	EnemyManager::SetParent(this);
+	
+	ScreenManager::ResetScreenList();
+	ScreenManager::AddScreen(new PauseScreen());
 
-	Model::Load("Model/Bullet.fbx");
+	//ƒ‚ƒfƒ‹–‘O“Ç‚İ‚İ
+	Model::Load("Model/Scarecrow.fbx");
 
 }
 

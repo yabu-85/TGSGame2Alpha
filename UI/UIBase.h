@@ -15,7 +15,7 @@ protected:
 	bool isBound_;						//îÕàÕÇÃì‡ë§Ç…Ç¢ÇÈÇ©Ç«Ç§Ç©
 	
 	Transform buttonTransform_;
-	Transform uiTransform_;
+	Transform imageTransform_;
 	std::function<void()> onClick_;		//UIÇâüÇµÇΩÇÁåƒÇ‘ä÷êî
 
 	enum BUTTON_STATE {
@@ -30,10 +30,9 @@ public:
 	void OnClick();
 
 	virtual void Initialize() {};
-	void Initialize(std::string name, std::function<void()> onClick);
-	void Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick);
+	void Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
 
-	virtual bool IsWithinBound() = 0;
+	virtual bool IsWithinBound() { return false; }
 
 };
 

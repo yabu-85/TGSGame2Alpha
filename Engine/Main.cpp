@@ -16,6 +16,7 @@
 #include "StageEditor.h"
 #include "../Other/InputManager.h"
 #include "../Other/VFXManager.h"
+#include "../UI/ScreenManager.h"
 
 //ImGui関連のデータ
 #include "ImGui/imgui.h"
@@ -144,6 +145,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Input::Update();
 				Camera::Update();
 				VFX::Update();
+				ScreenManager::Update();
 				pRootObject->UpdateSub();
 
 				//１回目
@@ -165,6 +167,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
 				VFX::Draw();
+				ScreenManager::Draw();
 
 				//ImGuiの更新処理
 				ImGui_ImplDX11_NewFrame();

@@ -69,6 +69,15 @@
     <Filter Include="12Scene">
       <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="10UI\UI">
+      <UniqueIdentifier>{66321f4a-d375-4998-9db1-33e90856a40c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10UI\Screen">
+      <UniqueIdentifier>{3c4b14e5-c3c7-404c-bcc9-1afda9f17383}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10UI\PauseScreen">
+      <UniqueIdentifier>{54857bdf-0002-4e99-a56f-58412053433c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\BoxCollider.cpp">
@@ -224,9 +233,6 @@
     <ClCompile Include="Character\DamageSystem.cpp">
       <Filter>09Character</Filter>
     </ClCompile>
-    <ClCompile Include="UI\HealthGauge.cpp">
-      <Filter>10UI</Filter>
-    </ClCompile>
     <ClCompile Include="Other\VFXManager.cpp">
       <Filter>11Other</Filter>
     </ClCompile>
@@ -236,8 +242,23 @@
     <ClCompile Include="Enemy\EnemyManager.cpp">
       <Filter>04Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="UI\UIManager.cpp">
-      <Filter>10UI</Filter>
+    <ClCompile Include="Enemy\HealthGauge.cpp">
+      <Filter>04Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ButtonUI.cpp">
+      <Filter>10UI\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UIBase.cpp">
+      <Filter>10UI\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Screen.cpp">
+      <Filter>10UI\Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ScreenManager.cpp">
+      <Filter>10UI\Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\PauseScreen.cpp">
+      <Filter>10UI\PauseScreen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -409,9 +430,6 @@
     <ClInclude Include="Character\DamageSystem.h">
       <Filter>09Character</Filter>
     </ClInclude>
-    <ClInclude Include="UI\HealthGauge.h">
-      <Filter>10UI</Filter>
-    </ClInclude>
     <ClInclude Include="Other\VFXManager.h">
       <Filter>11Other</Filter>
     </ClInclude>
@@ -421,8 +439,23 @@
     <ClInclude Include="Enemy\EnemyManager.h">
       <Filter>04Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="UI\UIManager.h">
-      <Filter>10UI</Filter>
+    <ClInclude Include="Enemy\HealthGauge.h">
+      <Filter>04Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ButtonUI.h">
+      <Filter>10UI\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIBase.h">
+      <Filter>10UI\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Screen.h">
+      <Filter>10UI\Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ScreenManager.h">
+      <Filter>10UI\Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\PauseScreen.h">
+      <Filter>10UI\PauseScreen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

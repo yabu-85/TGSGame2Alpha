@@ -181,6 +181,22 @@ namespace Image
 		_datas[handle]->transform = transform;
 	}
 
+	void SetFullScreenTransform(int handle)
+	{
+		if (handle < 0 || handle >= _datas.size())
+		{
+			return;
+		}
+
+		float screenWidth = (float)Direct3D::screenWidth_;
+		float screenHeight = (float)Direct3D::screenHeight_;
+		XMFLOAT3 size = GetTextureSize(handle);
+		Transform bg;
+		bg.scale_.x = (screenWidth / size.x);
+		bg.scale_.y = (screenHeight / size.y);
+		_datas[handle]->transform = bg;
+	}
+
 
 	//ƒ[ƒ‹ƒhs—ñ‚Ìæ“¾
 	XMMATRIX GetMatrix(int handle)

@@ -133,6 +133,8 @@ void EnemyBase::Draw()
 
 void EnemyBase::Release()
 {
+    Model::Release(hModel_);
+
 }
 
 #include "../AI/RouteSearch.h"

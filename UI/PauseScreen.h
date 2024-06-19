@@ -2,14 +2,14 @@
 #include "Screen.h"
 #include "../Engine/Transform.h"
 
-class PauseUIManager : public Screen
+class PauseScreen : public Screen
 {
 	int hPict_[2];
 	Transform pauseTrans_;
 
 public:
-	PauseUIManager();
-	~PauseUIManager() override;
+	PauseScreen();
+	~PauseScreen() override;
 	void Draw() override;
 
 };

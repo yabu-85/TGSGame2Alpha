@@ -88,6 +88,10 @@ namespace Image
 	//引数：matrix	ワールド行列
 	void SetTransform(int handle, Transform& transform);
 
+	//スクリーン全体に表示されるように
+	//引数：handle	設定したい画像の番号
+	void SetFullScreenTransform(int handle);
+
 	//ワールド行列の取得
 	//引数：handle	知りたい画像の番号
 	//戻値：ワールド行列
