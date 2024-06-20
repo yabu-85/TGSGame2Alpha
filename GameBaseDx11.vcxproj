@@ -125,6 +125,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Action\BaseAction.cpp" />
+    <ClCompile Include="Action\MoveAction.cpp" />
+    <ClCompile Include="Action\RotateAction.cpp" />
     <ClCompile Include="AI\Node.cpp" />
     <ClCompile Include="AI\RouteSearch.cpp" />
     <ClCompile Include="Character\Character.cpp" />
@@ -132,6 +135,7 @@
     <ClCompile Include="Enemy\EnemyBase.cpp" />
     <ClCompile Include="Enemy\EnemyManager.cpp" />
     <ClCompile Include="Enemy\HealthGauge.cpp" />
+    <ClCompile Include="Enemy\TestEnemy.cpp" />
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
     <ClCompile Include="Engine\BoxCollider.cpp" />
@@ -188,13 +192,18 @@
     <ClCompile Include="Weapon\Gun.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Action\BaseAction.h" />
+    <ClInclude Include="Action\MoveAction.h" />
+    <ClInclude Include="Action\RotateAction.h" />
     <ClInclude Include="AI\Node.h" />
     <ClInclude Include="AI\RouteSearch.h" />
     <ClInclude Include="Character\Character.h" />
     <ClInclude Include="Character\DamageSystem.h" />
+    <ClInclude Include="ENEMY\ENEMYBASE - コピー.H" />
     <ClInclude Include="Enemy\EnemyBase.h" />
     <ClInclude Include="Enemy\EnemyManager.h" />
     <ClInclude Include="Enemy\HealthGauge.h" />
+    <ClInclude Include="Enemy\TestEnemy.h" />
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />
     <ClInclude Include="Engine\BoxCollider.h" />

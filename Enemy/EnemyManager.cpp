@@ -1,5 +1,6 @@
 #include "EnemyManager.h"
 #include "EnemyBase.h"
+#include "TestEnemy.h"
 #include "../State/StateManager.h"
 
 namespace EnemyManager {
@@ -34,8 +35,8 @@ namespace EnemyManager {
 	void SpawnEnemy(ENEMY_TYPE type)
 	{
 		EnemyBase* e = nullptr;
-		if (type == ENEMY_TEST) enemyList_.push_back(e = Instantiate<EnemyBase>(pParent_));
-		if (type == ENEMY_TEST2) enemyList_.push_back(e = Instantiate<EnemyBase>(pParent_));
+		if (type == ENEMY_TEST) enemyList_.push_back(e = Instantiate<TestEnemy>(pParent_));
+		if (type == ENEMY_TEST2) enemyList_.push_back(e = Instantiate<TestEnemy>(pParent_));
 		e->SetEnemyType(type);
 	}
 

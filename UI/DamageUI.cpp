@@ -6,6 +6,15 @@
 #include <vector>
 
 namespace {
+	const XMFLOAT3 TEXT_SCALE = XMFLOAT3(0.7f, 0.7f, 1.0f);	//文字サイズ
+	const XMFLOAT2 TEXT_POSITION = XMFLOAT2(0.3f, 0.4f);	//文字ポジション
+	const int	ALPHA_REDUCE = 25;							//透明度下げる値
+	const float TIME_REDUCE = 0.03f;						//Time下げる値
+	const float RANDOM_POS_MAX = 0.3f;						//0～Xのランダムな値の最大値
+
+	//消える時のアニメーション
+	const float KILL_THRESHOLD = 0.2f;	//消える時間のしきい値
+	const float RIZE_VALUE = 0.02f;		//上昇値
 
 }
 
@@ -24,6 +33,7 @@ namespace DamageUI {
 	{
 		pText_ = new Text;
 		pText_->Initialize();
+		pText_->SetScale(TEXT_SCALE);
 	}
 
 	void AddDamage(XMFLOAT3 _pos, int _damage)
@@ -35,9 +45,8 @@ namespace DamageUI {
 
 		//ポジションずらして設定
 		ui.wPos = _pos;
-		ui.wPos.x += (float)(rand() % 100 * 0.01f - 0.5f);
-		ui.wPos.y += (float)(rand() % 100 * 0.01f - 0.5f);
-
+		ui.wPos.x += (float)std::rand() / RAND_MAX * RANDOM_POS_MAX;
+		ui.wPos.y += (float)std::rand() / RAND_MAX * RANDOM_POS_MAX;
 		damageList_.push_back(ui);
 	}
 
@@ -48,15 +57,21 @@ namespace DamageUI {
 
 	void Update()
 	{
-		for (DamageUIInfo& ui : damageList_) {
-			ui.time -= 0.02f;
-			if (ui.time <= 0.2) {
-				ui.wPos.y += 0.02f;
-				ui.alpha -= 20;
+		for (auto it = damageList_.begin(); it != damageList_.end();) {
+			(*it).time -= TIME_REDUCE;
 
-				//リストから削除、末尾から消してくといいと思う
-				if (ui.time <= 0.0f) damageList_.erase(ui);
+			//消えるアニメーション
+			if ((*it).time <= KILL_THRESHOLD) {
+				(*it).wPos.y += RIZE_VALUE;
+				(*it).alpha -= ALPHA_REDUCE;
 			}
+
+			//削除
+			if ((*it).time <= 0.0f) {
+				it = damageList_.erase(it);
+				continue;
+			}
+			++it;
 		}
 	}
 
@@ -68,6 +83,10 @@ namespace DamageUI {
 			//スクリーン座標計算して、画面内かどうか
 			XMFLOAT3 pos = Camera::CalcScreenPosition(ui.wPos);
 			if (!Camera::IsScreenPositionWithinScreen(pos)) continue;
+
+			//
+			pos.x += 0.01f;
+			pos.y += 0.02f;
 
 			//座標変換して表示
 			pos.x = (pos.x + 1.0f) * 0.5f;

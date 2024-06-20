@@ -12,6 +12,7 @@
 
 #include "../Enemy/EnemyBase.h"
 #include "../Enemy/EnemyManager.h"
+#include "../Enemy/TestEnemy.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -40,7 +41,7 @@ void TestScene::Initialize()
 void TestScene::Update()
 {
 	if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);
-	if (Input::IsKeyDown(DIK_F2)) EnemyManager::KillEnemy(static_cast<EnemyBase*>(FindObject("EnemyBase")));
+	if (Input::IsKeyDown(DIK_F2)) EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
 	if (Input::IsKeyDown(DIK_F3)) {
 		OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
 		OutputDebugString("\n");

@@ -24,9 +24,6 @@
       <UniqueIdentifier>{47a6a3f5-8cfd-436b-8d58-beccd108f3f3}</UniqueIdentifier>
       <Extensions>hlsl</Extensions>
     </Filter>
-    <Filter Include="03Player">
-      <UniqueIdentifier>{41b3bdd3-76b7-4a9f-b1e6-fef76a352c41}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01Engine\Json">
       <UniqueIdentifier>{9b7be748-83c7-411f-9acc-264632f26858}</UniqueIdentifier>
     </Filter>
@@ -36,47 +33,53 @@
     <Filter Include="01Engine\Gui\ImGui">
       <UniqueIdentifier>{308fa319-e968-43e4-a42d-27bcdbf0c721}</UniqueIdentifier>
     </Filter>
-    <Filter Include="04Enemy">
-      <UniqueIdentifier>{888ef92a-f8aa-4c29-b0ac-e1e0b9ba689f}</UniqueIdentifier>
+    <Filter Include="Action">
+      <UniqueIdentifier>{56b181c6-2a9e-4deb-907e-065055cc9472}</UniqueIdentifier>
     </Filter>
-    <Filter Include="05State">
-      <UniqueIdentifier>{9309f86f-8dbd-49b2-a29b-5e9088508f33}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="06Stage">
-      <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="05State\Player">
-      <UniqueIdentifier>{3bf0fa3a-6c35-4632-8232-28dfc6e986ee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="05State\Base">
-      <UniqueIdentifier>{a4cb25ad-6640-4be3-a367-7126332f6485}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="07AI">
-      <UniqueIdentifier>{df51c2cc-3028-4682-ac7b-57c0db1aa6ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="08Weapon">
-      <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="09Character">
-      <UniqueIdentifier>{6b9b0eff-404e-4fe0-9bd3-d5e05bb5e037}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="10UI">
-      <UniqueIdentifier>{56492477-deab-4633-8a0b-1511a12c6d28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="11Other">
+    <Filter Include="Other">
       <UniqueIdentifier>{78dc5a64-25bb-44c2-80d7-e600969dfe57}</UniqueIdentifier>
     </Filter>
-    <Filter Include="12Scene">
-      <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
+    <Filter Include="UI">
+      <UniqueIdentifier>{56492477-deab-4633-8a0b-1511a12c6d28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10UI\UI">
+    <Filter Include="UI\UI">
       <UniqueIdentifier>{66321f4a-d375-4998-9db1-33e90856a40c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10UI\Screen">
+    <Filter Include="UI\Screen">
       <UniqueIdentifier>{3c4b14e5-c3c7-404c-bcc9-1afda9f17383}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10UI\PauseScreen">
+    <Filter Include="UI\PauseScreen">
       <UniqueIdentifier>{54857bdf-0002-4e99-a56f-58412053433c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Character">
+      <UniqueIdentifier>{6b9b0eff-404e-4fe0-9bd3-d5e05bb5e037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Weapon">
+      <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{df51c2cc-3028-4682-ac7b-57c0db1aa6ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stage">
+      <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="State">
+      <UniqueIdentifier>{9309f86f-8dbd-49b2-a29b-5e9088508f33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="State\Player">
+      <UniqueIdentifier>{3bf0fa3a-6c35-4632-8232-28dfc6e986ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="State\Base">
+      <UniqueIdentifier>{a4cb25ad-6640-4be3-a367-7126332f6485}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy">
+      <UniqueIdentifier>{888ef92a-f8aa-4c29-b0ac-e1e0b9ba689f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player">
+      <UniqueIdentifier>{41b3bdd3-76b7-4a9f-b1e6-fef76a352c41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03Scene">
+      <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -150,16 +153,16 @@
       <Filter>01Engine\ResourceManager</Filter>
     </ClCompile>
     <ClCompile Include="Player\Aim.cpp">
-      <Filter>03Player</Filter>
+      <Filter>Player</Filter>
     </ClCompile>
     <ClCompile Include="Player\Player.cpp">
-      <Filter>03Player</Filter>
+      <Filter>Player</Filter>
     </ClCompile>
     <ClCompile Include="Other\InputManager.cpp">
-      <Filter>11Other</Filter>
+      <Filter>Other</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Stage.cpp">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClCompile>
     <ClCompile Include="Json\jsonReader.cpp">
       <Filter>01Engine\Json</Filter>
@@ -189,37 +192,37 @@
       <Filter>01Engine\Collider</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Cell.cpp">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClCompile>
     <ClCompile Include="Stage\CollisionMap.cpp">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClCompile>
     <ClCompile Include="Stage\Triangle.cpp">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClCompile>
     <ClCompile Include="State\PlayerState.cpp">
-      <Filter>05State\Player</Filter>
+      <Filter>State\Player</Filter>
     </ClCompile>
     <ClCompile Include="State\StateManager.cpp">
-      <Filter>05State\Base</Filter>
+      <Filter>State\Base</Filter>
     </ClCompile>
     <ClCompile Include="Scene\TestScene.cpp">
-      <Filter>12Scene</Filter>
+      <Filter>03Scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\StageEditor.cpp">
       <Filter>01Engine\Gui</Filter>
     </ClCompile>
     <ClCompile Include="AI\Node.cpp">
-      <Filter>07AI</Filter>
+      <Filter>AI</Filter>
     </ClCompile>
     <ClCompile Include="AI\RouteSearch.cpp">
-      <Filter>07AI</Filter>
+      <Filter>AI</Filter>
     </ClCompile>
     <ClCompile Include="Weapon\Bullet_Normal.cpp">
-      <Filter>08Weapon</Filter>
+      <Filter>Weapon</Filter>
     </ClCompile>
     <ClCompile Include="Weapon\Gun.cpp">
-      <Filter>08Weapon</Filter>
+      <Filter>Weapon</Filter>
     </ClCompile>
     <ClCompile Include="Engine\SegmentCollider.cpp">
       <Filter>01Engine\Collider</Filter>
@@ -228,37 +231,52 @@
       <Filter>01Engine\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Character\Character.cpp">
-      <Filter>09Character</Filter>
+      <Filter>Character</Filter>
     </ClCompile>
     <ClCompile Include="Character\DamageSystem.cpp">
-      <Filter>09Character</Filter>
+      <Filter>Character</Filter>
     </ClCompile>
     <ClCompile Include="Other\VFXManager.cpp">
-      <Filter>11Other</Filter>
+      <Filter>Other</Filter>
     </ClCompile>
     <ClCompile Include="Enemy\EnemyBase.cpp">
-      <Filter>04Enemy</Filter>
+      <Filter>Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Enemy\EnemyManager.cpp">
-      <Filter>04Enemy</Filter>
+      <Filter>Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Enemy\HealthGauge.cpp">
-      <Filter>04Enemy</Filter>
+      <Filter>Enemy</Filter>
     </ClCompile>
     <ClCompile Include="UI\ButtonUI.cpp">
-      <Filter>10UI\UI</Filter>
+      <Filter>UI\UI</Filter>
     </ClCompile>
     <ClCompile Include="UI\UIBase.cpp">
-      <Filter>10UI\UI</Filter>
+      <Filter>UI\UI</Filter>
     </ClCompile>
     <ClCompile Include="UI\Screen.cpp">
-      <Filter>10UI\Screen</Filter>
+      <Filter>UI\Screen</Filter>
     </ClCompile>
     <ClCompile Include="UI\ScreenManager.cpp">
-      <Filter>10UI\Screen</Filter>
+      <Filter>UI\Screen</Filter>
     </ClCompile>
     <ClCompile Include="UI\PauseScreen.cpp">
-      <Filter>10UI\PauseScreen</Filter>
+      <Filter>UI\PauseScreen</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\DamageUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy\TestEnemy.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\BaseAction.cpp">
+      <Filter>Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\MoveAction.cpp">
+      <Filter>Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\RotateAction.cpp">
+      <Filter>Action</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -332,16 +350,16 @@
       <Filter>01Engine\ResourceManager</Filter>
     </ClInclude>
     <ClInclude Include="Player\Aim.h">
-      <Filter>03Player</Filter>
+      <Filter>Player</Filter>
     </ClInclude>
     <ClInclude Include="Player\Player.h">
-      <Filter>03Player</Filter>
+      <Filter>Player</Filter>
     </ClInclude>
     <ClInclude Include="Other\InputManager.h">
-      <Filter>11Other</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Stage.h">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClInclude>
     <ClInclude Include="Json\json.hpp">
       <Filter>01Engine\Json</Filter>
@@ -380,43 +398,43 @@
       <Filter>01Engine\Collider</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Cell.h">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClInclude>
     <ClInclude Include="Stage\CollisionMap.h">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClInclude>
     <ClInclude Include="Stage\Triangle.h">
-      <Filter>06Stage</Filter>
+      <Filter>Stage</Filter>
     </ClInclude>
     <ClInclude Include="State\PlayerState.h">
-      <Filter>05State\Player</Filter>
+      <Filter>State\Player</Filter>
     </ClInclude>
     <ClInclude Include="State\StateBase.h">
-      <Filter>05State\Base</Filter>
+      <Filter>State\Base</Filter>
     </ClInclude>
     <ClInclude Include="State\StateManager.h">
-      <Filter>05State\Base</Filter>
+      <Filter>State\Base</Filter>
     </ClInclude>
     <ClInclude Include="Scene\TestScene.h">
-      <Filter>12Scene</Filter>
+      <Filter>03Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\StageEditor.h">
       <Filter>01Engine\Gui</Filter>
     </ClInclude>
     <ClInclude Include="AI\Node.h">
-      <Filter>07AI</Filter>
+      <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="AI\RouteSearch.h">
-      <Filter>07AI</Filter>
+      <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Weapon\Bullet_Normal.h">
-      <Filter>08Weapon</Filter>
+      <Filter>Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Weapon\BulletBase.h">
-      <Filter>08Weapon</Filter>
+      <Filter>Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Weapon\Gun.h">
-      <Filter>08Weapon</Filter>
+      <Filter>Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Engine\SegmentCollider.h">
       <Filter>01Engine\Collider</Filter>
@@ -425,37 +443,53 @@
       <Filter>01Engine\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Character\Character.h">
-      <Filter>09Character</Filter>
+      <Filter>Character</Filter>
     </ClInclude>
     <ClInclude Include="Character\DamageSystem.h">
-      <Filter>09Character</Filter>
+      <Filter>Character</Filter>
     </ClInclude>
     <ClInclude Include="Other\VFXManager.h">
-      <Filter>11Other</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="Enemy\EnemyBase.h">
-      <Filter>04Enemy</Filter>
+      <Filter>Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Enemy\EnemyManager.h">
-      <Filter>04Enemy</Filter>
+      <Filter>Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Enemy\HealthGauge.h">
-      <Filter>04Enemy</Filter>
+      <Filter>Enemy</Filter>
     </ClInclude>
     <ClInclude Include="UI\ButtonUI.h">
-      <Filter>10UI\UI</Filter>
+      <Filter>UI\UI</Filter>
     </ClInclude>
     <ClInclude Include="UI\UIBase.h">
-      <Filter>10UI\UI</Filter>
+      <Filter>UI\UI</Filter>
     </ClInclude>
     <ClInclude Include="UI\Screen.h">
-      <Filter>10UI\Screen</Filter>
+      <Filter>UI\Screen</Filter>
     </ClInclude>
     <ClInclude Include="UI\ScreenManager.h">
-      <Filter>10UI\Screen</Filter>
+      <Filter>UI\Screen</Filter>
     </ClInclude>
     <ClInclude Include="UI\PauseScreen.h">
-      <Filter>10UI\PauseScreen</Filter>
+      <Filter>UI\PauseScreen</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\DamageUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ENEMY\ENEMYBASE - コピー.H" />
+    <ClInclude Include="Enemy\TestEnemy.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\BaseAction.h">
+      <Filter>Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\MoveAction.h">
+      <Filter>Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\RotateAction.h">
+      <Filter>Action</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

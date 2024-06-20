@@ -48,6 +48,9 @@ void Text::Draw(int x, int y, const char* str)
 	px /= (float)(Direct3D::screenWidth_ / 2.0f);
 	py /= (float)(Direct3D::screenHeight_ / 2.0f);
 
+	Transform transform;
+	transform.position_.y = py;
+	transform.scale_ = scale_;
 
 	//１文字ずつ表示する
 	for (int i = 0; str[i] != '\0'; i++)	//文字列の末尾まで来たら終わり
@@ -60,9 +63,7 @@ void Text::Draw(int x, int y, const char* str)
 		int y = id / rowLength_;	//上から何番目
 
 		//表示する位置
-		Transform transform;
 		transform.position_.x = px;
-		transform.position_.y = py;
 		Image::SetTransform(hPict_, transform);
 
 		//表示する範囲
@@ -92,6 +93,11 @@ void Text::Draw(int x, int y, int value)
 void Text::SetAlpha(int _alpha)
 {
 	alpha = _alpha;
+}
+
+void Text::SetScale(XMFLOAT3 sca)
+{
+	scale_ = sca;
 }
 
 //解放

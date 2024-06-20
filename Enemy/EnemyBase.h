@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "../Engine/GameObject.h"
-#include "../AI/RouteSearch.h"
 
 class HealthGauge;
 class DamageSystem;
@@ -9,6 +8,7 @@ enum ENEMY_TYPE;
 
 class EnemyBase : public GameObject
 {
+protected:
     ENEMY_TYPE enemyType_;
     int hModel_;
 
@@ -18,7 +18,6 @@ class EnemyBase : public GameObject
     bool moveReady = false;
     float moveRange_ = 0.3f;
     float outRange = 3.0f;
-    std::vector<RouteData> targetList_;
 
     float damageTime = 0.0f;
 
@@ -40,5 +39,7 @@ public:
     void SetEnemyType(ENEMY_TYPE type) { enemyType_ = type; }
     void SetDamageTime(float t) { damageTime = t; }
     DamageSystem* GetDamageSystem() { return pDamageSystem_; }
+
+    virtual float GetValueA() = 0;
 
 };

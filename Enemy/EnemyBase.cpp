@@ -1,6 +1,7 @@
 #include "EnemyBase.h"
 #include "EnemyManager.h"
 #include "HealthGauge.h"
+#include "../AI/RouteSearch.h"
 
 #include "../Stage/Stage.h"
 #include "../Engine/Model.h"
@@ -14,6 +15,7 @@
 #include "../Character/DamageSystem.h"
 
 namespace {
+
     const float gravity = 0.002f;
     const float HeightSize = 1.3f;    //àÍî‘è„
     XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
@@ -137,7 +139,6 @@ void EnemyBase::Release()
 
 }
 
-#include "../AI/RouteSearch.h"
 void EnemyBase::Move()
 {
     static const float RayMoveDist = 10.0f;

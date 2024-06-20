@@ -5,6 +5,7 @@ class Text
 {
 	int hPict_;						//画像ハンドル
 	int	alpha;						//アルファ
+	XMFLOAT3 scale_;				//文字サイズ
 
 	unsigned int width_, height_;	//1文字分の幅と高さ
 	unsigned int rowLength_;		
@@ -38,6 +39,9 @@ public:
 
 	//アルファ値を設定（不透明度）　0～255で指定
 	void SetAlpha(int _alpha);
+
+	//文字サイズの設定
+	void SetScale(XMFLOAT3 sca);
 
 	//解放
 	void Release();

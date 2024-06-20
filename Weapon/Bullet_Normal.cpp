@@ -129,7 +129,9 @@ void Bullet_Normal::Shot()
         enemyList[minIndex]->SetDamageTime(1.0f);
 
         //ダメージ表示
-        DamageUI::AddDamage(minEneHitPos, parameter_.damage_);
+        XMFLOAT3 damagePos = enemyList[minIndex]->GetPosition();
+        damagePos.y += enemyList[minIndex]->GetValueA();
+        DamageUI::AddDamage(damagePos, parameter_.damage_);
 
     }
     //敵に当たらなかった時の処理
