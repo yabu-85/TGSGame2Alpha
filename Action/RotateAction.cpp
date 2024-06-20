@@ -12,8 +12,8 @@ void RotateAction::Update()
     XMFLOAT3 pos = pCharacter_->GetPosition();
 
     //TargetCharacterがいるならその座標を目標地点に
-    if (pTarget_) tar = pTarget_->GetPosition();
-    else XMStoreFloat3(&tar, XMLoadFloat3(&pos) - pCharacter_->GetMovementVector());
+//    if (pTarget_) tar = pTarget_->GetPosition();
+//    else XMStoreFloat3(&tar, XMLoadFloat3(&pos) - pCharacter_->GetMovementVector());
 
     float rotateY = pCharacter_->GetRotate().y;
     XMFLOAT2 a = XMFLOAT2(sinf(XMConvertToRadians(rotateY)), cosf(XMConvertToRadians(rotateY)));

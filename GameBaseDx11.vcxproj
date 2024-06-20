@@ -162,7 +162,6 @@
     <ClCompile Include="Engine\Model.cpp" />
     <ClCompile Include="Engine\PolyLine.cpp" />
     <ClCompile Include="Engine\SegmentCollider.cpp" />
-    <ClCompile Include="Engine\StageEditor.cpp" />
     <ClCompile Include="Engine\VFX.cpp" />
     <ClCompile Include="Engine\RootObject.cpp" />
     <ClCompile Include="Engine\SceneManager.cpp" />
@@ -172,6 +171,7 @@
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Json\jsonReader.cpp" />
+    <ClCompile Include="Other\GameManager.cpp" />
     <ClCompile Include="Other\InputManager.cpp" />
     <ClCompile Include="Other\VFXManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
@@ -180,6 +180,7 @@
     <ClCompile Include="Stage\Cell.cpp" />
     <ClCompile Include="Stage\CollisionMap.cpp" />
     <ClCompile Include="Stage\Stage.cpp" />
+    <ClCompile Include="Stage\StageEditor.cpp" />
     <ClCompile Include="Stage\Triangle.cpp" />
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
@@ -232,7 +233,6 @@
     <ClInclude Include="Engine\Model.h" />
     <ClInclude Include="Engine\PolyLine.h" />
     <ClInclude Include="Engine\SegmentCollider.h" />
-    <ClInclude Include="Engine\StageEditor.h" />
     <ClInclude Include="Engine\VFX.h" />
     <ClInclude Include="Engine\RootObject.h" />
     <ClInclude Include="Engine\SceneManager.h" />
@@ -243,6 +243,7 @@
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Json\json.hpp" />
     <ClInclude Include="Json\JsonReader.h" />
+    <ClInclude Include="Other\GameManager.h" />
     <ClInclude Include="Other\InputManager.h" />
     <ClInclude Include="Other\VFXManager.h" />
     <ClInclude Include="Player\Aim.h" />
@@ -251,6 +252,7 @@
     <ClInclude Include="Stage\Cell.h" />
     <ClInclude Include="Stage\CollisionMap.h" />
     <ClInclude Include="Stage\Stage.h" />
+    <ClInclude Include="Stage\StageEditor.h" />
     <ClInclude Include="Stage\Triangle.h" />
     <ClInclude Include="State\PlayerState.h" />
     <ClInclude Include="State\StateBase.h" />

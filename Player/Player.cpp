@@ -9,9 +9,9 @@
 #include "../Other/InputManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
-#include "../Engine/StageEditor.h"
 
 #include "../Stage/CollisionMap.h"
+#include "../Stage/StageEditor.h"
 #include "../Engine/SphereCollider.h"
 #include "../Engine/CapsuleCollider.h"
 #include "../Weapon/Gun.h"

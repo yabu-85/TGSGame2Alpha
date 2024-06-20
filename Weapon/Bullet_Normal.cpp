@@ -3,12 +3,12 @@
 #include "../Engine/Global.h"
 #include "../Engine/SegmentCollider.h"
 #include "../Engine/PolyLine.h"
-#include "../Enemy/EnemyBase.h"
-#include "../Stage/CollisionMap.h"
-#include "../Other/VFXManager.h"
 #include "../Character/DamageSystem.h"
+#include "../Enemy/EnemyBase.h"
 #include "../Enemy/EnemyManager.h"
 #include "../UI/DamageUI.h"
+#include "../Stage/CollisionMap.h"
+#include "../Other/VFXManager.h"
 
 namespace {
     //“–‚½‚è”»’è‹——£

@@ -1,8 +1,8 @@
 #include "RouteSearch.h"
 #include "Node.h"
+#include "../Stage/StageEditor.h"
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
-#include "../Engine/StageEditor.h"
 #include "../Engine/Text.h"
 #include "../Engine/Camera.h"
 

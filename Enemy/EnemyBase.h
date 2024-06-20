@@ -12,13 +12,8 @@ protected:
     ENEMY_TYPE enemyType_;
     int hModel_;
 
-    float MoveSpeed = 0.0f;
     float gravity_ = 0.0f;
     bool isGround = false;
-    bool moveReady = false;
-    float moveRange_ = 0.3f;
-    float outRange = 3.0f;
-
     float damageTime = 0.0f;
 
     HealthGauge* pHealthGauge_;
@@ -26,11 +21,11 @@ protected:
 
 public:
     EnemyBase(GameObject* parent);
-    ~EnemyBase();
-    void Initialize() override;
-    void Update() override;
-    void Draw() override;
-    void Release() override;
+    virtual ~EnemyBase();
+    virtual void Initialize() override;
+    virtual void Update() override;
+    virtual void Draw() override;
+    virtual void Release() override;
 
     void SetEnemyType(ENEMY_TYPE type) { enemyType_ = type; }
     void SetDamageTime(float t) { damageTime = t; }

@@ -6,7 +6,7 @@
 #include "../Engine/Global.h"
 #include "../Engine/GameObject.h"
 #include "../Engine/Model.h"
-#include "../AI/RouteSearch.h"
+#include "../Other/GameManager.h"
 
 namespace {
 	//Orientに使用
@@ -91,29 +91,32 @@ void AstarMoveAction::Update()
 		isInRange_ = true;
 		return;
 	}
-	
-	//移動方向計算
-	XMFLOAT3 pos = pCharacter_->GetPosition();
-	XMVECTOR vPos = XMLoadFloat3(&pos);
+
+	XMFLOAT3 fPos = pCharacter_->GetPosition();
+	XMVECTOR vPos = XMLoadFloat3(&fPos);
 	XMVECTOR vTar = XMLoadFloat3(&targetList_.back().pos);
-	XMVECTOR vMove = vTar - vPos;
+	XMVECTOR vMove = vPos - vTar;
+
+	if (/*jump*/ false) {
+
+	}
 
 	//移動スピード抑制
-	float currentSpeed = XMVectorGetX(XMVector3Length(vMove));
-	if (currentSpeed > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
+	float moveDist = XMVectorGetX(XMVector3Length(vMove));
+	if (moveDist > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
 
-	//Target位置ついた：カクカクしないように再起処理する
-	float length = XMVectorGetX(XMVector3Length(vTar - vPos));
-
-	//CalcDodge使う場合はmoveRange＋vSafeMoveでやったほうがいい
-	if (length <= moveRange_) {
+	//ターゲット位置ついた
+	if (moveDist <= moveRange_) {
 		targetList_.pop_back();
 		Update();
 		return;
 	}
 
-	XMStoreFloat3(&pos, vPos + vMove);
-	pCharacter_->SetPosition(pos);
+	//回避計算
+	CalcDodge(vMove);
+
+	XMStoreFloat3(&fPos, vPos + vMove);
+	pCharacter_->SetPosition(fPos);
 }
 
 bool AstarMoveAction::IsOutTarget(float range)
@@ -186,61 +189,6 @@ void OrientedMoveAction::InverseDirection()
 
 
 /*
-static const float RayMoveDist = 10.0f;
-	static const float RayHeight = 0.5f;
-
-	XMVECTOR vPos2 = XMLoadFloat3(&transform_.position_);
-	XMFLOAT3 playerPos = pPlayer->GetPosition();
-	XMVECTOR vPlaPos2 = XMLoadFloat3(&playerPos);
-	XMVECTOR vec2 = vPos2 - vPlaPos2;
-
-	float plaDist = XMVectorGetX(XMVector3Length(vec2));
-	if (plaDist <= 1.0f) {
-		targetList_.clear();
-		return;
-	}
-
-	if (plaDist <= RayMoveDist) {
-
-		if (rand() % 10 == 0) {
-			RayCastData rayData = RayCastData();
-			rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + RayHeight, transform_.position_.z);
-
-			XMVECTOR vec = XMVector3Normalize(vec2) * -1.0f;
-			XMStoreFloat3(&rayData.dir, vec);
-
-			XMFLOAT3 target = XMFLOAT3(pPlayer->GetPosition().x, pPlayer->GetPosition().y + RayHeight, pPlayer->GetPosition().z);
-			pCMap->RaySelectCellVsSegment(target, &rayData);
-			moveReady = rayData.dist >= plaDist;
-		}
-
-		if (moveReady) {
-			targetList_.clear();
-
-			//移動スピード抑制
-			float moveDist = XMVectorGetX(XMVector3Length(vec2));
-			if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
-
-			//回避計算
-			CalcDodge(vec2);
-
-			//移動
-			vPos2 -= vec2;
-			XMStoreFloat3(&transform_.position_, vPos2);
-			return;
-		}
-	}
-
-	//一定の時間で、リスト経路更新する
-	if ( (targetList_.empty() || rand() % 30 == 0) && rand() % 10 == 0) {
-		targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), pPlayer->GetPosition(), transform_.position_);
-	}
-
-	//移動終了した
-	if (targetList_.empty()) {
-		return;
-	}
-
 	//ジャンプ移動
 	if (targetList_.back().type == EdgeType::JUMP) {
 		gravity_ = 0.0f;
@@ -265,24 +213,5 @@ static const float RayMoveDist = 10.0f;
 		return;
 	}
 
-	//移動方向計算
-	XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
-	XMVECTOR vTar = XMLoadFloat3(&targetList_.back().pos);
-	XMVECTOR vMove = vTar - vPos;
 
-	//移動スピード抑制
-	float moveDist = XMVectorGetX(XMVector3Length(vMove));
-	if (moveDist > MoveSpeed) vMove = XMVector3Normalize(vMove) * MoveSpeed;
-
-	//ターゲット位置ついた
-	if (moveDist <= moveRange_) {
-		targetList_.pop_back();
-		Move();
-		return;
-	}
-
-	//回避計算
-	CalcDodge(vMove);
-
-	vPos += vMove;
-	XMStoreFloat3(&transform_.position_, vPos);*/
+*/

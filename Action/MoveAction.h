@@ -1,10 +1,9 @@
 #pragma once
 #include "BaseAction.h"
+#include "../AI/RouteSearch.h"
 #include <DirectXMath.h>
 #include <vector>
-
 using namespace DirectX;
-struct RouteData;
 
 //pTarget‚ªnullo‚È‚¢ê‡‚ÍApTarget‚Ì•ûŒü‚ÖˆÚ“®
 //pTarget‚ªnull‚È‚çtargetPos‚É•ûŒü‚ÉˆÚ“®

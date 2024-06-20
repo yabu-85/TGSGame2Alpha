@@ -13,7 +13,7 @@
 #include "Audio.h"
 #include "VFX.h"
 #include "Light.h"
-#include "StageEditor.h"
+#include "../Stage/StageEditor.h"
 #include "../Other/InputManager.h"
 #include "../Other/VFXManager.h"
 #include "../UI/ScreenManager.h"

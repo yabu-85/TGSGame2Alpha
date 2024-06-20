@@ -2,6 +2,7 @@
 #include "Cell.h"
 #include "Stage.h"
 #include "Triangle.h"
+#include "StageEditor.h"
 #include <vector>
 
 #include "../Engine/Fbx.h"
@@ -9,7 +10,7 @@
 #include "../Engine/Global.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/SphereCollider.h"
-#include "../Engine/StageEditor.h"
+#include "../Other/GameManager.h"
 
 namespace {
     float minX = 0;
@@ -38,6 +39,8 @@ CollisionMap::CollisionMap(GameObject* parent)
     : GameObject(parent, "CollisionMap"), handle_(-1)
 {
     StageEditor::SetCollisionMap(this);
+    GameManager::SetCollisionMap(this);
+
 }
 
 CollisionMap::~CollisionMap()
