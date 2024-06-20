@@ -32,10 +32,6 @@ public:
     void Draw() override;
     void Release() override;
 
-    void Move();
-    void CalcDodge(XMVECTOR& move);
-    void ReflectCharacter();
-
     void SetEnemyType(ENEMY_TYPE type) { enemyType_ = type; }
     void SetDamageTime(float t) { damageTime = t; }
     DamageSystem* GetDamageSystem() { return pDamageSystem_; }

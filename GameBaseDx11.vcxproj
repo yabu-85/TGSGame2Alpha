@@ -131,6 +131,7 @@
     <ClCompile Include="AI\Node.cpp" />
     <ClCompile Include="AI\RouteSearch.cpp" />
     <ClCompile Include="Character\Character.cpp" />
+    <ClCompile Include="Character\CharacterManager.cpp" />
     <ClCompile Include="Character\DamageSystem.cpp" />
     <ClCompile Include="Enemy\EnemyBase.cpp" />
     <ClCompile Include="Enemy\EnemyManager.cpp" />
@@ -198,8 +199,8 @@
     <ClInclude Include="AI\Node.h" />
     <ClInclude Include="AI\RouteSearch.h" />
     <ClInclude Include="Character\Character.h" />
+    <ClInclude Include="Character\CharacterManager.h" />
     <ClInclude Include="Character\DamageSystem.h" />
-    <ClInclude Include="ENEMY\ENEMYBASE - コピー.H" />
     <ClInclude Include="Enemy\EnemyBase.h" />
     <ClInclude Include="Enemy\EnemyManager.h" />
     <ClInclude Include="Enemy\HealthGauge.h" />

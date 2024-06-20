@@ -54,25 +54,21 @@ void MoveAction::CalcDodge(XMVECTOR& move)
 	XMFLOAT3 pos = pCharacter_->GetPosition();
 	XMVECTOR vPos = XMLoadFloat3(&pos);
 	XMVECTOR vSafeMove = XMVectorZero();
+	
+	for (auto& e : EnemyManager::GetAllEnemy()) {
+		if (e == pCharacter_) continue;
+		XMFLOAT3 f = e->GetPosition();
+		XMVECTOR vTarget = XMLoadFloat3(&f);
+		XMVECTOR vec = vTarget - vPos;
+		float range = XMVectorGetX(XMVector3Length(vec));
 
-	if (pCharacter_) {
-		std::vector<EnemyBase*> eList = EnemyManager::GetAllEnemy();
-
-		for (auto& e : eList) {
-			if (e == pCharacter_) continue;
-			XMFLOAT3 f = e->GetPosition();
-			XMVECTOR vTarget = XMLoadFloat3(&f);
-			XMVECTOR vec = vTarget - vPos;
-			float range = XMVectorGetX(XMVector3Length(vec));
-
-			if (range < safeSize) {
-				range -= safeSize;
-				vSafeMove += XMVector3Normalize(vec) * range;
-			}
+		if (range < safeSize) {
+			range -= safeSize;
+			vSafeMove += XMVector3Normalize(vec) * range;
 		}
-
-		move += vSafeMove;
 	}
+
+	move += vSafeMove;
 }
 
 //------------------------------Astar----------------------
@@ -187,3 +183,106 @@ void OrientedMoveAction::InverseDirection()
 {
 	direction_ *= -1.0f;
 }
+
+
+/*
+static const float RayMoveDist = 10.0f;
+	static const float RayHeight = 0.5f;
+
+	XMVECTOR vPos2 = XMLoadFloat3(&transform_.position_);
+	XMFLOAT3 playerPos = pPlayer->GetPosition();
+	XMVECTOR vPlaPos2 = XMLoadFloat3(&playerPos);
+	XMVECTOR vec2 = vPos2 - vPlaPos2;
+
+	float plaDist = XMVectorGetX(XMVector3Length(vec2));
+	if (plaDist <= 1.0f) {
+		targetList_.clear();
+		return;
+	}
+
+	if (plaDist <= RayMoveDist) {
+
+		if (rand() % 10 == 0) {
+			RayCastData rayData = RayCastData();
+			rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + RayHeight, transform_.position_.z);
+
+			XMVECTOR vec = XMVector3Normalize(vec2) * -1.0f;
+			XMStoreFloat3(&rayData.dir, vec);
+
+			XMFLOAT3 target = XMFLOAT3(pPlayer->GetPosition().x, pPlayer->GetPosition().y + RayHeight, pPlayer->GetPosition().z);
+			pCMap->RaySelectCellVsSegment(target, &rayData);
+			moveReady = rayData.dist >= plaDist;
+		}
+
+		if (moveReady) {
+			targetList_.clear();
+
+			//移動スピード抑制
+			float moveDist = XMVectorGetX(XMVector3Length(vec2));
+			if (moveDist > MoveSpeed) vec2 = XMVector3Normalize(vec2) * MoveSpeed;
+
+			//回避計算
+			CalcDodge(vec2);
+
+			//移動
+			vPos2 -= vec2;
+			XMStoreFloat3(&transform_.position_, vPos2);
+			return;
+		}
+	}
+
+	//一定の時間で、リスト経路更新する
+	if ( (targetList_.empty() || rand() % 30 == 0) && rand() % 10 == 0) {
+		targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), pPlayer->GetPosition(), transform_.position_);
+	}
+
+	//移動終了した
+	if (targetList_.empty()) {
+		return;
+	}
+
+	//ジャンプ移動
+	if (targetList_.back().type == EdgeType::JUMP) {
+		gravity_ = 0.0f;
+		//移動方向計算
+		XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
+		XMVECTOR vTar = XMLoadFloat3(&targetList_.back().pos);
+		XMVECTOR vMove = vTar - vPos;
+
+		//移動スピード抑制
+		float moveDist = XMVectorGetX(XMVector3Length(vMove));
+		if (moveDist > MoveSpeed) vMove = XMVector3Normalize(vMove) * MoveSpeed;
+
+		//ターゲット位置ついた
+		if (moveDist <= moveRange_) {
+			targetList_.pop_back();
+			Move();
+			return;
+		}
+
+		vPos += vMove;
+		XMStoreFloat3(&transform_.position_, vPos);
+		return;
+	}
+
+	//移動方向計算
+	XMVECTOR vPos = XMLoadFloat3(&transform_.position_);
+	XMVECTOR vTar = XMLoadFloat3(&targetList_.back().pos);
+	XMVECTOR vMove = vTar - vPos;
+
+	//移動スピード抑制
+	float moveDist = XMVectorGetX(XMVector3Length(vMove));
+	if (moveDist > MoveSpeed) vMove = XMVector3Normalize(vMove) * MoveSpeed;
+
+	//ターゲット位置ついた
+	if (moveDist <= moveRange_) {
+		targetList_.pop_back();
+		Move();
+		return;
+	}
+
+	//回避計算
+	CalcDodge(vMove);
+
+	vPos += vMove;
+	XMStoreFloat3(&transform_.position_, vPos);*/
