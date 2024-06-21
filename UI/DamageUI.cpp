@@ -31,9 +31,20 @@ namespace DamageUI {
 
 	void Initialize()
 	{
-		pText_ = new Text;
+		pText_ = new Text();
 		pText_->Initialize();
 		pText_->SetScale(TEXT_SCALE);
+	}
+
+	void SceneChange()
+	{
+		pText_ = new Text();
+		pText_->Initialize();
+	}
+
+	void Release()
+	{
+
 	}
 
 	void AddDamage(XMFLOAT3 _pos, int _damage)

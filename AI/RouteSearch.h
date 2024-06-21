@@ -14,7 +14,9 @@ struct RouteData {
 
 namespace RouteSearch {
 
-    void InitializeList();
+    void Initialize();
+    void Release();
+
     std::vector<Node*>& GetNodeList();
     
     void NodeModelDraw();

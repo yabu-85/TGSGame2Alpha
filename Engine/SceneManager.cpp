@@ -4,7 +4,7 @@
 #include "Model.h"
 #include "Image.h"
 #include "Audio.h"
-
+#include "../UI/DamageUI.h"
 
 //コンストラクタ
 SceneManager::SceneManager(GameObject * parent)
@@ -34,6 +34,9 @@ void SceneManager::Update()
 		Audio::Release();
 		Model::AllRelease();
 		Image::AllRelease();
+
+		//シーンチェンジの処理
+		DamageUI::SceneChange();
 
 		//次のシーンを作成
 		switch (nextSceneID_)

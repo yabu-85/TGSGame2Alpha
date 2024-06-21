@@ -12,7 +12,7 @@ namespace ScreenManager
 	void DeleteScreen(Screen* screen);
 	
 	//Screen‰Šú‰»
-	void ResetScreenList();
+	void AllDeleteScreen();
 
 	//ScreenƒŠƒXƒg‚ÌUIList‚ÉŒŸõ‚©‚¯‚ÄUIíœ
 	void DeleteUI(UIBase* ui);

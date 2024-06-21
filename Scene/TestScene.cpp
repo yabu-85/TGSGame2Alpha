@@ -13,6 +13,7 @@
 #include "../Enemy/EnemyBase.h"
 #include "../Enemy/EnemyManager.h"
 #include "../Enemy/TestEnemy.h"
+#include "../UI/DamageUI.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -26,10 +27,11 @@ void TestScene::Initialize()
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
 
-	RouteSearch::InitializeList();
+	RouteSearch::Initialize();
+	DamageUI::Initialize();
 	EnemyManager::SetParent(this);
 	
-	ScreenManager::ResetScreenList();
+	ScreenManager::AllDeleteScreen();
 	ScreenManager::AddScreen(new PauseScreen());
 
 	//モデル事前読み込み
@@ -47,6 +49,9 @@ void TestScene::Update()
 		OutputDebugString("\n");
 	}
 
+	if (Input::IsKeyDown(DIK_F3)) 
+		ScreenManager::AllDeleteScreen();
+	
 	static const float speed = 0.3f;
 	XMFLOAT4 pos = Light::GetPosition(0);
 	if (Input::IsKey(DIK_LEFTARROW)) pos.x += speed;
@@ -63,10 +68,10 @@ void TestScene::Update()
 void TestScene::Draw()
 {
 	RouteSearch::NodeModelDraw();
-
 }
 
 //開放
 void TestScene::Release()
 {
+
 }

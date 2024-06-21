@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");			//スクリーンの幅
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
-#if 0 //_DEBUG
+#if 1 //_DEBUG
 	screenWidth = 600;
 	screenHeight = 500;
 #endif
@@ -93,7 +93,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Audio::Initialize();
 	VFXManager::Initialize();
 	Light::Initialize();
-	DamageUI::Initialize();
 
 	//ルートオブジェクト準備
 	//すべてのゲームオブジェクトの親となるオブジェクト
@@ -170,7 +169,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
 				VFX::Draw();
-				DamageUI::Draw();
+				
+				//DamageUI::Draw();
+				
 				ScreenManager::Draw();
 
 				//ImGuiの更新処理
@@ -218,6 +219,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	//いろいろ解放
+	ScreenManager::AllDeleteScreen();
 	VFX::Release();
 	Audio::AllRelease();
 	Model::AllRelease();

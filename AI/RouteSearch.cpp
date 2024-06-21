@@ -20,7 +20,7 @@ namespace RouteSearch {
     int edgeHandle = -1;
     std::vector<Node*> nodes;
 
-    void InitializeList()
+    void Initialize()
     {
         pText = new Text();
         pText->Initialize();
@@ -30,6 +30,10 @@ namespace RouteSearch {
         edgeHandle = Model::Load("DebugCollision/BoxCollider.fbx");
         assert(nodeHandle >= 0);
         assert(edgeHandle >= 0);
+    }
+
+    void Release() {
+
     }
 
     std::vector<Node*>& GetNodeList()

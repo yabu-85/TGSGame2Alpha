@@ -14,6 +14,8 @@ using namespace DirectX;
 namespace DamageUI
 {
 	void Initialize();
+	void SceneChange();
+	void Release();
 
 	//Screen’Ç‰Á
 	void AddDamage(XMFLOAT3 _pos, int _damage);

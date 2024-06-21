@@ -22,12 +22,11 @@ namespace ScreenManager {
 		}
 	}
 
-	void ResetScreenList()
+	void AllDeleteScreen()
 	{
-		for (auto iter = pScreenList_.begin(); iter != pScreenList_.end();) {
-			if ((*iter)->GetUIState() == Screen::UI_STATE::ENDDRAW)
+		for (auto s : pScreenList_) {
 			{
-				delete* iter;
+				delete s;
 			}
 		}
 
