@@ -28,24 +28,23 @@ MoveAction::MoveAction(GameObject* obj, float speed, float range)
 void MoveAction::Update()
 {
 	//移動量計算
-	XMFLOAT3 pos = pCharacter_->GetPosition();
-	XMVECTOR vPos = XMLoadFloat3(&pos);
+	XMFLOAT3 fPos = pCharacter_->GetPosition();
+	XMVECTOR vPos = XMLoadFloat3(&fPos);
 	XMVECTOR vTar = XMLoadFloat3(&targetPos_);
 	XMVECTOR vMove = vTar - vPos;
 	
-	//移動スピード抑制
-	float currentSpeed = XMVectorGetX(XMVector3Length(vTar - vPos));
-	if(currentSpeed > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
-
 	//Target位置ついた
-	float length = XMVectorGetX(XMVector3Length(vTar - vPos));
-	if (length <= moveRange_) {
+	float tarDist = XMVectorGetX(XMVector3Length(vMove));
+	if (tarDist <= moveRange_) {
 		isInRange_ = true;
+		return;
 	}
 
-	XMStoreFloat3(&pos, vPos + vMove);
-	pCharacter_->SetPosition(pos);
-	isInRange_ = false;;
+	//移動スピード抑制して移動
+	if(tarDist > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
+	XMStoreFloat3(&fPos, vPos + vMove);
+	pCharacter_->SetPosition(fPos);
+	isInRange_ = false;
 }
 
 void MoveAction::CalcDodge(XMVECTOR& move)
@@ -95,28 +94,29 @@ void AstarMoveAction::Update()
 	XMFLOAT3 fPos = pCharacter_->GetPosition();
 	XMVECTOR vPos = XMLoadFloat3(&fPos);
 	XMVECTOR vTar = XMLoadFloat3(&targetList_.back().pos);
-	XMVECTOR vMove = vPos - vTar;
+	XMVECTOR vMove = vTar - vPos;
 
 	if (/*jump*/ false) {
 
 	}
 
-	//移動スピード抑制
-	float moveDist = XMVectorGetX(XMVector3Length(vMove));
-	if (moveDist > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
-
 	//ターゲット位置ついた
+	float moveDist = XMVectorGetX(XMVector3Length(vMove));
 	if (moveDist <= moveRange_) {
 		targetList_.pop_back();
 		Update();
 		return;
 	}
 
+	//移動スピード抑制
+	if (moveDist > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
+
 	//回避計算
 	CalcDodge(vMove);
 
 	XMStoreFloat3(&fPos, vPos + vMove);
 	pCharacter_->SetPosition(fPos);
+
 }
 
 bool AstarMoveAction::IsOutTarget(float range)

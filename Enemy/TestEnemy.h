@@ -10,6 +10,7 @@ class AstarMoveAction;
 class TestEnemy : public EnemyBase
 {
     static float valueA;
+    bool moveReady = false;
 
     MoveAction* pMoveAction_;
     AstarMoveAction* pAstarMoveAction_;

@@ -15,6 +15,7 @@
 #include "../Engine/SphereCollider.h"
 #include "../Engine/CapsuleCollider.h"
 #include "../Weapon/Gun.h"
+#include "../Other/GameManager.h"
 
 namespace {
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
@@ -35,6 +36,7 @@ Player::Player(GameObject* parent)
     : GameObject(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), testModel_(-1), climbPos_(XMFLOAT3()),
     isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr)
 {
+    GameManager::SetPlayer(this);
 }
 
 Player::~Player()

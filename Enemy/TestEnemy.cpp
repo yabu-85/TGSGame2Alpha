@@ -5,10 +5,12 @@
 #include "../Engine/CapsuleCollider.h"
 #include "../Engine/SphereCollider.h"
 #include "../Engine/Direct3D.h"
+#include "../Engine/Global.h"
 #include "../Character/DamageSystem.h"
 #include "../Stage/CollisionMap.h"
 #include "../Action/MoveAction.h"
 #include "../Other/GameManager.h"
+#include "../Player/Player.h"
 
 float TestEnemy::valueA = 3.0f;
 
@@ -22,10 +24,6 @@ namespace {
 TestEnemy::TestEnemy(GameObject* parent)
     : EnemyBase(parent), pMoveAction_(nullptr), pAstarMoveAction_(nullptr)
 {
-    pMoveAction_ = new MoveAction(this, 0.2f, 0.1f);
-    pAstarMoveAction_ = new AstarMoveAction(this, 0.2f, 0.1f);
-    type_ = ObjectType::Enemy;
-
 }
 
 TestEnemy::~TestEnemy() 
@@ -37,11 +35,15 @@ void TestEnemy::Initialize()
     hModel_ = Model::Load("Model/Scarecrow.fbx");
     assert(hModel_ >= 0);
 
-    transform_.position_ = start;
-
+    type_ = ObjectType::Enemy;
     pHealthGauge_->SetHeight(1.7f);
     pDamageSystem_->SetMaxHP(20);
     pDamageSystem_->SetHP(20);
+
+    transform_.position_ = start;
+
+    pMoveAction_ = new MoveAction(this, 0.03f, 0.1f);
+    pAstarMoveAction_ = new AstarMoveAction(this, 0.03f, 0.1f);
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4f, vec);
@@ -62,8 +64,58 @@ void TestEnemy::Update()
         transform_.position_.y -= gravity_;
     }
 
-    //ˆÚ“®
+    XMFLOAT3 plaPos = GameManager::GetPlayer()->GetPosition();
+    pAstarMoveAction_->SetTarget(plaPos);
+    if (pAstarMoveAction_->IsOutTarget(0.5f)) pAstarMoveAction_->UpdatePath(plaPos);
+    else if (rand() % 100 == 0) pAstarMoveAction_->UpdatePath(plaPos);
+    pAstarMoveAction_->Update();
 
+    /*
+    static const float TMOVE_DIST = 10.0f;
+    static const float RAY_HEIGHT = 1.3f;
+
+    //ˆÚ“®
+    XMFLOAT3 plaPos = GameManager::GetPlayer()->GetPosition();
+    XMFLOAT3 plaVec = Float3Sub(plaPos, transform_.position_);
+    float plaDist = CalculationDistance(plaPos, transform_.position_);
+    
+    if (plaDist <= 1.0f) {
+        pAstarMoveAction_->StopMove();
+        return;
+    }
+
+    //‹ß‚¢‚Æ’¼ˆÚ“®
+    bool isTMove = false;
+    if (plaDist <= TMOVE_DIST) {
+        if (rand() % 10 == 0) {
+            RayCastData rayData = RayCastData();
+            rayData.start = XMFLOAT3(transform_.position_);
+            rayData.start.y += RAY_HEIGHT;
+
+            XMVECTOR vec = XMVector3Normalize(XMLoadFloat3(&plaVec));
+            XMStoreFloat3(&rayData.dir, vec);
+
+            XMFLOAT3 target = plaPos;
+            target.y += RAY_HEIGHT;
+
+            GameManager::GetCollisionMap()->RaySelectCellVsSegment(target, &rayData);
+            moveReady = rayData.dist >= plaDist;
+        }
+
+        if (moveReady) {
+            isTMove = true;
+            pMoveAction_->SetTarget(plaPos);
+            pMoveAction_->Update();
+        }
+    }
+
+    if(!isTMove) {
+        pAstarMoveAction_->SetTarget(plaPos);
+        if (pAstarMoveAction_->IsOutTarget(0.5f)) pAstarMoveAction_->UpdatePath(plaPos);
+        else if (rand() % 100 == 0) pAstarMoveAction_->UpdatePath(plaPos);
+        pAstarMoveAction_->Update();
+    }
+    */
 
     //•Ç‚Æ‚Ì“–‚½‚è”»’è
     SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
