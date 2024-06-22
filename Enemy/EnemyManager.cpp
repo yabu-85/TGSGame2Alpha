@@ -35,8 +35,13 @@ namespace EnemyManager {
 	void SpawnEnemy(ENEMY_TYPE type)
 	{
 		EnemyBase* e = nullptr;
-		if (type == ENEMY_TEST) enemyList_.push_back(e = Instantiate<TestEnemy>(pParent_));
-		if (type == ENEMY_TEST2) enemyList_.push_back(e = Instantiate<TestEnemy>(pParent_));
+		switch (type)
+		{
+		case ENEMY_TEST: e = Instantiate<TestEnemy>(pParent_); break;
+		case ENEMY_TEST2: e = Instantiate<TestEnemy>(pParent_); break;
+		default: return;
+		}
+		enemyList_.push_back(e);
 		e->SetEnemyType(type);
 	}
 

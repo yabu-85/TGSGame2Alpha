@@ -133,7 +133,7 @@ bool AstarMoveAction::IsOutTarget(float range)
 
 void AstarMoveAction::UpdatePath(XMFLOAT3 target)
 {
-	targetList_ = RouteSearch::AStar(RouteSearch::GetNodeList(), pCharacter_->GetPosition(), target);
+	targetList_ = RouteSearch::AStar(target, pCharacter_->GetPosition());
 	if(!targetList_.empty()) targetPos_ = targetList_.front().pos;
 }
 

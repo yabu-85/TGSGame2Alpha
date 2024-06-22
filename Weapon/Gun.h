@@ -14,7 +14,9 @@ struct BulletInfo
 //銃を管理するクラス
 class Gun : public GameObject
 {
-    int hModel_;                    // モデル番号
+    int hModel_;
+    bool rayHit_;
+
     std::vector<BulletInfo> bulletInfoList_;
 
 public:
@@ -24,6 +26,7 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
+    void OnCollision(GameObject* pTarget) override;
 
     // 銃弾の速度と射出方向を計算する
     XMFLOAT3 CalculateBulletMovement(XMFLOAT3 top, XMFLOAT3 root, float bulletSpeed);

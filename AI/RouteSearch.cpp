@@ -121,7 +121,7 @@ namespace RouteSearch {
     }
 
     // A*アルゴリズムの実装
-    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, int start_id)
+    std::vector<RouteData> AStar(int goal_id, int start_id)
     {
         //エラー
         if (nodes.empty()) return std::vector<RouteData>();
@@ -175,9 +175,9 @@ namespace RouteSearch {
         return std::vector<RouteData>();
     }
 
-    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, int goal_id, const XMFLOAT3& s_pos) {
+    std::vector<RouteData> AStar(int goal_id, const XMFLOAT3& s_pos) {
         int start_id = GetNodeToPosition(s_pos);
-        std::vector<RouteData> path = AStar(nodes, goal_id, start_id);
+        std::vector<RouteData> path = AStar(goal_id, start_id);
 
         //スタート地点の追加
         RouteData data;
@@ -189,11 +189,11 @@ namespace RouteSearch {
         return path;
     }
 
-    std::vector<RouteData> AStar(const std::vector<Node*>& nodes, const XMFLOAT3& t_pos, const XMFLOAT3& s_pos)
+    std::vector<RouteData> AStar(const XMFLOAT3& t_pos, const XMFLOAT3& s_pos)
     {
         int start_id = GetNodeToPosition(s_pos);
         int goal_id = GetNodeToPosition(t_pos);
-        std::vector<RouteData> path = AStar(nodes, goal_id, start_id);
+        std::vector<RouteData> path = AStar(goal_id, start_id);
 
         //スタート地点の追加
         RouteData data;

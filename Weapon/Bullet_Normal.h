@@ -16,8 +16,6 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
-    void OnCollision(GameObject* pTarget) override;
-
-    void Shot() override;
+    void Shot(EnemyBase* enemy, XMFLOAT3 pos) override;
 
 };

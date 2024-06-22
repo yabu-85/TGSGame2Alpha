@@ -8,7 +8,7 @@ class GameObject;
 
 enum ENEMY_TYPE {
 	ENEMY_TEST = 0,
-	ENEMY_TEST2 = 0,
+	ENEMY_TEST2,
 	ENEMY_MAX,
 };
 

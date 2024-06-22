@@ -3,10 +3,16 @@
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
 #include "../Engine/Direct3D.h"
+#include "../Engine/Camera.h"
+#include "../Engine/SegmentCollider.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
+#include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
+
+#include "../Enemy/EnemyBase.h"
+#include "../Enemy/EnemyManager.h"
 
 //リロード
 //反動
@@ -22,6 +28,10 @@ namespace
     XMFLOAT3 handOffset = { 0.3f, 0.7f, 0.1f };      // 移動量
     XMFLOAT3 modelScale = { 0.3f, 0.3f, 0.3f };      // モデルサイズ
     std::string modelName = "Model/Rifle.fbx";       // モデル名
+
+    //当たり判定距離
+    static const float CALC_DISTANCE = 30.0f;
+
 }
 
 Gun::Gun(GameObject* parent)
@@ -73,6 +83,15 @@ void Gun::Release()
 {
 }
 
+void Gun::OnCollision(GameObject* pTarget)
+{
+    // 敵に当たったとき
+    if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
+    {
+        rayHit_ = true;
+    }
+}
+
 XMFLOAT3 Gun::CalculateBulletMovement(XMFLOAT3 top, XMFLOAT3 root, float bulletSpeed)
 {
     // 射出方向を計算して正規化  (top - root)
@@ -90,19 +109,67 @@ XMFLOAT3 Gun::CalculateBulletMovement(XMFLOAT3 top, XMFLOAT3 root, float bulletS
 template <class T>
 void Gun::ShootBullet(BulletType type)
 {
-    // これは高頻度で処理するので、わかりにくいけどFindではなく親をたどって生成（Aim->Player->PlayScene）
-    BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
+    XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, "Top");
+    XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(), Camera::GetPosition()));
 
-    // パラメータ設定
-    float bulletSpeed = pNewBullet->GetBulletParameter().speed_;
+    RayCastData data;
+    data.start = Camera::GetPosition();
+    data.dir = cameraVec;
+    XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, 30.0f));
+    GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
+    XMFLOAT3 gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+
+    //ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+    //敵と当たったか、最短距離を計算
+    std::vector<EnemyBase*>& enemyList = EnemyManager::GetAllEnemy();
+    int minIndex = -1;
+    float minDist = 999999;
+    XMFLOAT3 minEneHitPos = XMFLOAT3();
+
+    //コライダー登録
+    SegmentCollider* collid = new SegmentCollider(XMFLOAT3(), XMLoadFloat3(&data.dir));
+    collid->size_ = XMFLOAT3(CALC_DISTANCE, CALC_DISTANCE, CALC_DISTANCE);
+    collid->typeList_.push_back(ObjectType::Enemy);
+    AddCollider(collid);
+    XMFLOAT3 centerPos = Float3Sub(Float3Add(gunTop, handOffset), GetWorldPosition());
+    transform_.position_ = centerPos;
+
+    for (int i = 0; i < enemyList.size(); i++) {
+        //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
+        XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
+        float hitDist = CalculationDistance(vec);
+        if (hitDist > data.dist) continue;
+
+        //壁に当たる距離じゃないから、当たり判定やる
+        rayHit_ = false;
+        this->Collision(enemyList[i]);
+
+        //最短距離で当たった
+        if (rayHit_ && hitDist < minDist) {
+            minDist = hitDist;
+            minIndex = i;
+            minEneHitPos = collid->targetPos_;
+        }
+    }
+    EnemyBase* enemy = nullptr;
+    if (minIndex >= 0) {
+        gunTar = minEneHitPos;
+        enemy = enemyList[minIndex];
+        OutputDebugString("hit\n");
+    }
+    else {
+        OutputDebugString("no hit\n");
+    }
+    transform_.position_ = handOffset;
+    ClearCollider();
+
+    //ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+
+    BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
     bulletInfoList_[(int)type].coolTime_ = pNewBullet->GetBulletParameter().shotCoolTime_;
 
-    XMFLOAT3 GunTop = Model::GetBonePosition(hModel_, "Top");
-    XMFLOAT3 GunRoot = Model::GetBonePosition(hModel_, "Root");
-    XMFLOAT3 move = CalculateBulletMovement(GunTop, GunRoot, bulletSpeed);
-    move = Float3Normalize(move);
-
-    pNewBullet->SetPosition(GunTop);
+    XMFLOAT3 move = Float3Sub(gunTar, gunTop);
+    pNewBullet->SetPosition(gunTop);
     pNewBullet->SetMove(move);
-    pNewBullet->Shot();
+    pNewBullet->Shot(enemy, gunTar);
 }

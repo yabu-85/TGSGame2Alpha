@@ -1,6 +1,8 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class EnemyBase;
+
 // ’eŠÛ‚Ì–¼‘O‚ÆID‚ğŠÇ—‚·‚éenum
 enum class BulletType
 {
@@ -33,7 +35,7 @@ public:
     };
     virtual ~BulletBase() = default;
 
-    virtual void Shot() {};
+    virtual void Shot(EnemyBase* enemy, XMFLOAT3 pos) {};
 
     // e’e‚Ìí—Ş‚ğæ“¾
     BulletType GetBulletType() const { return bulletType_; }

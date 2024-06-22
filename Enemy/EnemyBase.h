@@ -20,7 +20,7 @@ protected:
     DamageSystem* pDamageSystem_;
 
 public:
-    EnemyBase(GameObject* parent);
+    EnemyBase(GameObject* parent, std::string name);
     virtual ~EnemyBase();
     virtual void Initialize() override;
     virtual void Update() override;

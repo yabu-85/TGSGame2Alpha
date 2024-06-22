@@ -48,9 +48,6 @@ void TestScene::Update()
 		OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
 		OutputDebugString("\n");
 	}
-
-	if (Input::IsKeyDown(DIK_F3)) 
-		ScreenManager::AllDeleteScreen();
 	
 	static const float speed = 0.3f;
 	XMFLOAT4 pos = Light::GetPosition(0);

@@ -3,8 +3,8 @@
 #include "HealthGauge.h"
 #include "../Character/DamageSystem.h"
 
-EnemyBase::EnemyBase(GameObject* parent)
-    : GameObject(parent, "EnemyBase"), enemyType_(ENEMY_TYPE::ENEMY_MAX), hModel_(-1), gravity_(0.0f)
+EnemyBase::EnemyBase(GameObject* parent, std::string name)
+    : GameObject(parent, name), enemyType_(ENEMY_TYPE::ENEMY_MAX), hModel_(-1), gravity_(0.0f)
 {
     pHealthGauge_ = new HealthGauge(this);
     pDamageSystem_ = new DamageSystem();

@@ -11,6 +11,7 @@ class Collider;
 //ƒRƒŠƒWƒ‡ƒ“‚Ì”»’è‘ÎÛİ’è‚Æ‚©‚Åg‚¤
 enum class ObjectType
 {
+	None = 0,
 	Player,
 	Bullet,
 	Enemy,

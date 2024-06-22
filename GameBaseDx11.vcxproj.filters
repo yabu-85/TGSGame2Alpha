@@ -209,9 +209,6 @@
     <ClCompile Include="Scene\TestScene.cpp">
       <Filter>03Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\StageEditor.cpp">
-      <Filter>01Engine\Gui</Filter>
-    </ClCompile>
     <ClCompile Include="AI\Node.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -277,6 +274,15 @@
     </ClCompile>
     <ClCompile Include="Action\RotateAction.cpp">
       <Filter>Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Character\CharacterManager.cpp">
+      <Filter>Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Other\GameManager.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage\StageEditor.cpp">
+      <Filter>Stage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -418,9 +424,6 @@
     <ClInclude Include="Scene\TestScene.h">
       <Filter>03Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\StageEditor.h">
-      <Filter>01Engine\Gui</Filter>
-    </ClInclude>
     <ClInclude Include="AI\Node.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -478,7 +481,6 @@
     <ClInclude Include="UI\DamageUI.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="ENEMY\ENEMYBASE - コピー.H" />
     <ClInclude Include="Enemy\TestEnemy.h">
       <Filter>Enemy</Filter>
     </ClInclude>
@@ -490,6 +492,15 @@
     </ClInclude>
     <ClInclude Include="Action\RotateAction.h">
       <Filter>Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Character\CharacterManager.h">
+      <Filter>Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Other\GameManager.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage\StageEditor.h">
+      <Filter>Stage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

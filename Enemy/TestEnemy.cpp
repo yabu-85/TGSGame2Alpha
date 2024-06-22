@@ -6,6 +6,7 @@
 #include "../Engine/SphereCollider.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/Global.h"
+#include "../Engine/Input.h"
 #include "../Character/DamageSystem.h"
 #include "../Stage/CollisionMap.h"
 #include "../Action/MoveAction.h"
@@ -22,7 +23,7 @@ namespace {
 }
 
 TestEnemy::TestEnemy(GameObject* parent)
-    : EnemyBase(parent), pMoveAction_(nullptr), pAstarMoveAction_(nullptr)
+    : EnemyBase(parent, "TestEnemy"), pMoveAction_(nullptr), pAstarMoveAction_(nullptr)
 {
 }
 
@@ -64,11 +65,15 @@ void TestEnemy::Update()
         transform_.position_.y -= gravity_;
     }
 
-    XMFLOAT3 plaPos = GameManager::GetPlayer()->GetPosition();
-    pAstarMoveAction_->SetTarget(plaPos);
-    if (pAstarMoveAction_->IsOutTarget(0.5f)) pAstarMoveAction_->UpdatePath(plaPos);
-    else if (rand() % 100 == 0) pAstarMoveAction_->UpdatePath(plaPos);
-    pAstarMoveAction_->Update();
+    if (Input::IsKey(DIK_F)) {
+        XMFLOAT3 plaPos = GameManager::GetPlayer()->GetPosition();
+        float plaDist = CalculationDistance(plaPos, transform_.position_);
+        pAstarMoveAction_->SetTarget(plaPos);
+
+        if (plaDist >= 5.0f && pAstarMoveAction_->IsOutTarget(0.5f)) pAstarMoveAction_->UpdatePath(plaPos);
+        else if (rand() % 100 == 0) pAstarMoveAction_->UpdatePath(plaPos);
+        pAstarMoveAction_->Update();
+    }
 
     /*
     static const float TMOVE_DIST = 10.0f;
