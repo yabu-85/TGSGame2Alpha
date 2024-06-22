@@ -5,6 +5,7 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/Camera.h"
 #include "../Engine/SegmentCollider.h"
+#include "../Engine/CapsuleCollider.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
@@ -127,10 +128,19 @@ void Gun::ShootBullet(BulletType type)
     XMFLOAT3 minEneHitPos = XMFLOAT3();
 
     //ƒRƒ‰ƒCƒ_[“o˜^
+#if 0
+    XMFLOAT3 Cvec = Float3Multiply(data.dir, (CALC_DISTANCE * 0.5f));
+    CapsuleCollider* collid = new CapsuleCollider(Cvec, 1.0f, CALC_DISTANCE, XMLoadFloat3(&data.dir));
+    collid->typeList_.push_back(ObjectType::Enemy);
+    AddCollider(collid);
+#endif
+#if 1
     SegmentCollider* collid = new SegmentCollider(XMFLOAT3(), XMLoadFloat3(&data.dir));
     collid->size_ = XMFLOAT3(CALC_DISTANCE, CALC_DISTANCE, CALC_DISTANCE);
     collid->typeList_.push_back(ObjectType::Enemy);
     AddCollider(collid);
+#endif
+
     XMFLOAT3 centerPos = Float3Sub(Float3Add(gunTop, handOffset), GetWorldPosition());
     transform_.position_ = centerPos;
 

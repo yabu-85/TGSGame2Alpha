@@ -70,10 +70,11 @@ void Player::Initialize()
     pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
     assert(pCMap);
 
-#if 0
-    XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    CapsuleCollider* pCollid = new CapsuleCollider(XMFLOAT3(), 1.0f, 3.0f, vec);
-    AddCollider(pCollid);
+#if 1
+    XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.35f, 0.5f, vec);
+    collid->typeList_.push_back(ObjectType::Stage);
+    AddCollider(collid);
 #else
     SphereCollider* collid = new SphereCollider(XMFLOAT3(0.0f, 0.35f, 0.0f), 0.3f);
     collid->typeList_.push_back(ObjectType::Stage);

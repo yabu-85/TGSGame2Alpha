@@ -319,20 +319,18 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
 
 bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg)
 {
-    XMFLOAT3 capPos1 = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
-    XMFLOAT3 capPos2 = Transform::Float3Add(seg->pGameObject_->GetWorldPosition(), seg->center_);
+    XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
+    XMFLOAT3 segPos = Transform::Float3Add(seg->pGameObject_->GetWorldPosition(), seg->center_);
     XMVECTOR dir1 = XMVector3Normalize(capsule->direction_);
     XMVECTOR dir2 = seg->vec_;
     dir1 *= capsule->height_;
     dir2 *= seg->size_.x;
 
-    XMVECTOR vPos1 = XMLoadFloat3(&capPos1) - dir1 * 0.5f;
-    XMVECTOR vPos2 = XMLoadFloat3(&capPos2) - dir2 * 0.5f;
-    XMStoreFloat3(&capPos1, vPos1);
-    XMStoreFloat3(&capPos2, vPos2);
+    XMVECTOR vPos1 = XMLoadFloat3(&capPos) - dir1 * 0.5f;
+    XMStoreFloat3(&capPos, vPos1);
 
-    Segment seg1 = Segment(capPos1, dir1);
-    Segment seg2 = Segment(capPos2, dir2);
+    Segment seg1 = Segment(capPos, dir1);
+    Segment seg2 = Segment(segPos, dir2);
     XMFLOAT3 p1 = XMFLOAT3(), p2 = XMFLOAT3();
     float t1 = 0.0f, t2 = 0.0f;
 
