@@ -62,7 +62,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
 #if 1 //_DEBUG
-	screenWidth = 600;
+	screenWidth = 700;
 	screenHeight = 500;
 #endif
 
@@ -150,6 +150,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				ScreenManager::Update();
 				pRootObject->UpdateSub();
 
+#if 1
 				//１回目
 				XMFLOAT3 pos = Camera::GetPosition();
 				XMFLOAT3 tar = Camera::GetTarget();
@@ -164,16 +165,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Camera::SetPosition(pos);
 				Camera::SetTarget(tar);
 				Camera::Update();
-
+#endif
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
 				VFX::Draw();
 				
-				//DamageUI::Draw();
+				DamageUI::Draw();
 				
 				ScreenManager::Draw();
 
+#if 0
 				//ImGuiの更新処理
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplWin32_NewFrame();
@@ -208,6 +210,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				ImGui::End();//ImGuiの処理を終了
 				ImGui::Render();
 				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif
 
 				Direct3D::EndDraw();
 
@@ -259,7 +262,7 @@ HWND InitApp(HINSTANCE hInstance, int screenWidth, int screenHeight, int nCmdSho
 	//ウィンドウサイズの計算
 	winRect = { 0, 0, screenWidth, screenHeight };
 	AdjustWindowRect(&winRect, WS_OVERLAPPEDWINDOW, FALSE);
-
+	
 	//タイトルバーに表示する内容
 	char caption[64];
 	GetPrivateProfileString("SCREEN", "Caption", "***", caption, 64, ".\\setup.ini");

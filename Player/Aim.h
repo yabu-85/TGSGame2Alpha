@@ -33,9 +33,11 @@ class Aim : public GameObject
     XMVECTOR center_;
     XMVECTOR shakeDirection_;
 
-    float distanceBehind_;          //どのくらい後ろから映すか
-    float targetDistanceBehind_;    //デフォルトの視点の距離
-    float mouseSensitivity;         //マウス感度
+    float distanceHeight_;          //Aimの高さ
+    float distanceHorizontal_;      //左右にずらす距離
+    float distanceBehind_;          //後ろから映す距離
+    float distanceTargetBehind_;    //後ろから映す目標距離
+    float mouseSensitivity_;        //マウス感度
     float compulsionComplement_;    //強制移動の補完具合
 
     XMFLOAT3 cameraTarget_;         //カメラの焦点目標

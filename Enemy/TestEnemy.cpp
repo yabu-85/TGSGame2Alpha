@@ -12,8 +12,9 @@
 #include "../Action/MoveAction.h"
 #include "../Other/GameManager.h"
 #include "../Player/Player.h"
+#include "EnemyManager.h"
 
-float TestEnemy::valueA = 3.0f;
+XMFLOAT3 TestEnemy::damageUIPos_ = XMFLOAT3(0.5f, 1.5f, 0.0f);
 
 namespace {
     const float gravity = 0.002f;                   //Š|‚©‚éd—Í
@@ -29,6 +30,8 @@ TestEnemy::TestEnemy(GameObject* parent)
 
 TestEnemy::~TestEnemy() 
 {
+    SAFE_DELETE(pMoveAction_);
+    SAFE_DELETE(pAstarMoveAction_);
 }
 
 void TestEnemy::Initialize()
@@ -36,19 +39,20 @@ void TestEnemy::Initialize()
     hModel_ = Model::Load("Model/Scarecrow.fbx");
     assert(hModel_ >= 0);
 
-    type_ = ObjectType::Enemy;
+    SetBodyRange(0.5f);
+    SetBodyWeight(0.3f);
+    enemyType_ = ENEMY_TYPE::ENEMY_TEST;
     pHealthGauge_->SetHeight(1.7f);
     pDamageSystem_->SetMaxHP(20);
     pDamageSystem_->SetHP(20);
 
     transform_.position_ = start;
-
     pMoveAction_ = new MoveAction(this, 0.03f, 0.1f);
     pAstarMoveAction_ = new AstarMoveAction(this, 0.03f, 0.1f);
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4f, vec);
-    collid->typeList_.push_back(ObjectType::Stage);
+    collid->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(collid);
 
 }
@@ -68,10 +72,13 @@ void TestEnemy::Update()
     if (Input::IsKey(DIK_F)) {
         XMFLOAT3 plaPos = GameManager::GetPlayer()->GetPosition();
         float plaDist = CalculationDistance(plaPos, transform_.position_);
-        pAstarMoveAction_->SetTarget(plaPos);
-
-        if (plaDist >= 5.0f && pAstarMoveAction_->IsOutTarget(0.5f)) pAstarMoveAction_->UpdatePath(plaPos);
-        else if (rand() % 100 == 0) pAstarMoveAction_->UpdatePath(plaPos);
+        
+        //AStar
+        if (plaDist >= 5.0f) {
+            pAstarMoveAction_->SetTarget(plaPos);
+            if (pAstarMoveAction_->IsOutTarget(5.0f)) pAstarMoveAction_->UpdatePath(plaPos);
+            else if (rand() % 100 == 0) pAstarMoveAction_->UpdatePath(plaPos);
+        }
         pAstarMoveAction_->Update();
     }
 
@@ -114,13 +121,9 @@ void TestEnemy::Update()
         }
     }
 
-    if(!isTMove) {
-        pAstarMoveAction_->SetTarget(plaPos);
-        if (pAstarMoveAction_->IsOutTarget(0.5f)) pAstarMoveAction_->UpdatePath(plaPos);
-        else if (rand() % 100 == 0) pAstarMoveAction_->UpdatePath(plaPos);
-        pAstarMoveAction_->Update();
-    }
     */
+
+    ReflectCharacter();
 
     //•Ç‚Æ‚Ì“–‚½‚è”»’è
     SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());

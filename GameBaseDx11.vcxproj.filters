@@ -284,6 +284,9 @@
     <ClCompile Include="Stage\StageEditor.cpp">
       <Filter>Stage</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon\BulletBase.cpp">
+      <Filter>Weapon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">

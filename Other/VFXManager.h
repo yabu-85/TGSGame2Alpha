@@ -11,7 +11,8 @@ namespace VFXManager
 	//必ず一回は呼ぶVFXデータの初期化
 	void Initialize();
 
-	void CreateVfxExplode1(XMFLOAT3 pos);
+	void CreateVfxExplode(XMFLOAT3 pos);
+	void CreateVfxExplodeSmall(XMFLOAT3 pos);
 	void CreateVfxSmoke(XMFLOAT3 pos);
 
 };

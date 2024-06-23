@@ -1,12 +1,11 @@
 #pragma once
-#include <vector>
-#include "../Engine/GameObject.h"
+#include "../Character/Character.h"
 
 class HealthGauge;
 class DamageSystem;
 enum ENEMY_TYPE;
 
-class EnemyBase : public GameObject
+class EnemyBase : public Character
 {
 protected:
     ENEMY_TYPE enemyType_;
@@ -21,7 +20,7 @@ protected:
 
 public:
     EnemyBase(GameObject* parent, std::string name);
-    virtual ~EnemyBase();
+    virtual ~EnemyBase() override;
     virtual void Initialize() override;
     virtual void Update() override;
     virtual void Draw() override;
@@ -31,6 +30,6 @@ public:
     void SetDamageTime(float t) { damageTime = t; }
     DamageSystem* GetDamageSystem() { return pDamageSystem_; }
 
-    virtual float GetValueA() = 0;
+    virtual XMFLOAT3 GetDamageUIPos() = 0;
 
 };

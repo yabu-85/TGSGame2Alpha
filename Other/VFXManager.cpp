@@ -7,6 +7,8 @@ namespace VFXManager
 	//”š”­
 	EmitterData sparks;
 	EmitterData explode;
+	EmitterData sparksSmall;
+	EmitterData explodeSmall;
 
 	//‰Œ
 	EmitterData smoke;
@@ -35,8 +37,7 @@ void VFXManager::Initialize()
 	explode.textureFileName = "Particle/cloudA.png";
 	explode.delay = 0;
 	explode.number = 6;
-	explode.lifeTime = 20;
-	explode.position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	explode.lifeTime = 40;
 	explode.positionRnd = XMFLOAT3(0.5f, 0.0f, 0.5f);
 	explode.direction = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	explode.directionRnd = XMFLOAT3(90.0f, 90.0f, 90.0f);
@@ -48,6 +49,41 @@ void VFXManager::Initialize()
 	explode.color = XMFLOAT4(1.0f, 1.0f, 0.1f, 1.0f);
 	explode.deltaColor = XMFLOAT4(0.0f, -1.0f / 20.0f, 0.0f, -1.0f / 20.0f);
 	explode.gravity = 0.001f;
+
+	//‰Î‚Ì•²
+	sparksSmall.textureFileName = "Particle/cloudA.png";
+	sparksSmall.delay = 0;
+	sparksSmall.number = 12;
+	sparksSmall.lifeTime = 50;
+	sparksSmall.positionRnd = XMFLOAT3(0.2f, 0.2f, 0.2f);
+	sparksSmall.direction = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	sparksSmall.directionRnd = XMFLOAT3(90.0f, 90.0f, 90.0f);
+	sparksSmall.speed = 0.07f;
+	sparksSmall.speedRnd = 0.8f;
+	sparksSmall.accel = 0.9f;
+	sparksSmall.size = XMFLOAT2(0.05f, 0.05f);
+	sparksSmall.sizeRnd = XMFLOAT2(0.1f, 0.1f);
+	sparksSmall.scale = XMFLOAT2(0.97f, 0.97f);
+	sparksSmall.color = XMFLOAT4(1.0f, 1.0f, 0.1f, 1.0f);
+	sparksSmall.deltaColor = XMFLOAT4(0.0f, 0.0f, 0.0f, -1.0f / sparksSmall.lifeTime);
+	sparksSmall.gravity = 0.001f;
+
+	//”š”­
+	explodeSmall.textureFileName = "Particle/cloudA.png";
+	explodeSmall.delay = 0;
+	explodeSmall.number = 6;
+	explodeSmall.lifeTime = 40;
+	explodeSmall.positionRnd = XMFLOAT3(0.2f, 0.2f, 0.2f);
+	explodeSmall.direction = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	explodeSmall.directionRnd = XMFLOAT3(90.0f, 90.0f, 90.0f);
+	explodeSmall.speed = 0.03f;
+	explodeSmall.speedRnd = 0.01f;
+	explodeSmall.size = XMFLOAT2(0.25f, 0.25f);
+	explodeSmall.sizeRnd = XMFLOAT2(0.1f, 0.1f);
+	explodeSmall.scale = XMFLOAT2(1.05f, 1.05f);
+	explodeSmall.color = XMFLOAT4(1.0f, 1.0f, 0.1f, 1.0f);
+	explodeSmall.deltaColor = XMFLOAT4(0.0f, -1.0f / 20.0f, 0.0f, -1.0f / 20.0f);
+	explodeSmall.gravity = 0.001f;
 
 	//‰Œ
 	smoke.textureFileName = "Particle/cloudA.png";
@@ -68,7 +104,7 @@ void VFXManager::Initialize()
 	smoke.gravity = 0.0f;
 }
 
-void VFXManager::CreateVfxExplode1(XMFLOAT3 pos)
+void VFXManager::CreateVfxExplode(XMFLOAT3 pos)
 {
 	//‰Î‚Ì•²
 	sparks.position = pos;
@@ -77,6 +113,17 @@ void VFXManager::CreateVfxExplode1(XMFLOAT3 pos)
 	//”š”­
 	explode.position = pos;
 	VFX::Start(explode);
+}
+
+void VFXManager::CreateVfxExplodeSmall(XMFLOAT3 pos)
+{
+	//‰Î‚Ì•²
+	sparksSmall.position = pos;
+	VFX::Start(sparksSmall);
+
+	//”š”­
+	explodeSmall.position = pos;
+	VFX::Start(explodeSmall);
 }
 
 void VFXManager::CreateVfxSmoke(XMFLOAT3 pos)

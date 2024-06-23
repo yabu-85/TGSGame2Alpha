@@ -131,18 +131,16 @@ void Gun::ShootBullet(BulletType type)
 #if 0
     XMFLOAT3 Cvec = Float3Multiply(data.dir, (CALC_DISTANCE * 0.5f));
     CapsuleCollider* collid = new CapsuleCollider(Cvec, 1.0f, CALC_DISTANCE, XMLoadFloat3(&data.dir));
-    collid->typeList_.push_back(ObjectType::Enemy);
+    collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
 #endif
 #if 1
-    SegmentCollider* collid = new SegmentCollider(XMFLOAT3(), XMLoadFloat3(&data.dir));
+    XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(), GetWorldPosition());
+    SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&cameraVec));
     collid->size_ = XMFLOAT3(CALC_DISTANCE, CALC_DISTANCE, CALC_DISTANCE);
-    collid->typeList_.push_back(ObjectType::Enemy);
+    collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
 #endif
-
-    XMFLOAT3 centerPos = Float3Sub(Float3Add(gunTop, handOffset), GetWorldPosition());
-    transform_.position_ = centerPos;
 
     for (int i = 0; i < enemyList.size(); i++) {
         //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
@@ -165,12 +163,7 @@ void Gun::ShootBullet(BulletType type)
     if (minIndex >= 0) {
         gunTar = minEneHitPos;
         enemy = enemyList[minIndex];
-        OutputDebugString("hit\n");
     }
-    else {
-        OutputDebugString("no hit\n");
-    }
-    transform_.position_ = handOffset;
     ClearCollider();
 
     //ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー

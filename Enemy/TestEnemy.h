@@ -9,8 +9,7 @@ class AstarMoveAction;
 
 class TestEnemy : public EnemyBase
 {
-    static float valueA;
-    bool moveReady = false;
+    static XMFLOAT3 damageUIPos_;
 
     MoveAction* pMoveAction_;
     AstarMoveAction* pAstarMoveAction_;
@@ -23,6 +22,6 @@ public:
     void Draw() override;
     void Release() override;
 
-    float GetValueA() override { return valueA; }
+    XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 
 };

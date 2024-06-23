@@ -5,25 +5,17 @@
 #include <assert.h>
 
 //コンストラクタ（親も名前もなし）
-GameObject::GameObject(void) :
-	GameObject(nullptr, "")
+GameObject::GameObject(void) : GameObject(nullptr, "")
 {
-
 }
 
 //コンストラクタ（名前なし）
-GameObject::GameObject(GameObject * parent) :
-	GameObject(parent, "")
+GameObject::GameObject(GameObject * parent) : GameObject(parent, "")
 {
 }
 
 //コンストラクタ（標準）
-GameObject::GameObject(GameObject * parent, const std::string& name)
-	: pParent_(parent),
-
-
-
-	objectName_(name)
+GameObject::GameObject(GameObject * parent, const std::string& name) : pParent_(parent), objectName_(name), objectType_(OBJECT_TYPE::None)
 {
 	childList_.clear();
 	state_ = { 0, 1, 1, 0 };
@@ -241,8 +233,8 @@ void GameObject::Collision(GameObject * pTarget)
 		return;
 	}
 
-	ObjectType selfObjType = this->GetType();
-	ObjectType targetObjType = pTarget->GetType();
+	OBJECT_TYPE selfObjType = this->GetObjectType();
+	OBJECT_TYPE targetObjType = pTarget->GetObjectType();
 
 	//自分とpTargetのコリジョン情報を使って当たり判定
 	//1つのオブジェクトが複数のコリジョン情報を持ってる場合もあるので二重ループ

@@ -1,16 +1,15 @@
 #pragma once
-#include "../Engine/GameObject.h"
+#include "../Character/Character.h"
 
 class Aim;
 class StateManager;
 
-class Player : public GameObject
+class Player : public Character
 {
     bool isFly_;                //空中かどうか
     bool isClimb_;              //登り状態かどうか
     bool isCreative_;           //クリエイティブモード
 
-    int testModel_;             //デバッグ用
     int hModel_;                //モデル番号
 
     float gradually_;           //移動スピードの加減の値
@@ -28,7 +27,7 @@ class Player : public GameObject
 
 public:
     Player(GameObject* parent);
-    ~Player();
+    ~Player() override;
     void Initialize() override;
     void Update() override;
     void Draw() override;

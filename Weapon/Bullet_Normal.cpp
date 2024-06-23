@@ -15,7 +15,7 @@ namespace {
 }
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
-    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr)
+    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), rayHit_(false)
 {
     // パラメータを取得
     parameter_.damage_ = 5;
@@ -32,8 +32,6 @@ Bullet_Normal::~Bullet_Normal()
 
 void Bullet_Normal::Initialize()
 {
-    type_ = ObjectType::Bullet;
-
     pPolyLine_ = new PolyLine;
     pPolyLine_->Load("PolyImage/BulletLine.png");
     pPolyLine_->SetLength(3);
@@ -69,7 +67,7 @@ void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 pos)
 
     //敵に当たった時の処理
     if (enemy) {
-        VFXManager::CreateVfxSmoke(pos);
+        VFXManager::CreateVfxExplodeSmall(pos);
         pPolyLine_->AddPosition(pos);
         pPolyLine_->AddPosition(pos);
 
@@ -81,9 +79,8 @@ void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 pos)
 
         //ダメージ表示
         XMFLOAT3 damagePos = enemy->GetPosition();
-        damagePos.y += enemy->GetValueA();
+        damagePos = Float3Add(damagePos, enemy->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_);
-
     }
     //敵に当たらなかった時の処理
     else {
@@ -93,7 +90,7 @@ void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 pos)
         //コリジョンマップに当たっていた時
         float hitDist = CalculationDistance(transform_.position_, pos);
         if (hitDist <= CALC_DISTANCE) {
-            VFXManager::CreateVfxExplode1(pos);
+            VFXManager::CreateVfxExplodeSmall(pos);
         }
     }
 

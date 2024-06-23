@@ -43,8 +43,9 @@ void TestScene::Initialize()
 void TestScene::Update()
 {
 	if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);
-	if (Input::IsKeyDown(DIK_F2)) EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
-	if (Input::IsKeyDown(DIK_F3)) {
+	if (Input::IsKeyDown(DIK_F2)) for(int i = 0; i < 10; i++) EnemyManager::SpawnEnemy(ENEMY_TEST);
+	if (Input::IsKeyDown(DIK_F3)) EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
+	if (Input::IsKeyDown(DIK_F4)) {
 		OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
 		OutputDebugString("\n");
 	}

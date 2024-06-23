@@ -3,12 +3,14 @@
 #include "../Engine/Global.h"
 #include <vector>
 
-Character::Character(GameObject* parent, std::string name)
+Character::Character(GameObject* parent, std::string name) : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}
 {
+    CharacterManager::AddCharacter(this);
 }
 
 Character::~Character()
 {
+    CharacterManager::RemoveCharacter(this);
 }
 
 void Character::Update()
@@ -18,7 +20,8 @@ void Character::Update()
 void Character::ReflectCharacter()
 {
     float sY = transform_.position_.y;
-    for (Character* c : CharacterManager::GetCharacterList()) {
+    std::vector<Character*> list = CharacterManager::GetCharacterList();
+    for (Character* c : list) {
         //自分は飛ばす
         if (c == this) continue;
         float oY = c->transform_.position_.y;
@@ -33,8 +36,8 @@ void Character::ReflectCharacter()
 
         //押し出しの強さ（0になるの防ぐためにちょい足す）
         float w = bodyWeight_ + bodyWeight_;
-        float sWeight = bodyWeight_ / w + 0.001f;
-        float oWeight = bodyWeight_ / w + 0.001f;
+        float sWeight = bodyWeight_ / (w + 0.001f);
+        float oWeight = bodyWeight_ / (w + 0.001f);
 
         //押し出しベクトル計算
         XMFLOAT3 extrusion = Float3Multiply(Float3Normalize(direction), addRange - range);

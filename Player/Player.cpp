@@ -33,7 +33,7 @@ namespace {
 }
 
 Player::Player(GameObject* parent)
-    : GameObject(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), testModel_(-1), climbPos_(XMFLOAT3()),
+    : Character(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()),
     isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr)
 {
     GameManager::SetPlayer(this);
@@ -47,15 +47,14 @@ void Player::Initialize()
 {
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
-    testModel_ = Model::Load("DebugCollision/SphereCollider.fbx");
-    assert(testModel_ >= 0);
 
-    moveSpeed_ = 0.15f;
-    Direct3D::playerSpeed = moveSpeed_;
-
-    type_ = ObjectType::Player;
     transform_.position_ = start;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
+
+    objectType_ = OBJECT_TYPE::Player;
+    SetBodyRange(0.35f);
+    SetBodyWeight(1.0f);
+
     pAim_ = Instantiate<Aim>(this);
     Instantiate<Gun>(this);
 
@@ -66,6 +65,9 @@ void Player::Initialize()
     pStateManager_->AddState(new PlayerClimb(pStateManager_));
     pStateManager_->ChangeState("Wait");
 
+    moveSpeed_ = 0.15f;
+    Direct3D::playerSpeed = moveSpeed_;
+
     StageEditor::SetPlayer(this);
     pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
     assert(pCMap);
@@ -73,7 +75,7 @@ void Player::Initialize()
 #if 1
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.35f, 0.5f, vec);
-    collid->typeList_.push_back(ObjectType::Stage);
+    collid->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(collid);
 #else
     SphereCollider* collid = new SphereCollider(XMFLOAT3(0.0f, 0.35f, 0.0f), 0.3f);
@@ -142,8 +144,10 @@ void Player::Update()
 
 void Player::Draw()
 {
-    Model::SetTransform(hModel_, transform_);
-    Model::Draw(hModel_);
+    if (!InputManager::IsCmd(InputManager::AIM)) {
+        Model::SetTransform(hModel_, transform_);
+        Model::Draw(hModel_);
+    }
 
     CollisionDraw();
 }

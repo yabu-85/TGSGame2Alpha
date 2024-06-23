@@ -49,7 +49,7 @@ void MoveAction::Update()
 
 void MoveAction::CalcDodge(XMVECTOR& move)
 {
-	const float safeSize = 2.5f;
+	const float safeSize = 1.0f;
 	XMFLOAT3 pos = pCharacter_->GetPosition();
 	XMVECTOR vPos = XMLoadFloat3(&pos);
 	XMVECTOR vSafeMove = XMVectorZero();
@@ -112,7 +112,7 @@ void AstarMoveAction::Update()
 	if (moveDist > moveSpeed_) vMove = XMVector3Normalize(vMove) * moveSpeed_;
 
 	//回避計算
-	CalcDodge(vMove);
+	//CalcDodge(vMove);
 
 	XMStoreFloat3(&fPos, vPos + vMove);
 	pCharacter_->SetPosition(fPos);
@@ -121,20 +121,17 @@ void AstarMoveAction::Update()
 
 bool AstarMoveAction::IsOutTarget(float range)
 {
-	//lastTargetを更新・outTarget関数以外でも使うならUpdateに置いたほうがいい
-	if (!targetList_.empty()) {
-		lastTarget_ = targetList_.front().pos;
-	}
+	//lastTargetを更新
+	if (!targetList_.empty()) lastTarget_ = targetList_.front().pos;
 
-	//range外だからtrue
-	if (range < CalculationDistance(targetPos_, lastTarget_)) return true;
-	return false;
+	//ラストとの距離で判定
+	float dist = CalculationDistance(targetPos_, lastTarget_);
+	return range <= dist;
 }
 
 void AstarMoveAction::UpdatePath(XMFLOAT3 target)
 {
 	targetList_ = RouteSearch::AStar(target, pCharacter_->GetPosition());
-	if(!targetList_.empty()) targetPos_ = targetList_.front().pos;
 }
 
 void AstarMoveAction::Draw()

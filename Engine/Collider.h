@@ -12,7 +12,7 @@ class SegmentCollider;
 class Triangle;
 
 #include <vector>
-enum class ObjectType;
+enum class OBJECT_TYPE;
 
 //あたり判定のタイプ
 enum ColliderType
@@ -40,7 +40,7 @@ public:
 	XMFLOAT3		center_;		//中心位置（ゲームオブジェクトの原点から見た位置）
 	XMFLOAT3		size_;			//判定サイズ（幅、高さ、奥行き）
 	int				hDebugModel_;	//デバッグ表示用のモデルのID
-	std::vector<ObjectType> typeList_;	//判定するリスト
+	std::vector<OBJECT_TYPE> typeList_;	//判定するリスト
 
 public:
 	//コンストラクタ

@@ -9,7 +9,7 @@ using namespace DirectX;
 class Collider;
 
 //コリジョンの判定対象設定とかで使う
-enum class ObjectType
+enum class OBJECT_TYPE
 {
 	None = 0,
 	Player,
@@ -38,7 +38,7 @@ protected:
 	std::list<Collider*>	colliderList_;	
 
 	//オブジェクトのType
-	ObjectType				type_;
+	OBJECT_TYPE				objectType_;
 
 public:
 	//コンストラクタ
@@ -168,7 +168,7 @@ private:
 	//引数：obj　削除するオブジェクト
 	void KillObjectSub(GameObject* obj);
 
-	ObjectType GetType() const { return type_; }
+	OBJECT_TYPE GetObjectType() const { return objectType_; }
 
 private:
 	//フラグ

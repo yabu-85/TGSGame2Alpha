@@ -19,6 +19,7 @@ namespace InputManager {
 		MOVE_DOWN, 
 
 		ATTACK,
+		AIM,
 		ACTION,
 		JUMP,
 		CMD_MAX,

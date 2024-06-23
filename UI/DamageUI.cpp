@@ -95,10 +95,6 @@ namespace DamageUI {
 			XMFLOAT3 pos = Camera::CalcScreenPosition(ui.wPos);
 			if (!Camera::IsScreenPositionWithinScreen(pos)) continue;
 
-			//
-			pos.x += 0.01f;
-			pos.y += 0.02f;
-
 			//ç¿ïWïœä∑ÇµÇƒï\é¶
 			pos.x = (pos.x + 1.0f) * 0.5f;
 			pos.y = 1.0f - ((pos.y + 1.0f) * 0.5f);

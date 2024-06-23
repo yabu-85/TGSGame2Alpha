@@ -190,6 +190,7 @@
     <ClCompile Include="UI\Screen.cpp" />
     <ClCompile Include="UI\ScreenManager.cpp" />
     <ClCompile Include="UI\UIBase.cpp" />
+    <ClCompile Include="Weapon\BulletBase.cpp" />
     <ClCompile Include="Weapon\Bullet_Normal.cpp" />
     <ClCompile Include="Weapon\Gun.cpp" />
   </ItemGroup>

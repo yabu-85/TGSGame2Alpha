@@ -14,6 +14,7 @@ enum class BulletType
 class BulletBase : public GameObject
 {
     BulletType bulletType_;
+
     // バレットの共通パラメータ
     struct BulletParameter
     {
@@ -29,10 +30,7 @@ protected:
     XMFLOAT3 move_;             //移動の速度と方向
 
 public:
-    BulletBase(GameObject* parent, BulletType bulletType, std::string name)
-        :GameObject(parent, name), bulletType_(bulletType), move_(0,0,0), parameter_{ 0, 0, 0, 0, 0, false }
-    {
-    };
+    BulletBase(GameObject* parent, BulletType bulletType, std::string name);
     virtual ~BulletBase() = default;
 
     virtual void Shot(EnemyBase* enemy, XMFLOAT3 pos) {};
