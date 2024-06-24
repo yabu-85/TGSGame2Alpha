@@ -24,8 +24,6 @@ SegmentCollider::SegmentCollider(XMFLOAT3 center, XMVECTOR vec)
 
 void SegmentCollider::SetVector(XMVECTOR _vec)
 {
-	float size = XMVectorGetX(XMVector3Length(_vec));
-	size_ = XMFLOAT3(size, size, size);
 	vec_ = XMVector3Normalize(_vec);
 }
 

@@ -48,7 +48,7 @@ void TestEnemy::Initialize()
 
     transform_.position_ = start;
     pMoveAction_ = new MoveAction(this, 0.03f, 0.1f);
-    pAstarMoveAction_ = new AstarMoveAction(this, 0.03f, 0.1f);
+    pAstarMoveAction_ = new AstarMoveAction(this, 0.1f, 0.1f);
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4f, vec);

@@ -60,7 +60,7 @@ void Aim::Update()
     if (!IsValid()) return;
 
     if (InputManager::IsCmd(InputManager::AIM)) {
-#if 1
+#if 0
         distanceBehind_ = 0.0f;
         distanceHorizontal_ = 0.1f;
         distanceHeight_ = 1.1f;

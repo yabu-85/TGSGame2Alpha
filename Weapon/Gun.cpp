@@ -112,11 +112,12 @@ void Gun::ShootBullet(BulletType type)
 {
     XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, "Top");
     XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(), Camera::GetPosition()));
+    float cameraDist = CalculationDistance(Camera::GetPosition(), Camera::GetTarget());
 
     RayCastData data;
     data.start = Camera::GetPosition();
     data.dir = cameraVec;
-    XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, 30.0f));
+    XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, CALC_DISTANCE + cameraDist));
     GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
     XMFLOAT3 gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
 
@@ -137,13 +138,12 @@ void Gun::ShootBullet(BulletType type)
 #if 1
     XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(), GetWorldPosition());
     SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&cameraVec));
-    collid->size_ = XMFLOAT3(CALC_DISTANCE, CALC_DISTANCE, CALC_DISTANCE);
+    collid->size_ = XMFLOAT3(CALC_DISTANCE + cameraDist, CALC_DISTANCE + cameraDist, CALC_DISTANCE + cameraDist);
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
 #endif
 
     for (int i = 0; i < enemyList.size(); i++) {
-        //敵に当たる前に、壁に当たったかどうか（SphereCollidだと仮定して）
         XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
         float hitDist = CalculationDistance(vec);
         if (hitDist > data.dist) continue;
@@ -157,6 +157,41 @@ void Gun::ShootBullet(BulletType type)
             minDist = hitDist;
             minIndex = i;
             minEneHitPos = collid->targetPos_;
+        }
+    }
+
+    //カーソルで当たらなかったから、本来の軌跡で判定を行う
+    if (minIndex < 0) {
+        //コリジョンマップとの判定
+        XMFLOAT3 gunVec = Float3Normalize(Float3Sub(gunTar, gunTop));
+        data = RayCastData();
+        data.start = gunTop;
+        data.dir = gunVec;
+        calcTar = Float3Add(data.start, Float3Multiply(data.dir, CALC_DISTANCE));
+        GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
+        gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+
+        //コライダー情報セット
+        XMFLOAT3 gunRoot = Model::GetBonePosition(hModel_, "Root");
+        centerPos = Float3Sub(gunRoot, GetWorldPosition());
+        collid->SetCenter(centerPos);
+        collid->SetVector(XMLoadFloat3(&gunVec));
+
+        for (int i = 0; i < enemyList.size(); i++) {
+            XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
+            float hitDist = CalculationDistance(vec);
+            if (hitDist > data.dist) continue;
+
+            //壁に当たる距離じゃないから、当たり判定やる
+            rayHit_ = false;
+            this->Collision(enemyList[i]);
+
+            //最短距離で当たった
+            if (rayHit_ && hitDist < minDist) {
+                minDist = hitDist;
+                minIndex = i;
+                minEneHitPos = collid->targetPos_;
+            }
         }
     }
     EnemyBase* enemy = nullptr;

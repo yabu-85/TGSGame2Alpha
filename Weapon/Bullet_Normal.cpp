@@ -62,14 +62,14 @@ void Bullet_Normal::Release()
 
 void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 pos)
 {
-    //発射地点のPolyLine追加
+    //PolyLine追加
     pPolyLine_->AddPosition(transform_.position_);
+    pPolyLine_->AddPosition(pos);
+    pPolyLine_->AddPosition(pos);
 
     //敵に当たった時の処理
     if (enemy) {
         VFXManager::CreateVfxExplodeSmall(pos);
-        pPolyLine_->AddPosition(pos);
-        pPolyLine_->AddPosition(pos);
 
         //ダメージ与える（HP０以下なら倒すのここでやっとく
         DamageInfo info = DamageInfo(parameter_.damage_);
@@ -84,9 +84,6 @@ void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 pos)
     }
     //敵に当たらなかった時の処理
     else {
-        pPolyLine_->AddPosition(pos);
-        pPolyLine_->AddPosition(pos);
-
         //コリジョンマップに当たっていた時
         float hitDist = CalculationDistance(transform_.position_, pos);
         if (hitDist <= CALC_DISTANCE) {

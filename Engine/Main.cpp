@@ -175,7 +175,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				
 				ScreenManager::Draw();
 
-#if 0
+#if 1
 				//ImGui‚ÌXVˆ—
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplWin32_NewFrame();

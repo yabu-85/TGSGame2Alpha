@@ -49,10 +49,6 @@ public:
 	//デストラクタ
 	virtual ~Collider();
 
-	ColliderType GetColliderType() { return type_; }
-	
-	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }
-
 	//テスト表示用の枠を描画
 	//引数：position	オブジェクトの位置
 	virtual void Draw(XMFLOAT3 position);
@@ -61,6 +57,12 @@ public:
 	//引数：target	相手の当たり判定
 	//戻値：接触してればtrue
 	virtual bool IsHit(Collider* target) = 0;
+
+	//アクセサ
+	ColliderType GetColliderType() { return type_; }
+	void SetGameObject(GameObject* gameObject) { pGameObject_ = gameObject; }
+	void SetCenter(XMFLOAT3 center) { center_ = center; }
+	void SetSize(XMFLOAT3 size) { size_ = size; }
 
 	//ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
