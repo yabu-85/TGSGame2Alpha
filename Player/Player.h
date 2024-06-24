@@ -48,6 +48,7 @@ public:
     //“–‚½‚è”»’è(perDist=‹–—e”ÍˆÍ)
     void StageFloarBounce(float perDist = 0.0f, float calcHeight = 0.0f);
     void StageWallBounce();
+    void StageRoofBounce();
 
     //Jump
     bool IsReadyJump();

@@ -122,11 +122,13 @@ void Player::Update()
         //床との当たり判定、貫通対策で２回違う場所で計算
         StageFloarBounce(0.0f, -1.0f);
         StageFloarBounce();
+        StageRoofBounce();
     }
     else if(!isClimb_) {
         //床との当たり判定、許容値より床と離れていたら空中
         isFly_ = true; 
         StageFloarBounce(0.2f);
+        StageRoofBounce();
     }
 
     pStateManager_->Update();
@@ -272,9 +274,38 @@ void Player::StageFloarBounce(float perDist, float calcHeight)
 
 void Player::StageWallBounce()
 {
-    SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
     XMVECTOR push = XMVectorZero();
-    pCMap->CellSphereVsTriangle(collid, push);
+    CapsuleCollider* cCollid = static_cast<CapsuleCollider*>(colliderList_.front());
+    if (cCollid) {
+        SphereCollider* collid = new SphereCollider(XMFLOAT3(), cCollid->size_.x);
+        collid->pGameObject_ = this;
+        collid->center_ = XMFLOAT3(cCollid->center_.x, cCollid->center_.y - (cCollid->height_ * 0.5f), cCollid->center_.z);
+        pCMap->CellSphereVsTriangle(collid, push);
+
+        collid->center_ = XMFLOAT3(cCollid->center_.x, cCollid->center_.y + (cCollid->height_ * 0.5f), cCollid->center_.z);
+        push = XMVectorZero();
+        pCMap->CellSphereVsTriangle(collid, push);
+        return;
+        delete collid;
+    }
+
+    SphereCollider* sCollid = static_cast<SphereCollider*>(colliderList_.front());
+    pCMap->CellSphereVsTriangle(sCollid, push);
+}
+
+void Player::StageRoofBounce()
+{
+    float RAY_HEDAD_DIST = 1.3f;
+    float HEAD_HEIGHT = 0.9f;
+
+    RayCastData rayData = RayCastData();
+    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + HEAD_HEIGHT, transform_.position_.z);
+    rayData.dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
+    pCMap->CellFloarRayCast(transform_.position_, &rayData);
+    if (rayData.hit && rayData.dist <= RAY_HEDAD_DIST) {
+        transform_.position_.y -= RAY_HEDAD_DIST - rayData.dist;
+        gravity_ = 0.0f;
+    }
 }
 
 bool Player::IsReadyJump()
