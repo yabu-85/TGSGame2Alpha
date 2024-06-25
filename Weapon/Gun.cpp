@@ -26,7 +26,7 @@
 
 namespace
 {
-    XMFLOAT3 handOffset = { 0.3f, 0.7f, 0.1f };      // 移動量
+    XMFLOAT3 handOffset = { 0.2f, 0.7f, 0.1f };      // 移動量
     XMFLOAT3 modelScale = { 0.3f, 0.3f, 0.3f };      // モデルサイズ
     std::string modelName = "Model/Rifle.fbx";       // モデル名
 

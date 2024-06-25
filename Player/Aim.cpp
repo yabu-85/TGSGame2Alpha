@@ -17,9 +17,9 @@ namespace {
     static const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
     static const float MOUSE_SPEED_DEFAULT = 0.1f;                  //感度
-    static const float DISTANCE_HORIZONTAL_DEFAULT = 0.9f;          //どのくらい左右にずらすか
-    static const float DISTANCE_BEHIND_DEFAULT = 6.0f;              //どのくらい後ろから移すかのデフォルト値
-    static const float DISTANCE_HEIGHT_DEFAULT = 1.5f;              //Aimの高さ
+    static const float DISTANCE_HORIZONTAL_DEFAULT = 0.35f;         //どのくらい左右にずらすか
+    static const float DISTANCE_BEHIND_DEFAULT = 3.0f;              //どのくらい後ろから移すかのデフォルト値
+    static const float DISTANCE_HEIGHT_DEFAULT = 1.3f;              //Aimの高さ
     static const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
 }
 
@@ -52,7 +52,7 @@ void Aim::Initialize()
 void Aim::Update()
 {
     //デバッグ用
-    if (Input::IsKey(DIK_5)) isValid_ = !isValid_;
+    if (Input::IsKeyDown(DIK_5)) isValid_ = !isValid_;
     if (Input::IsKey(DIK_1)) distanceHeight_ += 0.1f;
     if (Input::IsKey(DIK_2)) distanceHeight_ -= 0.1f;
     if (Input::IsKey(DIK_3)) distanceTargetBehind_ += 0.1f;
@@ -60,18 +60,12 @@ void Aim::Update()
     if (!IsValid()) return;
 
     if (InputManager::IsCmd(InputManager::AIM)) {
-#if 0
-        distanceBehind_ = 0.0f;
-        distanceHorizontal_ = 0.1f;
-        distanceHeight_ = 1.1f;
-#else
-        distanceBehind_ = 2.0f;
-        distanceHorizontal_ = 0.5f;
-        distanceHeight_ = 1.12f;
-#endif
+        distanceBehind_ = 0.5f;
+        distanceHorizontal_ = 0.35f;
+        distanceHeight_ = 1.15f;
         mouseSensitivity_ = (MOUSE_SPEED_DEFAULT * 0.7f);
     }
-    else {
+    else if(InputManager::IsCmdUp(InputManager::AIM)) {
         distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
         distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
         distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
@@ -248,7 +242,7 @@ void Aim::RayCastStage()
     cMap->RaySelectCellVsSegment(cameraPosition_, &data);
 
     //レイ当たった・判定距離内だったら
-    if (data.dist <= (distanceBehind_)) {
+    if (data.dist <= distanceBehind_ + HEIGHT_RAY) {
         distanceBehind_ = data.dist - HEIGHT_RAY;
     }
 

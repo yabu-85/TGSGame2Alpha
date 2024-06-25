@@ -54,9 +54,6 @@
     <Filter Include="Character">
       <UniqueIdentifier>{6b9b0eff-404e-4fe0-9bd3-d5e05bb5e037}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Weapon">
-      <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{df51c2cc-3028-4682-ac7b-57c0db1aa6ed}</UniqueIdentifier>
     </Filter>
@@ -80,6 +77,9 @@
     </Filter>
     <Filter Include="03Scene">
       <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Weapon">
+      <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -28,7 +28,6 @@ namespace {
     const float PlayerHeightSize = 1.3f;
 
     const XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
-    CollisionMap* pCMap = nullptr;
 
 }
 
@@ -69,12 +68,10 @@ void Player::Initialize()
     Direct3D::playerSpeed = moveSpeed_;
 
     StageEditor::SetPlayer(this);
-    pCMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
-    assert(pCMap);
 
 #if 1
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
-    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.35f, 0.5f, vec);
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.4f, 0.4f, vec);
     collid->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(collid);
 #else
@@ -119,23 +116,22 @@ void Player::Update()
         gravity_ += WorldGravity;
         transform_.position_.y -= gravity_;
 
-        //床との当たり判定、貫通対策で２回違う場所で計算
         StageFloarBounce(0.0f, -1.0f);
         StageFloarBounce();
-        StageRoofBounce();
-    }
-    else if(!isClimb_) {
-        //床との当たり判定、許容値より床と離れていたら空中
-        isFly_ = true; 
-        StageFloarBounce(0.2f);
         StageRoofBounce();
     }
 
     pStateManager_->Update();
     StageWallBounce();
 
-    XMFLOAT3 targetRot = Float3Add(transform_.position_, pAim_->GetAimDirection());
-    TargetRotate(targetRot, 1.0f);
+    if (!isFly_ && !isClimb_) {
+        isFly_ = true;
+        StageFloarBounce(0.2f);
+        StageRoofBounce();
+    }
+
+    if(InputManager::IsCmd(InputManager::AIM)) TargetRotate(Float3Add(transform_.position_, pAim_->GetAimDirection()), 1.0f);
+    else Rotate();
 
     moveSpeed_ = Direct3D::playerSpeed;
     Direct3D::PlayerPosition = transform_.position_;
@@ -146,10 +142,8 @@ void Player::Update()
 
 void Player::Draw()
 {
-    if (!InputManager::IsCmd(InputManager::AIM)) {
-        Model::SetTransform(hModel_, transform_);
-        Model::Draw(hModel_);
-    }
+    Model::SetTransform(hModel_, transform_);
+    Model::Draw(hModel_);
 
     CollisionDraw();
 }
@@ -264,7 +258,7 @@ void Player::StageFloarBounce(float perDist, float calcHeight)
     rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeightSize, transform_.position_.z);
     rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
     XMFLOAT3 pos = XMFLOAT3(transform_.position_.x, transform_.position_.y + calcHeight, transform_.position_.z);
-    pCMap->CellFloarRayCast(pos, &rayData);
+    GameManager::GetCollisionMap()->CellFloarRayCast(pos, &rayData);
     if (rayData.hit && rayData.dist <= PlayerHeightSize + perDist) {
         transform_.position_.y += PlayerHeightSize - rayData.dist;
         gravity_ = 0.0f;
@@ -280,17 +274,17 @@ void Player::StageWallBounce()
         SphereCollider* collid = new SphereCollider(XMFLOAT3(), cCollid->size_.x);
         collid->pGameObject_ = this;
         collid->center_ = XMFLOAT3(cCollid->center_.x, cCollid->center_.y - (cCollid->height_ * 0.5f), cCollid->center_.z);
-        pCMap->CellSphereVsTriangle(collid, push);
+        GameManager::GetCollisionMap()->CellSphereVsTriangle(collid, push);
 
         collid->center_ = XMFLOAT3(cCollid->center_.x, cCollid->center_.y + (cCollid->height_ * 0.5f), cCollid->center_.z);
         push = XMVectorZero();
-        pCMap->CellSphereVsTriangle(collid, push);
+        GameManager::GetCollisionMap()->CellSphereVsTriangle(collid, push);
         return;
         delete collid;
     }
 
     SphereCollider* sCollid = static_cast<SphereCollider*>(colliderList_.front());
-    pCMap->CellSphereVsTriangle(sCollid, push);
+    GameManager::GetCollisionMap()->CellSphereVsTriangle(sCollid, push);
 }
 
 void Player::StageRoofBounce()
@@ -301,7 +295,7 @@ void Player::StageRoofBounce()
     RayCastData rayData = RayCastData();
     rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + HEAD_HEIGHT, transform_.position_.z);
     rayData.dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
-    pCMap->CellFloarRayCast(transform_.position_, &rayData);
+    GameManager::GetCollisionMap()->CellFloarRayCast(transform_.position_, &rayData);
     if (rayData.hit && rayData.dist <= RAY_HEDAD_DIST) {
         transform_.position_.y -= RAY_HEDAD_DIST - rayData.dist;
         gravity_ = 0.0f;
@@ -348,7 +342,7 @@ void Player::CheckWallClimb()
     RayCastData rayData = RayCastData();
     rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y, transform_.position_.z);
     rayData.dir = move;
-    pCMap->CellWallRayCast(calcCellPos, &rayData);
+    GameManager::GetCollisionMap()->CellWallRayCast(calcCellPos, &rayData);
 
     //ちょいタス
     const float playerHarf = 0.5f + 0.3f;
@@ -360,7 +354,7 @@ void Player::CheckWallClimb()
         rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + climbedHeightDist, transform_.position_.z);
         rayData.start = Float3Add(rayData.start, Float3Multiply(move, playerHarf));
         calcCellPos = rayData.start;
-        pCMap->CellFloarRayCast(calcCellPos, &rayData);
+        GameManager::GetCollisionMap()->CellFloarRayCast(calcCellPos, &rayData);
 
         const float climbedDistance = 0.5f;
         if (rayData.hit && rayData.dist <= climbedDistance) {
