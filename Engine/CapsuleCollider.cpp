@@ -13,7 +13,7 @@ CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XM
 	center_ = center;
 	size_ = XMFLOAT3(radius, radius, radius);
 	height_ = height;
-	direction_ = direction;
+	direction_ = XMVector3Normalize(direction);
 	type_ = COLLIDER_CAPSULE;
 
 	//ƒŠƒŠ[ƒX‚Í”»’è˜g‚Í•\¦‚µ‚È‚¢

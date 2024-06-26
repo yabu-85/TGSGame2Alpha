@@ -50,15 +50,52 @@ void TestEnemy::Initialize()
     pMoveAction_ = new MoveAction(this, 0.03f, 0.1f);
     pAstarMoveAction_ = new AstarMoveAction(this, 0.1f, 0.1f);
 
-    XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
-    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4f, vec);
+    XMVECTOR vec = XMVectorZero();
+    if(rand() % 3 == 0) vec = { 0.5f, -0.2f, -0.5f, 0.0f };
+    else if(rand() % 2 == 0) vec = { 0.5f, 0.2f, -0.5f, 0.0f };
+    else vec = { 0.5f, 0.0f, -0.5f, 0.0f };
+
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 5.4f, vec);
     collid->typeList_.push_back(OBJECT_TYPE::Stage);
+    collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
 
 }
 
 void TestEnemy::Update()
 {
+    CapsuleCollider* collid = static_cast<CapsuleCollider*>(colliderList_.front());
+    if (Input::IsKey(DIK_NUMPAD7)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(collid->direction_, rotationMatrix);
+        collid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_NUMPAD8)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationX(XMConvertToRadians(-1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(collid->direction_, rotationMatrix);
+        collid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_NUMPAD4)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(collid->direction_, rotationMatrix);
+        collid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_NUMPAD5)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationY(XMConvertToRadians(-1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(collid->direction_, rotationMatrix);
+        collid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_NUMPAD1)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(collid->direction_, rotationMatrix);
+        collid->direction_ = rotatedDirection;
+    }
+    if (Input::IsKey(DIK_NUMPAD2)) {
+        XMMATRIX rotationMatrix = XMMatrixRotationZ(XMConvertToRadians(-1.0f));
+        XMVECTOR rotatedDirection = XMVector3Transform(collid->direction_, rotationMatrix);
+        collid->direction_ = rotatedDirection;
+    }
+
     if (transform_.position_.y <= -30.0f) {
         KillMe();
         return;
@@ -126,9 +163,9 @@ void TestEnemy::Update()
     ReflectCharacter();
 
     //•Ç‚Æ‚Ì“–‚½‚è”»’è
-    SphereCollider* collid = static_cast<SphereCollider*>(colliderList_.front());
+    SphereCollider* Scollid = static_cast<SphereCollider*>(colliderList_.front());
     XMVECTOR push = XMVectorZero();
-    GameManager::GetCollisionMap()->CellSphereVsTriangle(collid, push);
+    GameManager::GetCollisionMap()->CellSphereVsTriangle(Scollid, push);
 
     float addPos = -1.0f;
     isGround = false;
@@ -172,4 +209,13 @@ void TestEnemy::Release()
 {
     Model::Release(hModel_);
 
+}
+
+void TestEnemy::OnCollision(GameObject* pTarget)
+{
+    if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
+    {
+        SetDamageTime(1.0f);
+
+    }
 }

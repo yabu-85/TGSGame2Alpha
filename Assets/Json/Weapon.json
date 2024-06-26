@@ -1,0 +1,13 @@
+{
+  "Gun": {
+    "AttackCool": 60
+  },
+  "Bullet_Normal": {
+    "damage": 0,
+    "shotCoolTime": 8,
+    "speed": 3.0,
+    "killTimer": 15,
+    "collisionScale": 0.3,
+    "isPenetration": 0
+  }
+}

@@ -21,6 +21,7 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
+    void OnCollision(GameObject* pTarget) override;
 
     XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 

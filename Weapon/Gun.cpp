@@ -2,16 +2,13 @@
 #include "Bullet_Normal.h"
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
-#include "../Engine/Direct3D.h"
 #include "../Engine/Camera.h"
 #include "../Engine/SegmentCollider.h"
-#include "../Engine/CapsuleCollider.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
 #include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
-
 #include "../Enemy/EnemyBase.h"
 #include "../Enemy/EnemyManager.h"
 
@@ -29,9 +26,6 @@ namespace
     XMFLOAT3 handOffset = { 0.2f, 0.7f, 0.1f };      // 移動量
     XMFLOAT3 modelScale = { 0.3f, 0.3f, 0.3f };      // モデルサイズ
     std::string modelName = "Model/Rifle.fbx";       // モデル名
-
-    //当たり判定距離
-    static const float CALC_DISTANCE = 30.0f;
 
 }
 
@@ -78,7 +72,7 @@ void Gun::Update()
 
 void Gun::Draw()
 {
-    transform_.rotate_.x = GameManager::GetPlayer()->GetAim()->GetRotate().x;
+    transform_.rotate_.x = -GameManager::GetPlayer()->GetAim()->GetRotate().x;
 
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
@@ -97,31 +91,24 @@ void Gun::OnCollision(GameObject* pTarget)
     }
 }
 
-XMFLOAT3 Gun::CalculateBulletMovement(XMFLOAT3 top, XMFLOAT3 root, float bulletSpeed)
-{
-    // 射出方向を計算して正規化  (top - root)
-    XMVECTOR vMove = XMVector3Normalize(XMVectorSubtract(XMLoadFloat3(&top), XMLoadFloat3(&root)));
-
-    // 弾速を追加設定(銃に種類が増えたとき用)
-    vMove *= bulletSpeed;
-
-    // float3型に戻す
-    XMFLOAT3 move;
-    XMStoreFloat3(&move, vMove);
-    return move;
-}
-
 template <class T>
 void Gun::ShootBullet(BulletType type)
 {
+    //Bulletインスタンス作成
+    BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
+    bulletInfoList_[(int)type].coolTime_ = pNewBullet->GetBulletParameter().shotCoolTime_;
+    int killTimer = pNewBullet->GetBulletParameter().killTimer_;
+    float bulletSpeed = pNewBullet->GetBulletParameter().speed_;
+    float calcDist = bulletSpeed * killTimer;
+
     XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
     XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(), Camera::GetPosition()));
     float cameraDist = CalculationDistance(Camera::GetPosition(), Camera::GetTarget());
-
+    
     RayCastData data;
     data.start = Camera::GetPosition();
     data.dir = cameraVec;
-    XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, CALC_DISTANCE + cameraDist));
+    XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist + cameraDist));
     GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
     XMFLOAT3 gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
 
@@ -135,7 +122,7 @@ void Gun::ShootBullet(BulletType type)
     //コライダー登録
     XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(), GetWorldPosition());
     SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&cameraVec));
-    collid->size_ = XMFLOAT3(CALC_DISTANCE + cameraDist, CALC_DISTANCE + cameraDist, CALC_DISTANCE + cameraDist);
+    collid->size_ = XMFLOAT3(calcDist + cameraDist, calcDist + cameraDist, calcDist + cameraDist);
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
 
@@ -155,55 +142,19 @@ void Gun::ShootBullet(BulletType type)
             minEneHitPos = collid->targetPos_;
         }
     }
-
-    //カーソルで当たらなかったから、本来の軌跡で判定を行う
-    if (minIndex < 0) {
-        //コリジョンマップとの判定
-        XMFLOAT3 gunVec = Float3Normalize(Float3Sub(gunTar, gunTop));
-        data = RayCastData();
-        data.start = gunTop;
-        data.dir = gunVec;
-        calcTar = Float3Add(data.start, Float3Multiply(data.dir, CALC_DISTANCE));
-        GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
-        gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
-
-        //コライダー情報セット
-        XMFLOAT3 gunRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
-        centerPos = Float3Sub(gunRoot, GetWorldPosition());
-        collid->SetCenter(centerPos);
-        collid->SetVector(XMLoadFloat3(&gunVec));
-
-        for (int i = 0; i < enemyList.size(); i++) {
-            XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
-            float hitDist = CalculationDistance(vec);
-            if (hitDist > data.dist) continue;
-
-            //壁に当たる距離じゃないから、当たり判定やる
-            rayHit_ = false;
-            this->Collision(enemyList[i]);
-
-            //最短距離で当たった
-            if (rayHit_ && hitDist < minDist) {
-                minDist = hitDist;
-                minIndex = i;
-                minEneHitPos = collid->targetPos_;
-            }
-        }
-    }
-    EnemyBase* enemy = nullptr;
-    if (minIndex >= 0) {
-        gunTar = minEneHitPos;
-        enemy = enemyList[minIndex];
-    }
+    //コライダー初期化
     ClearCollider();
 
-    //ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
-
-    BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
-    bulletInfoList_[(int)type].coolTime_ = pNewBullet->GetBulletParameter().shotCoolTime_;
+    //敵を目標にしていた場合
+    EnemyBase* enemy = nullptr;
+    if (minIndex >= 0) {
+        enemy = enemyList[minIndex];
+    }
 
     XMFLOAT3 move = Float3Sub(gunTar, gunTop);
-    pNewBullet->SetPosition(gunTop);
+    move = Float3Multiply(Float3Normalize(move), bulletSpeed);
+
     pNewBullet->SetMove(move);
+    pNewBullet->SetPosition(gunTop);
     pNewBullet->Shot(enemy, gunTar);
 }

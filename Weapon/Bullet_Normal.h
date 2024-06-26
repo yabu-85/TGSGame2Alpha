@@ -6,7 +6,8 @@ class PolyLine;
 // e’e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Bullet_Normal : public BulletBase
 {
-    bool rayHit_;
+    bool isHit_;
+    XMFLOAT3 hitPos_;
     PolyLine* pPolyLine_;
 
 public:
@@ -16,6 +17,7 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
+    void OnCollision(GameObject* pTarget) override;
     void Shot(EnemyBase* enemy, XMFLOAT3 pos) override;
 
 };

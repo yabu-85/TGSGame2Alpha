@@ -33,9 +33,6 @@ public:
     void Release() override;
     void OnCollision(GameObject* pTarget) override;
 
-    // e’e‚Ì‘¬“x‚ÆËo•ûŒü‚ğŒvZ‚·‚é
-    XMFLOAT3 CalculateBulletMovement(XMFLOAT3 top, XMFLOAT3 root, float bulletSpeed);
-
     // e’e‚ğ¶¬‚·‚é
     template<class T>
     void ShootBullet(BulletType type);

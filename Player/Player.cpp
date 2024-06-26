@@ -130,8 +130,7 @@ void Player::Update()
         StageRoofBounce();
     }
 
-    if(InputManager::IsCmd(InputManager::AIM)) TargetRotate(Float3Add(transform_.position_, pAim_->GetAimDirection()), 1.0f);
-    else Rotate();
+    TargetRotate(Float3Add(transform_.position_, pAim_->GetAimDirection()), 1.0f);
 
     moveSpeed_ = Direct3D::playerSpeed;
     Direct3D::PlayerPosition = transform_.position_;

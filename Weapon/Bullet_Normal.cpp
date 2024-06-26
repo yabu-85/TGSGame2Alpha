@@ -7,23 +7,28 @@
 #include "../UI/DamageUI.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/VFXManager.h"
+#include "../Engine/CapsuleCollider.h"
+#include "../Enemy/EnemyManager.h"
+#include "../Json/JsonReader.h"
 
 namespace {
-    //当たり判定距離
-    static const float CALC_DISTANCE = 30.0f;
-
+    static const int POLY_LENG = 5;
 }
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
-    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), rayHit_(false)
+    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3())
 {
+    // JSONファイル読み込み
+    JsonReader::Load("Json/Weapon.json");
+    auto& bullet_normal = JsonReader::GetSection("Bullet_Normal");
+
     // パラメータを取得
-    parameter_.damage_ = 5;
-    parameter_.shotCoolTime_ = 3;
-    parameter_.speed_ = 4.0f;
-    parameter_.killTimer_ = 30;
-    parameter_.collisionScale_ = 0.0f;
-    parameter_.isPenetration_ = 0;
+    parameter_.damage_ = bullet_normal["damage"];
+    parameter_.shotCoolTime_ = bullet_normal["shotCoolTime"];
+    parameter_.speed_ = bullet_normal["speed"];
+    parameter_.killTimer_ = bullet_normal["killTimer"];
+    parameter_.collisionScale_ = bullet_normal["collisionScale"];
+    parameter_.isPenetration_ = bullet_normal["isPenetration"];
 }
 
 Bullet_Normal::~Bullet_Normal()
@@ -34,45 +39,37 @@ void Bullet_Normal::Initialize()
 {
     pPolyLine_ = new PolyLine;
     pPolyLine_->Load("PolyImage/BulletLine.png");
-    pPolyLine_->SetLength(3);
+    pPolyLine_->SetLength(POLY_LENG);
     pPolyLine_->SetWidth(0.1f);
-    pPolyLine_->SetMoveAlphaFlag();
 
 }
 
 void Bullet_Normal::Update()
 {
-    parameter_.killTimer_--;
     if (parameter_.killTimer_ <= 0) {
+        //コリジョンマップに当たっていた場合
+        if (isHit_) {
+            VFXManager::CreateVfxExplodeSmall(hitPos_);
+        }
+
         KillMe();
+        return;
     }
+    parameter_.killTimer_--;
 
-}
-
-void Bullet_Normal::Draw()
-{
-    pPolyLine_->Draw();
-}
-
-void Bullet_Normal::Release()
-{
-    SAFE_RELEASE(pPolyLine_);
-    SAFE_DELETE(pPolyLine_);
-}
-
-void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 pos)
-{
-    //PolyLine追加
+    //移動
     pPolyLine_->AddPosition(transform_.position_);
-    pPolyLine_->AddPosition(pos);
-    pPolyLine_->AddPosition(pos);
+    transform_.position_ = Float3Add(transform_.position_, move_);
+    int a = 0;
+}
 
-    //敵に当たった時の処理
-    if (enemy) {
-        VFXManager::CreateVfxExplodeSmall(pos);
-
+void Bullet_Normal::OnCollision(GameObject* pTarget)
+{
+    if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
+    {
         //ダメージ与える（HP０以下なら倒すのここでやっとく
         DamageInfo info = DamageInfo(parameter_.damage_);
+        EnemyBase* enemy = static_cast<EnemyBase*>(pTarget);
         enemy->GetDamageSystem()->ApplyDamageDirectly(info);
         if (enemy->GetDamageSystem()->IsDead()) enemy->KillMe();
         enemy->SetDamageTime(1.0f);
@@ -81,14 +78,51 @@ void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 pos)
         XMFLOAT3 damagePos = enemy->GetPosition();
         damagePos = Float3Add(damagePos, enemy->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_);
+        
+        KillMe();
     }
-    //敵に当たらなかった時の処理
-    else {
-        //コリジョンマップに当たっていた時
-        float hitDist = CalculationDistance(transform_.position_, pos);
-        if (hitDist <= CALC_DISTANCE) {
-            VFXManager::CreateVfxExplodeSmall(pos);
-        }
-    }
+}
 
+void Bullet_Normal::Draw()
+{
+    pPolyLine_->Draw();
+    CollisionDraw();
+}
+
+void Bullet_Normal::Release()
+{
+    SAFE_RELEASE(pPolyLine_);
+    SAFE_DELETE(pPolyLine_);
+}
+
+void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 hitPos)
+{
+    OutputDebugString("\n");
+    
+    //コライダー情報セット
+    XMFLOAT3 colCenter = Float3Multiply(move_, -0.5f);
+    CapsuleCollider* collid = new CapsuleCollider(colCenter, parameter_.collisionScale_, parameter_.speed_ * 2.0f, -XMLoadFloat3(&move_));
+    collid->typeList_.push_back(OBJECT_TYPE::Enemy);
+    AddCollider(collid);
+
+    //PolyLine追加
+    for(int i = 0;i < (POLY_LENG);i++) pPolyLine_->AddPosition(transform_.position_);
+    hitPos_ = hitPos;
+
+    //Collision計算のために１フレーム分戻す
+    //transform_.position_ = Float3Sub(transform_.position_, move_);
+
+    //コリジョンマップに当たっていた時
+    float hitDist = CalculationDistance(transform_.position_, hitPos);
+    float calcDist = parameter_.speed_ * parameter_.killTimer_;
+    if (hitDist <= calcDist) {
+        isHit_ = true;
+
+        //KillTime計算
+        int newKillTime = (int)(hitDist / CalculationDistance(move_)) + 1;
+        if (newKillTime < parameter_.killTimer_) {
+            parameter_.killTimer_ = newKillTime;
+        }
+
+    }
 }

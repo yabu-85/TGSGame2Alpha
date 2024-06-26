@@ -309,6 +309,9 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
     float t1 = 0.0f, t2 = 0.0f;
 
     float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
+    OutputDebugStringA(std::to_string(d).c_str());
+    OutputDebugString("\n");
+
     bool out = (d <= capsule1->size_.x + capsule2->size_.x);
     capsule1->targetDit_ = d;
     capsule1->targetPos_ = p1;
@@ -317,6 +320,7 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
     return out;
 }
 
+//Ç±ÇÍä‘à·Ç¡ÇƒÇÈÇ∆évÇ§TodoÅFé°Çπ
 bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg)
 {
     XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
@@ -440,7 +444,8 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
 
     XMVECTOR vecN1 = XMVector3Normalize(l1.vec);
     XMVECTOR vecN2 = XMVector3Normalize(l2.vec);
-
+    
+    /*
     XMVECTOR w0 = XMLoadFloat3(&l1.pos) - XMLoadFloat3(&l2.pos);
     float a = XMVectorGetX(XMVector3Dot(vecN1, vecN1));
     float b = XMVectorGetX(XMVector3Dot(vecN1, vecN2));
@@ -453,8 +458,8 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
     p1 = l1.GetPosition(t1);
     p2 = l2.GetPosition(t2);
     return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
-
-
+    */
+    
     //2íºê¸ÇÕÇÀÇ∂ÇÍÇÃä÷åW
     float DV1V2 = XMVectorGetX(XMVector3Dot(vecN1, vecN2));
     float DV1V1 = XMVectorGetX(XMVector3Length(l1.vec));
@@ -470,6 +475,7 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
     t2 = XMVectorGetX(XMVector3Dot(vecN2, (XMLoadFloat3(&p1) - XMLoadFloat3(&l2.pos)))) / DV2V2;
     p2 = l2.GetPosition(t2);
     return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
+
 }
 
 // 2ê¸ï™ÇÃç≈íZãóó£
