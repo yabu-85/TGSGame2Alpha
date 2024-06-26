@@ -1,5 +1,7 @@
 #include "Global.h"
 #include "Model.h"
+#include <assert.h>
+#include <vector>
 
 //3Dモデル（FBXファイル）を管理する
 namespace Model
@@ -17,7 +19,6 @@ namespace Model
 	int Load(std::string fileName)
 	{
 			ModelData* pData = new ModelData;
-
 
 			//開いたファイル一覧から同じファイル名のものが無いか探す
 			bool isExist = false;
@@ -148,16 +149,35 @@ namespace Model
 		return (int)_datas[handle]->nowFrame;
 	}
 
-
-	//任意のボーンの位置を取得
-	XMFLOAT3 GetBonePosition(int handle, std::string boneName)
+	bool GetBoneIndex(int handle, std::string boneName, int* index, int* partIndex)
 	{
-		XMFLOAT3 pos = _datas[handle]->pFbx->GetBonePosition(boneName);
+		return _datas[handle]->pFbx->GetBoneIndex(boneName, index, partIndex);
+	}
+
+	XMFLOAT3 GetBonePosition(int handle, int boneIndex, int partIndex)
+	{
+		XMFLOAT3 pos = _datas[handle]->pFbx->GetBonePosition(boneIndex, partIndex);
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix());
 		XMStoreFloat3(&pos, vec);
 		return pos;
 	}
 
+	XMFLOAT3 GetBoneAnimPosition(int handle, int boneIndex, int partIndex)
+	{
+		//相対座標（ボーンの中心からの位置）
+		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPosition(boneIndex, partIndex, (int)_datas[handle]->nowFrame);
+		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
+		XMStoreFloat3(&pos, vec);
+		return pos;
+	}
+
+	XMFLOAT3 GetBoneAnimRotate(int handle, int boneIndex, int partIndex)
+	{
+		//相対座標（ボーンの中心からの位置）
+		 XMFLOAT3 rot = _datas[handle]->pFbx->GetBoneAnimRotate(boneIndex, partIndex, (int)_datas[handle]->nowFrame);
+		if (rot.x >= 90.0f || rot.x <= -90.0f) rot.y *= -1.0f;
+		return rot;
+	}
 
 	//ワールド行列を設定
 	void SetTransform(int handle, Transform & transform)

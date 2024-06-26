@@ -50,6 +50,11 @@ void Gun::Initialize()
     hModel_ = Model::Load(modelName);
     assert(hModel_ >= 0);
 
+    Model::GetBoneIndex(hModel_, "Top", &topBoneIndex_, &topPartIndex_);
+    Model::GetBoneIndex(hModel_, "Root", &rootBoneIndex_, &rootPartIndex_);
+    assert(topBoneIndex_ >= 0);
+    assert(rootBoneIndex_ >= 0);
+
     //プレイヤーの手の位置まで調整
     transform_.position_ = handOffset;
     transform_.scale_ = modelScale;
@@ -73,8 +78,7 @@ void Gun::Update()
 
 void Gun::Draw()
 {
-    Player* pPlayer = static_cast<Player*>(FindObject("Player"));
-    transform_.rotate_.x = -pPlayer->GetAim()->GetRotate().x;
+    transform_.rotate_.x = GameManager::GetPlayer()->GetAim()->GetRotate().x;
 
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
@@ -110,7 +114,7 @@ XMFLOAT3 Gun::CalculateBulletMovement(XMFLOAT3 top, XMFLOAT3 root, float bulletS
 template <class T>
 void Gun::ShootBullet(BulletType type)
 {
-    XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, "Top");
+    XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
     XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(), Camera::GetPosition()));
     float cameraDist = CalculationDistance(Camera::GetPosition(), Camera::GetTarget());
 
@@ -129,19 +133,11 @@ void Gun::ShootBullet(BulletType type)
     XMFLOAT3 minEneHitPos = XMFLOAT3();
 
     //コライダー登録
-#if 0
-    XMFLOAT3 Cvec = Float3Multiply(data.dir, (CALC_DISTANCE * 0.5f));
-    CapsuleCollider* collid = new CapsuleCollider(Cvec, 1.0f, CALC_DISTANCE, XMLoadFloat3(&data.dir));
-    collid->typeList_.push_back(OBJECT_TYPE::Enemy);
-    AddCollider(collid);
-#endif
-#if 1
     XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(), GetWorldPosition());
     SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&cameraVec));
     collid->size_ = XMFLOAT3(CALC_DISTANCE + cameraDist, CALC_DISTANCE + cameraDist, CALC_DISTANCE + cameraDist);
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
-#endif
 
     for (int i = 0; i < enemyList.size(); i++) {
         XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
@@ -172,7 +168,7 @@ void Gun::ShootBullet(BulletType type)
         gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
 
         //コライダー情報セット
-        XMFLOAT3 gunRoot = Model::GetBonePosition(hModel_, "Root");
+        XMFLOAT3 gunRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
         centerPos = Float3Sub(gunRoot, GetWorldPosition());
         collid->SetCenter(centerPos);
         collid->SetVector(XMLoadFloat3(&gunVec));

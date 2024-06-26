@@ -417,6 +417,30 @@ void FbxParts::IntConstantBuffer()
 	Direct3D::pDevice_->CreateBuffer(&cb, NULL, &pConstantBuffer_);
 }
 
+XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
+{
+	//https://qiita.com/q_tarou/items/46e5045068742dfb2fa6
+	float PI = 3.14159265358979f;
+	float threshold = 0.0f;
+	XMFLOAT3 rot = XMFLOAT3();
+	if (abs((float)mat.Get(2, 1) - 1.0f) < threshold) { // R(2,1) = sin(x) = 1‚ÌŽž
+		rot.x = PI / 2.0f;
+		rot.y = 0.0f;
+		rot.z = atan2f((float)mat.Get(1, 0), (float)mat.Get(0, 0));
+	}
+	else if (abs((float)mat.Get(2, 1) + 1.0f) < threshold) { // R(2,1) = sin(x) = -1‚ÌŽž
+		rot.x = -PI / 2.0f;
+		rot.y = 0.0f;
+		rot.z = atan2f((float)mat.Get(1, 0), (float)mat.Get(0, 0));
+	}
+	else {
+		rot.x = asinf((float)mat.Get(2, 1));
+		rot.y = atan2f(-(float)mat.Get(2, 0), (float)mat.Get(2, 2));
+		rot.z = atan2f(-(float)mat.Get(0, 1), (float)mat.Get(1, 1));
+	}
+	return rot;
+}
+
 //•`‰æ
 void FbxParts::Draw(Transform& transform)
 {
@@ -560,25 +584,53 @@ void FbxParts::DrawMeshAnime(Transform& transform, FbxTime time, FbxScene * scen
 	Draw(transform);
 }
 
-bool FbxParts::GetBonePosition(std::string boneName, XMFLOAT3 * position)
+bool FbxParts::GetBoneIndex(std::string boneName, int* index)
 {
 	for (int i = 0; i < numBone_; i++)
 	{
 		if (boneName == ppCluster_[i]->GetLink()->GetName())
 		{
-			FbxAMatrix  matrix;
-			ppCluster_[i]->GetTransformLinkMatrix(matrix);
-
-			position->x = (float)matrix[3][0];
-			position->y = (float)matrix[3][1];
-			position->z = (float)matrix[3][2];
-
+			*index = i;
 			return true;
 		}
-
 	}
-
 	return false;
+}
+
+XMFLOAT3 FbxParts::GetBonePosition(int index)
+{
+	FbxAMatrix  matrix;
+	ppCluster_[index]->GetTransformLinkMatrix(matrix);
+
+	XMFLOAT3 pos = XMFLOAT3();
+	pos.x = (float)matrix[3][0];
+	pos.y = (float)matrix[3][1];
+	pos.z = (float)matrix[3][2];
+	return pos;
+}
+
+XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time)
+{
+	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
+	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
+
+	XMFLOAT3 pos = XMFLOAT3();
+	pos.x = (float)mCurrentOrentation[3][0];
+	pos.y = (float)mCurrentOrentation[3][1];
+	pos.z = (float)mCurrentOrentation[3][2];
+	return pos;
+}
+
+XMFLOAT3 FbxParts::GetBoneRotate(int index, FbxTime time)
+{
+	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
+	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
+
+	XMFLOAT3 rot = CalcMatRotateRatio(mCurrentOrentation);
+	rot.x = -XMConvertToDegrees(rot.x);
+	rot.y = -XMConvertToDegrees(rot.y);
+	rot.z = XMConvertToDegrees(rot.z);
+	return rot;
 }
 
 void FbxParts::RayCast(RayCastData * data)

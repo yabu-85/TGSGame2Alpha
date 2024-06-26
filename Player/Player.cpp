@@ -140,6 +140,7 @@ void Player::Update()
 
 }
 
+#include "../Engine/FbxParts.h"
 void Player::Draw()
 {
     Model::SetTransform(hModel_, transform_);

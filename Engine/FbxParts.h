@@ -12,6 +12,12 @@ class Fbx;
 struct RayCastData;
 struct PolygonData;
 
+struct OrientRotate
+{
+	int boneIndex = -1;
+	float orientRotateY = 0.0f;
+};
+
 //-----------------------------------------------------------
 //FBXの１つのパーツを扱うクラス
 //-----------------------------------------------------------
@@ -107,7 +113,7 @@ class FbxParts
 	Bone*			pBoneArray_;	// 各関節の情報
 	Weight*			pWeightArray_;	// ウェイト情報（頂点の対する各関節の影響度合い）
 
-
+	std::vector<OrientRotate> orientRotateList_;
 
 	/////////privateな関数（Init関数から呼ばれる）//////////////////////////
 	void InitVertex(fbxsdk::FbxMesh * mesh);	//頂点バッファ準備
@@ -116,6 +122,9 @@ class FbxParts
 	void InitIndex(fbxsdk::FbxMesh * mesh);		//インデックスバッファ準備
 	void InitSkelton(FbxMesh * pMesh);			//骨の情報を準備
 	void IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
+
+	//FbxMatrixから回転行列の計算をするラジアン
+	XMFLOAT3 CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat);
 
 public:
 	FbxParts();
@@ -142,11 +151,20 @@ public:
 	//引数：scene		Fbxファイルから読み込んだシーン情報
 	void DrawMeshAnime(Transform& transform, FbxTime time, FbxScene* scene);
 
+	//ボーンのインデックスを取得
+	bool GetBoneIndex(std::string boneName, int* index);
+
 	//任意のボーンの位置を取得
 	//引数：boneName	取得したいボーンの位置
 	//引数：position	ワールド座標での位置【out】
 	//戻値：見つかればtrue
-	bool GetBonePosition(std::string boneName, XMFLOAT3	* position);
+	XMFLOAT3 GetBonePosition(int index);
+
+	//任意のボーンの位置を取得
+	XMFLOAT3 GetBonePosition(int index, FbxTime time);
+
+	//任意のボーンの回転を取得
+	XMFLOAT3 GetBoneRotate(int index, FbxTime time);
 
 	//スキンメッシュ情報を取得
 	//戻値：スキンメッシュ情報
@@ -155,6 +173,10 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
+
+	void AddOrientRotateBone(std::string boneName);
+
+	void ResetOrientRotateBone();
 
 	std::vector<PolygonData> GetAllPolygon(FbxNode* pNode);
 

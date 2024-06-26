@@ -14,8 +14,13 @@ struct BulletInfo
 //銃を管理するクラス
 class Gun : public GameObject
 {
-    int hModel_;
-    bool rayHit_;
+    bool rayHit_;   //Collision判定で保存用
+    
+    int hModel_;        //モデル番号
+    int topBoneIndex_;  //トップボーンインデックス
+    int topPartIndex_;  //トップパーツインデックス
+    int rootBoneIndex_; //ルートボーンインデックス
+    int rootPartIndex_; //ルートパーツインデックス
 
     std::vector<BulletInfo> bulletInfoList_;
 

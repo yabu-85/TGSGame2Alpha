@@ -1,7 +1,5 @@
 #pragma once
 #include <DirectXMath.h>
-#include <assert.h>
-#include <vector>
 #include <string>
 #include "Fbx.h"
 #include "Transform.h"
@@ -26,7 +24,6 @@ namespace Model
 		//アニメーションのフレーム
 		float nowFrame, animSpeed;
 		int startFrame, endFrame;
-
 
 		//初期化
 		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0)
@@ -78,11 +75,20 @@ namespace Model
 	//現在のアニメーションのフレームを取得
 	int GetAnimFrame(int handle);
 
+	//ボーンのインデックス取得
+	bool GetBoneIndex(int handle, std::string boneName, int* index, int* partIndex);
+
 	//任意のボーンの位置を取得
 	//引数：handle		調べたいモデルの番号
 	//引数：boneName	調べたいボーンの名前
 	//戻値：ボーンの位置（ワールド座標）
-	XMFLOAT3 GetBonePosition(int handle, std::string boneName);
+	XMFLOAT3 GetBonePosition(int handle, int boneIndex, int partIndex);
+
+	//アニメーション時のボーンの位置を取得
+	XMFLOAT3 GetBoneAnimPosition(int handle, int boneIndex, int partIndex);
+	
+	//アニメーション時のボーンの回転を取得
+	XMFLOAT3 GetBoneAnimRotate(int handle, int boneIndex, int partIndex);
 
 	//ワールド行列を設定
 	//引数：handle	設定したいモデルの番号
@@ -94,11 +100,14 @@ namespace Model
 	//戻値：ワールド行列
 	XMMATRIX GetMatrix(int handle);
 
-
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：handle	判定したいモデルの番号
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(int handle, RayCastData *data);
+
+	void AddOrientRotateBone(std::string boneName);
+
+	void ResetOrientRotateBone();
 
 	Fbx* GetFbx(int handle);
 

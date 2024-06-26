@@ -105,17 +105,38 @@ void Fbx::Release()
 
 }
 
-XMFLOAT3 Fbx::GetBonePosition(std::string boneName)
+bool Fbx::GetBoneIndex(std::string boneName, int* index, int* partIndex)
 {
-	XMFLOAT3 position = XMFLOAT3(0, 0, 0);
+	*index = -1;
+	*partIndex = -1;
+
 	for (int i = 0; i < parts_.size(); i++)
 	{
-		if (parts_[i]->GetBonePosition(boneName, &position))
-			break;
+		if (parts_[i]->GetBoneIndex(boneName, index)) {
+			*partIndex = i;
+			return true;
+		}
 	}
+	return false;
+}
 
+XMFLOAT3 Fbx::GetBonePosition(int index, int partIndex)
+{
+	return parts_[partIndex]->GetBonePosition(index);
+}
 
-	return position;
+XMFLOAT3 Fbx::GetBoneAnimPosition(int index, int partIndex, int frame)
+{
+	FbxTime time;
+	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
+	return parts_[partIndex]->GetBonePosition(index, time);
+}
+
+XMFLOAT3 Fbx::GetBoneAnimRotate(int index, int partIndex, int frame)
+{
+	FbxTime time;
+	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
+	return parts_[partIndex]->GetBoneRotate(index, time);
 }
 
 void Fbx::Draw(Transform& transform, int frame)
