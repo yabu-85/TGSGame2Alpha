@@ -105,10 +105,16 @@ namespace Model
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(int handle, RayCastData *data);
 
-	void AddOrientRotateBone(std::string boneName);
+	//リストに追加
+	void AddOrientRotateBone(int handle, std::string boneName);
 
-	void ResetOrientRotateBone();
+	//リスト初期化
+	void ResetOrientRotateBone(int handle);
+	
+	//回転軸セット
+	void SetOrietnRotateBone(int handle, int boneIndex, float rotate);
 
-	Fbx* GetFbx(int handle);
+	//すべてのポリゴン取得
+	void GetAllPolygon(int handle, std::vector<PolygonData>& list);
 
 };

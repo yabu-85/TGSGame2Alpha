@@ -176,6 +176,18 @@ void Fbx::RayCast(RayCastData * data)
 	}
 }
 
+void Fbx::AddOrientRotateBone(std::string boneName)
+{
+}
+
+void Fbx::ResetOrientRotateBone()
+{
+}
+
+void Fbx::SetOrientRotateBone(int index, float rotate)
+{
+}
+
 void Fbx::GetAllPolygon(std::vector<PolygonData>& list)
 {
 	FbxNode* rootNode = pFbxScene_->GetRootNode();

@@ -213,8 +213,24 @@ namespace Model
 			_datas[handle]->pFbx->RayCast(data); 
 	}
 
-	Fbx* GetFbx(int handle)
+	void AddOrientRotateBone(int handle, std::string boneName)
 	{
-		return _datas[handle]->pFbx;
+		_datas[handle]->pFbx->AddOrientRotateBone(boneName);
 	}
+
+	void ResetOrientRotateBone(int handle)
+	{
+		_datas[handle]->pFbx->ResetOrientRotateBone();
+	}
+
+	void SetOrietnRotateBone(int handle, int boneIndex, float rotate)
+	{
+		_datas[handle]->pFbx->SetOrientRotateBone(boneIndex, rotate);
+	}
+
+	void GetAllPolygon(int handle, std::vector<PolygonData>& list)
+	{
+		_datas[handle]->pFbx->GetAllPolygon(list);
+	}
+
 }

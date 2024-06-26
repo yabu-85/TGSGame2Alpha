@@ -100,6 +100,8 @@ public:
 
 	void ResetOrientRotateBone();
 
+	void SetOrientRotateBone(int index, float rotate);
+
 	//‚·‚×‚Ä‚Ìƒ|ƒŠƒSƒ“Žæ“¾
 	void GetAllPolygon(std::vector<PolygonData>& list);
 

@@ -5,7 +5,6 @@
 #include "StageEditor.h"
 #include <vector>
 
-#include "../Engine/Fbx.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 #include "../Engine/Direct3D.h"
@@ -147,9 +146,8 @@ void CollisionMap::CreatIntersectDataTriangle()
         if (modelList_[i].hRayModelNum <= -1) continue;
         
         //Collision用のモデルポリゴンを取得
-        Fbx* pFbx = Model::GetFbx(modelList_[i].hRayModelNum);
         std::vector<PolygonData> polyList;
-        pFbx->GetAllPolygon(polyList);
+        Model::GetAllPolygon(modelList_[i].hRayModelNum, polyList);
 
         //モデルデータの座標を計算
         for (int j = 0; j < polyList.size(); j++) {

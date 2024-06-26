@@ -178,6 +178,8 @@ public:
 
 	void ResetOrientRotateBone();
 
+	void SetOrientRotateBone(int index, float rotate);
+
 	std::vector<PolygonData> GetAllPolygon(FbxNode* pNode);
 
 };
