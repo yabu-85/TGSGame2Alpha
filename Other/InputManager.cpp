@@ -21,15 +21,15 @@ namespace InputManager {
 	};
 
 	const std::array<std::pair<TYPE, int>, CMD_MAX> DEFAULT_COMMAND {
-		std::make_pair(CONTROLLER, DIK_A),	//MOVE_LEFT
-		std::make_pair(CONTROLLER, DIK_D),	//MOVE_RIGHT
-		std::make_pair(CONTROLLER, DIK_W),	//MOVE_UP
-		std::make_pair(CONTROLLER, DIK_S),	//MOVE_DOWN
+		std::make_pair(STICKL, 0),	//MOVE_LEFT
+		std::make_pair(STICKL, 0),	//MOVE_RIGHT
+		std::make_pair(STICKL, 0),	//MOVE_UP
+		std::make_pair(STICKL, 0),	//MOVE_DOWN
 
-		std::make_pair(CONTROLLER, 0),			//ATTACK
-		std::make_pair(CONTROLLER, 1),			//AIM
-		std::make_pair(CONTROLLER, DIK_E),		//ACTION
-		std::make_pair(CONTROLLER, DIK_SPACE),	//JUMP
+		std::make_pair(TRRIGERR, 0),					//ATTACK
+		std::make_pair(TRRIGERL, 1),					//AIM
+		std::make_pair(CONTROLLER, 0),					//ACTION
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),	//JUMP
 	};
 
 }
@@ -76,13 +76,16 @@ bool InputManager::IsCmd(COMMAND cmd, int id)
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButton(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == SCROLL_UP && Input::IsUpScroll()) return true;
 		else if (debugCommandList[cmd].first == SCROLL_DOWN && Input::IsDownScroll()) return true;
+		return false;
 	}
 
-	if (commandList[cmd].first == KEY) return Input::IsKey(commandList[cmd].second);
-	else if (commandList[cmd].first == MOUSE) return Input::IsMouseButton(commandList[cmd].second);
-	else if (commandList[cmd].first == SCROLL_UP) return Input::IsUpScroll();
-	else if (commandList[cmd].first == SCROLL_DOWN) return Input::IsDownScroll();
-	return false;
+	static const float DEAD_ZONE = 0.01f;
+	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButton(commandList[cmd].second, 0);
+	else if (commandList[cmd].first == TRRIGERL) return (Input::GetPadTrrigerL(0) >= DEAD_ZONE);
+	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(0) >= DEAD_ZONE);
+	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(0)) >= DEAD_ZONE);
+	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(0)) >= DEAD_ZONE);
+
 }
 
 bool InputManager::IsCmdUp(COMMAND cmd, int id)
@@ -90,11 +93,11 @@ bool InputManager::IsCmdUp(COMMAND cmd, int id)
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKeyUp(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonUp(debugCommandList[cmd].second)) return true;
+		return false;
 	}
 
-	if (commandList[cmd].first == KEY) return Input::IsKeyUp(commandList[cmd].second);
-	else if (commandList[cmd].first == MOUSE) return Input::IsMouseButtonUp(commandList[cmd].second);
-	return false;
+	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonUp(commandList[cmd].second, 0);
+
 }
 
 bool InputManager::IsCmdDown(COMMAND cmd, int id)
@@ -102,13 +105,10 @@ bool InputManager::IsCmdDown(COMMAND cmd, int id)
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKeyDown(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonDown(debugCommandList[cmd].second)) return true;
+		return false;
 	}
 
-	if (commandList[cmd].first == KEY) return Input::IsKeyDown(commandList[cmd].second);
-	else if (commandList[cmd].first == MOUSE) return Input::IsMouseButtonDown(commandList[cmd].second);
-	else if (commandList[cmd].first == SCROLL_UP) return Input::IsUpScroll();
-	else if (commandList[cmd].first == SCROLL_DOWN) return Input::IsDownScroll();
-	return false;
+	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonDown(commandList[cmd].second, 0);
 }
 
 bool InputManager::CmdWalk(int id) {
@@ -129,7 +129,7 @@ bool InputManager::CmdWalk(int id) {
 		return true;
 	}
 	
-	XMFLOAT3 rStick = Input::GetPadStickR(id);
+	XMFLOAT3 rStick = Input::GetPadStickL(0);
 	if (CalculationDistance(rStick) >= 0.01f) return true;
 
 	return false;

@@ -124,7 +124,7 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 hitPos)
     float hitDist = CalculationDistance(transform_.position_, hitPos);
     
     //PolyLine’Ç‰Á
-    if (chara && hitDist < parameter_.speed_) {
+    if (hitDist < parameter_.speed_) {
         XMFLOAT3 move = Float3Multiply(move_, (hitDist / parameter_.speed_));
         for (int i = 0; i < POLY_LENG; i++) {
             XMFLOAT3 addPos = Float3Multiply(move, (float)i / (float)POLY_LENG);

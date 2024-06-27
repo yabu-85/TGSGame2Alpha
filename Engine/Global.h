@@ -18,6 +18,12 @@ static XMFLOAT3 Float3Sub(XMFLOAT3 a, XMFLOAT3 b)
 	return XMFLOAT3(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
+//XMFLOAT3“¯Žm‚ÌŠ|‚¯ŽZ
+static XMFLOAT3 Float3Multiply(XMFLOAT3 a, XMFLOAT3 b)
+{
+	return XMFLOAT3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
 //XMFLOAT3‚Æfloat‚ÌŠ|‚¯ŽZ
 static XMFLOAT3 Float3Multiply(XMFLOAT3 a, float scalar)
 {

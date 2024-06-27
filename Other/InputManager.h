@@ -9,6 +9,10 @@ namespace InputManager {
 		SCROLL_UP,
 		SCROLL_DOWN,
 		CONTROLLER,
+		TRRIGERL,
+		TRRIGERR,
+		STICKL,
+		STICKR,
 		TYPE_MAX,
 	};
 

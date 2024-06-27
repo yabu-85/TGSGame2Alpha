@@ -22,6 +22,7 @@ class Gun : public GameObject
     int topPartIndex_;  //トップパーツインデックス
     int rootBoneIndex_; //ルートボーンインデックス
     int rootPartIndex_; //ルートパーツインデックス
+    int playerId_;      //プレイヤーID
 
     BulletInfo bulletInfo_;
     Player* pPlayer_;
