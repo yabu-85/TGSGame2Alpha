@@ -144,7 +144,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				FPS++;						//画面更新回数をカウントする
 
 				Input::Update();
-				Camera::Update(0);
 				VFX::Update();
 				DamageUI::Update();
 				ScreenManager::Update();
@@ -154,18 +153,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//１回目
 				XMFLOAT3 pos = Camera::GetPosition(0);
 				XMFLOAT3 tar = Camera::GetTarget(0);
-				Camera::SetPosition(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z), 0);
-				Camera::SetTarget(XMFLOAT3(50, 0, 50), 0);
 				Camera::Update(0);
 				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
 				
 				Direct3D::BeginDraw();
 				pRootObject->DrawSub();
-				Direct3D::EndDraw();
 				Camera::SetPosition(pos, 0);
 				Camera::SetTarget(tar, 0);
 				Camera::Update(0);
-#endif
+				VFX::Draw();
+
+				DamageUI::Draw();
+				ScreenManager::Draw();
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
@@ -174,7 +173,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				DamageUI::Draw();
 				ScreenManager::Draw();
 
-#if 1
 				//ImGuiの更新処理
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplWin32_NewFrame();

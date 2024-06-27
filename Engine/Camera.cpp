@@ -15,8 +15,10 @@ void Camera::Initialize()
 		_target[i] = XMFLOAT3(0, 0, 0);	//カメラの焦点
 	}
 
+
+	//////////////////////縦に潰れるの直すとこ
 	//プロジェクション行列
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, (FLOAT)Direct3D::screenWidth_ / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, ((FLOAT)Direct3D::screenWidth_/2) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 
 }
 

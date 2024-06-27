@@ -135,12 +135,19 @@ namespace Direct3D
 
 		//ビューポートの設定
 		//レンダリング結果を表示する範囲
-		vp1.Width = (float)screenWidth;	//幅
+		vp1.Width = (float)screenWidth / 2;	//幅
 		vp1.Height = (float)screenHeight;//高さ
 		vp1.MinDepth = 0.0f;	//手前
 		vp1.MaxDepth = 1.0f;	//奥
 		vp1.TopLeftX = 0;	//左
 		vp1.TopLeftY = 0;	//上
+
+		vp2.Width = (float)screenWidth / 2;	//幅
+		vp2.Height = (float)screenHeight;//高さ
+		vp2.MinDepth = 0.0f;	//手前
+		vp2.MaxDepth = 1.0f;	//奥
+		vp2.TopLeftX = screenWidth / 2;	//左
+		vp2.TopLeftY = 0;	//上
 
 		//各パターンのシェーダーセット準備
 		InitShaderBundle();
@@ -470,21 +477,21 @@ namespace Direct3D
 	void BeginDraw()
 	{
 		//ShadowMapで追加-------------------------------
-		pContext_->OMSetRenderTargets(1, &pDepthTargetView_, pDepthStencilView);            // 描画先を設定
+		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);            // 描画先を設定
 
 		pContext_->RSSetViewports(1, &vp1);
 		//---------------------------------------
 
 		//背景の色
-		float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };//R,G,B,A
+		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
 
 		//画面をクリア
-		pContext_->ClearRenderTargetView(pDepthTargetView_, clearColor);
+		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);
 
 		//深度バッファクリア
 		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);	
 
-		SetShader(SHADER_SHADOWMAP);
+		SetShader(SHADER_3D);
 	}
 
 	//描画開始
@@ -492,14 +499,9 @@ namespace Direct3D
 	{
 		//描画先を設定
 		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
-		pContext_->RSSetViewports(1, &vp1);
+		pContext_->RSSetViewports(1, &vp2);
 		
 		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
-
-		//画面をクリアと深度バッファクリア
-		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);
-		
-		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 		SetShader(SHADER_3D);
 	}
