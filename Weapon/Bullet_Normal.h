@@ -2,6 +2,7 @@
 #include "BulletBase.h"
 
 class PolyLine;
+class EnemyBase;
 
 // e’e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Bullet_Normal : public BulletBase
@@ -9,6 +10,9 @@ class Bullet_Normal : public BulletBase
     bool isHit_;
     XMFLOAT3 hitPos_;
     PolyLine* pPolyLine_;
+    
+    float minHitEnemyDist_;
+    EnemyBase* pHitEnemy_;
 
 public:
     Bullet_Normal(GameObject* parent);

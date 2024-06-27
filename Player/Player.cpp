@@ -33,9 +33,11 @@ namespace {
 
 Player::Player(GameObject* parent)
     : Character(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()),
-    isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr)
+    isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr),
+    waistPart_(-1), waistRotateY_(0.0f)
 {
-    GameManager::SetPlayer(this);
+    for (int i = 0; i < 8; i++) waistListIndex_[i] = -1;
+
 }
 
 Player::~Player()
@@ -46,6 +48,12 @@ void Player::Initialize()
 {
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
+
+    waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
+    std::string boneName[8] = { "thigh.L", "thigh.R", "shin.R", "shin.L", "foot.R", "foot.L", "toe.R", "toe.L" };
+    for (int i = 0; i < 8;i++) {
+        waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneName[i]);
+    }
 
     transform_.position_ = start;
     Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
@@ -66,19 +74,13 @@ void Player::Initialize()
 
     moveSpeed_ = 0.15f;
     Direct3D::playerSpeed = moveSpeed_;
-
+    GameManager::SetPlayer(this);
     StageEditor::SetPlayer(this);
 
-#if 1
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.4f, 0.4f, vec);
     collid->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(collid);
-#else
-    SphereCollider* collid = new SphereCollider(XMFLOAT3(0.0f, 0.35f, 0.0f), 0.3f);
-    collid->typeList_.push_back(ObjectType::Stage);
-    AddCollider(collid);
-#endif
 
 }
 
@@ -103,6 +105,20 @@ void Player::Update()
         Direct3D::playerFaly = isFly_;
         return;
     }
+
+    //OrientƒeƒXƒg
+    static const float ORIENT_ROTATE_SPEED = 5.0f;
+    if (Input::IsKey(DIK_NUMPAD4)) {
+        waistRotateY_ -= ORIENT_ROTATE_SPEED;
+        for(int i = 0;i < 8;i++)
+        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], waistRotateY_);
+    }
+    if (Input::IsKey(DIK_NUMPAD5)) {
+        waistRotateY_ += ORIENT_ROTATE_SPEED;
+        for (int i = 0; i < 8; i++)
+        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], waistRotateY_);
+    }
+
 
     //‹ó’†‚É‚¢‚é
     if (isFly_) {

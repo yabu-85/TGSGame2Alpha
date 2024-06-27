@@ -12,7 +12,7 @@ class Fbx;
 struct RayCastData;
 struct PolygonData;
 
-struct OrientRotate
+struct OrientRotateInfo
 {
 	int boneIndex = -1;
 	float orientRotateY = 0.0f;
@@ -113,7 +113,7 @@ class FbxParts
 	Bone*			pBoneArray_;	// 各関節の情報
 	Weight*			pWeightArray_;	// ウェイト情報（頂点の対する各関節の影響度合い）
 
-	std::vector<OrientRotate> orientRotateList_;
+	std::vector<OrientRotateInfo> orientRotateList_;
 
 	/////////privateな関数（Init関数から呼ばれる）//////////////////////////
 	void InitVertex(fbxsdk::FbxMesh * mesh);	//頂点バッファ準備
@@ -122,6 +122,9 @@ class FbxParts
 	void InitIndex(fbxsdk::FbxMesh * mesh);		//インデックスバッファ準備
 	void InitSkelton(FbxMesh * pMesh);			//骨の情報を準備
 	void IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
+
+	//RotateOrientの計算をする
+	void RotateOrient();
 
 	//FbxMatrixから回転行列の計算をするラジアン
 	XMFLOAT3 CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat);
@@ -174,7 +177,7 @@ public:
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
 
-	void AddOrientRotateBone(std::string boneName);
+	int AddOrientRotateBone(int index);
 
 	void ResetOrientRotateBone();
 

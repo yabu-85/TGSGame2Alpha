@@ -75,8 +75,14 @@ namespace Model
 	//現在のアニメーションのフレームを取得
 	int GetAnimFrame(int handle);
 
+	//パーツとボーンのインデックス取得
+	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex);
+
+	//パーツのインデックス取得
+	int GetPartIndex(int handle, std::string boneName);
+
 	//ボーンのインデックス取得
-	bool GetBoneIndex(int handle, std::string boneName, int* index, int* partIndex);
+	int GetBoneIndex(int handle, std::string boneName);
 
 	//任意のボーンの位置を取得
 	//引数：handle		調べたいモデルの番号
@@ -106,13 +112,13 @@ namespace Model
 	void RayCast(int handle, RayCastData *data);
 
 	//リストに追加
-	void AddOrientRotateBone(int handle, std::string boneName);
+	int AddOrientRotateBone(int handle, std::string boneName);
 
 	//リスト初期化
 	void ResetOrientRotateBone(int handle);
 	
 	//回転軸セット
-	void SetOrietnRotateBone(int handle, int boneIndex, float rotate);
+	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, float rotate);
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list);

@@ -417,6 +417,15 @@ void FbxParts::IntConstantBuffer()
 	Direct3D::pDevice_->CreateBuffer(&cb, NULL, &pConstantBuffer_);
 }
 
+void FbxParts::RotateOrient()
+{
+	for (OrientRotateInfo e : orientRotateList_) {
+		float angleInRadians = XMConvertToRadians(e.orientRotateY);
+		XMMATRIX rotationMatrix = XMMatrixRotationY(angleInRadians);
+		pBoneArray_[e.boneIndex].diffPose *= rotationMatrix;
+	}
+}
+
 XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
 {
 	//https://qiita.com/q_tarou/items/46e5045068742dfb2fa6
@@ -528,6 +537,9 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 		pBoneArray_[i].diffPose *= pBoneArray_[i].newPose;
 	}
 
+	//Orientの計算
+	RotateOrient();
+
 	// 各ボーンに対応した頂点の変形制御
 	for (DWORD i = 0; i < vertexCount_; i++)
 	{
@@ -551,7 +563,7 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix));
 
 	}
-
+	
 	// 頂点バッファをロックして、変形させた後の頂点情報で上書きする
 	D3D11_MAPPED_SUBRESOURCE msr = {};
 	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
@@ -662,6 +674,25 @@ void FbxParts::RayCast(RayCastData * data)
 			}
 		}
 	}
+}
+
+int FbxParts::AddOrientRotateBone(int index)
+{
+	OrientRotateInfo data;
+	data.boneIndex = index;
+	data.orientRotateY = 0.0f;
+	orientRotateList_.push_back(data);
+	return ((int)orientRotateList_.size() - 1);
+}
+
+void FbxParts::ResetOrientRotateBone()
+{
+	orientRotateList_.clear();
+}
+
+void FbxParts::SetOrientRotateBone(int index, float rotate)
+{
+	orientRotateList_.at(index).orientRotateY = rotate;
 }
 
 std::vector<PolygonData> FbxParts::GetAllPolygon(FbxNode* pNode)

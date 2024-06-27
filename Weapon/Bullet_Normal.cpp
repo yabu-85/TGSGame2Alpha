@@ -16,7 +16,8 @@ namespace {
 }
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
-    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3())
+    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()),
+    pHitEnemy_(nullptr), minHitEnemyDist_(99999.9f)
 {
     // JSONファイル読み込み
     JsonReader::Load("Json/Weapon.json");
@@ -46,6 +47,22 @@ void Bullet_Normal::Initialize()
 
 void Bullet_Normal::Update()
 {
+    if (pHitEnemy_) {
+        //ダメージ与える（HP０以下なら倒すのここでやっとく
+        DamageInfo info = DamageInfo(parameter_.damage_);
+        pHitEnemy_->GetDamageSystem()->ApplyDamageDirectly(info);
+        if (pHitEnemy_->GetDamageSystem()->IsDead()) pHitEnemy_->KillMe();
+        pHitEnemy_->SetDamageTime(1.0f);
+
+        //ダメージ表示
+        XMFLOAT3 damagePos = pHitEnemy_->GetPosition();
+        damagePos = Float3Add(damagePos, pHitEnemy_->GetDamageUIPos());
+        DamageUI::AddDamage(damagePos, parameter_.damage_);
+      
+        KillMe();
+        return;
+    }
+
     if (parameter_.killTimer_ <= 0) {
         //コリジョンマップに当たっていた場合
         if (isHit_) {
@@ -66,19 +83,17 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 {
     if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
     {
-        //ダメージ与える（HP０以下なら倒すのここでやっとく
-        DamageInfo info = DamageInfo(parameter_.damage_);
-        EnemyBase* enemy = static_cast<EnemyBase*>(pTarget);
-        enemy->GetDamageSystem()->ApplyDamageDirectly(info);
-        if (enemy->GetDamageSystem()->IsDead()) enemy->KillMe();
-        enemy->SetDamageTime(1.0f);
-
-        //ダメージ表示
-        XMFLOAT3 damagePos = enemy->GetPosition();
-        damagePos = Float3Add(damagePos, enemy->GetDamageUIPos());
-        DamageUI::AddDamage(damagePos, parameter_.damage_);
-        
-        KillMe();
+        float dist = CalculationDistance(pTarget->GetPosition(), transform_.position_);
+        if (pHitEnemy_) {
+            if (dist > minHitEnemyDist_) {
+                pHitEnemy_ = static_cast<EnemyBase*>(pTarget);
+                minHitEnemyDist_ = dist;
+            }
+        }
+        else {
+            pHitEnemy_ = static_cast<EnemyBase*>(pTarget);
+            minHitEnemyDist_ = dist;
+        }
     }
 }
 
@@ -95,21 +110,32 @@ void Bullet_Normal::Release()
 
 void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 hitPos)
 {
+    hitPos_ = hitPos;
+   
     //コライダー情報セット
     XMFLOAT3 colCenter = Float3Multiply(move_, -0.5f);
     CapsuleCollider* collid = new CapsuleCollider(colCenter, parameter_.collisionScale_, parameter_.speed_, -XMLoadFloat3(&move_));
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
 
+    float hitDist = CalculationDistance(transform_.position_, hitPos);
+    
     //PolyLine追加
-    for (int i = 0; i < POLY_LENG; i++) {
-        XMFLOAT3 addPos = Float3Multiply(move_, (float)i / (float)POLY_LENG);
-        pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
+    if (enemy && hitDist < parameter_.speed_) {
+        XMFLOAT3 move = Float3Multiply(move_, (hitDist / parameter_.speed_));
+        for (int i = 0; i < POLY_LENG; i++) {
+            XMFLOAT3 addPos = Float3Multiply(move, (float)i / (float)POLY_LENG);
+            pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
+        }
     }
-    hitPos_ = hitPos;
+    else {
+        for (int i = 0; i < POLY_LENG; i++) {
+            XMFLOAT3 addPos = Float3Multiply(move_, (float)i / (float)POLY_LENG);
+            pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
+        }
+    }
 
     //コリジョンマップに当たっていた時
-    float hitDist = CalculationDistance(transform_.position_, hitPos);
     float calcDist = parameter_.speed_ * parameter_.killTimer_;
     if (hitDist <= calcDist) {
         isHit_ = true;

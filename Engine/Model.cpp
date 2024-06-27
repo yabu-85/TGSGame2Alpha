@@ -149,9 +149,25 @@ namespace Model
 		return (int)_datas[handle]->nowFrame;
 	}
 
-	bool GetBoneIndex(int handle, std::string boneName, int* index, int* partIndex)
+	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex)
 	{
-		return _datas[handle]->pFbx->GetBoneIndex(boneName, index, partIndex);
+		return _datas[handle]->pFbx->GetPartBoneIndex(boneName, partIndex, boneIndex);
+	}
+
+	int GetPartIndex(int handle, std::string boneName)
+	{
+		int partIndex = 0;
+		int boneIndex = 0;
+		_datas[handle]->pFbx->GetPartBoneIndex(boneName, &partIndex, &boneIndex);
+		return partIndex;
+	}
+
+	int GetBoneIndex(int handle, std::string boneName)
+	{
+		int partIndex = 0;
+		int boneIndex = 0;
+		_datas[handle]->pFbx->GetPartBoneIndex(boneName, &partIndex, &boneIndex);
+		return boneIndex;
 	}
 
 	XMFLOAT3 GetBonePosition(int handle, int boneIndex, int partIndex)
@@ -213,9 +229,9 @@ namespace Model
 			_datas[handle]->pFbx->RayCast(data); 
 	}
 
-	void AddOrientRotateBone(int handle, std::string boneName)
+	int AddOrientRotateBone(int handle, std::string boneName)
 	{
-		_datas[handle]->pFbx->AddOrientRotateBone(boneName);
+		return _datas[handle]->pFbx->AddOrientRotateBone(boneName);
 	}
 
 	void ResetOrientRotateBone(int handle)
@@ -223,9 +239,9 @@ namespace Model
 		_datas[handle]->pFbx->ResetOrientRotateBone();
 	}
 
-	void SetOrietnRotateBone(int handle, int boneIndex, float rotate)
+	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, float rotate)
 	{
-		_datas[handle]->pFbx->SetOrientRotateBone(boneIndex, rotate);
+		_datas[handle]->pFbx->SetOrientRotateBone(partIndex, listIndex, rotate);
 	}
 
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list)

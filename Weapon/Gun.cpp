@@ -44,8 +44,8 @@ void Gun::Initialize()
     hModel_ = Model::Load(modelName);
     assert(hModel_ >= 0);
 
-    Model::GetBoneIndex(hModel_, "Top", &topBoneIndex_, &topPartIndex_);
-    Model::GetBoneIndex(hModel_, "Root", &rootBoneIndex_, &rootPartIndex_);
+    Model::GetPartBoneIndex(hModel_, "Top", &topBoneIndex_, &topPartIndex_);
+    Model::GetPartBoneIndex(hModel_, "Root", &rootBoneIndex_, &rootPartIndex_);
     assert(topBoneIndex_ >= 0);
     assert(rootBoneIndex_ >= 0);
 
@@ -177,10 +177,12 @@ void Gun::ShootBullet(BulletType type)
             }
         }
     }
+    ClearCollider();
 
     //“G‚ð–Ú•W‚É‚µ‚Ä‚¢‚½ê‡
     EnemyBase* enemy = nullptr;
     if (minIndex >= 0) {
+        gunTar = minEneHitPos;
         enemy = enemyList[minIndex];
     }
 

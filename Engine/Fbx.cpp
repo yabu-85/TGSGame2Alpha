@@ -105,14 +105,14 @@ void Fbx::Release()
 
 }
 
-bool Fbx::GetBoneIndex(std::string boneName, int* index, int* partIndex)
+bool Fbx::GetPartBoneIndex(std::string boneName, int* partIndex, int* boneIndex)
 {
-	*index = -1;
 	*partIndex = -1;
+	*boneIndex = -1;
 
 	for (int i = 0; i < parts_.size(); i++)
 	{
-		if (parts_[i]->GetBoneIndex(boneName, index)) {
+		if (parts_[i]->GetBoneIndex(boneName, boneIndex)) {
 			*partIndex = i;
 			return true;
 		}
@@ -120,23 +120,23 @@ bool Fbx::GetBoneIndex(std::string boneName, int* index, int* partIndex)
 	return false;
 }
 
-XMFLOAT3 Fbx::GetBonePosition(int index, int partIndex)
+XMFLOAT3 Fbx::GetBonePosition(int partIndex, int boneIndex)
 {
-	return parts_[partIndex]->GetBonePosition(index);
+	return parts_[partIndex]->GetBonePosition(boneIndex);
 }
 
-XMFLOAT3 Fbx::GetBoneAnimPosition(int index, int partIndex, int frame)
+XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame)
 {
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBonePosition(index, time);
+	return parts_[partIndex]->GetBonePosition(boneIndex, time);
 }
 
-XMFLOAT3 Fbx::GetBoneAnimRotate(int index, int partIndex, int frame)
+XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)
 {
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBoneRotate(index, time);
+	return parts_[partIndex]->GetBoneRotate(boneIndex, time);
 }
 
 void Fbx::Draw(Transform& transform, int frame)
@@ -176,16 +176,33 @@ void Fbx::RayCast(RayCastData * data)
 	}
 }
 
-void Fbx::AddOrientRotateBone(std::string boneName)
+int Fbx::AddOrientRotateBone(std::string boneName)
 {
+	int partIndex = -1;
+	int boneIndex = -1;
+
+	for (int i = 0; i < parts_.size(); i++)
+	{
+		if (parts_[i]->GetBoneIndex(boneName, &boneIndex)) {
+			partIndex = i;
+			int index = parts_[i]->AddOrientRotateBone(boneIndex);
+			return index;
+		}
+	}
+	return -1;
 }
 
 void Fbx::ResetOrientRotateBone()
 {
+	for (int i = 0; i < parts_.size(); i++)
+	{
+		parts_[i]->ResetOrientRotateBone();
+	}
 }
 
-void Fbx::SetOrientRotateBone(int index, float rotate)
+void Fbx::SetOrientRotateBone(int partIndex, int listIndex, float rotate)
 {
+	parts_[partIndex]->SetOrientRotateBone(listIndex, rotate);
 }
 
 void Fbx::GetAllPolygon(std::vector<PolygonData>& list)

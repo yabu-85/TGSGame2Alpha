@@ -12,6 +12,10 @@ class Player : public Character
 
     int hModel_;                //モデル番号
 
+    int waistPart_;         //テストPartのインデックス
+    int waistListIndex_[8];    //テストBoneのインデックス
+    float waistRotateY_;    //テスト腰を想定したボーンのRotateY
+
     float gradually_;           //移動スピードの加減の値
     float moveSpeed_;           //移動スピード
     float gravity_;             //y軸移動量

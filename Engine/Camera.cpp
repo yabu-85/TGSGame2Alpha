@@ -7,18 +7,11 @@ XMMATRIX _view;
 XMMATRIX _proj;
 XMMATRIX _billBoard;
 
-//////////二つ目のウィンドウのカメラに必要な変数
-XMFLOAT3 _twoWindowPosition2;
-XMFLOAT3 _twoWindowTarget2;
-
 //初期化（プロジェクション行列作成）
 void Camera::Initialize()
 {
 	_position = XMFLOAT3(0, 3, -10);	//カメラの位置
 	_target = XMFLOAT3( 0, 0, 0);	//カメラの焦点
-
-	_twoWindowPosition2 = XMFLOAT3(0, 10, -10);
-	_twoWindowTarget2 = XMFLOAT3(0, 0, 0);
 
 	//プロジェクション行列
 	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, (FLOAT)Direct3D::screenWidth_ / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
@@ -40,21 +33,11 @@ void Camera::Update()
 	_billBoard = XMMatrixInverse(nullptr, _billBoard);
 }
 
-void Camera::TwoWindowUpdate()
-{
-	//ビュー行列
-	_view = XMMatrixLookAtLH(XMVectorSet(_twoWindowPosition2.x, _twoWindowPosition2.y, _twoWindowPosition2.z, 0),
-		XMVectorSet(_twoWindowTarget2.x, _twoWindowTarget2.y, _twoWindowTarget2.z, 0), XMVectorSet(0, 1, 0, 0));
-
-}
-
 //焦点を設定
 void Camera::SetTarget(XMFLOAT3 target) { _target = target; }
-void Camera::SetTarget2(XMFLOAT3 target) { _twoWindowTarget2 = target; }
 
 //位置を設定
 void Camera::SetPosition(XMFLOAT3 position) { _position = position; }
-void Camera::SetPosition2(XMFLOAT3 position) { _twoWindowPosition2 = position; }
 
 //焦点を取得
 XMFLOAT3 Camera::GetTarget() { return _target; }

@@ -79,28 +79,28 @@ public:
 	void    Release();
 
 	//ボーンのインデックス取得
-	bool GetBoneIndex(std::string boneName, int* index, int* partIndex);
+	bool GetPartBoneIndex(std::string boneName, int* partIndex, int* boneIndex);
 
 	//任意のボーンの位置を取得
 	//引数：boneName	取得したいボーンの位置
 	//戻値：ボーンの位置
-	XMFLOAT3 GetBonePosition(int index, int partIndex);
+	XMFLOAT3 GetBonePosition(int partIndex, int boneIndex);
 
 	//任意のアニメーション時のボーンの位置を取得
-	XMFLOAT3 GetBoneAnimPosition(int index, int partIndex, int frame);
+	XMFLOAT3 GetBoneAnimPosition(int partIndex, int boneIndex, int frame);
 
 	//任意のアニメーション時のボーンの回転を取得
-	XMFLOAT3 GetBoneAnimRotate(int index, int partIndex, int frame);
+	XMFLOAT3 GetBoneAnimRotate(int partIndex, int boneIndex, int frame);
 
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
 
-	void AddOrientRotateBone(std::string boneName);
+	int AddOrientRotateBone(std::string boneName);
 
 	void ResetOrientRotateBone();
 
-	void SetOrientRotateBone(int index, float rotate);
+	void SetOrientRotateBone(int partIndex, int listIndex, float rotate);
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(std::vector<PolygonData>& list);

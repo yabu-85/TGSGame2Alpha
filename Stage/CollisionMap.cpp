@@ -210,8 +210,8 @@ bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
     if (cell) hit = cell->SphereVsTriangle(collid, push);
 
     pos.y -= collid->size_.x;
-    cell = GetCell(pos);
-    if (cell && cell->SphereVsTriangle(collid, push)) hit = true;
+    Cell* nCell = GetCell(pos);
+    if (nCell && nCell != cell && nCell->SphereVsTriangle(collid, push)) hit = true;
 
     return hit;
 }
