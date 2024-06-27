@@ -59,15 +59,14 @@ void Player::Initialize()
         waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneName[i]);
     }
 
-    transform_.position_ = start;
-    Model::SetAnimFrame(hModel_, 0, 100, 1.0f);
-
     objectType_ = OBJECT_TYPE::Player;
     SetBodyRange(0.35f);
     SetBodyWeight(1.0f);
     pHealthGauge_->SetHeight(1.7f);
     pDamageSystem_->SetMaxHP(100);
     pDamageSystem_->SetHP(100);
+    transform_.position_ = start;
+    moveSpeed_ = 0.15f;
 
     pAim_ = Instantiate<Aim>(this);
     Instantiate<Gun>(this);
@@ -79,13 +78,12 @@ void Player::Initialize()
     pStateManager_->AddState(new PlayerClimb(pStateManager_));
     pStateManager_->ChangeState("Wait");
 
-    moveSpeed_ = 0.15f;
-    Direct3D::playerSpeed = moveSpeed_;
-    
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.4f, 0.4f, vec);
     collid->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(collid);
+
+    Direct3D::playerSpeed = moveSpeed_;
 
 }
 
