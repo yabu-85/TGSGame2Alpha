@@ -9,8 +9,9 @@
 #include "../Other/InputManager.h"
 #include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
-#include "../Enemy/EnemyBase.h"
-#include "../Enemy/EnemyManager.h"
+
+#include "../Character/Character.h"
+#include "../Character/CharacterManager.h"
 
 //リロード
 //反動
@@ -115,7 +116,7 @@ void Gun::ShootBullet(BulletType type)
 
     //ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
     //敵と当たったか、最短距離を計算
-    std::vector<EnemyBase*>& enemyList = EnemyManager::GetAllEnemy();
+    std::vector<Character*>charaList = CharacterManager::GetCharacterList();
     int minIndex = -1;
     float minDist = 999999;
     XMFLOAT3 minEneHitPos = XMFLOAT3();
@@ -128,14 +129,14 @@ void Gun::ShootBullet(BulletType type)
     collid->typeList_.push_back(OBJECT_TYPE::Player);
     AddCollider(collid);
 
-    for (int i = 0; i < enemyList.size(); i++) {
-        XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
+    for (int i = 0; i < charaList.size(); i++) {
+        XMFLOAT3 vec = Float3Sub(charaList[i]->GetPosition(), data.start);
         float hitDist = CalculationDistance(vec);
         if (hitDist > data.dist) continue;
 
         //壁に当たる距離じゃないから、当たり判定やる
         rayHit_ = false;
-        this->Collision(enemyList[i]);
+        this->Collision(charaList[i]);
 
         //最短距離で当たった
         if (rayHit_ && hitDist < minDist) {
@@ -162,14 +163,14 @@ void Gun::ShootBullet(BulletType type)
         collid->SetCenter(centerPos);
         collid->SetVector(XMLoadFloat3(&gunVec));
 
-        for (int i = 0; i < enemyList.size(); i++) {
-            XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
+        for (int i = 0; i < charaList.size(); i++) {
+            XMFLOAT3 vec = Float3Sub(charaList[i]->GetPosition(), data.start);
             float hitDist = CalculationDistance(vec);
             if (hitDist > data.dist) continue;
 
             //壁に当たる距離じゃないから、当たり判定やる
             rayHit_ = false;
-            this->Collision(enemyList[i]);
+            this->Collision(charaList[i]);
 
             //最短距離で当たった
             if (rayHit_ && hitDist < minDist) {
@@ -182,10 +183,10 @@ void Gun::ShootBullet(BulletType type)
     ClearCollider();
 
     //敵を目標にしていた場合
-    EnemyBase* enemy = nullptr;
+    Character* chara = nullptr;
     if (minIndex >= 0) {
         gunTar = minEneHitPos;
-        enemy = enemyList[minIndex];
+        chara = charaList[minIndex];
     }
 
     XMFLOAT3 move = Float3Sub(gunTar, gunTop);
@@ -193,5 +194,5 @@ void Gun::ShootBullet(BulletType type)
 
     pNewBullet->SetMove(move);
     pNewBullet->SetPosition(gunTop);
-    pNewBullet->Shot(enemy, gunTar);
+    pNewBullet->Shot(chara, gunTar);
 }

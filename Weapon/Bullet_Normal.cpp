@@ -3,12 +3,11 @@
 #include "../Engine/Global.h"
 #include "../Engine/PolyLine.h"
 #include "../Character/DamageSystem.h"
-#include "../Enemy/EnemyBase.h"
+#include "../Character/Character.h"
 #include "../UI/DamageUI.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/VFXManager.h"
 #include "../Engine/CapsuleCollider.h"
-#include "../Enemy/EnemyManager.h"
 #include "../Json/JsonReader.h"
 
 namespace {
@@ -17,7 +16,7 @@ namespace {
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
     : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()),
-    pHitEnemy_(nullptr), minHitEnemyDist_(99999.9f)
+    pHitChara_(nullptr), minHitDist_(99999.9f)
 {
     // JSONファイル読み込み
     JsonReader::Load("Json/Weapon.json");
@@ -47,16 +46,16 @@ void Bullet_Normal::Initialize()
 
 void Bullet_Normal::Update()
 {
-    if (pHitEnemy_) {
+    if (pHitChara_) {
         //ダメージ与える（HP０以下なら倒すのここでやっとく
         DamageInfo info = DamageInfo(parameter_.damage_);
-        pHitEnemy_->GetDamageSystem()->ApplyDamageDirectly(info);
-        if (pHitEnemy_->GetDamageSystem()->IsDead()) pHitEnemy_->KillMe();
-        pHitEnemy_->SetDamageTime(1.0f);
+        pHitChara_->GetDamageSystem()->ApplyDamageDirectly(info);
+        if (pHitChara_->GetDamageSystem()->IsDead()) pHitChara_->KillMe();
+        pHitChara_->SetDamageTime(1.0f);
 
         //ダメージ表示
-        XMFLOAT3 damagePos = pHitEnemy_->GetPosition();
-        damagePos = Float3Add(damagePos, pHitEnemy_->GetDamageUIPos());
+        XMFLOAT3 damagePos = pHitChara_->GetPosition();
+        damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_);
       
         VFXManager::CreateVfxExplodeSmall(hitPos_);
@@ -82,23 +81,20 @@ void Bullet_Normal::Update()
 
 void Bullet_Normal::OnCollision(GameObject* pTarget)
 {
-    if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
+    if (pTarget->GetObjectName().find("Enemy") != std::string::npos ||
+        pTarget->GetObjectName().find("Player") != std::string::npos )
     {
         float dist = CalculationDistance(pTarget->GetPosition(), transform_.position_);
-        if (pHitEnemy_) {
-            if (dist > minHitEnemyDist_) {
-                pHitEnemy_ = static_cast<EnemyBase*>(pTarget);
-                minHitEnemyDist_ = dist;
+        if (pHitChara_) {
+            if (dist > minHitDist_) {
+                pHitChara_ = static_cast<Character*>(pTarget);
+                minHitDist_ = dist;
             }
         }
         else {
-            pHitEnemy_ = static_cast<EnemyBase*>(pTarget);
-            minHitEnemyDist_ = dist;
+            pHitChara_ = static_cast<Character*>(pTarget);
+            minHitDist_ = dist;
         }
-    }
-    else if (pTarget->GetObjectName().find("Player") != std::string::npos) {
-        VFXManager::CreateVfxExplodeSmall(transform_.position_);
-        KillMe();
     }
 
 }
@@ -114,7 +110,7 @@ void Bullet_Normal::Release()
     SAFE_DELETE(pPolyLine_);
 }
 
-void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 hitPos)
+void Bullet_Normal::Shot(Character* chara, XMFLOAT3 hitPos)
 {
     hitPos_ = hitPos;
    
@@ -128,7 +124,7 @@ void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 hitPos)
     float hitDist = CalculationDistance(transform_.position_, hitPos);
     
     //PolyLine追加
-    if (enemy && hitDist < parameter_.speed_) {
+    if (chara && hitDist < parameter_.speed_) {
         XMFLOAT3 move = Float3Multiply(move_, (hitDist / parameter_.speed_));
         for (int i = 0; i < POLY_LENG; i++) {
             XMFLOAT3 addPos = Float3Multiply(move, (float)i / (float)POLY_LENG);

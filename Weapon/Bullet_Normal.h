@@ -2,7 +2,7 @@
 #include "BulletBase.h"
 
 class PolyLine;
-class EnemyBase;
+class Character;
 
 // èeíeÇä«óùÇ∑ÇÈÉNÉâÉX
 class Bullet_Normal : public BulletBase
@@ -11,8 +11,8 @@ class Bullet_Normal : public BulletBase
     XMFLOAT3 hitPos_;
     PolyLine* pPolyLine_;
     
-    float minHitEnemyDist_;
-    EnemyBase* pHitEnemy_;
+    float minHitDist_;
+    Character* pHitChara_;
 
 public:
     Bullet_Normal(GameObject* parent);
@@ -22,6 +22,6 @@ public:
     void Draw() override;
     void Release() override;
     void OnCollision(GameObject* pTarget) override;
-    void Shot(EnemyBase* enemy, XMFLOAT3 pos) override;
+    void Shot(Character* chara, XMFLOAT3 pos) override;
 
 };

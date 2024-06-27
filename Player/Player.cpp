@@ -1,21 +1,22 @@
 #include "Player.h"
 #include "Aim.h"
-#include "../State/StateBase.h"
-#include "../State/PlayerState.h"
-#include "../State/StateManager.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
-
-#include "../Other/InputManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
-
-#include "../Stage/CollisionMap.h"
-#include "../Stage/StageEditor.h"
 #include "../Engine/SphereCollider.h"
 #include "../Engine/CapsuleCollider.h"
+#include "../State/PlayerState.h"
+#include "../State/StateManager.h"
+#include "../Other/InputManager.h"
+#include "../Stage/CollisionMap.h"
+#include "../Stage/StageEditor.h"
 #include "../Weapon/Gun.h"
 #include "../Other/GameManager.h"
+#include "../UI/HealthGauge.h"
+#include "../Character/DamageSystem.h"
+
+XMFLOAT3 Player::damageUIPos_ = XMFLOAT3(0.5f, 1.5f, 0.0f);
 
 namespace {
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
@@ -64,6 +65,9 @@ void Player::Initialize()
     objectType_ = OBJECT_TYPE::Player;
     SetBodyRange(0.35f);
     SetBodyWeight(1.0f);
+    pHealthGauge_->SetHeight(1.7f);
+    pDamageSystem_->SetMaxHP(100);
+    pDamageSystem_->SetHP(100);
 
     pAim_ = Instantiate<Aim>(this);
     Instantiate<Gun>(this);
@@ -158,8 +162,17 @@ void Player::Update()
 
 void Player::Draw()
 {
+    DamageDraw();
+
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
+    Direct3D::emphasisTime_ = 0.0f;
+
+    if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
+        float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
+        pHealthGauge_->SetParcent(r);
+        pHealthGauge_->Draw();
+    }
 
     CollisionDraw();
 }

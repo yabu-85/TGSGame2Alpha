@@ -88,26 +88,20 @@ bool InputManager::IsCmd(COMMAND cmd, int id)
 bool InputManager::IsCmdUp(COMMAND cmd, int id)
 {
 	if (id == 0) {
-		if (debugCommandList[cmd].first == KEY && Input::IsKey(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButton(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == SCROLL_UP && Input::IsUpScroll()) return true;
-		else if (debugCommandList[cmd].first == SCROLL_DOWN && Input::IsDownScroll()) return true;
+		if (debugCommandList[cmd].first == KEY && Input::IsKeyUp(debugCommandList[cmd].second)) return true;
+		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonUp(debugCommandList[cmd].second)) return true;
 	}
 
 	if (commandList[cmd].first == KEY) return Input::IsKeyUp(commandList[cmd].second);
 	else if (commandList[cmd].first == MOUSE) return Input::IsMouseButtonUp(commandList[cmd].second);
-	else if (commandList[cmd].first == SCROLL_UP) return Input::IsUpScroll();
-	else if (commandList[cmd].first == SCROLL_DOWN) return Input::IsDownScroll();
 	return false;
 }
 
 bool InputManager::IsCmdDown(COMMAND cmd, int id)
 {
 	if (id == 0) {
-		if (debugCommandList[cmd].first == KEY && Input::IsKey(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButton(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == SCROLL_UP && Input::IsUpScroll()) return true;
-		else if (debugCommandList[cmd].first == SCROLL_DOWN && Input::IsDownScroll()) return true;
+		if (debugCommandList[cmd].first == KEY && Input::IsKeyDown(debugCommandList[cmd].second)) return true;
+		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonDown(debugCommandList[cmd].second)) return true;
 	}
 
 	if (commandList[cmd].first == KEY) return Input::IsKeyDown(commandList[cmd].second);

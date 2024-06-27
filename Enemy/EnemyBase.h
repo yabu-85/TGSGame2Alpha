@@ -1,8 +1,6 @@
 #pragma once
 #include "../Character/Character.h"
 
-class HealthGauge;
-class DamageSystem;
 enum ENEMY_TYPE;
 
 class EnemyBase : public Character
@@ -13,10 +11,6 @@ protected:
 
     float gravity_ = 0.0f;
     bool isGround = false;
-    float damageTime = 0.0f;
-
-    HealthGauge* pHealthGauge_;
-    DamageSystem* pDamageSystem_;
 
 public:
     EnemyBase(GameObject* parent, std::string name);
@@ -27,9 +21,5 @@ public:
     virtual void Release() override;
 
     void SetEnemyType(ENEMY_TYPE type) { enemyType_ = type; }
-    void SetDamageTime(float t) { damageTime = t; }
-    DamageSystem* GetDamageSystem() { return pDamageSystem_; }
-
-    virtual XMFLOAT3 GetDamageUIPos() = 0;
 
 };

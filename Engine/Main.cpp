@@ -172,7 +172,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				VFX::Draw();
 				
 				DamageUI::Draw();
-				
 				ScreenManager::Draw();
 
 #if 1

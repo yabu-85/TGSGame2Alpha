@@ -1,11 +1,19 @@
 #pragma once
 #include "../Engine/GameObject.h"
 
+class HealthGauge;
+class DamageSystem;
+
 class Character : public GameObject
 {
+    float damageTime_;
     float bodyWeight_;  //めり込み時に使う重さ
     float bodyRange_;   //めり込み時に使う範囲
     XMFLOAT3 movement_; //移動量を保存するためのやつ
+
+protected:
+    HealthGauge* pHealthGauge_;
+    DamageSystem* pDamageSystem_;
 
 public:
     Character(GameObject* parent, std::string name);
@@ -15,9 +23,13 @@ public:
     virtual void Draw() override = 0 {};
     virtual void Release() override = 0 {};
 
+    void DamageDraw();
+
     //キャラクター同士の衝突の際めり込みを避ける
     void ReflectCharacter();
     
+    float GetDamageTime() { return damageTime_; }
+    void SetDamageTime(float t) { damageTime_ = t; }
     float GetBodyRange() { return bodyRange_; }
     float GetBodyWeight() { return bodyWeight_; }
     void SetBodyWeight(float f) { bodyWeight_ = f; }
@@ -28,5 +40,7 @@ public:
     XMFLOAT3 GetMovement() { return movement_; }
     XMVECTOR GetMovementVector() { return XMLoadFloat3(&movement_); }
     virtual void ResetMovement() { movement_ = { 0.0f, 0.0f, 0.0f }; };
-
+    
+    DamageSystem* GetDamageSystem() { return pDamageSystem_; }
+    virtual XMFLOAT3 GetDamageUIPos() = 0;
 };

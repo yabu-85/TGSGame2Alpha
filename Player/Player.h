@@ -24,6 +24,8 @@ class Player : public Character
     XMFLOAT3 playerMovement_;   //Normalize‚ÌˆÚ“®—Ê‚ğ•Û‘¶‚·‚é—p
     XMFLOAT3 climbPos_;         //“o‚é–Ú•WÀ•W
 
+    static XMFLOAT3 damageUIPos_;
+
     Aim* pAim_;
     StateManager* pStateManager_;
 
@@ -69,6 +71,7 @@ public:
     int GetPlayerId() { return playerId_; }
     int GetModelHandle() { return hModel_; }
     Aim* GetAim() { return pAim_; }
+    XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 
 };
 

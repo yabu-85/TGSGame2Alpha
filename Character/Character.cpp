@@ -1,20 +1,32 @@
 #include "Character.h"
 #include "CharacterManager.h"
+#include "../UI/HealthGauge.h"
+#include "../Character/DamageSystem.h"
 #include "../Engine/Global.h"
 #include <vector>
 
 Character::Character(GameObject* parent, std::string name) : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}
 {
+    pHealthGauge_ = new HealthGauge(this);
+    pDamageSystem_ = new DamageSystem();
     CharacterManager::AddCharacter(this);
 }
 
 Character::~Character()
 {
+    SAFE_DELETE(pHealthGauge_);
+    SAFE_DELETE(pDamageSystem_);
     CharacterManager::RemoveCharacter(this);
 }
 
 void Character::Update()
 {
+}
+
+void Character::DamageDraw()
+{
+    if (damageTime_ > 0.0f) damageTime_ -= 0.1f;
+    Direct3D::emphasisTime_ = damageTime_;
 }
 
 void Character::ReflectCharacter()

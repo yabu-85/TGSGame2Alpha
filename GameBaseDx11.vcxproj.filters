@@ -242,9 +242,6 @@
     <ClCompile Include="Enemy\EnemyManager.cpp">
       <Filter>Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy\HealthGauge.cpp">
-      <Filter>Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="UI\ButtonUI.cpp">
       <Filter>UI\UI</Filter>
     </ClCompile>
@@ -286,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="Weapon\BulletBase.cpp">
       <Filter>Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\HealthGauge.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -463,9 +463,6 @@
     <ClInclude Include="Enemy\EnemyManager.h">
       <Filter>Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy\HealthGauge.h">
-      <Filter>Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="UI\ButtonUI.h">
       <Filter>UI\UI</Filter>
     </ClInclude>
@@ -504,6 +501,9 @@
     </ClInclude>
     <ClInclude Include="Stage\StageEditor.h">
       <Filter>Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\HealthGauge.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

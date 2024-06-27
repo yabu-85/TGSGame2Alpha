@@ -1,6 +1,5 @@
 #include "TestEnemy.h"
-#include "HealthGauge.h"
-
+#include "EnemyManager.h"
 #include "../Engine/Model.h"
 #include "../Engine/CapsuleCollider.h"
 #include "../Engine/SphereCollider.h"
@@ -12,7 +11,7 @@
 #include "../Action/MoveAction.h"
 #include "../Other/GameManager.h"
 #include "../Player/Player.h"
-#include "EnemyManager.h"
+#include "../UI/HealthGauge.h"
 
 XMFLOAT3 TestEnemy::damageUIPos_ = XMFLOAT3(0.5f, 1.5f, 0.0f);
 
@@ -153,8 +152,8 @@ void TestEnemy::Draw()
 {
     Direct3D::EnemyPosition = transform_.position_;
 
-    if (damageTime > 0.0f) damageTime -= 0.1f;
-    Direct3D::emphasisTime_ = damageTime;
+    DamageDraw();
+
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
     Direct3D::emphasisTime_ = 0.0f;
