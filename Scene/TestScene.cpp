@@ -26,6 +26,7 @@ void TestScene::Initialize()
 {
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
+	Instantiate<Player>(this);
 
 	RouteSearch::Initialize();
 	DamageUI::Initialize();

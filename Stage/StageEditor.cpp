@@ -8,14 +8,10 @@
 #include "../Engine/ImGui/imgui_impl_dx11.h"
 #include "../Engine/ImGui/imgui_impl_win32.h"
 #include "../Engine/Global.h"
+#include "../Other/GameManager.h"
 
 #include <fstream>
 using namespace std;
-
-namespace StageEditor {
-    CollisionMap* pCMap = nullptr;
-    Player* pPlayer = nullptr;
-}
 
 std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileName)
 {
@@ -61,19 +57,19 @@ void StageEditor::SaveFileStage(const std::vector<StageModelData>& stage, const 
 
 void StageEditor::DrawStageEditor()
 {
-    if (!pCMap) return;
+    if (!GameManager::GetCollisionMap()) return;
 
     //パスの数カウント用
     int count = 0;
 
-    std::vector<StageModelData> &stageList = pCMap->GetModelList();
+    std::vector<StageModelData> &stageList = GameManager::GetCollisionMap()->GetModelList();
     ImGui::Begin("StageEditor");
     
     //セーブボタン
     if (ImGui::Button("CreateCollisionMap")) {
         SaveFileStage(stageList, "TestStage.json");
-        pCMap->IntersectDataReset();
-        pCMap->CreatIntersectDataTriangle();
+        GameManager::GetCollisionMap()->IntersectDataReset();
+        GameManager::GetCollisionMap()->CreatIntersectDataTriangle();
     }
     
     //区切り線
@@ -259,14 +255,14 @@ void StageEditor::DrawNodeEditor()
             RayCastData rayData = RayCastData();
             rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
             rayData.start = cellPos;
-            pCMap->CellFloarRayCast(cellPos, &rayData);
+            GameManager::GetCollisionMap()->CellFloarRayCast(cellPos, &rayData);
             float minDist = rayData.dist;
 
             rayData = RayCastData();
             rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
             rayData.start = cellPos;
             cellPos.y -= CollisionMap::boxSize;
-            pCMap->CellFloarRayCast(cellPos, &rayData);
+            GameManager::GetCollisionMap()->CellFloarRayCast(cellPos, &rayData);
             if (rayData.dist < minDist) minDist = rayData.dist;
 
             const float ErrorValue = 0.00001f;  //誤差
@@ -290,7 +286,7 @@ void StageEditor::DrawNodeEditor()
     }
     ImGui::SameLine();
     if (ImGui::Button("Add Node Player Position")) {
-        Node* data = new Node((int)nodeList.size(), pPlayer->GetPosition());
+        Node* data = new Node((int)nodeList.size(), GameManager::GetPlayer(0)->GetPosition());
         nodeList.push_back(data);
     }
 
@@ -302,7 +298,7 @@ void StageEditor::DrawNodeEditor()
         if(setEdgeType == EdgeType::NORMAL) ImGui::Text("InterConnection On , PreId : %d , type : Normalr", preNodeId);
         else if(setEdgeType == EdgeType::JUMP) ImGui::Text("InterConnection On , PreId : %d , type : Jump", preNodeId);
 
-        XMFLOAT3 pPos = pPlayer->GetPosition();
+        XMFLOAT3 pPos = GameManager::GetPlayer(0)->GetPosition();
         for (int i = 0; i < (int)nodeList.size(); i++) {
             XMFLOAT3 nPos = nodeList.at(i)->GetPosition();
             float dist = CalculationDistance(pPos, nPos);
@@ -450,13 +446,3 @@ void StageEditor::DrawNodeEditor()
 }
 
 //---------------------------------------------------------------------
-
-void StageEditor::SetCollisionMap(CollisionMap* map)
-{
-    pCMap = map;
-}
-
-void StageEditor::SetPlayer(Player* player)
-{
-    pPlayer = player;
-}

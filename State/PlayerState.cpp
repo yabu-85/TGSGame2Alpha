@@ -17,8 +17,8 @@ PlayerWait::PlayerWait(StateManager* owner) : StateBase(owner)
 void PlayerWait::Update()
 {
 	//“ü—Í
-	if (InputManager::CmdWalk()) owner_->ChangeState("Move");
-	else if (InputManager::IsCmdDown(InputManager::JUMP) && p->IsReadyJump()) owner_->ChangeState("Jump");
+	if (InputManager::CmdWalk(p->GetPlayerId())) owner_->ChangeState("Move");
+	else if (InputManager::IsCmdDown(InputManager::JUMP, p->GetPlayerId()) && p->IsReadyJump()) owner_->ChangeState("Jump");
 
 	//ˆ—
 	else {
@@ -36,8 +36,8 @@ PlayerMove::PlayerMove(StateManager* owner) : StateBase(owner)
 void PlayerMove::Update()
 {
 	//“ü—Í
-	if (InputManager::IsCmdDown(InputManager::JUMP) && p->IsReadyJump()) owner_->ChangeState("Jump");
-	else if (!InputManager::CmdWalk()) owner_->ChangeState("Wait");
+	if (InputManager::IsCmdDown(InputManager::JUMP, p->GetPlayerId()) && p->IsReadyJump()) owner_->ChangeState("Jump");
+	else if (!InputManager::CmdWalk(p->GetPlayerId())) owner_->ChangeState("Wait");
 
 	//ˆ—
 	else {
@@ -56,7 +56,7 @@ PlayerJump::PlayerJump(StateManager* owner) : StateBase(owner)
 void PlayerJump::OnEnter()
 {
 	p->Jump();
-	if (InputManager::CmdWalk()) owner_->ChangeState("Move");
+	if (InputManager::CmdWalk(p->GetPlayerId())) owner_->ChangeState("Move");
 	else owner_->ChangeState("Wait");
 }
 

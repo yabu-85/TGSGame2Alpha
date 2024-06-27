@@ -2,6 +2,7 @@
 #include "../Engine/GameObject.h"
 #include <vector>
 
+class Player;
 enum class BulletType;
 
 // バレットの情報を保管する構造体
@@ -22,7 +23,8 @@ class Gun : public GameObject
     int rootBoneIndex_; //ルートボーンインデックス
     int rootPartIndex_; //ルートパーツインデックス
 
-    std::vector<BulletInfo> bulletInfoList_;
+    BulletInfo bulletInfo_;
+    Player* pPlayer_;
 
 public:
     Gun(GameObject* parent);

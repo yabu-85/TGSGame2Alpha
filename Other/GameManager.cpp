@@ -4,7 +4,7 @@
 
 namespace GameManager {
 	CollisionMap* pCollisionMap_ = nullptr;
-	Player* pPlayer_ = nullptr;
+	Player* pPlayer_[2] = { nullptr, nullptr };
 	StageBase* pStage_ = nullptr;
 
 	void Initialize()
@@ -17,7 +17,7 @@ namespace GameManager {
 	
 	CollisionMap* GameManager::GetCollisionMap() { return pCollisionMap_; }
 	void GameManager::SetCollisionMap(CollisionMap* map) { pCollisionMap_ = map; }
-	Player* GameManager::GetPlayer() { return pPlayer_; }
-	void GameManager::SetPlayer(Player* player) { pPlayer_ = player; }
+	Player* GameManager::GetPlayer(int index) { return pPlayer_[index]; }
+	void GameManager::SetPlayer(Player* player, int index) { pPlayer_[index] = player; }
 
 }

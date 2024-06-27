@@ -37,7 +37,6 @@ StageModelData::StageModelData() : hRayModelNum(-1), transform{ }
 CollisionMap::CollisionMap(GameObject* parent)
     : GameObject(parent, "CollisionMap"), handle_(-1)
 {
-    StageEditor::SetCollisionMap(this);
     GameManager::SetCollisionMap(this);
 
 }

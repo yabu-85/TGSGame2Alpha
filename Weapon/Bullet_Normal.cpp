@@ -59,6 +59,7 @@ void Bullet_Normal::Update()
         damagePos = Float3Add(damagePos, pHitEnemy_->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_);
       
+        VFXManager::CreateVfxExplodeSmall(hitPos_);
         KillMe();
         return;
     }
@@ -95,6 +96,11 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
             minHitEnemyDist_ = dist;
         }
     }
+    else if (pTarget->GetObjectName().find("Player") != std::string::npos) {
+        VFXManager::CreateVfxExplodeSmall(transform_.position_);
+        KillMe();
+    }
+
 }
 
 void Bullet_Normal::Draw()
@@ -116,6 +122,7 @@ void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 hitPos)
     XMFLOAT3 colCenter = Float3Multiply(move_, -0.5f);
     CapsuleCollider* collid = new CapsuleCollider(colCenter, parameter_.collisionScale_, parameter_.speed_, -XMLoadFloat3(&move_));
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
+    collid->typeList_.push_back(OBJECT_TYPE::Player);
     AddCollider(collid);
 
     float hitDist = CalculationDistance(transform_.position_, hitPos);

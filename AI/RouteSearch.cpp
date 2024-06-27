@@ -48,7 +48,7 @@ namespace RouteSearch {
         static const float DrawDist = 50.0f;
         for (int i = 0; i < nodes.size(); i++) {
             Node* node = nodes[i];
-            XMFLOAT3 vec = Float3Sub(Camera::GetPosition(), node->GetPosition());
+            XMFLOAT3 vec = Float3Sub(Camera::GetPosition(0), node->GetPosition());
             float dist = CalculationDistance(vec);
             //Å‘å•`‰æ‹——£
             if (dist > DrawDist) continue;

@@ -32,8 +32,8 @@ namespace {
 }
 
 Player::Player(GameObject* parent)
-    : Character(parent, "Player"), hModel_(-1), pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()),
-    isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr),
+    : Character(parent, "Player"), hModel_(-1),  pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()),
+    isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr), playerId_(0),
     waistPart_(-1), waistRotateY_(0.0f)
 {
     for (int i = 0; i < 8; i++) waistListIndex_[i] = -1;
@@ -48,6 +48,9 @@ void Player::Initialize()
 {
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
+
+    if (GameManager::GetPlayer(0)) playerId_ = 1;
+    GameManager::SetPlayer(this, playerId_);
 
     waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
     std::string boneName[8] = { "thigh.L", "thigh.R", "shin.R", "shin.L", "foot.R", "foot.L", "toe.R", "toe.L" };
@@ -74,9 +77,7 @@ void Player::Initialize()
 
     moveSpeed_ = 0.15f;
     Direct3D::playerSpeed = moveSpeed_;
-    GameManager::SetPlayer(this);
-    StageEditor::SetPlayer(this);
-
+    
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.4f, 0.4f, vec);
     collid->typeList_.push_back(OBJECT_TYPE::Stage);
@@ -92,7 +93,7 @@ void Player::Update()
     if (isCreative_) {
         if (Input::IsKey(DIK_SPACE)) playerMovement_.y += moveSpeed_ * 0.5f;
         else if (Input::IsKey(DIK_F)) playerMovement_.y -= moveSpeed_ * 0.5f;
-        if (InputManager::CmdWalk()) CalcMove();
+        if (InputManager::CmdWalk(0)) CalcMove();
         else CalcNoMove();
         Move();
 
@@ -123,7 +124,7 @@ void Player::Update()
     //‹ó’†‚É‚¢‚é
     if (isFly_) {
         //“o‚èˆ—
-        if (InputManager::IsCmd(InputManager::JUMP) && !IsClimb()) {
+        if (InputManager::IsCmd(InputManager::JUMP, playerId_) && !IsClimb()) {
             CheckWallClimb();
             if(IsClimb()) pStateManager_->ChangeState("Climb");
         }
@@ -159,6 +160,8 @@ void Player::Draw()
 {
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
+
+    CollisionDraw();
 }
 
 void Player::Release()
@@ -188,28 +191,28 @@ void Player::Rotate(float ratio) { CalcRotate(GetInputMove(), ratio); }
 XMFLOAT3 Player::GetInputMove()
 {
     XMFLOAT3 fMove = { 0,0,0 };
-    if (InputManager::CmdWalk()) {
+    if (InputManager::CmdWalk(playerId_)) {
         gradually_ = moveGradually;
 
         XMFLOAT3 aimDirection = pAim_->GetAimDirection();
         aimDirection.y = 0.0f;
         aimDirection = Float3Normalize(aimDirection);
 
-        if (InputManager::IsCmd(InputManager::MOVE_UP)) {
+        if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
             fMove.x += aimDirection.x;
             if (isCreative_) fMove.y += aimDirection.y;
             fMove.z += aimDirection.z;
         }
-        if (InputManager::IsCmd(InputManager::MOVE_LEFT)) {
+        if (InputManager::IsCmd(InputManager::MOVE_LEFT, playerId_)) {
             fMove.x -= aimDirection.z;
             fMove.z += aimDirection.x;
         }
-        if (InputManager::IsCmd(InputManager::MOVE_DOWN)) {
+        if (InputManager::IsCmd(InputManager::MOVE_DOWN, playerId_)) {
             fMove.x -= aimDirection.x;
             if (isCreative_) fMove.y -= aimDirection.y;
             fMove.z -= aimDirection.z;
         }
-        if (InputManager::IsCmd(InputManager::MOVE_RIGHT)) {
+        if (InputManager::IsCmd(InputManager::MOVE_RIGHT, playerId_)) {
             fMove.x += aimDirection.z;
             fMove.z -= aimDirection.x;
         }
@@ -348,7 +351,7 @@ void Player::CheckWallClimb()
 {
     //”»’è•ûŒüŽæ“¾
     XMFLOAT3 move = XMFLOAT3();
-    if (InputManager::CmdWalk()) move = GetInputMove();
+    if (InputManager::CmdWalk(playerId_)) move = GetInputMove();
     else XMStoreFloat3(&move, GetDirectionVec());
 
     XMFLOAT3 calcCellPos = Float3Add(move, transform_.position_);

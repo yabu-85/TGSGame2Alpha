@@ -12,8 +12,10 @@ namespace GameManager
 	//アクセサ
 	CollisionMap* GetCollisionMap();
 	void SetCollisionMap(CollisionMap* map);
-	Player* GetPlayer();
-	void SetPlayer(Player* player);
+	
+	Player* GetPlayer(int index);
+	void SetPlayer(Player* player, int index);
+
 	StageBase* GetStage();
 	void SetStage(StageBase* stage);
 

@@ -3,7 +3,6 @@
 #include <string>
 
 class CollisionMap;
-class Player;
 class Node;
 struct StageModelData;
 
@@ -17,8 +16,5 @@ namespace StageEditor {
 	std::vector<Node*> LoadFileNode(const std::string& fileName);
 	void SaveFileNode(std::vector<Node*>& nodes, const std::string& fileName);
 	void DrawNodeEditor();
-
-	void SetCollisionMap(CollisionMap* map);
-	void SetPlayer(Player* player);
 
 }

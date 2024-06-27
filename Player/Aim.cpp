@@ -59,13 +59,13 @@ void Aim::Update()
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
     if (!IsValid()) return;
 
-    if (InputManager::IsCmd(InputManager::AIM)) {
+    if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
         distanceBehind_ = 0.5f;
         distanceHorizontal_ = 0.35f;
         distanceHeight_ = 1.15f;
         mouseSensitivity_ = (MOUSE_SPEED_DEFAULT * 0.7f);
     }
-    else if(InputManager::IsCmdUp(InputManager::AIM)) {
+    else if(InputManager::IsCmdUp(InputManager::AIM, pPlayer_->GetPlayerId())) {
         distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
         distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
         distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
@@ -162,8 +162,8 @@ void Aim::DefaultAim()
     RayCastStage();
 
     //カメラ情報をセット
-    Camera::SetPosition(cameraPosition_);
-    Camera::SetTarget(cameraTarget_);
+    Camera::SetPosition(cameraPosition_, pPlayer_->GetPlayerId());
+    Camera::SetTarget(cameraTarget_, pPlayer_->GetPlayerId());
 }
 
 void Aim::Compulsion()
@@ -175,8 +175,8 @@ void Aim::Compulsion()
     distanceBehind_ = XMVectorGetX(XMVector3Length(dir));
 
     RayCastStage();
-    Camera::SetPosition(cameraPosition_);
-    Camera::SetTarget(cameraTarget_);
+    Camera::SetPosition(cameraPosition_, pPlayer_->GetPlayerId());
+    Camera::SetTarget(cameraTarget_, pPlayer_->GetPlayerId());
 
     //強制移動時のRotateを求める
     dir = XMVector3Normalize(dir);
@@ -215,8 +215,8 @@ void Aim::BackCompulsion()
 
     //計算結果を使ってRayCastするそれをセット
     RayCastStage();
-    Camera::SetPosition(cameraPosition_);
-    Camera::SetTarget(cameraTarget_);
+    Camera::SetPosition(cameraPosition_, pPlayer_->GetPlayerId());
+    Camera::SetTarget(cameraTarget_, pPlayer_->GetPlayerId());
 
     //強制移動時のRotate・Directionを求める
     dir = XMVector3Normalize(dir);

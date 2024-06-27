@@ -454,21 +454,12 @@ float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, flo
 // –ß‚è’l: Å’Z‹——£
 float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
     float dist = 0.0f;
-    OutputDebugString("start\n");
 
     //----------------------------------------------------------------
     //‚Æ‚è‚ ‚¦‚¸2’¼üŠÔ‚ÌÅ’Z‹——£,mp1,mp2,t1,t2‚ğ‹‚ß‚Ä‚İ‚é
     dist = CalcLineLineDist(s1, s2, p1, p2, t1, t2);
-    
-    OutputDebugStringA(std::to_string(t1).c_str());
-    OutputDebugString(" : ");
-    OutputDebugStringA(std::to_string(t2).c_str());
-    OutputDebugString("\n");
-
     if (0.0f <= t1 && t1 <= 1.0f && 0.0f <= t2 && t2 <= 1.0f) {
         //mp1,mp2‚ª—¼•û‚Æ‚àü•ª“à‚É‚ ‚Á‚½
-        OutputDebugStringA(std::to_string(dist).c_str());
-        OutputDebugString(" : LineLIneDist\n");
         return dist;
     }
     //mp1,mp2‚Ì—¼•ûA‚Ü‚½‚Í‚Ç‚¿‚ç‚©‚ªü•ª“à‚É‚È‚©‚Á‚½‚Ì‚ÅŸ‚Ö
@@ -480,8 +471,6 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
     dist = CalcPointLineDist(p2, s1, p1, t1);
     if (0.0f <= t1 && t1 <= 1.0f) {
         //mp1‚ªü•ª“à‚É‚ ‚Á‚½
-        OutputDebugStringA(std::to_string(dist).c_str());
-        OutputDebugString(" : PointLine2\n");
         return dist;
     }
     //mp1‚ªü•ª“à‚É‚È‚©‚Á‚½‚Ì‚ÅŸ‚Ö
@@ -493,8 +482,6 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
     dist = CalcPointLineDist(p1, s2, p2, t2);
     if (0.0f <= t2 && t2 <= 1.0f) {
         //mp2‚ªü•ª“à‚É‚ ‚Á‚½
-        OutputDebugStringA(std::to_string(dist).c_str());
-        OutputDebugString(" : PointLine1\n");
         return dist;
     }
     //mp2‚ªü•ª“à‚É‚È‚©‚Á‚½‚Ì‚ÅŸ‚Ö

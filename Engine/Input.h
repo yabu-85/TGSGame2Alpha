@@ -23,6 +23,8 @@ namespace Input
 	//更新
 	void Update();
 
+	//開放
+	void Release();
 
 	///////////////////////////　キーボード　//////////////////////////////////
 	//キーが押されているか調べる
@@ -114,6 +116,4 @@ namespace Input
 
 
 
-	//開放
-	void Release();
 };

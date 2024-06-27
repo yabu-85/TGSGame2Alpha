@@ -53,17 +53,15 @@ void Gun::Initialize()
     transform_.position_ = handOffset;
     transform_.scale_ = modelScale;
 
-    // バレットタイプのenumサイズで初期化
-    bulletInfoList_.resize(static_cast<int>(BulletType::MAX));
 }
 
 void Gun::Update()
 {
     // クールタイムを減らす
-    for (auto& bullet : bulletInfoList_) { bullet.coolTime_--; }
+    bulletInfo_.coolTime_--;
 
     // 通常射撃
-    if (InputManager::IsCmd(InputManager::ATTACK) && bulletInfoList_[(int)BulletType::NORMAL].coolTime_ <= 0)
+    if (InputManager::IsCmd(InputManager::ATTACK, 0) && bulletInfo_.coolTime_ <= 0)
     {
         ShootBullet<Bullet_Normal>(BulletType::NORMAL);
     }
@@ -72,7 +70,7 @@ void Gun::Update()
 
 void Gun::Draw()
 {
-    transform_.rotate_.x = -GameManager::GetPlayer()->GetAim()->GetRotate().x;
+    transform_.rotate_.x = GetParent()->GetRotate().x;
 
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
@@ -96,17 +94,17 @@ void Gun::ShootBullet(BulletType type)
 {
     //Bulletインスタンス作成
     BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
-    bulletInfoList_[(int)type].coolTime_ = pNewBullet->GetBulletParameter().shotCoolTime_;
+    bulletInfo_.coolTime_ = pNewBullet->GetBulletParameter().shotCoolTime_;
     int killTimer = pNewBullet->GetBulletParameter().killTimer_;
     float bulletSpeed = pNewBullet->GetBulletParameter().speed_;
     float calcDist = bulletSpeed * killTimer;
 
     XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
-    XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(), Camera::GetPosition()));
-    float cameraDist = CalculationDistance(Camera::GetPosition(), Camera::GetTarget());
+    XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(0), Camera::GetPosition(0)));
+    float cameraDist = CalculationDistance(Camera::GetPosition(0), Camera::GetTarget(0));
     
     RayCastData data;
-    data.start = Camera::GetPosition();
+    data.start = Camera::GetPosition(0);
     data.dir = cameraVec;
     XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist + cameraDist));
     GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
@@ -120,10 +118,11 @@ void Gun::ShootBullet(BulletType type)
     XMFLOAT3 minEneHitPos = XMFLOAT3();
 
     //コライダー登録
-    XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(), GetWorldPosition());
+    XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(0), GetWorldPosition());
     SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&cameraVec));
     collid->size_ = XMFLOAT3(calcDist + cameraDist, calcDist + cameraDist, calcDist + cameraDist);
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
+    collid->typeList_.push_back(OBJECT_TYPE::Player);
     AddCollider(collid);
 
     for (int i = 0; i < enemyList.size(); i++) {

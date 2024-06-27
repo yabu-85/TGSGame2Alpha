@@ -480,7 +480,7 @@ void FbxParts::Draw(Transform& transform)
 		cb.diffuseColor = pMaterial_[i].diffuse;
 		cb.specular = pMaterial_[i].specular;
 		cb.shininess = pMaterial_[i].shininess;
-		cb.camPos = XMFLOAT4(Camera::GetPosition().x, Camera::GetPosition().y, Camera::GetPosition().z, 0);
+		cb.camPos = XMFLOAT4(Camera::GetPosition(0).x, Camera::GetPosition(0).y, Camera::GetPosition(0).z, 0);
 		cb.lightPos = Light::GetPosition(0);
 		cb.emphasis = Direct3D::emphasisTime_;
 		cb.mWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());

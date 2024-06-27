@@ -10,6 +10,7 @@ class Player : public Character
     bool isClimb_;              //登り状態かどうか
     bool isCreative_;           //クリエイティブモード
 
+    int playerId_;              //プレイヤー番号
     int hModel_;                //モデル番号
 
     int waistPart_;         //テストPartのインデックス
@@ -65,6 +66,7 @@ public:
     bool IsFly() { return isFly_; }
     bool IsClimb() { return isClimb_; }
 
+    int GetPlayerId() { return playerId_; }
     int GetModelHandle() { return hModel_; }
     Aim* GetAim() { return pAim_; }
 

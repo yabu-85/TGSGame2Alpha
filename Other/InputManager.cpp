@@ -51,7 +51,7 @@ void InputManager::ChangeCmd(COMMAND cmd, TYPE type, int num)
 
 }
 
-bool InputManager::IsCmd(COMMAND cmd)
+bool InputManager::IsCmd(COMMAND cmd, int id)
 {
 	if (commandList[cmd].first == KEY) return Input::IsKey(commandList[cmd].second);
 	else if (commandList[cmd].first == MOUSE) return Input::IsMouseButton(commandList[cmd].second);
@@ -60,7 +60,7 @@ bool InputManager::IsCmd(COMMAND cmd)
 	return false;
 }
 
-bool InputManager::IsCmdUp(COMMAND cmd)
+bool InputManager::IsCmdUp(COMMAND cmd, int id)
 {
 	if (commandList[cmd].first == KEY) return Input::IsKeyUp(commandList[cmd].second);
 	else if (commandList[cmd].first == MOUSE) return Input::IsMouseButtonUp(commandList[cmd].second);
@@ -69,7 +69,7 @@ bool InputManager::IsCmdUp(COMMAND cmd)
 	return false;
 }
 
-bool InputManager::IsCmdDown(COMMAND cmd)
+bool InputManager::IsCmdDown(COMMAND cmd, int id)
 {
 	if (commandList[cmd].first == KEY) return Input::IsKeyDown(commandList[cmd].second);
 	else if (commandList[cmd].first == MOUSE) return Input::IsMouseButtonDown(commandList[cmd].second);
@@ -78,11 +78,11 @@ bool InputManager::IsCmdDown(COMMAND cmd)
 	return false;
 }
 
-bool InputManager::CmdWalk() {
-	bool up = IsCmd(MOVE_UP);
-	bool down = IsCmd(MOVE_DOWN);
-	bool right = IsCmd(MOVE_RIGHT);
-	bool left = IsCmd(MOVE_LEFT);
+bool InputManager::CmdWalk(int id) {
+	bool up = IsCmd(MOVE_UP, id);
+	bool down = IsCmd(MOVE_DOWN, id);
+	bool right = IsCmd(MOVE_RIGHT, id);
+	bool left = IsCmd(MOVE_LEFT, id);
 
 	bool walk = up || down || right || left;
 	if (!walk) return false;

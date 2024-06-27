@@ -34,15 +34,15 @@ namespace InputManager {
 	void ChangeCmd(COMMAND cmd, TYPE type, int num);
 
 	//‰Ÿ‚µ‚Ä‚¢‚éŠÔ
-	bool IsCmd(COMMAND cmd);
+	bool IsCmd(COMMAND cmd, int id);
 
 	//—£‚µ‚½‚Æ‚«
-	bool IsCmdUp(COMMAND cmd);
+	bool IsCmdUp(COMMAND cmd, int id);
 
 	//‰Ÿ‚µ‚½‚Æ‚«
-	bool IsCmdDown(COMMAND cmd);
+	bool IsCmdDown(COMMAND cmd, int id);
 	
 	//ˆÚ“®“ü—Í‚ð‚µ‚Ä‚¢‚é‚©
-	bool CmdWalk();
+	bool CmdWalk(int id);
 
 };

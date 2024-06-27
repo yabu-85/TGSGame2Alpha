@@ -70,7 +70,7 @@ void TestEnemy::Update()
     }
 
     if (Input::IsKey(DIK_F)) {
-        XMFLOAT3 plaPos = GameManager::GetPlayer()->GetPosition();
+        XMFLOAT3 plaPos = GameManager::GetPlayer(0)->GetPosition();
         float plaDist = CalculationDistance(plaPos, transform_.position_);
         
         //AStar
