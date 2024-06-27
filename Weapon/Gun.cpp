@@ -30,7 +30,7 @@ namespace
 }
 
 Gun::Gun(GameObject* parent)
-    :GameObject(parent, "Gun"), hModel_(-1)
+    :GameObject(parent, "Gun"), hModel_(-1), pPlayer_(nullptr)
 {
 }
 
@@ -49,6 +49,8 @@ void Gun::Initialize()
     assert(topBoneIndex_ >= 0);
     assert(rootBoneIndex_ >= 0);
 
+    pPlayer_ = static_cast<Player*>(GetParent());
+
     //プレイヤーの手の位置まで調整
     transform_.position_ = handOffset;
     transform_.scale_ = modelScale;
@@ -61,7 +63,7 @@ void Gun::Update()
     bulletInfo_.coolTime_--;
 
     // 通常射撃
-    if (InputManager::IsCmd(InputManager::ATTACK, 0) && bulletInfo_.coolTime_ <= 0)
+    if (InputManager::IsCmd(InputManager::ATTACK, pPlayer_->GetPlayerId()) && bulletInfo_.coolTime_ <= 0)
     {
         ShootBullet<Bullet_Normal>(BulletType::NORMAL);
     }
@@ -99,12 +101,13 @@ void Gun::ShootBullet(BulletType type)
     float bulletSpeed = pNewBullet->GetBulletParameter().speed_;
     float calcDist = bulletSpeed * killTimer;
 
+    int playerId = pPlayer_->GetPlayerId();
     XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
-    XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(0), Camera::GetPosition(0)));
-    float cameraDist = CalculationDistance(Camera::GetPosition(0), Camera::GetTarget(0));
+    XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(playerId), Camera::GetPosition(playerId)));
+    float cameraDist = CalculationDistance(Camera::GetPosition(playerId), Camera::GetTarget(playerId));
     
     RayCastData data;
-    data.start = Camera::GetPosition(0);
+    data.start = Camera::GetPosition(playerId);
     data.dir = cameraVec;
     XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist + cameraDist));
     GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
@@ -118,7 +121,7 @@ void Gun::ShootBullet(BulletType type)
     XMFLOAT3 minEneHitPos = XMFLOAT3();
 
     //コライダー登録
-    XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(0), GetWorldPosition());
+    XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(playerId), GetWorldPosition());
     SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&cameraVec));
     collid->size_ = XMFLOAT3(calcDist + cameraDist, calcDist + cameraDist, calcDist + cameraDist);
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);

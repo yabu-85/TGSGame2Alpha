@@ -4,26 +4,22 @@
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
 
-namespace {
-	Player* p = nullptr;
-
-}
-
 PlayerWait::PlayerWait(StateManager* owner) : StateBase(owner)
 {
-	p = static_cast<Player*>(owner_->GetGameObject());
+	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
 }
 
 void PlayerWait::Update()
 {
 	//“ü—Í
-	if (InputManager::CmdWalk(p->GetPlayerId())) owner_->ChangeState("Move");
-	else if (InputManager::IsCmdDown(InputManager::JUMP, p->GetPlayerId()) && p->IsReadyJump()) owner_->ChangeState("Jump");
+	int playerId = pPlayer_->GetPlayerId();
+	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
+	else if (InputManager::IsCmdDown(InputManager::JUMP, playerId) && pPlayer_->IsReadyJump()) owner_->ChangeState("Jump");
 
 	//ˆ—
 	else {
-		p->CalcNoMove();
-		p->Move();
+		pPlayer_->CalcNoMove();
+		pPlayer_->Move();
 	}
 }
 
@@ -31,19 +27,21 @@ void PlayerWait::Update()
 
 PlayerMove::PlayerMove(StateManager* owner) : StateBase(owner)
 {
+	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
 }
 
 void PlayerMove::Update()
 {
 	//“ü—Í
-	if (InputManager::IsCmdDown(InputManager::JUMP, p->GetPlayerId()) && p->IsReadyJump()) owner_->ChangeState("Jump");
-	else if (!InputManager::CmdWalk(p->GetPlayerId())) owner_->ChangeState("Wait");
+	int playerId = pPlayer_->GetPlayerId();
+	if (InputManager::IsCmdDown(InputManager::JUMP, playerId) && pPlayer_->IsReadyJump()) owner_->ChangeState("Jump");
+	else if (!InputManager::CmdWalk(playerId)) owner_->ChangeState("Wait");
 
 	//ˆ—
 	else {
-		p->CalcMove();
-		p->Move();
-		p->Rotate();
+		pPlayer_->CalcMove();
+		pPlayer_->Move();
+		pPlayer_->Rotate();
 	}
 }
 
@@ -51,12 +49,15 @@ void PlayerMove::Update()
 
 PlayerJump::PlayerJump(StateManager* owner) : StateBase(owner)
 {
+	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
 }
 
 void PlayerJump::OnEnter()
 {
-	p->Jump();
-	if (InputManager::CmdWalk(p->GetPlayerId())) owner_->ChangeState("Move");
+	int playerId = pPlayer_->GetPlayerId();
+	pPlayer_->Jump();
+
+	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
 	else owner_->ChangeState("Wait");
 }
 
@@ -64,12 +65,13 @@ void PlayerJump::OnEnter()
 
 PlayerClimb::PlayerClimb(StateManager* owner) : StateBase(owner)
 {
+	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
 }
 
 void PlayerClimb::Update()
 {
-	p->WallClimb();
+	pPlayer_->WallClimb();
 
 	//I—¹ˆ—
-	if(!p->IsClimb()) owner_->ChangeState("Wait");
+	if(!pPlayer_->IsClimb()) owner_->ChangeState("Wait");
 }

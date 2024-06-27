@@ -491,8 +491,6 @@ float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p
     Clamp01(t2);
     p2 = s2.GetPosition(t2);
     dist = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
-    OutputDebugStringA(std::to_string(dist).c_str());
-    OutputDebugString("End\n");
     return dist;
     //----------------------------------------------------------------
 

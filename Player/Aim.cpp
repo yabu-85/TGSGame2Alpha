@@ -44,7 +44,7 @@ Aim::~Aim()
 
 void Aim::Initialize()
 {
-    pPlayer_ = static_cast<Player*>(FindObject("Player"));
+    pPlayer_ = static_cast<Player*>(GetParent());
     DefaultAim();
 
 }
@@ -252,7 +252,12 @@ void Aim::RayCastStage()
 
 void Aim::CalcMouseMove()
 {
-    XMFLOAT3 mouseMove = Input::GetMouseMove(); //マウスの移動量を取得
+    //マウスの移動量を取得
+    XMFLOAT3 mouseMove = XMFLOAT3();
+    int playerId = pPlayer_->GetPlayerId();
+    if (playerId == 0) mouseMove = Input::GetMouseMove();
+    else mouseMove = Input::GetPadStickR(playerId);
+
     transform_.rotate_.y += mouseMove.x * mouseSensitivity_; //横方向の回転
     transform_.rotate_.x -= mouseMove.y * mouseSensitivity_; //縦方向の回転
     if (transform_.rotate_.x <= UP_MOUSE_LIMIT) transform_.rotate_.x = UP_MOUSE_LIMIT;

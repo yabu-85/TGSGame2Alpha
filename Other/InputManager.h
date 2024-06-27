@@ -8,6 +8,7 @@ namespace InputManager {
 		MOUSE,
 		SCROLL_UP,
 		SCROLL_DOWN,
+		CONTROLLER,
 		TYPE_MAX,
 	};
 

@@ -3,8 +3,11 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
+class Player;
+
 class PlayerWait : public StateBase
 {
+	Player* pPlayer_;
 public:
 	PlayerWait(StateManager* owner);
 	const char* GetName() const override { return "Wait"; }
@@ -13,6 +16,7 @@ public:
 
 class PlayerMove : public StateBase
 {
+	Player* pPlayer_;
 public:
 	PlayerMove(StateManager* owner);
 	const char* GetName() const override { return "Move"; }
@@ -21,6 +25,7 @@ public:
 
 class PlayerJump : public StateBase
 {
+	Player* pPlayer_;
 public:
 	PlayerJump(StateManager* owner);
 	const char* GetName() const override { return "Jump"; }
@@ -29,6 +34,7 @@ public:
 
 class PlayerClimb : public StateBase
 {
+	Player* pPlayer_;
 public:
 	PlayerClimb(StateManager* owner);
 	const char* GetName() const override { return "Climb"; }
