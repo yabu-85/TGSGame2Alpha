@@ -9,7 +9,7 @@
 #include "../Stage/Triangle.h"
 
 namespace {
-    const float EPSILON = 0.00001f;     //許容誤差の定義
+    const float EPSILON = 0.000001f;     //許容誤差の定義
 
 }
 
@@ -34,26 +34,12 @@ struct Segment {
     }
 };
 
-//直線（直線上の一点と方向ベクトル）
-struct Line {
-    XMFLOAT3 pos;   //始
-    XMVECTOR vec;   //線の方向ベクトル
-    Line(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
-
-    //直線上の点を取得する
-    XMFLOAT3 GetPosition(float dot) const {
-        XMFLOAT3 p = XMFLOAT3();
-        XMStoreFloat3(&p, (XMLoadFloat3(&pos) + (vec * dot)));
-        return  p;
-    }
-};
-
 void Clamp01(float& v);
 bool IsSharpAngle(XMFLOAT3& p1, XMFLOAT3& p2, XMFLOAT3& p3);
 float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t);
-float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
+float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
 float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
-float CalcPointLineDist(XMFLOAT3& p, Line& l, XMFLOAT3& h, float& t);
+float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t);
 
 //コンストラクタ
 Collider::Collider():
@@ -309,9 +295,6 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
     float t1 = 0.0f, t2 = 0.0f;
 
     float d = CalcSegmentSegmentDist(seg1, seg2, p1, p2, t1, t2);
-    OutputDebugStringA(std::to_string(d).c_str());
-    OutputDebugString("\n");
-
     bool out = (d <= capsule1->size_.x + capsule2->size_.x);
     capsule1->targetDit_ = d;
     capsule1->targetPos_ = p1;
@@ -356,23 +339,25 @@ void Clamp01(float& v) {
     else if (v > 1.0f) v = 1.0f;
 }
 
+#include <math.h>
+
 // 点と直線の最短距離
 // p : 点
 // l : 直線
 // h : 点から下ろした垂線の足（戻り値）
 // t :ベクトル係数（戻り値）
 // 戻り値: 最短距離
-float CalcPointLineDist(XMFLOAT3& p, Line& l, XMFLOAT3& h, float& t) {
-    float lenSqV = XMVectorGetX(XMVector3LengthSq(l.vec));
+float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t) {
     t = 0.0f;
-    if (lenSqV > (-EPSILON)) {
-        XMVECTOR v = XMLoadFloat3(&p) - XMLoadFloat3(&l.pos);
-        t = XMVectorGetX(XMVector3Dot(l.vec, v)) / lenSqV;
+    float dvv = powf(XMVectorGetX(XMVector3Length(s.vec)), 2.0f);
+    if (dvv > -EPSILON) {
+        XMVECTOR v = XMLoadFloat3(&p) - XMLoadFloat3(&s.pos);
+        t = XMVectorGetX(XMVector3Dot(s.vec, v)) / dvv;
     }
 
-    XMVECTOR pointOnLine = XMLoadFloat3(&l.pos) + (t * l.vec);
-    XMStoreFloat3(&h, pointOnLine);
-    return abs(XMVectorGetX(XMVector3Length(pointOnLine - XMLoadFloat3(&p))));
+    h = s.GetPosition(t);
+    XMVECTOR v = XMLoadFloat3(&p) - XMLoadFloat3(&h);
+    return XMVectorGetX(XMVector3Length(v));
 }
 
 // ∠p1p2p3は鋭角？
@@ -403,8 +388,7 @@ float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t) {
     XMFLOAT3 e = seg.GetEndPoint();
 
     // 垂線の長さ、垂線の足の座標及びtを算出
-    Line line = Line(seg.pos, XMLoadFloat3(&e) - XMLoadFloat3(&seg.pos));
-    float len = CalcPointLineDist(p, line, h, t);
+    float len = CalcPointLineDist(p, seg, h, t);
 
     if (!IsSharpAngle(p, seg.pos, e)) {
         // 始点側の外側
@@ -420,7 +404,6 @@ float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t) {
     return len;
 }
 
-
 // 2直線の最短距離
 // l1 : L1
 // l2 : L2
@@ -429,55 +412,38 @@ float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t) {
 // t1 : L1側のベクトル係数（戻り値）
 // t2 : L2側のベクトル係数（戻り値）
 // 戻り値: 最短距離
-float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
+float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
     //2直線が平行か調べる
     //2つのベクトルの外積の長さをチェックし、許容誤差より小さいかどうかを確認
-    float crossLength = XMVectorGetX(XMVector3Length(
-        XMVector3Cross(XMVector3Normalize(l1.vec), XMVector3Normalize(l2.vec))));
-    if (crossLength < EPSILON) {
-        // 点P11と直線L2の最短距離の問題に帰着
-        float len = CalcPointLineDist(l1.pos, l2, p2, t2);
-        p1 = l1.pos;
+    float crossLeng = XMVectorGetX(XMVector3Length(XMVector3Cross(XMVector3Normalize(s1.vec), XMVector3Normalize(s2.vec))));
+    crossLeng = crossLeng * crossLeng + 0.0000001f;
+    if (crossLeng < EPSILON) {
+        //線分1の始点から直線2までの最短距離問題に帰着する
         t1 = 0.0f;
-        return len;
+        p1 = s1.pos;
+        return CalcPointLineDist(s1.pos, s2, p2, t2);
     }
 
-    XMVECTOR vecN1 = XMVector3Normalize(l1.vec);
-    XMVECTOR vecN2 = XMVector3Normalize(l2.vec);
-    
-    /*
-    XMVECTOR w0 = XMLoadFloat3(&l1.pos) - XMLoadFloat3(&l2.pos);
-    float a = XMVectorGetX(XMVector3Dot(vecN1, vecN1));
-    float b = XMVectorGetX(XMVector3Dot(vecN1, vecN2));
-    float c = XMVectorGetX(XMVector3Dot(vecN2, vecN2));
-    float d = XMVectorGetX(XMVector3Dot(vecN1, w0));
-    float e = XMVectorGetX(XMVector3Dot(vecN2, w0));
-    float denom = a * c - b * b;
-    t1 = (b * e - c * d) / denom;
-    t2 = (a * e - b * d) / denom;
-    p1 = l1.GetPosition(t1);
-    p2 = l2.GetPosition(t2);
-    return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
-    */
-    
-    //2直線はねじれの関係
-    float DV1V2 = XMVectorGetX(XMVector3Dot(vecN1, vecN2));
-    float DV1V1 = XMVectorGetX(XMVector3Length(l1.vec));
-    float DV2V2 = XMVectorGetX(XMVector3Length(l2.vec));
-    XMVECTOR P21P11 = XMLoadFloat3(&l1.pos) - XMLoadFloat3(&l2.pos);
-
-    float t1D1 = DV1V2 * XMVectorGetX(XMVector3Dot(vecN2, P21P11));
-    float t1D2 = DV2V2 * XMVectorGetX(XMVector3Dot(vecN1, P21P11));
+    //直線同士のお互いが垂直になる点を求めて
+    //その2点で距離を求める
+    XMVECTOR vecN1 = XMVector3Normalize(s1.vec);
+    XMVECTOR vecN2 = XMVector3Normalize(s2.vec);
+    float DV1V2 = XMVectorGetX(XMVector3Dot(s1.vec, s2.vec));
+    float DV1V1 = powf(XMVectorGetX(XMVector3Length(s1.vec)), 2.0f);
+    float DV2V2 = powf(XMVectorGetX(XMVector3Length(s2.vec)), 2.0f);
+    XMVECTOR VP2P1 = XMLoadFloat3(&s1.pos) - XMLoadFloat3(&s2.pos);
+    float t1D1 = DV1V2 * XMVectorGetX(XMVector3Dot(s2.vec, VP2P1));
+    float t1D2 = DV2V2 * XMVectorGetX(XMVector3Dot(s1.vec, VP2P1));
     float t1D3 = (DV1V1 * DV2V2 - DV1V2 * DV1V2);
-
-    t1 = t1D1 - t1D2 / t1D3;
-    p1 = l1.GetPosition(t1);
-    t2 = XMVectorGetX(XMVector3Dot(vecN2, (XMLoadFloat3(&p1) - XMLoadFloat3(&l2.pos)))) / DV2V2;
-    p2 = l2.GetPosition(t2);
+    
+    t1 = (t1D1 - t1D2) / t1D3;
+    p1 = s1.GetPosition(t1);
+    t2 = XMVectorGetX(XMVector3Dot(s2.vec, (XMLoadFloat3(&p1) - XMLoadFloat3(&s2.pos)))) / DV2V2;
+    p2 = s2.GetPosition(t2);
     return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
-
 }
 
+//https://www.youtube.com/watch?v=oCg5T5Xyg-o
 // 2線分の最短距離
 // s1 : S1(線分1)
 // s2 : S2(線分2)
@@ -487,76 +453,60 @@ float CalcLineLineDist(Line& l1, Line& l2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1
 // t2 : S2側のベクトル係数（戻り値）
 // 戻り値: 最短距離
 float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
+    float dist = 0.0f;
+    OutputDebugString("start\n");
 
-    // S1が縮退している？
-    // (縮退：線分の両端が一致して一点になり、線分と呼べなくなった)
-    if (XMVectorGetX(XMVector3LengthSq(s1.vec)) < EPSILON) {
-        if (XMVectorGetX(XMVector3LengthSq(s2.vec)) < EPSILON) {
-            float len = XMVectorGetX(XMVector3Length(XMLoadFloat3(&s2.pos) - XMLoadFloat3(&s1.pos)));
-            p1 = s1.pos;
-            p2 = s2.pos;
-            t1 = t2 = 0.0f;
-            return len;
-        }
-        else {
-            float len = CalcPointSegmentDist(s1.pos, s2, p2, t2);
-            p1 = s1.pos;
-            t1 = 0.0f;
-            Clamp01(t2);
-            return len;
-        }
-    }
-    // S2が縮退している？
-    else if (XMVectorGetX(XMVector3LengthSq(s2.vec)) < EPSILON) {
-        float len = CalcPointSegmentDist(s2.pos, s1, p1, t1);
-        p2 = s2.pos;
-        Clamp01(t1);
-        t2 = 0.0f;
-        return len;
-    }
+    //----------------------------------------------------------------
+    //とりあえず2直線間の最短距離,mp1,mp2,t1,t2を求めてみる
+    dist = CalcLineLineDist(s1, s2, p1, p2, t1, t2);
+    
+    OutputDebugStringA(std::to_string(t1).c_str());
+    OutputDebugString(" : ");
+    OutputDebugStringA(std::to_string(t2).c_str());
+    OutputDebugString("\n");
 
-    /* 線分同士 */
-    // 2線分が平行だったら垂線の端点の一つをP1に仮決定
-    float vecDot = XMVectorGetX(XMVector3Dot(XMVector3Normalize(s1.vec), XMVector3Normalize(s2.vec)));
-    if (vecDot == 1.0f) {
-        t1 = 0.0f;
-        p1 = s1.pos;
-        float len = CalcPointSegmentDist(s1.pos, s2, p2, t2);
-        float t = abs(t2);
-
-        if (t2 >= -EPSILON && t2 <= 1.0f + EPSILON) {
-            return len;
-        }
+    if (0.0f <= t1 && t1 <= 1.0f && 0.0f <= t2 && t2 <= 1.0f) {
+        //mp1,mp2が両方とも線分内にあった
+        OutputDebugStringA(std::to_string(dist).c_str());
+        OutputDebugString(" : LineLIneDist\n");
+        return dist;
     }
-    else {
-        // 線分はねじれの関係（ねじれ：平行でなく交わらない2つの直線の位置関係）
-        // 2直線間の最短距離を求めて仮のt1,t2を求める
-        Line l1 = Line(s1.pos, s1.vec);
-        Line l2 = Line(s2.pos, s2.vec);
-        float len = CalcLineLineDist(l1, l2, p1, p2, t1, t2);
-        if (0.0f <= t1 && t1 <= 1.0f && 0.0f <= t2 && t2 <= 1.0f) {
-            return len;
-        }
-    }
+    //mp1,mp2の両方、またはどちらかが線分内になかったので次へ
 
-    // 垂線の足が外にある事が判明
-    // S1側のt1を0～1の間にクランプして垂線を降ろす
-    Clamp01(t1);
-    p1 = s1.GetPosition(t1);
-    float len = CalcPointSegmentDist(p1, s2, p2, t2);
-    if (t2 >= -EPSILON && t2 <= 1.0f + EPSILON) {
-        return len;
-    }
-
-    // S2側が外だったのでS2側をクランプ、S1に垂線を降ろす
+    //----------------------------------------------------------------
+    //mp1,t1を求め直す ⇒ t2を0～1にクランプしてmp2からs1.vに垂線を降ろしてみる
     Clamp01(t2);
     p2 = s2.GetPosition(t2);
-    len = CalcPointSegmentDist(p2, s1, p1, t1);
-    if (t1 >= -EPSILON && t1 <= 1.0f + EPSILON) {
-        return len;
+    dist = CalcPointLineDist(p2, s1, p1, t1);
+    if (0.0f <= t1 && t1 <= 1.0f) {
+        //mp1が線分内にあった
+        OutputDebugStringA(std::to_string(dist).c_str());
+        OutputDebugString(" : PointLine2\n");
+        return dist;
     }
+    //mp1が線分内になかったので次へ
 
+    //----------------------------------------------------------------
+    //mp2,t2を求め直す ⇒ t1を0～1にクランプしてmp1からs2.vに垂線を降ろしてみる
     Clamp01(t1);
     p1 = s1.GetPosition(t1);
-    return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
+    dist = CalcPointLineDist(p1, s2, p2, t2);
+    if (0.0f <= t2 && t2 <= 1.0f) {
+        //mp2が線分内にあった
+        OutputDebugStringA(std::to_string(dist).c_str());
+        OutputDebugString(" : PointLine1\n");
+        return dist;
+    }
+    //mp2が線分内になかったので次へ
+
+    //----------------------------------------------------------------
+    //t2をクランプしてmp2を再計算すると、mp1からmp2までが最短
+    Clamp01(t2);
+    p2 = s2.GetPosition(t2);
+    dist = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));
+    OutputDebugStringA(std::to_string(dist).c_str());
+    OutputDebugString("End\n");
+    return dist;
+    //----------------------------------------------------------------
+
 }

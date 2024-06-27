@@ -142,8 +142,41 @@ void Gun::ShootBullet(BulletType type)
             minEneHitPos = collid->targetPos_;
         }
     }
-    //コライダー初期化
-    ClearCollider();
+
+    //Aimで当たらなかったから、本来の軌跡で判定を行う
+    if (minIndex < 0) {
+        //コリジョンマップとの判定
+        XMFLOAT3 gunVec = Float3Normalize(Float3Sub(gunTar, gunTop));
+        data = RayCastData();
+        data.start = gunTop;
+        data.dir = gunVec;
+        calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist));
+        GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
+        gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+
+        //コライダー情報セット
+        XMFLOAT3 gunRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
+        centerPos = Float3Sub(gunRoot, GetWorldPosition());
+        collid->SetCenter(centerPos);
+        collid->SetVector(XMLoadFloat3(&gunVec));
+
+        for (int i = 0; i < enemyList.size(); i++) {
+            XMFLOAT3 vec = Float3Sub(enemyList[i]->GetPosition(), data.start);
+            float hitDist = CalculationDistance(vec);
+            if (hitDist > data.dist) continue;
+
+            //壁に当たる距離じゃないから、当たり判定やる
+            rayHit_ = false;
+            this->Collision(enemyList[i]);
+
+            //最短距離で当たった
+            if (rayHit_ && hitDist < minDist) {
+                minDist = hitDist;
+                minIndex = i;
+                minEneHitPos = collid->targetPos_;
+            }
+        }
+    }
 
     //敵を目標にしていた場合
     EnemyBase* enemy = nullptr;

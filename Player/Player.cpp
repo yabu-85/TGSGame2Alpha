@@ -143,8 +143,6 @@ void Player::Draw()
 {
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
-
-    CollisionDraw();
 }
 
 void Player::Release()

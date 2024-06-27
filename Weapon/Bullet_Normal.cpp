@@ -58,9 +58,8 @@ void Bullet_Normal::Update()
     parameter_.killTimer_--;
 
     //移動
-    pPolyLine_->AddPosition(transform_.position_);
     transform_.position_ = Float3Add(transform_.position_, move_);
-    int a = 0;
+    pPolyLine_->AddPosition(transform_.position_);
 }
 
 void Bullet_Normal::OnCollision(GameObject* pTarget)
@@ -86,7 +85,6 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 void Bullet_Normal::Draw()
 {
     pPolyLine_->Draw();
-    CollisionDraw();
 }
 
 void Bullet_Normal::Release()
@@ -97,20 +95,18 @@ void Bullet_Normal::Release()
 
 void Bullet_Normal::Shot(EnemyBase* enemy, XMFLOAT3 hitPos)
 {
-    OutputDebugString("\n");
-    
     //コライダー情報セット
     XMFLOAT3 colCenter = Float3Multiply(move_, -0.5f);
-    CapsuleCollider* collid = new CapsuleCollider(colCenter, parameter_.collisionScale_, parameter_.speed_ * 2.0f, -XMLoadFloat3(&move_));
+    CapsuleCollider* collid = new CapsuleCollider(colCenter, parameter_.collisionScale_, parameter_.speed_, -XMLoadFloat3(&move_));
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     AddCollider(collid);
 
     //PolyLine追加
-    for(int i = 0;i < (POLY_LENG);i++) pPolyLine_->AddPosition(transform_.position_);
+    for (int i = 0; i < POLY_LENG; i++) {
+        XMFLOAT3 addPos = Float3Multiply(move_, (float)i / (float)POLY_LENG);
+        pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
+    }
     hitPos_ = hitPos;
-
-    //Collision計算のために１フレーム分戻す
-    //transform_.position_ = Float3Sub(transform_.position_, move_);
 
     //コリジョンマップに当たっていた時
     float hitDist = CalculationDistance(transform_.position_, hitPos);
