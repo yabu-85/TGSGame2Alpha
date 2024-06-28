@@ -151,6 +151,8 @@ void Aim::DefaultAim()
     cameraTarget_.y = plaPos.y + distanceHeight_;
     cameraTarget_.z = plaPos.z - (camDir.z * distanceHorizontal_);
 
+    CameraShake();
+
     XMVECTOR caTarget = XMLoadFloat3(&cameraTarget_);
     XMVECTOR forwardV = XMVector3TransformNormal(forwardVector, mView);
     distanceBehind_ = distanceBehind_ + ((distanceTargetBehind_ - distanceBehind_) * 0.1f);

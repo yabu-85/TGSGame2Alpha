@@ -68,6 +68,12 @@ void Gun::Update()
     if (InputManager::IsCmd(InputManager::ATTACK, playerId_) && bulletInfo_.coolTime_ <= 0)
     {
         ShootBullet<Bullet_Normal>(BulletType::NORMAL);
+
+        CameraShakeInfo shakeInfo = CameraShakeInfo(2, 0.05f, 0.1f);
+        XMVECTOR shakeDir = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+        pPlayer_->GetAim()->SetCameraShake(shakeInfo);
+        pPlayer_->GetAim()->SetCameraShakeDirection(shakeDir);
+
     }
 
 }
