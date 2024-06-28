@@ -142,13 +142,6 @@ namespace Direct3D
 		vp1.TopLeftX = 0;	//左
 		vp1.TopLeftY = 0;	//上
 
-		vp2.Width = (float)screenWidth / 2;	//幅
-		vp2.Height = (float)screenHeight;//高さ
-		vp2.MinDepth = 0.0f;	//手前
-		vp2.MaxDepth = 1.0f;	//奥
-		vp2.TopLeftX = screenWidth / 2;	//左
-		vp2.TopLeftY = 0;	//上
-
 		//各パターンのシェーダーセット準備
 		InitShaderBundle();
 
@@ -260,6 +253,15 @@ namespace Direct3D
 		SamDesc.BorderColor[2] = 1.0f; //B
 		SamDesc.BorderColor[3] = 1.0f; //A
 		Direct3D::pDevice_->CreateSamplerState(&SamDesc, &pDepthSampler_);
+
+		//ビューポートの設定
+		//レンダリング結果を表示する範囲
+		vp2.Width = (float)screenWidth;	//幅
+		vp2.Height = (float)screenHeight;//高さ
+		vp2.MinDepth = 0.0f;	//手前
+		vp2.MaxDepth = 1.0f;	//奥
+		vp2.TopLeftX = 0;	//左
+		vp2.TopLeftY = 0;	//上
 
 		XMFLOAT4X4 clipToUV;
 		ZeroMemory(&clipToUV, sizeof(XMFLOAT4X4));
@@ -479,7 +481,7 @@ namespace Direct3D
 		//ShadowMapで追加-------------------------------
 		pContext_->OMSetRenderTargets(1, &pDepthTargetView_, pDepthStencilView);            // 描画先を設定
 
-		pContext_->RSSetViewports(1, &vp1);
+		pContext_->RSSetViewports(1, &vp2);
 		//---------------------------------------
 
 		//背景の色
