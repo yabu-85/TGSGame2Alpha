@@ -1,5 +1,6 @@
 #pragma once
 #include "../Character/Character.h"
+#include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 class Aim;
 class StateManager;
@@ -28,6 +29,8 @@ class Player : public Character
 
     Aim* pAim_;
     StateManager* pStateManager_;
+
+    std::shared_ptr<EFFEKSEERLIB::EFKTransform> mt;
 
     //ä÷êî
     void CalcRotate(XMFLOAT3 pos, float ratio);

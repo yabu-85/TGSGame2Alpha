@@ -81,6 +81,9 @@
     <Filter Include="Weapon">
       <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01Engine\Effekseer">
+      <UniqueIdentifier>{98212cc5-e1a8-4612-b2d6-6f03e83b822e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\BoxCollider.cpp">
@@ -286,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="UI\HealthGauge.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\EffekseeLib\EffekseerVFX.cpp">
+      <Filter>01Engine\Effekseer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -504,6 +510,9 @@
     </ClInclude>
     <ClInclude Include="UI\HealthGauge.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\EffekseeLib\EffekseerVFX.h">
+      <Filter>01Engine\Effekseer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

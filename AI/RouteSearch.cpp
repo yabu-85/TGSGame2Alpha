@@ -25,7 +25,7 @@ namespace RouteSearch {
         pText = new Text();
         pText->Initialize();
 
-        nodes = StageEditor::LoadFileNode("TestStageNode.json");
+        nodes = StageEditor::LoadFileNode("Json/TestStageNode.json");
         nodeHandle = Model::Load("DebugCollision/BoxCollider.fbx");
         edgeHandle = Model::Load("DebugCollision/BoxCollider.fbx");
         assert(nodeHandle >= 0);

@@ -138,7 +138,7 @@ void CollisionMap::Release()
 
 void CollisionMap::CreatIntersectDataTriangle()
 {
-    modelList_ = StageEditor::LoadFileStage("TestStage.json");
+    modelList_ = StageEditor::LoadFileStage("Json/TestStage.json");
 
     for (int i = 0; i < modelList_.size(); i++) {
         //コリジョン用モデル内なら飛ばす

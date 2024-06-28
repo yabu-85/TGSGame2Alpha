@@ -67,7 +67,7 @@ void StageEditor::DrawStageEditor()
     
     //セーブボタン
     if (ImGui::Button("CreateCollisionMap")) {
-        SaveFileStage(stageList, "TestStage.json");
+        SaveFileStage(stageList, "Json/TestStage.json");
         GameManager::GetCollisionMap()->IntersectDataReset();
         GameManager::GetCollisionMap()->CreatIntersectDataTriangle();
     }
@@ -243,7 +243,7 @@ void StageEditor::DrawNodeEditor()
 
     //セーブボタン
     if (ImGui::Button("Save NodeList")) {
-        SaveFileNode(nodeList, "TestStageNode.json");
+        SaveFileNode(nodeList, "Json/TestStageNode.json");
     }
     ImGui::SameLine();
     //地面にくっつかせる

@@ -85,7 +85,7 @@ bool InputManager::IsCmd(COMMAND cmd, int id)
 	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(0) >= DEAD_ZONE);
 	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(0)) >= DEAD_ZONE);
 	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(0)) >= DEAD_ZONE);
-
+	return false;
 }
 
 bool InputManager::IsCmdUp(COMMAND cmd, int id)
@@ -97,7 +97,7 @@ bool InputManager::IsCmdUp(COMMAND cmd, int id)
 	}
 
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonUp(commandList[cmd].second, 0);
-
+	return false;
 }
 
 bool InputManager::IsCmdDown(COMMAND cmd, int id)
@@ -109,6 +109,7 @@ bool InputManager::IsCmdDown(COMMAND cmd, int id)
 	}
 
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonDown(commandList[cmd].second, 0);
+	return false;
 }
 
 bool InputManager::CmdWalk(int id) {

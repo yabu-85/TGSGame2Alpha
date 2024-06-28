@@ -85,6 +85,15 @@ void Player::Initialize()
 
     Direct3D::playerSpeed = moveSpeed_;
 
+    EFFEKSEERLIB::gEfk->AddEffect("TAMA", "Particle/blurParticle.efk");
+
+    EFFEKSEERLIB::EFKTransform t;//matrix isLoop, maxFrame, speed
+    DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
+    t.isLoop = true; //繰り返しON
+    t.maxFrame = 80; //80フレーム
+    t.speed = 1.0; //スピード
+    mt = EFFEKSEERLIB::gEfk->Play("TAMA", t);
+
 }
 
 void Player::Update()
@@ -155,6 +164,11 @@ void Player::Update()
     Direct3D::PlayerPosition = transform_.position_;
     Direct3D::playerClimb = isClimb_;
     Direct3D::playerFaly = isFly_;
+
+    XMMATRIX tr = XMMatrixTranslation(0, 1.0, 0.5);
+    XMMATRIX rt = XMMatrixRotationY(XM_PI);
+    XMMATRIX sc = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+    DirectX::XMStoreFloat4x4(&(mt->matrix), rt * tr * sc * this->GetWorldMatrix());
 
 }
 

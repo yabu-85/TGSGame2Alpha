@@ -13,6 +13,8 @@
 #include "Audio.h"
 #include "VFX.h"
 #include "Light.h"
+#include "EffekseeLib/EffekseerVFX.h"
+
 #include "../Stage/StageEditor.h"
 #include "../Other/InputManager.h"
 #include "../Other/VFXManager.h"
@@ -94,6 +96,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	VFXManager::Initialize();
 	Light::Initialize();
 
+	EFFEKSEERLIB::gEfk = new EFFEKSEERLIB::EffekseerManager;
+	EFFEKSEERLIB::gEfk->Initialize(Direct3D::pDevice_, Direct3D::pContext_);
+
 	//ルートオブジェクト準備
 	//すべてのゲームオブジェクトの親となるオブジェクト
 	RootObject* pRootObject = new RootObject;
@@ -137,7 +142,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			//指定した時間（FPSを60に設定した場合は60分の1秒）経過していたら更新処理
-			if ((nowTime - lastUpdateTime) * fpsLimit > 1000.0f)
+			double deltaT = nowTime - lastUpdateTime; 
+			if (deltaT * fpsLimit > 1000.0f)
 			{
 				//時間計測関連
 				lastUpdateTime = nowTime;	//現在の時間（最後に画面を更新した時間）を覚えておく
@@ -145,10 +151,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				Input::Update();
 				Camera::Update(0);
-				VFX::Update();
 				DamageUI::Update();
 				ScreenManager::Update();
 				pRootObject->UpdateSub();
+
+				//エフェクトの更新
+				//VFX::Update();
+				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0);
 
 #if 1
 				//１回目
@@ -169,7 +178,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
-				VFX::Draw();
+
+				//エフェクトの描画
+				//VFX::Draw();
+				EFFEKSEERLIB::gEfk->Draw();
 				
 				DamageUI::Draw();
 				ScreenManager::Draw();
