@@ -477,21 +477,21 @@ namespace Direct3D
 	void BeginDraw()
 	{
 		//ShadowMapで追加-------------------------------
-		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);            // 描画先を設定
+		pContext_->OMSetRenderTargets(1, &pDepthTargetView_, pDepthStencilView);            // 描画先を設定
 
 		pContext_->RSSetViewports(1, &vp1);
 		//---------------------------------------
 
 		//背景の色
-		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
+		float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };//R,G,B,A
 
 		//画面をクリア
-		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);
+		pContext_->ClearRenderTargetView(pDepthTargetView_, clearColor);
 
 		//深度バッファクリア
 		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);	
 
-		SetShader(SHADER_3D);
+		SetShader(SHADER_SHADOWMAP);
 	}
 
 	//描画開始
@@ -499,9 +499,14 @@ namespace Direct3D
 	{
 		//描画先を設定
 		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
-		pContext_->RSSetViewports(1, &vp2);
+		pContext_->RSSetViewports(1, &vp1);
 		
 		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
+
+		//画面をクリアと深度バッファクリア
+		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);
+
+		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 		SetShader(SHADER_3D);
 	}
