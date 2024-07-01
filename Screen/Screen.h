@@ -3,6 +3,7 @@
 #include <string>
 #include <DirectXMath.h>
 #include<functional>
+#include "../Engine/Transform.h"
 
 using namespace DirectX;
 class UIBase;
@@ -23,6 +24,7 @@ public:
 protected:
 	std::vector<UIBase*> uiList_;
 	UI_STATE state_;
+	Transform transform_;
 
 public:
 	Screen();

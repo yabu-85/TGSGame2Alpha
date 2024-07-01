@@ -4,7 +4,7 @@
 #include "../Engine/SceneManager.h"
 
 //ƒ{ƒ^ƒ“‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
-void Kill(UIBase* ui) {
+static void Kill(UIBase* ui) {
 	ScreenManager::DeleteUI(ui);
 
 }
@@ -24,8 +24,8 @@ PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 	t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
 	Image::SetTransform(hCurPict_, t);
 
-	pauseTrans_.position_ = { 0.0f, 0.0f, 1.0f };
-	Image::SetTransform(hPict_[0], pauseTrans_);
+	transform_.position_ = { 0.0f, 0.0f, 1.0f };
+	Image::SetTransform(hPict_[0], transform_);
 	Image::SetFullScreenTransform(hPict_[1]);
 
 	AddUI("ReturnGame", UI_BUTTON, XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) Kill(uiList_.at(0)); }, XMFLOAT2(0.33f, 0.33f));

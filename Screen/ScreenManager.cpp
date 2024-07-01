@@ -27,6 +27,7 @@ namespace ScreenManager {
 		for (auto s : pScreenList_) {
 			{
 				delete s;
+				
 			}
 		}
 

@@ -6,7 +6,6 @@
 #include "../Character/Character.h"
 #include "../UI/DamageUI.h"
 #include "../Stage/CollisionMap.h"
-#include "../Other/VFXManager.h"
 #include "../Engine/CapsuleCollider.h"
 #include "../Json/JsonReader.h"
 
@@ -58,7 +57,7 @@ void Bullet_Normal::Update()
         damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_);
       
-        VFXManager::CreateVfxExplodeSmall(hitPos_);
+    //    VFXManager::CreateVfxExplodeSmall(hitPos_);
         KillMe();
         return;
     }
@@ -66,7 +65,7 @@ void Bullet_Normal::Update()
     if (parameter_.killTimer_ <= 0) {
         //コリジョンマップに当たっていた場合
         if (isHit_) {
-            VFXManager::CreateVfxExplodeSmall(hitPos_);
+        //    VFXManager::CreateVfxExplodeSmall(hitPos_);
         }
 
         KillMe();

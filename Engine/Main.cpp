@@ -11,12 +11,10 @@
 #include "Camera.h"
 #include "Input.h"
 #include "Audio.h"
-#include "VFX.h"
 #include "Light.h"
 #include "../Stage/StageEditor.h"
 #include "../Other/InputManager.h"
-#include "../Other/VFXManager.h"
-#include "../UI/ScreenManager.h"
+#include "../Screen/ScreenManager.h"
 #include "../UI/DamageUI.h"
 
 //ImGui関連のデータ
@@ -91,7 +89,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	InputManager::Initialize();
 	Audio::Initialize();
-	VFXManager::Initialize();
 	Light::Initialize();
 
 	//ルートオブジェクト準備
@@ -144,7 +141,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				FPS++;						//画面更新回数をカウントする
 
 				Input::Update();
-				VFX::Update();
 				DamageUI::Update();
 				ScreenManager::Update();
 				pRootObject->UpdateSub();
@@ -169,7 +165,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
-				VFX::Draw();
 				
 
 				////////////////////////
@@ -220,7 +215,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//いろいろ解放
 	ScreenManager::AllDeleteScreen();
-	VFX::Release();
 	Audio::AllRelease();
 	Model::AllRelease();
 	Image::AllRelease();

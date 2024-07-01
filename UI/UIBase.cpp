@@ -9,6 +9,10 @@ UIBase::UIBase() : hButtonPict_{-1, -1}, hImagePict_(-1), alpha_{255}, isBound_(
 
 UIBase::~UIBase()
 {
+	Image::Release(hButtonPict_[0]);
+	Image::Release(hButtonPict_[1]);
+	Image::Release(hImagePict_);
+
 }
 
 void UIBase::Draw()
