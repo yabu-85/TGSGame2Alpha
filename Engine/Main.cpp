@@ -14,7 +14,6 @@
 #include "Light.h"
 #include "../Stage/StageEditor.h"
 #include "../Other/InputManager.h"
-#include "../Screen/ScreenManager.h"
 #include "../UI/DamageUI.h"
 
 //ImGui関連のデータ
@@ -87,6 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//入力処理（キーボード、マウス、コントローラー）の準備
 	Input::Initialize(hWnd);
 
+	//その他初期化
 	InputManager::Initialize();
 	Audio::Initialize();
 	Light::Initialize();
@@ -142,11 +142,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				Input::Update();
 				DamageUI::Update();
-				ScreenManager::Update();
 				pRootObject->UpdateSub();
 
 #if 1
-
 				//１回目
 				XMFLOAT3 pos = Camera::GetPosition(0);
 				XMFLOAT3 tar = Camera::GetTarget(0);
@@ -214,7 +212,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	//いろいろ解放
-	ScreenManager::AllDeleteScreen();
 	Audio::AllRelease();
 	Model::AllRelease();
 	Image::AllRelease();

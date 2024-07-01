@@ -1,7 +1,6 @@
 #include "SelectScene.h"
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
-#include "../Screen/ScreenManager.h"
 #include "../Screen/SelectScreen.h"
 
 #include "../Engine/Input.h"
@@ -9,15 +8,15 @@
 
 //コンストラクタ
 SelectScene::SelectScene(GameObject * parent)
-	: GameObject(parent, "SelectScene")
+	: SceneBase(parent, "SelectScene")
 {
 }
 
 //初期化
 void SelectScene::Initialize()
 {
-	ScreenManager::AllDeleteScreen();
-	ScreenManager::AddScreen(new SelectScreen());
+	AllDeleteScreen();
+	AddScreen(new SelectScreen());
 
 }
 

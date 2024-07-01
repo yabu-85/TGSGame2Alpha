@@ -1,7 +1,6 @@
 #include "TestScene.h"
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
-#include "../Screen/ScreenManager.h"
 #include "../Screen/PauseScreen.h"
 
 #include "../Engine/Model.h"
@@ -17,7 +16,7 @@
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
-	: GameObject(parent, "TestScene")
+	: SceneBase(parent, "TestScene")
 {
 }
 
@@ -32,8 +31,8 @@ void TestScene::Initialize()
 	DamageUI::Initialize();
 	EnemyManager::SetParent(this);
 	
-	ScreenManager::AllDeleteScreen();
-	ScreenManager::AddScreen(new PauseScreen());
+	AllDeleteScreen();
+	AddScreen(new PauseScreen());
 
 	//モデル事前読み込み
 	Model::Load("Model/Scarecrow.fbx");

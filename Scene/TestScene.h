@@ -1,8 +1,7 @@
 #pragma once
-#include "../Engine/GameObject.h"
-#include <vector>
+#include "SceneBase.h"
 
-class TestScene : public GameObject
+class TestScene : public SceneBase
 {
 public:
 	TestScene(GameObject* parent);

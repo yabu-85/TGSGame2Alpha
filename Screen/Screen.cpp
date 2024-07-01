@@ -3,7 +3,7 @@
 #include "../UI/ButtonUI.h"
 #include "../Engine/Input.h"
 
-Screen::Screen() : state_(UI_STATE::DRAW)
+Screen::Screen() : state_(SCREEN_STATE::DRAW)
 {
 }
 

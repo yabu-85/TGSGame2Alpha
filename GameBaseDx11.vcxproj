@@ -174,11 +174,11 @@
     <ClCompile Include="Other\InputManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
     <ClCompile Include="Player\Player.cpp" />
+    <ClCompile Include="Scene\SceneBase.cpp" />
     <ClCompile Include="Scene\SelectScene.cpp" />
     <ClCompile Include="Scene\TestScene.cpp" />
     <ClCompile Include="Screen\PauseScreen.cpp" />
     <ClCompile Include="Screen\Screen.cpp" />
-    <ClCompile Include="Screen\ScreenManager.cpp" />
     <ClCompile Include="Screen\SelectScreen.cpp" />
     <ClCompile Include="Stage\Cell.cpp" />
     <ClCompile Include="Stage\CollisionMap.cpp" />
@@ -248,11 +248,11 @@
     <ClInclude Include="Other\InputManager.h" />
     <ClInclude Include="Player\Aim.h" />
     <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Scene\SceneBase.h" />
     <ClInclude Include="Scene\SelectScene.h" />
     <ClInclude Include="Scene\TestScene.h" />
     <ClInclude Include="Screen\PauseScreen.h" />
     <ClInclude Include="Screen\Screen.h" />
-    <ClInclude Include="Screen\ScreenManager.h" />
     <ClInclude Include="Screen\SelectScreen.h" />
     <ClInclude Include="Stage\Cell.h" />
     <ClInclude Include="Stage\CollisionMap.h" />

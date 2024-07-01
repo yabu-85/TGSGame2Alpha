@@ -45,12 +45,6 @@
     <Filter Include="UI\UI">
       <UniqueIdentifier>{66321f4a-d375-4998-9db1-33e90856a40c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\Screen">
-      <UniqueIdentifier>{3c4b14e5-c3c7-404c-bcc9-1afda9f17383}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\PauseScreen">
-      <UniqueIdentifier>{54857bdf-0002-4e99-a56f-58412053433c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Character">
       <UniqueIdentifier>{6b9b0eff-404e-4fe0-9bd3-d5e05bb5e037}</UniqueIdentifier>
     </Filter>
@@ -80,6 +74,9 @@
     </Filter>
     <Filter Include="Weapon">
       <UniqueIdentifier>{cafdbb9f-edcd-4bfe-9270-8bdbf52c70cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Screen">
+      <UniqueIdentifier>{e9ea4441-d1d1-4fa7-ba37-c7d3f1974c1d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -233,9 +230,6 @@
     <ClCompile Include="Character\DamageSystem.cpp">
       <Filter>Character</Filter>
     </ClCompile>
-    <ClCompile Include="Other\VFXManager.cpp">
-      <Filter>Other</Filter>
-    </ClCompile>
     <ClCompile Include="Enemy\EnemyBase.cpp">
       <Filter>Enemy</Filter>
     </ClCompile>
@@ -247,15 +241,6 @@
     </ClCompile>
     <ClCompile Include="UI\UIBase.cpp">
       <Filter>UI\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\Screen.cpp">
-      <Filter>UI\Screen</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\ScreenManager.cpp">
-      <Filter>UI\Screen</Filter>
-    </ClCompile>
-    <ClCompile Include="UI\PauseScreen.cpp">
-      <Filter>UI\PauseScreen</Filter>
     </ClCompile>
     <ClCompile Include="UI\DamageUI.cpp">
       <Filter>UI</Filter>
@@ -286,6 +271,21 @@
     </ClCompile>
     <ClCompile Include="UI\HealthGauge.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen\PauseScreen.cpp">
+      <Filter>Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen\Screen.cpp">
+      <Filter>Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen\SelectScreen.cpp">
+      <Filter>Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SelectScene.cpp">
+      <Filter>03Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SceneBase.cpp">
+      <Filter>03Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -454,9 +454,6 @@
     <ClInclude Include="Character\DamageSystem.h">
       <Filter>Character</Filter>
     </ClInclude>
-    <ClInclude Include="Other\VFXManager.h">
-      <Filter>Other</Filter>
-    </ClInclude>
     <ClInclude Include="Enemy\EnemyBase.h">
       <Filter>Enemy</Filter>
     </ClInclude>
@@ -468,15 +465,6 @@
     </ClInclude>
     <ClInclude Include="UI\UIBase.h">
       <Filter>UI\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Screen.h">
-      <Filter>UI\Screen</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\ScreenManager.h">
-      <Filter>UI\Screen</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\PauseScreen.h">
-      <Filter>UI\PauseScreen</Filter>
     </ClInclude>
     <ClInclude Include="UI\DamageUI.h">
       <Filter>UI</Filter>
@@ -504,6 +492,21 @@
     </ClInclude>
     <ClInclude Include="UI\HealthGauge.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen\PauseScreen.h">
+      <Filter>Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen\Screen.h">
+      <Filter>Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen\SelectScreen.h">
+      <Filter>Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SelectScene.h">
+      <Filter>03Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SceneBase.h">
+      <Filter>03Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
