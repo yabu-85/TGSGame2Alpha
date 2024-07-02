@@ -40,6 +40,7 @@ namespace DamageUI {
 	{
 		pText_ = new Text();
 		pText_->Initialize();
+		pText_->SetScale(TEXT_SCALE);
 	}
 
 	void Release()

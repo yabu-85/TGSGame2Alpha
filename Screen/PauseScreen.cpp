@@ -1,12 +1,10 @@
 #include "PauseScreen.h"
-#include "ScreenManager.h"
 #include "../Engine/Image.h"
 #include "../Engine/SceneManager.h"
 
 //É{É^ÉìâüÇµÇΩÇ∆Ç´ÇÃèàóù
-void Kill(UIBase* ui) {
-	ScreenManager::DeleteUI(ui);
-
+static void Kill(UIBase* ui) {
+	
 }
 
 PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
@@ -21,7 +19,7 @@ PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 	Image::SetTransform(hPict_[0], pauseTrans_);
 	Image::SetFullScreenTransform(hPict_[1]);
 
-	AddUI("ReturnGame", UI_BUTTON, XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) Kill(uiList_.at(0)); }, XMFLOAT2(0.33f, 0.33f));
+	AddUI("ReturnGame", UI_BUTTON, XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) state_ = ENDDRAW; }, XMFLOAT2(0.33f, 0.33f));
 
 }
 

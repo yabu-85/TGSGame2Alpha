@@ -3,6 +3,7 @@
 #include <string>
 #include <DirectXMath.h>
 #include<functional>
+#include "../Engine/Transform.h"
 
 using namespace DirectX;
 class UIBase;
@@ -12,17 +13,17 @@ enum UI_TYPE {
 	UI_MAX,
 };
 
+enum SCREEN_STATE {
+	DRAW = 0,
+	ENDDRAW,
+};
+
 class Screen
 {
-public:
-	enum UI_STATE {
-		DRAW = 0,
-		ENDDRAW,
-	};
-
 protected:
 	std::vector<UIBase*> uiList_;
-	UI_STATE state_;
+	SCREEN_STATE state_;
+	Transform transform_;
 
 public:
 	Screen();
@@ -39,6 +40,6 @@ public:
 	//UiçÌèú
 	bool DeleteUI(UIBase* ui);
 
-	UI_STATE GetUIState() { return state_; };
+	SCREEN_STATE GetUIState() { return state_; };
 
 };

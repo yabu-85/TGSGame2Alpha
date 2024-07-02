@@ -1,8 +1,7 @@
 #include "TestScene.h"
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
-#include "../UI/ScreenManager.h"
-#include "../UI/PauseScreen.h"
+#include "../Screen/PauseScreen.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
@@ -17,7 +16,7 @@
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
-	: GameObject(parent, "TestScene")
+	: SceneBase(parent, "TestScene")
 {
 }
 

@@ -11,14 +11,11 @@
 #include "Camera.h"
 #include "Input.h"
 #include "Audio.h"
-#include "VFX.h"
 #include "Light.h"
 #include "EffekseeLib/EffekseerVFX.h"
 
 #include "../Stage/StageEditor.h"
 #include "../Other/InputManager.h"
-#include "../Other/VFXManager.h"
-#include "../UI/ScreenManager.h"
 #include "../UI/DamageUI.h"
 
 //ImGui関連のデータ
@@ -91,9 +88,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//入力処理（キーボード、マウス、コントローラー）の準備
 	Input::Initialize(hWnd);
 
+	//その他初期化
 	InputManager::Initialize();
 	Audio::Initialize();
-	VFXManager::Initialize();
 	Light::Initialize();
 
 	EFFEKSEERLIB::gEfk = new EFFEKSEERLIB::EffekseerManager;
@@ -152,7 +149,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Input::Update();
 				Camera::Update(0);
 				DamageUI::Update();
-				ScreenManager::Update();
 				pRootObject->UpdateSub();
 
 				//エフェクトの更新
@@ -167,14 +163,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Camera::SetTarget(XMFLOAT3(50, 0, 50), 0);
 				Camera::Update(0);
 				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
-				
+
 				Direct3D::BeginDraw();
 				pRootObject->DrawSub();
 				Direct3D::EndDraw();
 				Camera::SetPosition(pos, 0);
 				Camera::SetTarget(tar, 0);
 				Camera::Update(0);
-#endif
+				///////////////////////////
 				//２回目
 				Direct3D::BeginDraw2();
 				pRootObject->DrawSub();
@@ -183,10 +179,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//VFX::Draw();
 				EFFEKSEERLIB::gEfk->Draw();
 				
-				DamageUI::Draw();
-				ScreenManager::Draw();
 
-#if 1
+				////////////////////////
 				//ImGuiの更新処理
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplWin32_NewFrame();
@@ -233,8 +227,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	//いろいろ解放
-	ScreenManager::AllDeleteScreen();
-	VFX::Release();
 	Audio::AllRelease();
 	Model::AllRelease();
 	Image::AllRelease();
