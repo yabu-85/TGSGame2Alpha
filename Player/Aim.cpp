@@ -3,7 +3,6 @@
 #include "../Engine/Camera.h"
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
-#include "../Engine/Image.h"
 #include "../Engine/Fbx.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/InputManager.h"
@@ -133,8 +132,6 @@ void Aim::SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar, int returnTime, float comple
 void Aim::DefaultAim()
 {
     XMFLOAT3 plaPos = pPlayer_->GetPosition();
-    CameraShake();
-
     XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));
     XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
     XMMATRIX mView = mRotX * mRotY;
@@ -151,8 +148,6 @@ void Aim::DefaultAim()
     cameraTarget_.y = plaPos.y + distanceHeight_;
     cameraTarget_.z = plaPos.z - (camDir.z * distanceHorizontal_);
 
-    CameraShake();
-
     XMVECTOR caTarget = XMLoadFloat3(&cameraTarget_);
     XMVECTOR forwardV = XMVector3TransformNormal(forwardVector, mView);
     distanceBehind_ = distanceBehind_ + ((distanceTargetBehind_ - distanceBehind_) * 0.1f);
@@ -160,6 +155,8 @@ void Aim::DefaultAim()
     XMStoreFloat3(&cameraPosition_, camPos);
     XMStoreFloat3(&cameraTarget_, caTarget);
 
+    CameraShake();
+    
     //RayCastしてその値を上書きする
     RayCastStage();
 
@@ -273,10 +270,10 @@ void Aim::CalcMouseMove()
 
 void Aim::CameraShake()
 {
-    if (iterations_ <= 0) return;
+    if (iterations_ <= -1) return;
 
     //カメラシェイク終了戻る処理
-    if (iterations_ == 1) {
+    if (iterations_ == 0) {
         float dist = XMVectorGetX(XMVector3Length(center_));
         XMVECTOR vec = -XMVector3Normalize(center_);
 
@@ -291,6 +288,9 @@ void Aim::CameraShake()
         vec *= moveDistance_ * shakeSpeed_;
         center_ += vec;
 
+        cameraPosition_.x += center_.m128_f32[0];
+        cameraPosition_.y += center_.m128_f32[1];
+        cameraPosition_.z += center_.m128_f32[2];
         cameraTarget_.x += center_.m128_f32[0];
         cameraTarget_.y += center_.m128_f32[1];
         cameraTarget_.z += center_.m128_f32[2];
@@ -323,6 +323,9 @@ void Aim::CameraShake()
         range_ *= rangeDecrease_;
     }
 
+    cameraPosition_.x += center_.m128_f32[0];
+    cameraPosition_.y += center_.m128_f32[1];
+    cameraPosition_.z += center_.m128_f32[2];
     cameraTarget_.x += center_.m128_f32[0];
     cameraTarget_.y += center_.m128_f32[1];
     cameraTarget_.z += center_.m128_f32[2];

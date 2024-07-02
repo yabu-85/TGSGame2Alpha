@@ -69,7 +69,7 @@ void Gun::Update()
     {
         ShootBullet<Bullet_Normal>(BulletType::NORMAL);
 
-        CameraShakeInfo shakeInfo = CameraShakeInfo(2, 0.05f, 0.1f);
+        CameraShakeInfo shakeInfo = CameraShakeInfo(1, 0.05f, 0.1f);
         XMVECTOR shakeDir = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
         pPlayer_->GetAim()->SetCameraShake(shakeInfo);
         pPlayer_->GetAim()->SetCameraShakeDirection(shakeDir);

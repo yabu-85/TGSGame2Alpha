@@ -17,13 +17,6 @@ PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 		assert(hPict_[i] >= 0);
 	}
 
-	hCurPict_ = Image::Load("Image/cross.png");
-	assert(hCurPict_ >= 0);
-	
-	Transform t;
-	t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	Image::SetTransform(hCurPict_, t);
-
 	pauseTrans_.position_ = { 0.0f, 0.0f, 1.0f };
 	Image::SetTransform(hPict_[0], pauseTrans_);
 	Image::SetFullScreenTransform(hPict_[1]);
@@ -38,11 +31,6 @@ PauseScreen::~PauseScreen()
 
 void PauseScreen::Draw()
 {
-	Screen::Draw();
-	Image::Draw(hCurPict_);
-	
-	return;
-
 	Image::Draw(hPict_[1]);
 	Image::Draw(hPict_[0]);
 

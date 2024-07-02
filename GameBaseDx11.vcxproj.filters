@@ -45,9 +45,6 @@
     <Filter Include="UI\UI">
       <UniqueIdentifier>{66321f4a-d375-4998-9db1-33e90856a40c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\Screen">
-      <UniqueIdentifier>{3c4b14e5-c3c7-404c-bcc9-1afda9f17383}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\PauseScreen">
       <UniqueIdentifier>{54857bdf-0002-4e99-a56f-58412053433c}</UniqueIdentifier>
     </Filter>
@@ -83,6 +80,9 @@
     </Filter>
     <Filter Include="01Engine\Effekseer">
       <UniqueIdentifier>{98212cc5-e1a8-4612-b2d6-6f03e83b822e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Screen">
+      <UniqueIdentifier>{3c4b14e5-c3c7-404c-bcc9-1afda9f17383}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="Engine\EffekseeLib\EffekseerVFX.cpp">
       <Filter>01Engine\Effekseer</Filter>
+    </ClCompile>
+    <ClCompile Include="Player\AimCursor.cpp">
+      <Filter>Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -513,6 +516,9 @@
     </ClInclude>
     <ClInclude Include="Engine\EffekseeLib\EffekseerVFX.h">
       <Filter>01Engine\Effekseer</Filter>
+    </ClInclude>
+    <ClInclude Include="Player\AimCursor.h">
+      <Filter>Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
