@@ -24,9 +24,6 @@ SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 	AddUI("A", UI_BUTTON, XMFLOAT2(-0.5f, 1.0f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) state_ = ENDDRAW; });
 	AddUI("B", UI_BUTTON, XMFLOAT2(0.5f, 1.0f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) state_ = ENDDRAW; });
 
-	hPict_[0] = Image::Load(fileName[i]);
-	assert(hPict_[i] >= 0);
-
 }
 
 SelectScreen::~SelectScreen()

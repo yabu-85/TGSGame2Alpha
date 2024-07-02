@@ -30,7 +30,7 @@ void TestScene::Initialize()
 	RouteSearch::Initialize();
 	DamageUI::Initialize();
 	EnemyManager::SetParent(this);
-	ScreenManager::AllDeleteScreen();
+	AllDeleteScreen();
 
 	//ƒ‚ƒfƒ‹–‘O“Ç‚İ‚İ
 	Model::Load("Model/Scarecrow.fbx");

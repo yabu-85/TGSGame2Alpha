@@ -17,7 +17,6 @@ void VFX::Update()
     ParticleUpdate();
 }
 
-
 //発生中のパーティクルの更新
 void VFX::ParticleUpdate()
 {
