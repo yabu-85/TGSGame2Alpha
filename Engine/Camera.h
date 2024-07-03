@@ -30,6 +30,12 @@ namespace Camera
 	//プロジェクション行列を取得
 	XMMATRIX GetProjectionMatrix();
 
+	//一人用Projに設定
+	void SetOneProjectionMatrix();
+
+	//二人用Projに設定
+	void SetTwoProjectionMatrix();
+
 	//ビルボード用回転行列を取得
 	XMMATRIX GetBillboardMatrix();
 

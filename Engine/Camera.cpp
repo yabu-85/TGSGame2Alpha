@@ -18,7 +18,7 @@ void Camera::Initialize()
 
 	//////////////////////縦に潰れるの直すとこ
 	//プロジェクション行列
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, ((FLOAT)Direct3D::screenWidth_/2) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 
 }
 
@@ -54,6 +54,16 @@ XMMATRIX Camera::GetViewMatrix() { return _view; }
 
 //プロジェクション行列を取得
 XMMATRIX Camera::GetProjectionMatrix() { return _proj; }
+
+void Camera::SetOneProjectionMatrix()
+{
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, ((FLOAT)Direct3D::screenWidth_) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+}
+
+void Camera::SetTwoProjectionMatrix()
+{
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+}
 
 //ビルボード用回転行列を取得
 XMMATRIX Camera::GetBillboardMatrix(){	return _billBoard; }

@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//Direct3D準備
 	Direct3D::Initialize(hWnd, screenWidth, screenHeight);
-	Direct3D::SetViewOne();
+
 
 	//ImGuiを初期化
 	IMGUI_CHECKVERSION();
@@ -101,6 +101,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//すべてのゲームオブジェクトの親となるオブジェクト
 	RootObject* pRootObject = new RootObject;
 	pRootObject->Initialize();
+
+#if 0
+	Direct3D::SetViewOne();
+	Direct3D::SetViewPort(0);
+	Camera::SetOneProjectionMatrix();
+#endif
 
 	//メッセージループ（何か起きるのを待つ）
 	MSG msg;
@@ -175,7 +181,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				
-#if 1
+#if 0
 				Direct3D::SetViewPort(0);
 				Camera::Update(0);
 				pRootObject->DrawSub();

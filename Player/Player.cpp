@@ -148,8 +148,10 @@ void Player::Update()
         StageFloarBounce();
         StageRoofBounce();
     }
-
+    
     pStateManager_->Update();
+
+    ReflectCharacter();
     StageWallBounce();
 
     if (!isFly_ && !isClimb_) {
