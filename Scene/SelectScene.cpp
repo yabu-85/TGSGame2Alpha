@@ -36,7 +36,6 @@ void SelectScene::Update()
 //•`‰æ
 void SelectScene::Draw()
 {
-	SceneBase::Draw();
 
 }
 

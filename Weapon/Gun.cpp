@@ -9,9 +9,10 @@
 #include "../Other/InputManager.h"
 #include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
-
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
+#include "../UI/AimCursor.h"
+#include "../Scene/TestScene.h"
 
 //リロード
 //反動
@@ -31,7 +32,7 @@ namespace
 }
 
 Gun::Gun(GameObject* parent)
-    :GameObject(parent, "Gun"), hModel_(-1), pPlayer_(nullptr), playerId_(0)
+    :GameObject(parent, "Gun"), hModel_(-1), pPlayer_(nullptr), pAimCursor_(nullptr), playerId_(0)
 {
 }
 
@@ -52,6 +53,10 @@ void Gun::Initialize()
 
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
+
+    pAimCursor_ = new AimCursor();
+    TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
+    if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
     //プレイヤーの手の位置まで調整
     transform_.position_ = handOffset;

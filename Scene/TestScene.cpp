@@ -1,8 +1,8 @@
 #include "TestScene.h"
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
+#include "../Screen/PlayScreen.h"
 #include "../Screen/PauseScreen.h"
-#include "../Screen/SelectScreen.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
@@ -14,6 +14,7 @@
 #include "../Enemy/EnemyManager.h"
 #include "../Enemy/TestEnemy.h"
 #include "../UI/DamageUI.h"
+#include "../UI/AimCursor.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
@@ -26,13 +27,18 @@ void TestScene::Initialize()
 {
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
+
+#if !ONE_PLAYER
 	Instantiate<Player>(this);
+#endif
 
 	RouteSearch::Initialize();
 	DamageUI::Initialize();
 	EnemyManager::SetParent(this);
 	AllDeleteScreen();
-	//AddScreen(new SelectScreen());
+
+	//AddScreen(new PlayScreen());
+	AddScreen(new PauseScreen());
 
 	//モデル事前読み込み
 	Model::Load("Model/Scarecrow.fbx");
@@ -72,12 +78,32 @@ void TestScene::Update()
 //描画
 void TestScene::Draw()
 {
-	SceneBase::Draw();
-	RouteSearch::NodeModelDraw();
 }
 
 //開放
 void TestScene::Release()
 {
+}
 
+void TestScene::CommonUIDraw()
+{
+	SceneBase::Draw();
+	RouteSearch::NodeModelDraw();
+
+}
+
+void TestScene::IndividualUIDraw()
+{
+	for (int i = 0; i < 2; i++) if (pAimCursor_[i]) pAimCursor_[i]->Draw();
+
+}
+
+void TestScene::SetAimCursor(int index, AimCursor* point)
+{
+	pAimCursor_[index] = point;
+}
+
+AimCursor* TestScene::GetAimCursor(int index)
+{
+	return pAimCursor_[index];
 }

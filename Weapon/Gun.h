@@ -3,6 +3,7 @@
 #include <vector>
 
 class Player;
+class AimCursor;
 enum class BulletType;
 
 // バレットの情報を保管する構造体
@@ -25,7 +26,9 @@ class Gun : public GameObject
     int playerId_;      //プレイヤーID
 
     BulletInfo bulletInfo_;
+
     Player* pPlayer_;
+    AimCursor* pAimCursor_;
 
 public:
     Gun(GameObject* parent);

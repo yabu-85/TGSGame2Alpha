@@ -176,12 +176,12 @@
     <ClCompile Include="Other\GameManager.cpp" />
     <ClCompile Include="Other\InputManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
-    <ClCompile Include="Player\AimCursor.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Scene\SceneBase.cpp" />
     <ClCompile Include="Scene\SelectScene.cpp" />
     <ClCompile Include="Scene\TestScene.cpp" />
     <ClCompile Include="Screen\PauseScreen.cpp" />
+    <ClCompile Include="Screen\PlayScreen.cpp" />
     <ClCompile Include="Screen\Screen.cpp" />
     <ClCompile Include="Screen\SelectScreen.cpp" />
     <ClCompile Include="Stage\Cell.cpp" />
@@ -191,6 +191,7 @@
     <ClCompile Include="Stage\Triangle.cpp" />
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
+    <ClCompile Include="UI\AimCursor.cpp" />
     <ClCompile Include="UI\ButtonUI.cpp" />
     <ClCompile Include="UI\DamageUI.cpp" />
     <ClCompile Include="UI\HealthGauge.cpp" />
@@ -252,12 +253,12 @@
     <ClInclude Include="Other\GameManager.h" />
     <ClInclude Include="Other\InputManager.h" />
     <ClInclude Include="Player\Aim.h" />
-    <ClInclude Include="Player\AimCursor.h" />
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Scene\SceneBase.h" />
     <ClInclude Include="Scene\SelectScene.h" />
     <ClInclude Include="Scene\TestScene.h" />
     <ClInclude Include="Screen\PauseScreen.h" />
+    <ClInclude Include="Screen\PlayScreen.h" />
     <ClInclude Include="Screen\Screen.h" />
     <ClInclude Include="Screen\SelectScreen.h" />
     <ClInclude Include="Stage\Cell.h" />
@@ -268,6 +269,7 @@
     <ClInclude Include="State\PlayerState.h" />
     <ClInclude Include="State\StateBase.h" />
     <ClInclude Include="State\StateManager.h" />
+    <ClInclude Include="UI\AimCursor.h" />
     <ClInclude Include="UI\ButtonUI.h" />
     <ClInclude Include="UI\DamageUI.h" />
     <ClInclude Include="UI\HealthGauge.h" />

@@ -1,9 +1,11 @@
 #include "SceneBase.h"
 #include "../Screen/Screen.h"
+#include "../Other/GameManager.h"
 
 SceneBase::SceneBase(GameObject* parent, std::string name)
 	: GameObject(parent, name)
 {
+	GameManager::SetScene(this);
 }
 
 SceneBase::~SceneBase()
@@ -41,9 +43,6 @@ void SceneBase::Update()
 
 void SceneBase::Draw()
 {
-	//リストに一つでもあるなら最前列表示
-	if (!pScreenList_.empty()) pScreenList_.back()->Draw();
-
 }
 
 void SceneBase::Release()
@@ -85,4 +84,15 @@ void SceneBase::DeleteUI(UIBase* ui)
 	for (auto iter = pScreenList_.begin(); iter != pScreenList_.end();) {
 		if ((*iter)->DeleteUI(ui)) break;
 	}
+}
+
+void SceneBase::CommonUIDraw()
+{
+	//リストに一つでもあるなら最前列表示
+	if (!pScreenList_.empty()) pScreenList_.back()->Draw();
+
+}
+
+void SceneBase::IndividualUIDraw()
+{
 }

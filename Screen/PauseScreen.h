@@ -4,7 +4,6 @@
 class PauseScreen : public Screen
 {
 	int hPict_[2];
-	Transform pauseTrans_;
 
 public:
 	PauseScreen();

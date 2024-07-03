@@ -45,9 +45,6 @@
     <Filter Include="UI\UI">
       <UniqueIdentifier>{66321f4a-d375-4998-9db1-33e90856a40c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\PauseScreen">
-      <UniqueIdentifier>{54857bdf-0002-4e99-a56f-58412053433c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Character">
       <UniqueIdentifier>{6b9b0eff-404e-4fe0-9bd3-d5e05bb5e037}</UniqueIdentifier>
     </Filter>
@@ -81,8 +78,8 @@
     <Filter Include="01Engine\Effekseer">
       <UniqueIdentifier>{98212cc5-e1a8-4612-b2d6-6f03e83b822e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\Screen">
-      <UniqueIdentifier>{3c4b14e5-c3c7-404c-bcc9-1afda9f17383}</UniqueIdentifier>
+    <Filter Include="Screen">
+      <UniqueIdentifier>{ed0d7075-0b66-4d30-a329-c69e1b887c10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -281,8 +278,11 @@
     <ClCompile Include="Engine\EffekseeLib\EffekseerVFX.cpp">
       <Filter>01Engine\Effekseer</Filter>
     </ClCompile>
-    <ClCompile Include="Player\AimCursor.cpp">
-      <Filter>Player</Filter>
+    <ClCompile Include="Scene\SelectScene.cpp">
+      <Filter>03Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SceneBase.cpp">
+      <Filter>03Scene</Filter>
     </ClCompile>
     <ClCompile Include="Screen\PauseScreen.cpp">
       <Filter>Screen</Filter>
@@ -293,11 +293,11 @@
     <ClCompile Include="Screen\SelectScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\SelectScene.cpp">
-      <Filter>03Scene</Filter>
+    <ClCompile Include="Screen\PlayScreen.cpp">
+      <Filter>Screen</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\SceneBase.cpp">
-      <Filter>03Scene</Filter>
+    <ClCompile Include="UI\AimCursor.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -508,8 +508,11 @@
     <ClInclude Include="Engine\EffekseeLib\EffekseerVFX.h">
       <Filter>01Engine\Effekseer</Filter>
     </ClInclude>
-    <ClInclude Include="Player\AimCursor.h">
-      <Filter>Player</Filter>
+    <ClInclude Include="Scene\SelectScene.h">
+      <Filter>03Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SceneBase.h">
+      <Filter>03Scene</Filter>
     </ClInclude>
     <ClInclude Include="Screen\PauseScreen.h">
       <Filter>Screen</Filter>
@@ -520,11 +523,11 @@
     <ClInclude Include="Screen\SelectScreen.h">
       <Filter>Screen</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\SelectScene.h">
-      <Filter>03Scene</Filter>
+    <ClInclude Include="Screen\PlayScreen.h">
+      <Filter>Screen</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\SceneBase.h">
-      <Filter>03Scene</Filter>
+    <ClInclude Include="UI\AimCursor.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

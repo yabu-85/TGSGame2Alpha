@@ -3,6 +3,7 @@
 #include "../Engine/Camera.h"
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
+#include "../Engine/Direct3D.h"
 #include "../Engine/Fbx.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/InputManager.h"
@@ -255,7 +256,7 @@ void Aim::CalcMouseMove()
     XMFLOAT3 mouseMove = XMFLOAT3();
     int playerId = pPlayer_->GetPlayerId();
 
-#if 0
+#if PC_CTRL
     if (playerId == 0) mouseMove = Input::GetMouseMove();
     else {
         static const float STICK_SPEED = 20.0f;

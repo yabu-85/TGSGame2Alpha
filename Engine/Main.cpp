@@ -13,10 +13,8 @@
 #include "Audio.h"
 #include "Light.h"
 #include "EffekseeLib/EffekseerVFX.h"
-
+#include "../Other/GameManager.h"
 #include "../Stage/StageEditor.h"
-#include "../Other/InputManager.h"
-#include "../UI/DamageUI.h"
 
 //ImGui関連のデータ
 #include "ImGui/imgui.h"
@@ -60,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");			//スクリーンの幅
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
-#if 0 //_DEBUG
+#if 1 //_DEBUG
 	screenWidth = 700;
 	screenHeight = 500;
 #endif
@@ -90,7 +88,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Input::Initialize(hWnd);
 
 	//その他初期化
-	InputManager::Initialize();
 	Audio::Initialize();
 	Light::Initialize();
 
@@ -102,7 +99,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RootObject* pRootObject = new RootObject;
 	pRootObject->Initialize();
 
-#if 0
+	GameManager::Initialize();
+
+#if ONE_PLAYER
 	Direct3D::SetViewOne();
 	Direct3D::SetViewPort(0);
 	Camera::SetOneProjectionMatrix();
@@ -155,14 +154,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				Input::Update();
 				Camera::Update(0);
-				DamageUI::Update();
 				pRootObject->UpdateSub();
 
 				//エフェクトの更新
 				//VFX::Update();
 				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0);
 
-#if 1
 				//１回目
 				XMFLOAT3 pos = Camera::GetPosition(0);
 				XMFLOAT3 tar = Camera::GetTarget(0);
@@ -181,19 +178,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				
-#if 0
-				Direct3D::SetViewPort(0);
+#if ONE_PLAYER
 				Camera::Update(0);
 				pRootObject->DrawSub();
 				EFFEKSEERLIB::gEfk->Draw();
+				GameManager::IndividualDraw();
 #else
+				Direct3D::SetViewTwo();
+				Camera::SetTwoProjectionMatrix();
+
 				for (int i = 1; i >= 0; i--) {
 					Direct3D::SetViewPort(i);
 					Camera::Update(i);
 					pRootObject->DrawSub();
 					EFFEKSEERLIB::gEfk->Draw();
+					GameManager::IndividualDraw();
 				}
 #endif
+
+				Direct3D::SetViewOne();
+				Direct3D::SetViewPort(0);
+				Camera::SetOneProjectionMatrix();
+				GameManager::CommonDraw();
 
 				////////////////////////
 				//ImGuiの更新処理
@@ -230,7 +236,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				ImGui::End();//ImGuiの処理を終了
 				ImGui::Render();
 				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-#endif
 
 				Direct3D::EndDraw();
 

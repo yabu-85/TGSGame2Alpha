@@ -1,6 +1,7 @@
 #include "InputManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
+#include "../Engine/Direct3D.h"
 #include <array>
 
 namespace InputManager {
@@ -71,7 +72,7 @@ void InputManager::ChangeCmd(COMMAND cmd, TYPE type, int num)
 
 bool InputManager::IsCmd(COMMAND cmd, int id)
 {
-#if 0
+#if PC_CTRL
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKey(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButton(debugCommandList[cmd].second)) return true;
@@ -100,7 +101,7 @@ bool InputManager::IsCmd(COMMAND cmd, int id)
 
 bool InputManager::IsCmdUp(COMMAND cmd, int id)
 {
-#if 0
+#if PC_CTRL
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKeyUp(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonUp(debugCommandList[cmd].second)) return true;
@@ -117,7 +118,7 @@ bool InputManager::IsCmdUp(COMMAND cmd, int id)
 
 bool InputManager::IsCmdDown(COMMAND cmd, int id)
 {
-#if 0
+#if PC_CTRL
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKeyDown(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonDown(debugCommandList[cmd].second)) return true;
@@ -133,7 +134,7 @@ bool InputManager::IsCmdDown(COMMAND cmd, int id)
 }
 
 bool InputManager::CmdWalk(int id) {
-#if 0
+#if PC_CTRL
 	if (id == 0) {
 		bool up, down, right, left;
 		up = IsCmd(MOVE_UP, id);

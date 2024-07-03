@@ -225,7 +225,7 @@ XMFLOAT3 Player::GetInputMove()
         aimDirection.y = 0.0f;
         aimDirection = Float3Normalize(aimDirection);
 
-#if 0
+#if PC_CTRL
         if (playerId_ == 0) {
             if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
                 fMove.x += aimDirection.x;

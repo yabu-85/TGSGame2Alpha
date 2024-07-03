@@ -2,12 +2,14 @@
 
 class CollisionMap;
 class Player;
-class StageBase;
+class SceneBase;
 
 namespace GameManager
 {
 	void Initialize();
 	void Update();
+	void CommonDraw();		//共通の描画
+	void IndividualDraw();	//個別の描画
 	void SceneChange();
 
 	//アクセサ
@@ -17,8 +19,8 @@ namespace GameManager
 	Player* GetPlayer(int index);
 	void SetPlayer(Player* player, int index);
 
-	StageBase* GetStage();
-	void SetStage(StageBase* stage);
+	SceneBase* GetScene();
+	void SetScene(SceneBase* stage);
 
 };
 

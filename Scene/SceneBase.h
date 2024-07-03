@@ -30,4 +30,10 @@ public:
 	//ScreenƒŠƒXƒg‚ÌUIList‚ÉŒŸõ‚©‚¯‚ÄUIíœ
 	void DeleteUI(UIBase* ui);
 
+	//“o˜^‚³‚ê‚½‹¤’ÊUI‚Ì•`‰æ
+	virtual void CommonUIDraw();
+
+	//“o˜^‚³‚ê‚½ŒÂ•ÊUI‚Ì•`‰æ
+	virtual void IndividualUIDraw();
+	
 };
