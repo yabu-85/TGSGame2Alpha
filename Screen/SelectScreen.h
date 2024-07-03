@@ -8,6 +8,7 @@ class SelectScreen : public Screen
 public:
 	SelectScreen();
 	~SelectScreen() override;
+	void Update() override;
 	void Draw() override;
 
 };

@@ -23,11 +23,15 @@ void SelectScene::Initialize()
 //XV
 void SelectScene::Update()
 {
+	SceneBase::Update();
+
 }
 
 //•`‰æ
 void SelectScene::Draw()
 {
+	SceneBase::Draw();
+
 }
 
 //ŠJ•ú

@@ -64,8 +64,6 @@ namespace Direct3D
 	extern bool		isDrawCollision_;		//コリジョンを表示するかフラグ
 	extern float	emphasisTime_;			//強調表示、弾丸に当たった時用の
 
-	extern D3D11_VIEWPORT vp1;
-	extern D3D11_VIEWPORT vp2;
 	extern XMFLOAT3	PlayerPosition;
 	extern XMFLOAT3	EnemyPosition;
 	extern float	playerSpeed;
@@ -97,6 +95,10 @@ namespace Direct3D
 	//描画開始
 	void BeginDraw();
 	void BeginDraw2();
+
+	void SetViewPort(int i);
+	void SetViewOne();	//一人用の設定
+	void SetViewTwo();	//二人用の設定
 
 	//描画終了
 	void EndDraw();

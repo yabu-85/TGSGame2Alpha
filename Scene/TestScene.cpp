@@ -2,6 +2,7 @@
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
 #include "../Screen/PauseScreen.h"
+#include "../Screen/SelectScreen.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
@@ -31,6 +32,7 @@ void TestScene::Initialize()
 	DamageUI::Initialize();
 	EnemyManager::SetParent(this);
 	AllDeleteScreen();
+	//AddScreen(new SelectScreen());
 
 	//モデル事前読み込み
 	Model::Load("Model/Scarecrow.fbx");
@@ -40,6 +42,8 @@ void TestScene::Initialize()
 //更新
 void TestScene::Update()
 {
+	SceneBase::Update();
+
 	if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);
 	if (Input::IsKeyDown(DIK_F2)) for(int i = 0; i < 10; i++) EnemyManager::SpawnEnemy(ENEMY_TEST);
 	if (Input::IsKeyDown(DIK_F3)) EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
@@ -63,6 +67,7 @@ void TestScene::Update()
 //描画
 void TestScene::Draw()
 {
+	SceneBase::Draw();
 	RouteSearch::NodeModelDraw();
 }
 

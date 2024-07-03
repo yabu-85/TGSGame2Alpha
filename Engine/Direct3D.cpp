@@ -45,7 +45,7 @@ namespace Direct3D
 	SHADER_TYPE currentType;
 
 	//シャドウマップ用-------------------------------------
-	D3D11_VIEWPORT vp1;
+	D3D11_VIEWPORT vp1[2];
 	D3D11_VIEWPORT vp2;
 
 	ID3D11RenderTargetView* pDepthTargetView_;
@@ -133,14 +133,21 @@ namespace Direct3D
 
 		/////////////////////////////////////////////////////////////////////////////////////////////
 
-		//ビューポートの設定
+		//ビューポートの設定（二人用の設定に
 		//レンダリング結果を表示する範囲
-		vp1.Width = (float)screenWidth / 2;	//幅
-		vp1.Height = (float)screenHeight;//高さ
-		vp1.MinDepth = 0.0f;	//手前
-		vp1.MaxDepth = 1.0f;	//奥
-		vp1.TopLeftX = 0;	//左
-		vp1.TopLeftY = 0;	//上
+		vp1[0].Width = (float)screenWidth / 2;	//幅
+		vp1[0].Height = (float)screenHeight;//高さ
+		vp1[0].MinDepth = 0.0f;	//手前
+		vp1[0].MaxDepth = 1.0f;	//奥
+		vp1[0].TopLeftX = 0.0f;	//左
+		vp1[0].TopLeftY = 0;	//上
+
+		vp1[1].Width = (float)screenWidth / 2;	//幅
+		vp1[1].Height = (float)screenHeight;//高さ
+		vp1[1].MinDepth = 0.0f;	//手前
+		vp1[1].MaxDepth = 1.0f;	//奥
+		vp1[1].TopLeftX = (float)screenWidth / 2;	//左
+		vp1[1].TopLeftY = 0;	//上
 
 		//各パターンのシェーダーセット準備
 		InitShaderBundle();
@@ -496,21 +503,53 @@ namespace Direct3D
 		SetShader(SHADER_SHADOWMAP);
 	}
 
-	//描画開始
 	void BeginDraw2()
 	{
 		//描画先を設定
 		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
-		pContext_->RSSetViewports(1, &vp1);
-		
-		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
 
 		//画面をクリアと深度バッファクリア
+		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
 		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);
-
 		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 		SetShader(SHADER_3D);
+	}
+
+	void SetViewPort(int i)
+	{
+		pContext_->RSSetViewports(1, &vp1[i]);
+	}
+
+	void SetViewOne()
+	{
+		//ビューポートの設定（二人用の設定に
+		//レンダリング結果を表示する範囲
+		vp1[0].Width = (float)screenWidth_;	//幅
+		vp1[0].Height = (float)screenHeight_;//高さ
+		vp1[0].MinDepth = 0.0f;	//手前
+		vp1[0].MaxDepth = 1.0f;	//奥
+		vp1[0].TopLeftX = 0.0f;	//左
+		vp1[0].TopLeftY = 0;	//上
+	}
+
+	void SetViewTwo()
+	{
+		//ビューポートの設定（二人用の設定に
+		//レンダリング結果を表示する範囲
+		vp1[0].Width = (float)screenWidth_ / 2;	//幅
+		vp1[0].Height = (float)screenHeight_;//高さ
+		vp1[0].MinDepth = 0.0f;	//手前
+		vp1[0].MaxDepth = 1.0f;	//奥
+		vp1[0].TopLeftX = 0.0f;	//左
+		vp1[0].TopLeftY = 0;	//上
+
+		vp1[1].Width = (float)screenWidth_ / 2;	//幅
+		vp1[1].Height = (float)screenHeight_;//高さ
+		vp1[1].MinDepth = 0.0f;	//手前
+		vp1[1].MaxDepth = 1.0f;	//奥
+		vp1[1].TopLeftX = (float)screenWidth_ / 2;	//左
+		vp1[1].TopLeftY = 0;	//上
 	}
 
 	//描画終了

@@ -16,9 +16,11 @@ void UIBase::Draw()
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
 	//押してない時はfalse(0)だから１が表示される
+	Image::SetTransform(hButtonPict_[isBound_], buttonTransform_);
 	Image::Draw(hButtonPict_[isBound_]);
 
 	//テキストの表示
+	Image::SetTransform(hImagePict_, imageTransform_);
 	Image::Draw(hImagePict_);
 }
 
