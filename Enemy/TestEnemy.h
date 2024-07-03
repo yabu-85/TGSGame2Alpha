@@ -11,6 +11,10 @@ class TestEnemy : public EnemyBase
 {
     static XMFLOAT3 damageUIPos_;
 
+    bool isGround = false;
+    bool moveReady_;
+    float gravity_ = 0.0f;
+
     MoveAction* pMoveAction_;
     AstarMoveAction* pAstarMoveAction_;
 

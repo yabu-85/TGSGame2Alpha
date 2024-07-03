@@ -3,7 +3,7 @@
 #include "../Engine/Global.h"
 
 EnemyBase::EnemyBase(GameObject* parent, std::string name)
-    : Character(parent, name), enemyType_(ENEMY_TYPE::ENEMY_MAX), hModel_(-1), gravity_(0.0f)
+    : Character(parent, name), enemyType_(ENEMY_TYPE::ENEMY_MAX), hModel_(-1)
 {
     objectType_ = OBJECT_TYPE::Enemy;
 }

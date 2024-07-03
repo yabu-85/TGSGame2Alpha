@@ -71,6 +71,7 @@ void InputManager::ChangeCmd(COMMAND cmd, TYPE type, int num)
 
 bool InputManager::IsCmd(COMMAND cmd, int id)
 {
+#if 0
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKey(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButton(debugCommandList[cmd].second)) return true;
@@ -86,10 +87,20 @@ bool InputManager::IsCmd(COMMAND cmd, int id)
 	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(0)) >= DEAD_ZONE);
 	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(0)) >= DEAD_ZONE);
 	return false;
+#else
+	static const float DEAD_ZONE = 0.01f;
+	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButton(commandList[cmd].second, id);
+	else if (commandList[cmd].first == TRRIGERL) return (Input::GetPadTrrigerL(id) >= DEAD_ZONE);
+	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(id) >= DEAD_ZONE);
+	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(id)) >= DEAD_ZONE);
+	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(id)) >= DEAD_ZONE);
+	return false;
+#endif
 }
 
 bool InputManager::IsCmdUp(COMMAND cmd, int id)
 {
+#if 0
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKeyUp(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonUp(debugCommandList[cmd].second)) return true;
@@ -98,10 +109,15 @@ bool InputManager::IsCmdUp(COMMAND cmd, int id)
 
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonUp(commandList[cmd].second, 0);
 	return false;
+#else
+	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonUp(commandList[cmd].second, id);
+	return false;
+#endif
 }
 
 bool InputManager::IsCmdDown(COMMAND cmd, int id)
 {
+#if 0
 	if (id == 0) {
 		if (debugCommandList[cmd].first == KEY && Input::IsKeyDown(debugCommandList[cmd].second)) return true;
 		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonDown(debugCommandList[cmd].second)) return true;
@@ -110,11 +126,16 @@ bool InputManager::IsCmdDown(COMMAND cmd, int id)
 
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonDown(commandList[cmd].second, 0);
 	return false;
+#else
+	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonDown(commandList[cmd].second, id);
+	return false;
+#endif
 }
 
 bool InputManager::CmdWalk(int id) {
-	bool up, down, right, left;
+#if 0
 	if (id == 0) {
+		bool up, down, right, left;
 		up = IsCmd(MOVE_UP, id);
 		down = IsCmd(MOVE_DOWN, id);
 		right = IsCmd(MOVE_RIGHT, id);
@@ -129,9 +150,13 @@ bool InputManager::CmdWalk(int id) {
 		else if (up && down && left && right) return false;
 		return true;
 	}
-	
+
 	XMFLOAT3 rStick = Input::GetPadStickL(0);
 	if (CalculationDistance(rStick) >= 0.01f) return true;
+#else
+	XMFLOAT3 rStick = Input::GetPadStickL(id);
+	if (CalculationDistance(rStick) >= 0.01f) return true;
+#endif
 
 	return false;
 }

@@ -9,9 +9,6 @@ protected:
     ENEMY_TYPE enemyType_;
     int hModel_;
 
-    float gravity_ = 0.0f;
-    bool isGround = false;
-
 public:
     EnemyBase(GameObject* parent, std::string name);
     virtual ~EnemyBase() override;

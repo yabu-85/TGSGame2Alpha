@@ -5,8 +5,8 @@
   "Bullet_Normal": {
     "damage": 2,
     "shotCoolTime": 5,
-    "speed": 7.0,
-    "killTimer": 8,
+    "speed": 4.0,
+    "killTimer": 12,
     "collisionScale": 0.1,
     "isPenetration": 0
   }

@@ -225,6 +225,7 @@ XMFLOAT3 Player::GetInputMove()
         aimDirection.y = 0.0f;
         aimDirection = Float3Normalize(aimDirection);
 
+#if 0
         if (playerId_ == 0) {
             if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
                 fMove.x += aimDirection.x;
@@ -265,6 +266,26 @@ XMFLOAT3 Player::GetInputMove()
                 fMove.z -= (aimDirection.x * abs(lMove.x));
             }
         }
+#else
+        static const float DEAD_ZONE = 0.1f;
+        XMFLOAT3 lMove = Input::GetPadStickL(playerId_);
+        if (lMove.y > DEAD_ZONE) {  //‘O
+            fMove.x += (aimDirection.x * abs(lMove.y));
+            fMove.z += (aimDirection.z * abs(lMove.y));
+        }
+        if (lMove.x < -DEAD_ZONE) { //¶
+            fMove.x -= (aimDirection.z * abs(lMove.x));
+            fMove.z += (aimDirection.x * abs(lMove.x));
+        }
+        if (lMove.y < -DEAD_ZONE) { //‰º
+            fMove.x -= (aimDirection.x * abs(lMove.y));
+            fMove.z -= (aimDirection.z * abs(lMove.y));
+        }
+        if (lMove.x > DEAD_ZONE) {  //‰E
+            fMove.x += (aimDirection.z * abs(lMove.x));
+            fMove.z -= (aimDirection.x * abs(lMove.x));
+        }
+#endif
     }
 
     XMVECTOR vMove = XMLoadFloat3(&fMove);

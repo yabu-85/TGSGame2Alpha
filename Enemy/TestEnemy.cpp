@@ -23,7 +23,7 @@ namespace {
 }
 
 TestEnemy::TestEnemy(GameObject* parent)
-    : EnemyBase(parent, "TestEnemy"), pMoveAction_(nullptr), pAstarMoveAction_(nullptr)
+    : EnemyBase(parent, "TestEnemy"), pMoveAction_(nullptr), pAstarMoveAction_(nullptr), gravity_(0.0f), moveReady_(false)
 {
 }
 
@@ -46,8 +46,8 @@ void TestEnemy::Initialize()
     pDamageSystem_->SetHP(20);
 
     transform_.position_ = start;
-    pMoveAction_ = new MoveAction(this, 0.03f, 0.1f);
-    pAstarMoveAction_ = new AstarMoveAction(this, 0.1f, 0.1f);
+    pMoveAction_ = new MoveAction(this, 0.05f, 0.1f);
+    pAstarMoveAction_ = new AstarMoveAction(this, 0.06f, 0.1f);
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4f, vec);
@@ -69,9 +69,37 @@ void TestEnemy::Update()
     }
 
     if (Input::IsKey(DIK_F)) {
+        static const float RAY_HEIGHT = 1.3f;
+        static const float TMOVE_DIST = 10.0f;
         XMFLOAT3 plaPos = GameManager::GetPlayer(0)->GetPosition();
+        XMFLOAT3 plaVec = Float3Sub(plaPos, transform_.position_);
         float plaDist = CalculationDistance(plaPos, transform_.position_);
         
+        if (plaDist <= 1.0f) {
+            pAstarMoveAction_->StopMove();
+            return;
+        }
+
+        //近いと直移動
+        if (plaDist <= TMOVE_DIST) {
+            //プレイヤーが見えているか、ランダムで計算
+            if (rand() % 10 == 0) {
+                RayCastData rayData = RayCastData();
+                rayData.start = transform_.position_;
+                rayData.start.y += RAY_HEIGHT;
+                rayData.dir = Float3Normalize(plaVec);
+
+                //Distよりターゲットとの距離のほうが近ければ、見えている
+                GameManager::GetCollisionMap()->RaySelectCellVsSegment(plaPos, &rayData);
+                moveReady_ = rayData.dist >= plaDist;
+            }
+
+            if (moveReady_) {
+                pMoveAction_->SetTarget(plaPos);
+                pMoveAction_->Update();
+            }
+        }
+
         //AStar
         if (plaDist >= 5.0f) {
             pAstarMoveAction_->SetTarget(plaPos);
@@ -80,47 +108,6 @@ void TestEnemy::Update()
         }
         pAstarMoveAction_->Update();
     }
-
-    /*
-    static const float TMOVE_DIST = 10.0f;
-    static const float RAY_HEIGHT = 1.3f;
-
-    //移動
-    XMFLOAT3 plaPos = GameManager::GetPlayer()->GetPosition();
-    XMFLOAT3 plaVec = Float3Sub(plaPos, transform_.position_);
-    float plaDist = CalculationDistance(plaPos, transform_.position_);
-    
-    if (plaDist <= 1.0f) {
-        pAstarMoveAction_->StopMove();
-        return;
-    }
-
-    //近いと直移動
-    bool isTMove = false;
-    if (plaDist <= TMOVE_DIST) {
-        if (rand() % 10 == 0) {
-            RayCastData rayData = RayCastData();
-            rayData.start = XMFLOAT3(transform_.position_);
-            rayData.start.y += RAY_HEIGHT;
-
-            XMVECTOR vec = XMVector3Normalize(XMLoadFloat3(&plaVec));
-            XMStoreFloat3(&rayData.dir, vec);
-
-            XMFLOAT3 target = plaPos;
-            target.y += RAY_HEIGHT;
-
-            GameManager::GetCollisionMap()->RaySelectCellVsSegment(target, &rayData);
-            moveReady = rayData.dist >= plaDist;
-        }
-
-        if (moveReady) {
-            isTMove = true;
-            pMoveAction_->SetTarget(plaPos);
-            pMoveAction_->Update();
-        }
-    }
-
-    */
 
     ReflectCharacter();
 

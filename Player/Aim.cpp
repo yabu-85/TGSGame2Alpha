@@ -254,12 +254,19 @@ void Aim::CalcMouseMove()
     //ƒ}ƒEƒX‚ÌˆÚ“®—Ê‚ğæ“¾
     XMFLOAT3 mouseMove = XMFLOAT3();
     int playerId = pPlayer_->GetPlayerId();
+
+#if 0
     if (playerId == 0) mouseMove = Input::GetMouseMove();
     else {
         static const float STICK_SPEED = 20.0f;
         XMFLOAT3 rStickMove = Input::GetPadStickR(0);
         mouseMove = XMFLOAT3(rStickMove.x * STICK_SPEED, -(rStickMove.y * STICK_SPEED), 0.0f);
     }
+#else
+    static const float STICK_SPEED = 20.0f;
+    XMFLOAT3 rStickMove = Input::GetPadStickR(playerId);
+    mouseMove = XMFLOAT3(rStickMove.x * STICK_SPEED, -(rStickMove.y * STICK_SPEED), 0.0f);
+#endif
 
     transform_.rotate_.y += mouseMove.x * mouseSensitivity_; //‰¡•ûŒü‚Ì‰ñ“]
     transform_.rotate_.x -= mouseMove.y * mouseSensitivity_; //c•ûŒü‚Ì‰ñ“]
