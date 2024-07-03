@@ -70,6 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//Direct3D準備
 	Direct3D::Initialize(hWnd, screenWidth, screenHeight);
+	Direct3D::SetViewOne();
 
 	//ImGuiを初期化
 	IMGUI_CHECKVERSION();
@@ -174,11 +175,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//２回目
 				Direct3D::BeginDraw2();
 				
+#if 1
+				Direct3D::SetViewPort(0);
+				Camera::Update(0);
+				pRootObject->DrawSub();
+#else
 				for (int i = 1; i >= 0; i--) {
 					Direct3D::SetViewPort(i);
 					Camera::Update(i);
 					pRootObject->DrawSub();
 				}
+#endif
 
 				//エフェクトの描画
 				//VFX::Draw();

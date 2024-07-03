@@ -531,6 +531,13 @@ namespace Direct3D
 		vp1[0].MaxDepth = 1.0f;	//âú
 		vp1[0].TopLeftX = 0.0f;	//ç∂
 		vp1[0].TopLeftY = 0;	//è„
+
+		vp1[1].Width = 0;	//ïù
+		vp1[1].Height = 0;//çÇÇ≥
+		vp1[1].MinDepth = 0.0f;	//éËëO
+		vp1[1].MaxDepth = 1.0f;	//âú
+		vp1[1].TopLeftX = 0;	//ç∂
+		vp1[1].TopLeftY = 0;	//è„
 	}
 
 	void SetViewTwo()
