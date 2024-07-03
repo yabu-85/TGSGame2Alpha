@@ -7,7 +7,7 @@
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
 #include "../Engine/Light.h"
-#include "../Engine/Direct3D.h"
+#include "../Engine/SceneManager.h"
 #include "../AI/RouteSearch.h"
 
 #include "../Enemy/EnemyBase.h"
@@ -42,6 +42,11 @@ void TestScene::Initialize()
 //çXêV
 void TestScene::Update()
 {
+	if (Input::IsKeyDown(DIK_N)) {
+		static_cast<SceneManager*>(FindObject("SceneManager"))->ChangeScene(SCENE_ID_SELECT);
+		return;
+	}
+
 	SceneBase::Update();
 
 	if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);

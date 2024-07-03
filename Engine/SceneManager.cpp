@@ -1,12 +1,11 @@
 #include "sceneManager.h"
-
 #include "../Scene/TestScene.h"
 #include "../Scene/SelectScene.h"
 
 #include "Model.h"
 #include "Image.h"
 #include "Audio.h"
-#include "../UI/DamageUI.h"
+#include "../Other/GameManager.h"
 
 //コンストラクタ
 SceneManager::SceneManager(GameObject * parent)
@@ -47,12 +46,13 @@ void SceneManager::Update()
 		Image::AllRelease();
 
 		//シーンチェンジの処理
-		DamageUI::SceneChange();
+		GameManager::SceneChange();
 
 		//次のシーンを作成
 		switch (nextSceneID_)
 		{
 		case SCENE_ID_TEST: Instantiate<TestScene>(this); break;
+		case SCENE_ID_SELECT: Instantiate<SelectScene>(this); break;
 
 		}
 		Audio::Initialize();

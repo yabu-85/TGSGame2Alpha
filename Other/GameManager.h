@@ -8,6 +8,7 @@ namespace GameManager
 {
 	void Initialize();
 	void Update();
+	void SceneChange();
 
 	//アクセサ
 	CollisionMap* GetCollisionMap();

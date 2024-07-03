@@ -12,11 +12,6 @@ Sprite::Sprite():
 Sprite::~Sprite()
 {
 	SAFE_DELETE(pTexture_);
-
-	pConstantBuffer_->Release();
-	pIndexBuffer_->Release();
-	pVertexBuffer_->Release();
-
 	SAFE_RELEASE(pVertexBuffer_);
 	SAFE_RELEASE(pIndexBuffer_);
 	SAFE_RELEASE(pConstantBuffer_);

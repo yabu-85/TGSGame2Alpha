@@ -5,6 +5,7 @@
 
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
+#include "../Engine/SceneManager.h"
 
 //コンストラクタ
 SelectScene::SelectScene(GameObject * parent)
@@ -24,6 +25,11 @@ void SelectScene::Initialize()
 void SelectScene::Update()
 {
 	SceneBase::Update();
+
+	if (Input::IsKeyDown(DIK_M)) {
+		static_cast<SceneManager*>(FindObject("SceneManager"))->ChangeScene(SCENE_ID_TEST);
+		return;
+	}
 
 }
 

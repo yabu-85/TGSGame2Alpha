@@ -185,17 +185,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				Direct3D::SetViewPort(0);
 				Camera::Update(0);
 				pRootObject->DrawSub();
+				EFFEKSEERLIB::gEfk->Draw();
 #else
 				for (int i = 1; i >= 0; i--) {
 					Direct3D::SetViewPort(i);
 					Camera::Update(i);
 					pRootObject->DrawSub();
+					EFFEKSEERLIB::gEfk->Draw();
 				}
 #endif
-
-				//エフェクトの描画
-				//VFX::Draw();
-				EFFEKSEERLIB::gEfk->Draw();
 
 				////////////////////////
 				//ImGuiの更新処理
