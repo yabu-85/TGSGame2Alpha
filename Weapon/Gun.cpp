@@ -116,6 +116,7 @@ void Gun::ShootBullet(BulletType type)
     int killTimer = pNewBullet->GetBulletParameter().killTimer_;
     float bulletSpeed = pNewBullet->GetBulletParameter().speed_;
     float calcDist = bulletSpeed * killTimer;
+    pNewBullet->SetPlayerId(playerId_);
 
     //FXî•ñŒvZ
     XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);

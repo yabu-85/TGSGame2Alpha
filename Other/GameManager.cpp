@@ -17,7 +17,7 @@
 namespace GameManager {
 	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(0.0f, 50.0f, 0.0f);
 
-	bool isOnePlayer_ = false;
+	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = true;
 
 	GameObject* pRootObject_ = nullptr;
@@ -90,6 +90,7 @@ namespace GameManager {
 			pScene_->IndividualUIDraw(index);
 		}
 
+		DamageUI::Draw(index);
 	}
 
 	void ImGuiDraw()

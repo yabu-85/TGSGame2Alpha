@@ -1,4 +1,5 @@
 #include "Bullet_Normal.h"
+#include "Gun.h"
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 #include "../Engine/PolyLine.h"
@@ -15,7 +16,7 @@ namespace {
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
     : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()),
-    pHitChara_(nullptr), minHitDist_(99999.9f)
+    pHitChara_(nullptr), minHitDist_(99999.9f), nextKill_(false)
 {
     // JSONファイル読み込み
     JsonReader::Load("Json/Weapon.json");
@@ -45,6 +46,11 @@ void Bullet_Normal::Initialize()
 
 void Bullet_Normal::Update()
 {
+    if (nextKill_) {
+        KillMe();
+        return;
+    }
+
     if (pHitChara_) {
         //ダメージ与える（HP０以下なら倒すのここでやっとく
         DamageInfo info = DamageInfo(parameter_.damage_);
@@ -52,23 +58,29 @@ void Bullet_Normal::Update()
         if (pHitChara_->GetDamageSystem()->IsDead()) pHitChara_->KillMe();
         pHitChara_->SetDamageTime(1.0f);
 
-        //ダメージ表示
         XMFLOAT3 damagePos = pHitChara_->GetPosition();
         damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
-        DamageUI::AddDamage(damagePos, parameter_.damage_);
+        DamageUI::AddDamage(damagePos, parameter_.damage_, playerId_);
       
-    //    VFXManager::CreateVfxExplodeSmall(hitPos_);
-        KillMe();
+        //VFXManager::CreateVfxExplodeSmall(hitPos_);
+        pPolyLine_->ClearFirstPosition();
+        pPolyLine_->AddPosition(hitPos_);
+
+        nextKill_ = true;
+        ClearCollider();
         return;
     }
 
     if (parameter_.killTimer_ <= 0) {
         //コリジョンマップに当たっていた場合
         if (isHit_) {
-        //    VFXManager::CreateVfxExplodeSmall(hitPos_);
+            //VFXManager::CreateVfxExplodeSmall(hitPos_);
+            pPolyLine_->ClearFirstPosition();
+            pPolyLine_->AddPosition(hitPos_);
         }
 
-        KillMe();
+        nextKill_ = true;
+        ClearCollider();
         return;
     }
     parameter_.killTimer_--;
@@ -100,6 +112,7 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 
 void Bullet_Normal::Draw()
 {
+    CollisionDraw();
     pPolyLine_->Draw();
 }
 
@@ -125,13 +138,13 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 hitPos)
     //PolyLine追加
     if (hitDist < parameter_.speed_) {
         XMFLOAT3 move = Float3Multiply(move_, (hitDist / parameter_.speed_));
-        for (int i = 0; i < POLY_LENG; i++) {
+        for (int i = 0; i < POLY_LENG -1; i++) {
             XMFLOAT3 addPos = Float3Multiply(move, (float)i / (float)POLY_LENG);
             pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
         }
     }
     else {
-        for (int i = 0; i < POLY_LENG; i++) {
+        for (int i = 0; i < POLY_LENG -1; i++) {
             XMFLOAT3 addPos = Float3Multiply(move_, (float)i / (float)POLY_LENG);
             pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
         }

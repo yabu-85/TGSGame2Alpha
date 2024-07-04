@@ -18,7 +18,6 @@ protected:
 
 	bool moveAlpha_;		//徐々に透明にしておく
 	bool first_;			//最初のデータか
-	bool clear_;			//消していくか
 	bool allClearReset_;	//すべて消したらClearを取り消すか
 
 	ID3D11Buffer* pVertexBuffer_;	//頂点バッファ
@@ -26,6 +25,8 @@ protected:
 	Texture* pTexture_;	            //画像
 
 	list<XMFLOAT3> positions_;	    //過去length_回分の位置
+
+	virtual void CalcPoly();
 public:
 	PolyLine();
 	void Draw();
@@ -38,13 +39,10 @@ public:
 	virtual void ResetPosition();
 
 	//一番後ろのデータを消す
-	virtual void ClearLastPositions();
+	virtual void ClearLastPosition();
 
-	//Clearをtureに、引数はAllClearされたらClearフラグをfalseにするかどうか
-	void SetClear(bool allClear);
-
-	//Clearを取り消し
-	void ClearCancel();
+	//一番最初のデータを消す
+	virtual void ClearFirstPosition();
 
 	//現在の位置を記憶させる
 	//引数：pos	現在の位置
@@ -59,6 +57,7 @@ public:
 class DoublePolyLine : public PolyLine {
 	list<XMFLOAT3> positionsSub_;	//座標を指定したバージョンで使用
 
+	void CalcPoly() override;
 public:
 	DoublePolyLine();
 	void Release() override;
@@ -66,7 +65,10 @@ public:
 	void ResetPosition() override;
 
 	//一番後ろのデータを消す
-	void ClearLastPositions() override;
+	void ClearLastPosition() override;
+	
+	//一番最初のデータを消す
+	void ClearFirstPosition() override;
 
 	//現在の位置を記憶させる
 	//引数：pos1, pos2 記憶させる位置

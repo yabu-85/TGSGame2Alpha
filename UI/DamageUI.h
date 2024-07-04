@@ -18,7 +18,7 @@ namespace DamageUI
 	void Release();
 
 	//Screen’Ç‰Á
-	void AddDamage(XMFLOAT3 _pos, int _damage);
+	void AddDamage(XMFLOAT3 _pos, int _damage, int index);
 	
 	//Screen‰Šú‰»
 	void ResetDamageList();
@@ -27,6 +27,6 @@ namespace DamageUI
 	void Update();
 
 	//ScreenƒŠƒXƒg‚Ì•`‰æ
-	void Draw();
+	void Draw(int index);
 
 };

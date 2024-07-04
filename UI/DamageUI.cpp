@@ -3,10 +3,13 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/Camera.h"
 #include "../Engine/Text.h"
+#include "../Other/GameManager.h"
 #include <vector>
 
 namespace {
-	const XMFLOAT3 TEXT_SCALE = XMFLOAT3(0.7f, 0.7f, 1.0f);	//文字サイズ
+	const XMFLOAT3 ONE_TEXT_SCALE = XMFLOAT3(0.7f, 0.7f, 1.0f);	//分割無し文字サイズ
+	const XMFLOAT3 TWO_TEXT_SCALE = XMFLOAT3(1.0f, 0.7f, 1.0f);	//分割あり文字サイズ
+
 	const XMFLOAT2 TEXT_POSITION = XMFLOAT2(0.3f, 0.4f);	//文字ポジション
 	const int	ALPHA_REDUCE = 25;							//透明度下げる値
 	const float TIME_REDUCE = 0.03f;						//Time下げる値
@@ -26,21 +29,25 @@ struct DamageUIInfo {
 };
 
 namespace DamageUI {
-	std::vector<DamageUIInfo> damageList_;
+	std::vector<DamageUIInfo> damageList_[2];
 	Text* pText_ = nullptr;
 
 	void Initialize()
 	{
 		pText_ = new Text();
 		pText_->Initialize();
-		pText_->SetScale(TEXT_SCALE);
+		if(GameManager::IsOnePlayer()) pText_->SetScale(ONE_TEXT_SCALE);
+		else pText_->SetScale(TWO_TEXT_SCALE);
 	}
 
 	void SceneChange()
 	{
 		pText_ = new Text();
 		pText_->Initialize();
-		pText_->SetScale(TEXT_SCALE);
+		if (GameManager::IsOnePlayer()) pText_->SetScale(ONE_TEXT_SCALE);
+		else pText_->SetScale(TWO_TEXT_SCALE);
+
+		ResetDamageList();
 	}
 
 	void Release()
@@ -48,7 +55,7 @@ namespace DamageUI {
 
 	}
 
-	void AddDamage(XMFLOAT3 _pos, int _damage)
+	void AddDamage(XMFLOAT3 _pos, int _damage, int index)
 	{
 		DamageUIInfo ui;
 		ui.damage = _damage;
@@ -59,39 +66,43 @@ namespace DamageUI {
 		ui.wPos = _pos;
 		ui.wPos.x += (float)std::rand() / RAND_MAX * RANDOM_POS_MAX;
 		ui.wPos.y += (float)std::rand() / RAND_MAX * RANDOM_POS_MAX;
-		damageList_.push_back(ui);
+		damageList_[index].push_back(ui);
 	}
 
 	void ResetDamageList()
 	{
-		damageList_.clear();
+		for(int i = 0;i < 2;i++) damageList_[i].clear();
+
 	}
 
 	void Update()
 	{
-		for (auto it = damageList_.begin(); it != damageList_.end();) {
-			(*it).time -= TIME_REDUCE;
+		for (int i = 0; i < 2; i++) {
+			for (auto it = damageList_[i].begin(); it != damageList_[i].end();) {
+				(*it).time -= TIME_REDUCE;
 
-			//消えるアニメーション
-			if ((*it).time <= KILL_THRESHOLD) {
-				(*it).wPos.y += RIZE_VALUE;
-				(*it).alpha -= ALPHA_REDUCE;
-			}
+				//消えるアニメーション
+				if ((*it).time <= KILL_THRESHOLD) {
+					(*it).wPos.y += RIZE_VALUE;
+					(*it).alpha -= ALPHA_REDUCE;
+				}
 
-			//削除
-			if ((*it).time <= 0.0f) {
-				it = damageList_.erase(it);
-				continue;
+				//削除
+				if ((*it).time <= 0.0f) {
+					it = damageList_[i].erase(it);
+					continue;
+				}
+				++it;
 			}
-			++it;
 		}
+
 	}
 
-	void Draw()
+	void Draw(int index)
 	{
 		Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 		
-		for (DamageUIInfo ui : damageList_) {
+		for (DamageUIInfo ui : damageList_[index]) {
 			//スクリーン座標計算して、画面内かどうか
 			XMFLOAT3 pos = Camera::CalcScreenPosition(ui.wPos);
 			if (!Camera::IsScreenPositionWithinScreen(pos)) continue;

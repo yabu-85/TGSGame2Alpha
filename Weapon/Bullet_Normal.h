@@ -8,6 +8,7 @@ class Character;
 class Bullet_Normal : public BulletBase
 {
     bool isHit_;
+    bool nextKill_;
     XMFLOAT3 hitPos_;
     PolyLine* pPolyLine_;
     

@@ -26,6 +26,7 @@ class BulletBase : public GameObject
         int isPenetration_;     //貫通   あり:1 なし:0
     };
 protected:
+    int playerId_;              //ダメージ描画のための
     BulletParameter parameter_; //パラメータ
     XMFLOAT3 move_;             //移動の速度と方向
 
@@ -43,4 +44,7 @@ public:
 
     // 銃弾の移動を設定
     void SetMove(const XMFLOAT3& move) { move_ = move; }
+
+    void SetPlayerId(int id) { playerId_ = id; }
+
 };
