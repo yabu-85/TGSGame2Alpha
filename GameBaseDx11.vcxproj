@@ -147,6 +147,7 @@
     <ClCompile Include="Engine\CsvReader.cpp" />
     <ClCompile Include="Engine\Debug.cpp" />
     <ClCompile Include="Engine\Direct3D.cpp" />
+    <ClCompile Include="Engine\Easing.cpp" />
     <ClCompile Include="Engine\EffekseeLib\EffekseerVFX.cpp" />
     <ClCompile Include="Engine\Fbx.cpp" />
     <ClCompile Include="Engine\FbxParts.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Engine\CsvReader.h" />
     <ClInclude Include="Engine\Debug.h" />
     <ClInclude Include="Engine\Direct3D.h" />
+    <ClInclude Include="Engine\Easing.h" />
     <ClInclude Include="Engine\EffekseeLib\EffekseerVFX.h" />
     <ClInclude Include="Engine\Fbx.h" />
     <ClInclude Include="Engine\FbxParts.h" />

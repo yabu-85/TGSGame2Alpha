@@ -299,6 +299,9 @@
     <ClCompile Include="UI\AimCursor.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Easing.cpp">
+      <Filter>01Engine\ResourceManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -528,6 +531,9 @@
     </ClInclude>
     <ClInclude Include="UI\AimCursor.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Easing.h">
+      <Filter>01Engine\ResourceManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

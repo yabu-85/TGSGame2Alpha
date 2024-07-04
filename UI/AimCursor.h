@@ -1,5 +1,7 @@
 #pragma once
 
+//‰æ–Ê‚É•\Ž¦‚³‚ê‚éAimCursor‚ÌƒNƒ‰ƒX
+//Draw‚ÍPlayScene‚©‚çŒÄ‚Î‚ê‚é
 class AimCursor
 {
     int hPict_;
@@ -12,5 +14,7 @@ public:
     ~AimCursor();
     void Update();
     void Draw();
+
+    void Shot();
 
 };

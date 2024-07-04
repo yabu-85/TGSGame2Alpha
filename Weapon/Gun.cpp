@@ -68,11 +68,13 @@ void Gun::Update()
 {
     // クールタイムを減らす
     bulletInfo_.coolTime_--;
+    pAimCursor_->Update();
 
     // 通常射撃
     if (InputManager::IsCmd(InputManager::ATTACK, playerId_) && bulletInfo_.coolTime_ <= 0)
     {
         ShootBullet<Bullet_Normal>(BulletType::NORMAL);
+        pAimCursor_->Shot();
 
         CameraShakeInfo shakeInfo = CameraShakeInfo(1, 0.05f, 0.1f);
         XMVECTOR shakeDir = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
