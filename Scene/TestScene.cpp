@@ -15,22 +15,23 @@
 #include "../Enemy/TestEnemy.h"
 #include "../UI/DamageUI.h"
 #include "../UI/AimCursor.h"
+#include "../Other/GameManager.h"
 
 //コンストラクタ
 TestScene::TestScene(GameObject * parent)
-	: SceneBase(parent, "TestScene")
+	: SceneBase(parent, "TestScene"), pAimCursor_{nullptr, nullptr}
 {
 }
 
 //初期化
 void TestScene::Initialize()
 {
+	GameManager::SetTwoPlayer();
+	
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
-
-#if !ONE_PLAYER
-	Instantiate<Player>(this);
-#endif
+	//2人プレイヤーなら
+	if (!GameManager::IsOnePlayer()) Instantiate<Player>(this);
 
 	RouteSearch::Initialize();
 	DamageUI::Initialize();
@@ -92,18 +93,8 @@ void TestScene::CommonUIDraw()
 
 }
 
-void TestScene::IndividualUIDraw()
+void TestScene::IndividualUIDraw(int index)
 {
-	for (int i = 0; i < 2; i++) if (pAimCursor_[i]) pAimCursor_[i]->Draw();
+	pAimCursor_[index]->Draw();
 
-}
-
-void TestScene::SetAimCursor(int index, AimCursor* point)
-{
-	pAimCursor_[index] = point;
-}
-
-AimCursor* TestScene::GetAimCursor(int index)
-{
-	return pAimCursor_[index];
 }

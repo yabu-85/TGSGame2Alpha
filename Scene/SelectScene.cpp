@@ -2,7 +2,7 @@
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
 #include "../Screen/SelectScreen.h"
-
+#include "../Other/GameManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/SceneManager.h"
@@ -16,6 +16,8 @@ SelectScene::SelectScene(GameObject * parent)
 //‰Šú‰»
 void SelectScene::Initialize()
 {
+	GameManager::SetOnePlayer();
+
 	AllDeleteScreen();
 	AddScreen(new SelectScreen());
 

@@ -69,7 +69,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//Direct3D準備
 	Direct3D::Initialize(hWnd, screenWidth, screenHeight);
 
-
 	//ImGuiを初期化
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -100,12 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	pRootObject->Initialize();
 
 	GameManager::Initialize();
-
-#if ONE_PLAYER
-	Direct3D::SetViewOne();
-	Direct3D::SetViewPort(0);
-	Camera::SetOneProjectionMatrix();
-#endif
+	GameManager::SetRootObject(pRootObject);
 
 	//メッセージループ（何か起きるのを待つ）
 	MSG msg;
@@ -157,87 +151,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				pRootObject->UpdateSub();
 
 				//エフェクトの更新
-				//VFX::Update();
 				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0);
 
-				//１回目
-				XMFLOAT3 pos = Camera::GetPosition(0);
-				XMFLOAT3 tar = Camera::GetTarget(0);
-				Camera::SetPosition(XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z), 0);
-				Camera::SetTarget(XMFLOAT3(50, 0, 50), 0);
-				Camera::Update(0);
-				Direct3D::lightViewMatrix = Camera::GetViewMatrix();
-
-				Direct3D::BeginDraw();
-				pRootObject->DrawSub();
-				Direct3D::EndDraw();
-				Camera::SetPosition(pos, 0);
-				Camera::SetTarget(tar, 0);
-
-				///////////////////////////
-				//２回目
-				Direct3D::BeginDraw2();
-				
-#if ONE_PLAYER
-				Camera::Update(0);
-				pRootObject->DrawSub();
-				EFFEKSEERLIB::gEfk->Draw();
-				GameManager::IndividualDraw();
-#else
-				Direct3D::SetViewTwo();
-				Camera::SetTwoProjectionMatrix();
-
-				for (int i = 1; i >= 0; i--) {
-					Direct3D::SetViewPort(i);
-					Camera::Update(i);
-					pRootObject->DrawSub();
-					EFFEKSEERLIB::gEfk->Draw();
-					GameManager::IndividualDraw();
-				}
-#endif
-
-				Direct3D::SetViewOne();
-				Direct3D::SetViewPort(0);
-				Camera::SetOneProjectionMatrix();
-				GameManager::CommonDraw();
-
-				////////////////////////
-				//ImGuiの更新処理
-				ImGui_ImplDX11_NewFrame();
-				ImGui_ImplWin32_NewFrame();
-				ImGui::NewFrame();
-
-				StageEditor::DrawStageEditor();
-				StageEditor::DrawNodeEditor();
-
-				ImGui::Begin("Hello");//ImGuiの処理を開始
-				{
-					//ImGui::Text("");		テキスト
-					//ImGui::Button("");	ボタン
-					//ImGui::Separator();	区切り線
-					//ImGui::SameLine();	同じ場所に配置
-					//ImGui::Spacing();		指定した分スペースを確保
-					XMFLOAT4 position = Light::GetPosition(0);
-					XMFLOAT4 target = Light::GetTarget(0);
-					ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
-					ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
-					ImGui::Separator();
-					ImGui::Text("Player: (%.2f, %.2f, %.2f)", Direct3D::PlayerPosition.x, Direct3D::PlayerPosition.y, Direct3D::PlayerPosition.z);
-					ImGui::Text("Enemy : (%.2f, %.2f, %.2f)", Direct3D::EnemyPosition.x, Direct3D::EnemyPosition.y, Direct3D::EnemyPosition.z);
-					ImGui::Separator();
-					ImGui::SliderFloat("Player Speed", &Direct3D::playerSpeed, 0.0f, 1.0f);
-
-					if (Direct3D::playerFaly) ImGui::Text("Player Faly   : true");
-					else ImGui::Text("Player Faly  : false");
-
-					if (Direct3D::playerClimb) ImGui::Text("Player Climb : true");
-					else ImGui::Text("Player Climb : false");
-				}
-				ImGui::End();//ImGuiの処理を終了
-				ImGui::Render();
-				ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-				Direct3D::EndDraw();
+				GameManager::Draw();
 
 				//ちょっと休ませる
 				Sleep(1);

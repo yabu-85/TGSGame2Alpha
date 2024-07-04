@@ -133,21 +133,8 @@ namespace Direct3D
 
 		/////////////////////////////////////////////////////////////////////////////////////////////
 
-		//ビューポートの設定（二人用の設定に
-		//レンダリング結果を表示する範囲
-		vp1[0].Width = (float)screenWidth_ / 2;	//幅
-		vp1[0].Height = (float)screenHeight_;//高さ
-		vp1[0].MinDepth = 0.0f;	//手前
-		vp1[0].MaxDepth = 1.0f;	//奥
-		vp1[0].TopLeftX = 0.0f;	//左
-		vp1[0].TopLeftY = 0;	//上
-
-		vp1[1].Width = (float)screenWidth_ / 2;	//幅
-		vp1[1].Height = (float)screenHeight_;//高さ
-		vp1[1].MinDepth = 0.0f;	//手前
-		vp1[1].MaxDepth = 1.0f;	//奥
-		vp1[1].TopLeftX = (float)screenWidth_ / 2;	//左
-		vp1[1].TopLeftY = 0;	//上
+		//Viewの設定、一人用で
+		SetViewOne();
 
 		//各パターンのシェーダーセット準備
 		InitShaderBundle();

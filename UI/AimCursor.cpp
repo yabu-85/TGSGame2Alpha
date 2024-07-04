@@ -1,18 +1,22 @@
 #include "AimCursor.h"
 #include "../Engine/Image.h"
-#include "../Engine/Direct3D.h"
+#include "../Other/GameManager.h"
+
+namespace {
+	XMFLOAT3 ONE_PLAYER_SIZE = XMFLOAT3(0.3f, 0.3f, 0.3f);
+	XMFLOAT3 TWO_PLAYER_SIZE = XMFLOAT3(0.55f, 0.3f, 0.3f);
+
+}
 
 AimCursor::AimCursor() : hPict_(-1)
 {
 	hPict_ = Image::Load("Image/cross.png");
 	assert(hPict_ >= 0);
 
+	//êlêîÇ…ÇÊÇ¡ÇƒëÂÇ´Ç≥í≤êÆ
 	Transform t;
-#if ONE_PLAYER
-	t.scale_ = XMFLOAT3(0.3f, 0.3f, 0.3f);
-#else
-	t.scale_ = XMFLOAT3(0.55f, 0.3f, 0.3f);
-#endif
+	if (GameManager::IsOnePlayer()) t.scale_ = ONE_PLAYER_SIZE;
+	else t.scale_ = TWO_PLAYER_SIZE;
 	Image::SetTransform(hPict_, t);
 
 }

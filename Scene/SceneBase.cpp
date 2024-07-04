@@ -93,6 +93,6 @@ void SceneBase::CommonUIDraw()
 
 }
 
-void SceneBase::IndividualUIDraw()
+void SceneBase::IndividualUIDraw(int index)
 {
 }

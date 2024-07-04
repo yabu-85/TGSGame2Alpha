@@ -34,6 +34,6 @@ public:
 	virtual void CommonUIDraw();
 
 	//“o˜^‚³‚ê‚½ŒÂ•ÊUI‚Ì•`‰æ
-	virtual void IndividualUIDraw();
+	virtual void IndividualUIDraw(int index);
 	
 };
