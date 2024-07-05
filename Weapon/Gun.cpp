@@ -130,10 +130,10 @@ void Gun::ShootBullet(BulletType type)
     bureMove.x = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
     bureMove.y = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
     bureMove.z = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
-    XMVECTOR vecDir = XMLoadFloat3(&cameraVec);
     XMMATRIX matRotX = XMMatrixRotationX(bureMove.x);
     XMMATRIX matRotY = XMMatrixRotationY(bureMove.y);
     XMMATRIX matRotZ = XMMatrixRotationZ(bureMove.z);
+    XMVECTOR vecDir = XMLoadFloat3(&cameraVec);
     vecDir = XMVector3TransformCoord(vecDir, matRotX * matRotY * matRotZ);
     XMFLOAT3 bureVec = XMFLOAT3();
     XMStoreFloat3(&bureVec, vecDir);
@@ -190,9 +190,6 @@ void Gun::ShootBullet(BulletType type)
         data.start = gunTop;
 
         vecDir = XMLoadFloat3(&gunVec);
-        matRotX = XMMatrixRotationX(bureMove.x);
-        matRotY = XMMatrixRotationY(bureMove.y);
-        matRotZ = XMMatrixRotationZ(bureMove.z);
         vecDir = XMVector3TransformCoord(vecDir, matRotX * matRotY * matRotZ);
         XMStoreFloat3(&bureVec, vecDir);
         

@@ -27,7 +27,7 @@ namespace {
 
 }
 
-AimCursor::AimCursor() : hPict_(-1), shotParce_(0.0f), shotDurace_(0.01f)
+AimCursor::AimCursor() : hPict_(-1), shotParce_(0.0f), shotDurace_(0.002f)
 {
 	hPict_ = Image::Load("Image/cross.png");
 	assert(hPict_ >= 0);

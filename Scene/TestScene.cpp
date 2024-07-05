@@ -26,8 +26,10 @@ TestScene::TestScene(GameObject * parent)
 //‰Šú‰»
 void TestScene::Initialize()
 {
-	GameManager::SetTwoPlayer();
-	
+	//GameManager::SetTwoPlayer();
+	GameManager::SetOnePlayer();
+	Camera::SetOneProjectionMatrix();
+
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
 

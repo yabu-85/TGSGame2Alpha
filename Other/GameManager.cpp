@@ -15,7 +15,7 @@
 #include "../Scene/SceneBase.h"
 
 namespace GameManager {
-	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(0.0f, 50.0f, 0.0f);
+	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
 
 	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = true;
@@ -32,11 +32,11 @@ namespace GameManager {
 		if (isOnePlayer_) {
 			Direct3D::SetViewOne();
 			Direct3D::SetViewPort(0);
-			Camera::SetTwoProjectionMatrix();
+			Camera::SetOneProjectionMatrix();
 		}
 		else {
 			Direct3D::SetViewTwo();
-
+			Camera::SetTwoProjectionMatrix();
 		}
 
 	}
@@ -127,7 +127,7 @@ namespace GameManager {
 	}
 
 	void ShadoDraw()
-	{
+	{	
 		XMFLOAT3 pos = Camera::GetPosition(0);
 		XMFLOAT3 tar = Camera::GetTarget(0);
 		XMFLOAT4 lightPos = Light::GetPosition(0);
@@ -160,7 +160,6 @@ namespace GameManager {
 
 	void TwoPlayerDraw()
 	{
-		Camera::SetTwoProjectionMatrix();
 		ShadoDraw();
 
 		Direct3D::BeginDraw2();
