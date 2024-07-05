@@ -14,7 +14,8 @@ public:
     ~AimCursor();
     void Update();
     void Draw();
-
     void Shot();
+
+    float GetBurePower();
 
 };

@@ -122,11 +122,26 @@ void Gun::ShootBullet(BulletType type)
     XMFLOAT3 gunTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
     XMFLOAT3 cameraVec = Float3Normalize(Float3Sub(Camera::GetTarget(playerId_), Camera::GetPosition(playerId_)));
     float cameraDist = CalculationDistance(Camera::GetPosition(playerId_), Camera::GetTarget(playerId_));
-    
+
+    //ブレの方向計算をする
+    static const float BURE_POWER = 0.1f;
+    float bure = pAimCursor_->GetBurePower();
+    XMFLOAT3 bureMove = XMFLOAT3();
+    bureMove.x = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.y = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.z = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    XMVECTOR vecDir = XMLoadFloat3(&cameraVec);
+    XMMATRIX matRotX = XMMatrixRotationX(bureMove.x);
+    XMMATRIX matRotY = XMMatrixRotationY(bureMove.y);
+    XMMATRIX matRotZ = XMMatrixRotationZ(bureMove.z);
+    vecDir = XMVector3TransformCoord(vecDir, matRotX * matRotY * matRotZ);
+    XMFLOAT3 bureVec = XMFLOAT3();
+    XMStoreFloat3(&bureVec, vecDir);
+
     //コリジョンマップで着弾地点計算
     RayCastData data;
     data.start = Camera::GetPosition(playerId_);
-    data.dir = cameraVec;
+    data.dir = bureVec;
     XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist + cameraDist));
     GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
     XMFLOAT3 gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
@@ -140,7 +155,7 @@ void Gun::ShootBullet(BulletType type)
 
     //コライダー登録
     XMFLOAT3 centerPos = Float3Sub(Camera::GetPosition(playerId_), GetWorldPosition());
-    SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&cameraVec));
+    SegmentCollider* collid = new SegmentCollider(centerPos, XMLoadFloat3(&bureVec));
     collid->size_ = XMFLOAT3(calcDist + cameraDist, calcDist + cameraDist, calcDist + cameraDist);
     collid->typeList_.push_back(OBJECT_TYPE::Enemy);
     collid->typeList_.push_back(OBJECT_TYPE::Player);
@@ -173,7 +188,15 @@ void Gun::ShootBullet(BulletType type)
         XMFLOAT3 gunVec = Float3Normalize(Float3Sub(gunTar, gunTop));
         data = RayCastData();
         data.start = gunTop;
-        data.dir = gunVec;
+
+        vecDir = XMLoadFloat3(&gunVec);
+        matRotX = XMMatrixRotationX(bureMove.x);
+        matRotY = XMMatrixRotationY(bureMove.y);
+        matRotZ = XMMatrixRotationZ(bureMove.z);
+        vecDir = XMVector3TransformCoord(vecDir, matRotX * matRotY * matRotZ);
+        XMStoreFloat3(&bureVec, vecDir);
+        
+        data.dir = bureVec;
         calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist));
         GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
         gunTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
@@ -182,7 +205,7 @@ void Gun::ShootBullet(BulletType type)
         XMFLOAT3 gunRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
         centerPos = Float3Sub(gunRoot, GetWorldPosition());
         collid->SetCenter(centerPos);
-        collid->SetVector(XMLoadFloat3(&gunVec));
+        collid->SetVector(XMLoadFloat3(&data.dir));
 
         for (int i = 0; i < charaList.size(); i++) {
             //親はスキップ

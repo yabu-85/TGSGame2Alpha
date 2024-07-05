@@ -30,6 +30,7 @@ void TestScene::Initialize()
 	
 	Instantiate<Stage>(this);
 	Instantiate<Player>(this);
+
 	//2人プレイヤーなら
 	if (!GameManager::IsOnePlayer()) Instantiate<Player>(this);
 
