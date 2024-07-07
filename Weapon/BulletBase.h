@@ -34,7 +34,7 @@ public:
     BulletBase(GameObject* parent, BulletType bulletType, std::string name);
     virtual ~BulletBase() = default;
 
-    virtual void Shot(Character* chara, XMFLOAT3 pos) {};
+    virtual void Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHitPos) {};
 
     // e’e‚Ìí—Ş‚ğæ“¾
     BulletType GetBulletType() const { return bulletType_; }

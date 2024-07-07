@@ -50,7 +50,7 @@ void TestEnemy::Initialize()
     pAstarMoveAction_ = new AstarMoveAction(this, 0.06f, 0.1f);
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
-    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.5f, 0.4f, vec);
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.4f, 0.5f, vec);
     collid->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(collid);
 

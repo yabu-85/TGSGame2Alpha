@@ -8,7 +8,7 @@ namespace Light
 	static const int LIGHT_TOTAL_NUM = 5;	//ƒ‰ƒCƒg‚Ì‘”  
 
 	void Initialize();
-	void Draw();
+	void Update();
 	
 	void SetPosition(int i, XMFLOAT4 pos);
 	void SetTarget(int i, XMFLOAT4 tar);

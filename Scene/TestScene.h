@@ -1,11 +1,13 @@
 #pragma once
 #include "SceneBase.h"
+#include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 class AimCursor;
 
 class TestScene : public SceneBase
 {
 	AimCursor* pAimCursor_[2];
+	std::shared_ptr<EFFEKSEERLIB::EFKTransform> mt;
 
 public:
 	TestScene(GameObject* parent);

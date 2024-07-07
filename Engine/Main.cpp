@@ -148,7 +148,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				Input::Update();
 				pRootObject->UpdateSub();
-				
+
+				Light::Update();
+
 				//エフェクト更新
 				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0);
 				

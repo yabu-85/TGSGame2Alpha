@@ -50,6 +50,7 @@ public:
 
 	//èôÅXÇ…ìßñæÇ…Ç»ÇÈÇÊÇ§Ç…ê›íË
 	void SetMoveAlphaFlag() { moveAlpha_ = true; }
+	void SetAlpha(float a) { alpha_ = a; }
 	void SetLength(int leng) { length_ = leng; }
 	void SetWidth(float width) { width_ = width; }
 };

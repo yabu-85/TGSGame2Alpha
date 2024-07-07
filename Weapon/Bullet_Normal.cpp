@@ -11,12 +11,12 @@
 #include "../Json/JsonReader.h"
 
 namespace {
-    static const int POLY_LENG = 5;
+    static const int POLY_LENG = 30;
 }
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
-    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()),
-    pHitChara_(nullptr), minHitDist_(99999.9f), nextKill_(false)
+    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()), startPos_(XMFLOAT3()),
+    pHitChara_(nullptr), minHitDist_(99999.9f), nextKill_(false), pCapsuleCollider_(nullptr), hModel_(-1), killWaitTime_(0)
 {
     // JSONファイル読み込み
     JsonReader::Load("Json/Weapon.json");
@@ -37,17 +37,28 @@ Bullet_Normal::~Bullet_Normal()
 
 void Bullet_Normal::Initialize()
 {
+    hModel_ = Model::Load("Model/bullet.fbx");
+    assert(hModel_ >= 0);
+
     pPolyLine_ = new PolyLine;
     pPolyLine_->Load("PolyImage/BulletLine.png");
     pPolyLine_->SetLength(POLY_LENG);
     pPolyLine_->SetWidth(0.1f);
+    pPolyLine_->SetAlpha(0.5f);
+    pPolyLine_->SetMoveAlphaFlag();
 
+    killWaitTime_ = 20;
 }
 
 void Bullet_Normal::Update()
 {
     if (nextKill_) {
-        KillMe();
+        killWaitTime_--;
+
+        //Kill処理
+        if (killWaitTime_ <= 0) {
+            KillMe();
+        }
         return;
     }
 
@@ -62,11 +73,12 @@ void Bullet_Normal::Update()
         damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_, playerId_);
       
-        //VFXManager::CreateVfxExplodeSmall(hitPos_);
+        HitEffect();
+
         pPolyLine_->ClearFirstPosition();
         pPolyLine_->AddPosition(hitPos_);
 
-        nextKill_ = true;
+        KillBullet();
         ClearCollider();
         return;
     }
@@ -74,12 +86,13 @@ void Bullet_Normal::Update()
     if (parameter_.killTimer_ <= 0) {
         //コリジョンマップに当たっていた場合
         if (isHit_) {
-            //VFXManager::CreateVfxExplodeSmall(hitPos_);
+            HitEffect();
+
             pPolyLine_->ClearFirstPosition();
             pPolyLine_->AddPosition(hitPos_);
         }
 
-        nextKill_ = true;
+        KillBullet();
         ClearCollider();
         return;
     }
@@ -95,14 +108,15 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
     if (pTarget->GetObjectName().find("Enemy") != std::string::npos ||
         pTarget->GetObjectName().find("Player") != std::string::npos )
     {
-        float dist = CalculationDistance(pTarget->GetPosition(), transform_.position_);
+        float dist = CalculationDistance(startPos_, pCapsuleCollider_->targetPos_);
+        float wallDist = CalculationDistance(startPos_, hitPos_);
         if (pHitChara_) {
-            if (dist > minHitDist_) {
+            if (dist < minHitDist_) {
                 pHitChara_ = static_cast<Character*>(pTarget);
                 minHitDist_ = dist;
             }
         }
-        else {
+        else if(dist < wallDist) {
             pHitChara_ = static_cast<Character*>(pTarget);
             minHitDist_ = dist;
         }
@@ -112,7 +126,11 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 
 void Bullet_Normal::Draw()
 {
-    CollisionDraw();
+    if (!nextKill_) {
+        Model::SetTransform(hModel_, transform_);
+        Model::Draw(hModel_);
+    }
+
     pPolyLine_->Draw();
 }
 
@@ -122,29 +140,30 @@ void Bullet_Normal::Release()
     SAFE_DELETE(pPolyLine_);
 }
 
-void Bullet_Normal::Shot(Character* chara, XMFLOAT3 hitPos)
+void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHitPos)
 {
-    hitPos_ = hitPos;
-   
-    //コライダー情報セット
-    XMFLOAT3 colCenter = Float3Multiply(move_, -0.5f);
-    CapsuleCollider* collid = new CapsuleCollider(colCenter, parameter_.collisionScale_, parameter_.speed_, -XMLoadFloat3(&move_));
-    collid->typeList_.push_back(OBJECT_TYPE::Enemy);
-    collid->typeList_.push_back(OBJECT_TYPE::Player);
-    AddCollider(collid);
+    hitPos_ = wallHitPos;
+    startPos_ = transform_.position_;
+    transform_.rotate_ = CalculationRotateXY(Float3Normalize(move_));
 
-    float hitDist = CalculationDistance(transform_.position_, hitPos);
+    //コライダー情報セット（進行方向に向き、進行方向逆の0.5サイズでCenterを取る
+    XMFLOAT3 colCenter = Float3Multiply(move_, -0.5f);
+    pCapsuleCollider_ = new CapsuleCollider(colCenter, parameter_.collisionScale_, parameter_.speed_, -XMLoadFloat3(&move_));
+    pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Enemy);
+    pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Player);
+    AddCollider(pCapsuleCollider_);
     
     //PolyLine追加
+    float hitDist = CalculationDistance(transform_.position_, wallHitPos);
     if (hitDist < parameter_.speed_) {
         XMFLOAT3 move = Float3Multiply(move_, (hitDist / parameter_.speed_));
-        for (int i = 0; i < POLY_LENG -1; i++) {
+        for (int i = 0; i < POLY_LENG - 1; i++) {
             XMFLOAT3 addPos = Float3Multiply(move, (float)i / (float)POLY_LENG);
             pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
         }
     }
     else {
-        for (int i = 0; i < POLY_LENG -1; i++) {
+        for (int i = 0; i < POLY_LENG - 1; i++) {
             XMFLOAT3 addPos = Float3Multiply(move_, (float)i / (float)POLY_LENG);
             pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
         }
@@ -160,6 +179,25 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 hitPos)
         if (newKillTime < parameter_.killTimer_) {
             parameter_.killTimer_ = newKillTime;
         }
-
     }
+
+}
+
+void Bullet_Normal::HitEffect()
+{
+    EFFEKSEERLIB::gEfk->AddEffect("HIT", "Particle/hit.efk");
+    EFFEKSEERLIB::EFKTransform t;
+    transform_.position_ = pCapsuleCollider_->targetPos_;
+    transform_.scale_ = XMFLOAT3(0.2f, 0.2f, 0.2f);
+    DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
+    t.isLoop = false;   //繰り返し
+    t.maxFrame = 80;    //80フレーム
+    t.speed = 1.0;      //スピード
+    mt = EFFEKSEERLIB::gEfk->Play("HIT", t);
+}
+
+void Bullet_Normal::KillBullet()
+{
+    nextKill_ = true;
+
 }

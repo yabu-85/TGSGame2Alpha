@@ -160,11 +160,11 @@ namespace GameManager {
 
 	void TwoPlayerDraw()
 	{
+		Camera::SetTwoProjectionMatrix();
 		ShadoDraw();
 
 		Direct3D::BeginDraw2();
 		Direct3D::SetViewTwo();
-		Camera::SetTwoProjectionMatrix();
 		for (int i = 1; i >= 0; i--) {
 			Direct3D::SetViewPort(i);
 			Camera::Update(i);

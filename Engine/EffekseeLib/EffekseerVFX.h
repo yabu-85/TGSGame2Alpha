@@ -27,17 +27,13 @@ namespace fs = std::filesystem;
 
 namespace EFFEKSEERLIB {
     class EffekseerManager;//前方宣言
-
-
-
-
     constexpr float DEFAULT_FRAME_RATE{ 60.0f };
+    
     //全体で使うEffekseerのマネージャやレンダラなどのデータ
     using RendererRef = EffekseerRendererDX11::RendererRef;
     extern Effekseer::ManagerRef gManager;
     extern EffekseerRendererDX11::RendererRef gRenderer;
     extern EffekseerManager *gEfk;
-
 
     struct EFKTransform {
         DirectX::XMFLOAT4X4 matrix;
@@ -45,7 +41,6 @@ namespace EFFEKSEERLIB {
         float                       speed = 1.0f;
         int                         maxFrame = 0;
     };
-
 
     inline Effekseer::Matrix43 CnvMat43(DirectX::XMFLOAT4X4 mat)
     {
@@ -62,7 +57,6 @@ namespace EFFEKSEERLIB {
     inline Effekseer::Matrix44 CnvMat(DirectX::XMFLOAT4X4 mat)
     {
         Effekseer::Matrix44 out;
-
         out.Values[0][0] = mat._11;
         out.Values[1][0] = mat._12;
         out.Values[2][0] = mat._13;
@@ -83,24 +77,16 @@ namespace EFFEKSEERLIB {
     }
     inline DirectX::XMFLOAT4X4 GetProjMat(bool transpose)
     {
-        //DirectX::XMMATRIX mat = DirectX::XMMatrixPerspectiveFovLH(Camera::DefCam.fov_,
-        //    Camera::DefCam.aspect_,
-        //    Camera::DefCam.near_, Camera::DefCam.far_);
         DirectX::XMMATRIX mat = Camera::GetProjectionMatrix();
-        if (transpose)
-            mat = DirectX::XMMatrixTranspose(mat);
+        if (transpose) mat = DirectX::XMMatrixTranspose(mat);
         DirectX::XMFLOAT4X4 fmat;
         DirectX::XMStoreFloat4x4(&fmat, mat);
         return fmat;
     }
     inline DirectX::XMFLOAT4X4 GetViewMat(bool transpose)
     {
-        //DirectX::XMMATRIX mat = DirectX::XMMatrixLookAtLH(
-        //    Camera::DefCam.position_, Camera::DefCam.target_, Camera::DefCam.upvector_
-        //);
         DirectX::XMMATRIX mat = Camera::GetViewMatrix();
-        if (transpose)
-            mat = DirectX::XMMatrixTranspose(mat);
+        if (transpose) mat = DirectX::XMMatrixTranspose(mat);
         DirectX::XMFLOAT4X4 fmat;
         DirectX::XMStoreFloat4x4(&fmat, mat);
         return fmat;
@@ -127,11 +113,9 @@ namespace EFFEKSEERLIB {
     }
 
     //個別のデータ保持用
-
     class EFKData
     {
     public:
-
         EFKData(std::string_view file_path)
             : m_filePath(file_path)
         {}
@@ -157,22 +141,16 @@ namespace EFFEKSEERLIB {
         }
 
     private:
-
         const fs::path m_filePath;
         Effekseer::EffectRef m_effectRef;
 
     };
 
- 
-
     class EFKInstance
     {
     public:
-
         EFKInstance(const std::shared_ptr<EFKData>& effect_data)
-            : m_spEffectData(effect_data)
-        {}
-
+            : m_spEffectData(effect_data) {}
 
         std::shared_ptr<const EFKData> GetEffectData() const noexcept {
             return m_spEffectData;
@@ -186,8 +164,6 @@ namespace EFFEKSEERLIB {
         const std::shared_ptr<EFKData> m_spEffectData;
 
     };
-
-
 
     class EffekseerManager
     {
@@ -206,7 +182,8 @@ namespace EFFEKSEERLIB {
         }
 
         void Update(double delta_time) {
-            //constexpr double effect_frame{ DEFAULT_FRAME_RATE };
+            Trigger();
+
             for (auto iter = EffectInstances.begin(); iter != EffectInstances.end();) 
             {
                 auto& data = *iter->second;
@@ -276,6 +253,25 @@ namespace EFFEKSEERLIB {
             }
             return nullptr;
         }
+
+        void StopEffectByHandle(Effekseer::Handle handle) {
+            for (auto iter = EffectInstances.begin(); iter != EffectInstances.end();) {
+                if (iter->second->handle == handle) {
+                    managerRef_->StopEffect(handle);
+                    iter = EffectInstances.erase(iter);
+                }
+                else {
+                    ++iter;
+                }
+            }
+        }
+
+        void Trigger() {
+            for (auto iter = EffectInstances.begin(); iter != EffectInstances.end(); iter++) {
+                managerRef_->SendTrigger(iter->second->handle, 0);
+            }
+        }
+
         void SetFPS(float fps) { fps_ = fps; }
 
     private:
@@ -292,5 +288,4 @@ namespace EFFEKSEERLIB {
         std::unordered_multimap<std::string, std::unique_ptr<EFKInstance>> EffectInstances;
 
     };
-
 }

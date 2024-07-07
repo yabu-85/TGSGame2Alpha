@@ -27,8 +27,8 @@ void CapsuleCollider::Draw(XMFLOAT3 position)
 {
 #ifdef _DEBUG
 	XMFLOAT3 fDir;
-	XMStoreFloat3(&fDir, direction_);
-	if (fDir.x == 0.0f && fDir.y == 0.0f && fDir.z) fDir.z = 0.0001f;
+	XMStoreFloat3(&fDir, direction_); 
+	if (fDir.x == 0.0f && fDir.y == 0.0f && fDir.z == 0.0f) fDir.z = 0.0001f;
 
 	Transform transform;
 	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);

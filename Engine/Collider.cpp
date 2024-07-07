@@ -147,6 +147,8 @@ bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* cap
     float t = 0.0f;
     float dist = CalcPointSegmentDist(position, seg1, hit, t);
     bool b = dist < (circle->size_.x + capsule->size_.x);
+    capsule->targetDit_ = dist;
+    capsule->targetPos_ = hit;
     return b;
 }
 

@@ -20,7 +20,7 @@ void Light::Initialize()
 	lightDatas[0].target = XMFLOAT4(50.0f, 0.0f, 50.0f, 0.0f);
 }
 
-void Light::Draw()
+void Light::Update()
 {
 }
 
