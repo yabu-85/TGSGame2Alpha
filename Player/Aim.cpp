@@ -27,7 +27,8 @@ Aim::Aim(GameObject* parent)
     : GameObject(parent, "Aim"), cameraPosition_{ 0,0,0 }, cameraTarget_{ 0,0,0 }, aimDirection_{ 0,0,0 }, cameraOffset_{ 0,0,0 },
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
-    shakeDirection_{ 1,0,0,0 }, isValid_(true)
+    shakeDirection_{ 1,0,0,0 }, isValid_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), 
+    rotateShakeTimeCalc_(0), isRotateShakeReturn_(false)
 {
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
@@ -53,11 +54,12 @@ void Aim::Update()
 {
     //ƒfƒoƒbƒO—p
     if (Input::IsKeyDown(DIK_5)) isValid_ = !isValid_;
+    if (!IsValid()) return;
+    
     if (Input::IsKey(DIK_1)) distanceHeight_ += 0.1f;
     if (Input::IsKey(DIK_2)) distanceHeight_ -= 0.1f;
     if (Input::IsKey(DIK_3)) distanceTargetBehind_ += 0.1f;
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
-    if (!IsValid()) return;
 
     if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
         distanceBehind_ = 0.5f;
@@ -110,6 +112,13 @@ void Aim::SetCameraShake(const CameraShakeInfo& info)
 
 }
 
+void Aim::SetCameraRotateShake(const CameraRotateShakeInfo& info)
+{
+    rotateShakeDirection_ = info.rotate;
+    rotateShakeTime_ = info.time;
+    rotateShakeTimeCalc_ = info.time;
+}
+
 void Aim::SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar)
 {
     compulsionPosisiton_ = pos;
@@ -132,6 +141,8 @@ void Aim::SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar, int returnTime, float comple
 
 void Aim::DefaultAim()
 {
+    CameraRotateShake();
+
     XMFLOAT3 plaPos = pPlayer_->GetPosition();
     XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));
     XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
@@ -156,8 +167,9 @@ void Aim::DefaultAim()
     XMStoreFloat3(&cameraPosition_, camPos);
     XMStoreFloat3(&cameraTarget_, caTarget);
 
+    //ƒJƒƒ‰Shake
     CameraShake();
-    
+
     //RayCast‚µ‚Ä‚»‚Ì’l‚ğã‘‚«‚·‚é
     RayCastStage();
 
@@ -269,10 +281,16 @@ void Aim::CalcMouseMove()
     mouseMove = XMFLOAT3(rStickMove.x * STICK_SPEED, -(rStickMove.y * STICK_SPEED), 0.0f);
 #endif
 
-    transform_.rotate_.y += mouseMove.x * mouseSensitivity_; //‰¡•ûŒü‚Ì‰ñ“]
-    transform_.rotate_.x -= mouseMove.y * mouseSensitivity_; //c•ûŒü‚Ì‰ñ“]
+    XMFLOAT2 move = XMFLOAT2(mouseMove.x * mouseSensitivity_, mouseMove.y * mouseSensitivity_);
+    transform_.rotate_.y += move.x; //‰¡•ûŒü‚Ì‰ñ“]
+    transform_.rotate_.x -= move.y; //c•ûŒü‚Ì‰ñ“]
     if (transform_.rotate_.x <= UP_MOUSE_LIMIT) transform_.rotate_.x = UP_MOUSE_LIMIT;
     if (transform_.rotate_.x >= DOWN_MOUSE_LIMIT) transform_.rotate_.x = DOWN_MOUSE_LIMIT;
+
+    //RotateShake‚Ìˆ—‚à‚â‚é
+    if (rotateShakeTimeCalc_ >= 0) {
+        rotateShakeDirKeep_.x -= move.y;
+    }
 
 }
 
@@ -337,4 +355,39 @@ void Aim::CameraShake()
     cameraTarget_.x += center_.m128_f32[0];
     cameraTarget_.y += center_.m128_f32[1];
     cameraTarget_.z += center_.m128_f32[2];
+}
+
+void Aim::CameraRotateShake()
+{
+    //–ß‚éˆ—
+    static const float REM_TIME = 5.0f;
+    if (rotateShakeTimeCalc_ <= 0) {
+        if (!isRotateShakeReturn_) return;
+
+        XMFLOAT2 move = XMFLOAT2();
+        move.x = rotateShakeDirKeep_.x / REM_TIME;
+        move.y = rotateShakeDirKeep_.y / REM_TIME;
+
+        transform_.rotate_.x -= move.x;
+        transform_.rotate_.y -= move.y;
+        rotateShakeDirKeep_.x -= move.x;
+        rotateShakeDirKeep_.y -= move.y;
+
+        rotateShakeTimeCalc_--;
+        if (rotateShakeTimeCalc_ <= -5) {
+            isRotateShakeReturn_ = false;
+            rotateShakeTimeCalc_ = 0;
+        }
+        return;
+    }
+
+    rotateShakeTimeCalc_--;
+    XMFLOAT2 move = XMFLOAT2();
+    move.x = rotateShakeDirection_.y / (float)rotateShakeTime_;
+    move.y = rotateShakeDirection_.x / (float)rotateShakeTime_;
+    
+    transform_.rotate_.x += move.x;
+    transform_.rotate_.y += move.y;
+    rotateShakeDirKeep_.x += move.x;
+    rotateShakeDirKeep_.y += move.y;
 }

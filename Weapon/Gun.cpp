@@ -58,15 +58,17 @@ void Gun::Update()
     pAimCursor_->Update();
 
     // 通常射撃
-    if (InputManager::IsCmd(InputManager::ATTACK, playerId_) && coolTime_ <= 0)
+    if (InputManager::IsCmd(InputManager::ATTACK, playerId_))
     {
+        //まだクールタイム中
+        if (coolTime_ > 0) return;
+
         ShootBullet<Bullet_Normal>(BulletType::NORMAL);
         pAimCursor_->Shot();
 
-        CameraShakeInfo shakeInfo = CameraShakeInfo(1, 0.05f, 0.1f);
-        XMVECTOR shakeDir = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-        pPlayer_->GetAim()->SetCameraShake(shakeInfo);
-        pPlayer_->GetAim()->SetCameraShakeDirection(shakeDir);
+        CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 1.0f), 3);
+        pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
+        pPlayer_->GetAim()->SetCameraRotateReturn(false);
 
         //ヒットエフェクト
         EFFEKSEERLIB::gEfk->AddEffect("GUNSHOT", "Particle/gunShot.efk");
@@ -82,6 +84,10 @@ void Gun::Update()
         t.maxFrame = 20;    //80フレーム
         t.speed = 1.0;      //スピード
         mt = EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
+    }
+    else {
+        //連続で打つのやめた時だけ、RotateShake戻り処理をTrueに
+        if(coolTime_ >= 0) pPlayer_->GetAim()->SetCameraRotateReturn(true);
 
     }
 

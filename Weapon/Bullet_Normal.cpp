@@ -73,6 +73,7 @@ void Bullet_Normal::Update()
         damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_, playerId_);
       
+        transform_.position_ = pCapsuleCollider_->targetPos_;
         HitEffect();
 
         pPolyLine_->ClearFirstPosition();
@@ -86,6 +87,7 @@ void Bullet_Normal::Update()
     if (parameter_.killTimer_ <= 0) {
         //コリジョンマップに当たっていた場合
         if (isHit_) {
+            transform_.position_ = hitPos_;
             HitEffect();
 
             pPolyLine_->ClearFirstPosition();
@@ -187,7 +189,6 @@ void Bullet_Normal::HitEffect()
 {
     EFFEKSEERLIB::gEfk->AddEffect("HIT", "Particle/hit.efk");
     EFFEKSEERLIB::EFKTransform t;
-    transform_.position_ = pCapsuleCollider_->targetPos_;
     transform_.scale_ = XMFLOAT3(0.2f, 0.2f, 0.2f);
     DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
     t.isLoop = false;   //繰り返し
