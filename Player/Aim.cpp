@@ -28,7 +28,7 @@ Aim::Aim(GameObject* parent)
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
     shakeDirection_{ 1,0,0,0 }, isValid_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), 
-    rotateShakeTimeCalc_(0), isRotateShakeReturn_(false)
+    rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false)
 {
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
@@ -289,7 +289,19 @@ void Aim::CalcMouseMove()
 
     //RotateShake‚Ìˆ—‚à‚â‚é
     if (rotateShakeTimeCalc_ >= 0) {
-        rotateShakeDirKeep_.x -= move.y;
+        if (rotateShakeDirKeep_.x == 0.0f) return;
+        bool sing = signbit(move.y);
+
+        //RotateShake—}§‚Ì’l
+        if (sing) {
+            rotateShakeDirKeep_.x += move.y;
+            if (rotateShakeDirKeep_.x > 0.0f) rotateShakeDirKeep_.x = 0.0f;
+        }
+        else { 
+            rotateShakeDirKeep_.x -= move.y;
+            if (rotateShakeDirKeep_.x < 0.0f) rotateShakeDirKeep_.x = 0.0f;
+        }
+
     }
 
 }
@@ -365,8 +377,8 @@ void Aim::CameraRotateShake()
         if (!isRotateShakeReturn_) return;
 
         XMFLOAT2 move = XMFLOAT2();
-        move.x = rotateShakeDirKeep_.x / REM_TIME;
-        move.y = rotateShakeDirKeep_.y / REM_TIME;
+        move.x = rotateShakeDirKeepSub_.x / REM_TIME;
+        move.y = rotateShakeDirKeepSub_.y / REM_TIME;
 
         transform_.rotate_.x -= move.x;
         transform_.rotate_.y -= move.y;
@@ -376,7 +388,8 @@ void Aim::CameraRotateShake()
         rotateShakeTimeCalc_--;
         if (rotateShakeTimeCalc_ <= -5) {
             isRotateShakeReturn_ = false;
-            rotateShakeTimeCalc_ = 0;
+            rotateShakeDirKeep_ = XMFLOAT2(0.0f, 0.0f);
+            rotateShakeDirKeepSub_ = XMFLOAT2(0.0f, 0.0f);
         }
         return;
     }
@@ -390,4 +403,5 @@ void Aim::CameraRotateShake()
     transform_.rotate_.y += move.y;
     rotateShakeDirKeep_.x += move.x;
     rotateShakeDirKeep_.y += move.y;
+    rotateShakeDirKeepSub_ = rotateShakeDirKeep_;
 }

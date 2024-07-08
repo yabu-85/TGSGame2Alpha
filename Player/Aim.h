@@ -44,6 +44,7 @@ class Aim : public GameObject
     int rotateShakeTimeCalc_;       //時間計測用
     XMFLOAT2 rotateShakeDirection_; //カメラShake方向
     XMFLOAT2 rotateShakeDirKeep_;   //カメラShake移動量保存
+    XMFLOAT2 rotateShakeDirKeepSub_;//カメラShake移動量計算用
 
     float distanceHeight_;          //Aimの高さ
     float distanceHorizontal_;      //左右にずらす距離

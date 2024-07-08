@@ -66,7 +66,7 @@ void Gun::Update()
         ShootBullet<Bullet_Normal>(BulletType::NORMAL);
         pAimCursor_->Shot();
 
-        CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 1.0f), 3);
+        CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
         pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
         pPlayer_->GetAim()->SetCameraRotateReturn(false);
 

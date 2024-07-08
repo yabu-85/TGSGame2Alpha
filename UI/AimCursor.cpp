@@ -28,8 +28,8 @@ namespace {
 	float ROTATE_ARRAY[4] = { 0, 90, 0, -90 };
 
 	//ˆÚ“®—Ê
-	float MAX_MOVE = 0.03f;
-	float MIN_MOVE = 0.05f;
+	float MAX_MOVE = 0.07f;
+	float MIN_MOVE = 0.03f;
 
 	//ƒuƒŒ—Ê
 	float MAX_BURE = 0.04f;
