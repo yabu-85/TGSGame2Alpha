@@ -16,6 +16,8 @@ namespace GameManager
 	void SetTwoPlayer();
 	bool IsOnePlayer();
 
+	int GetDrawIndex();
+
 	//アクセサ
 	GameObject* GetRootObject();
 	void SetRootObject(GameObject* root);

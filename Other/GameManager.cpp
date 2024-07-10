@@ -19,6 +19,7 @@ namespace GameManager {
 
 	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = true;
+	int drawIndex_ = 0;
 
 	GameObject* pRootObject_ = nullptr;
 	CollisionMap* pCollisionMap_ = nullptr;
@@ -67,6 +68,9 @@ namespace GameManager {
 	void SetTwoPlayer() { isOnePlayer_ = false; }
 	bool IsOnePlayer() { return isOnePlayer_; }
 
+	int GetDrawIndex() { return drawIndex_; }
+
+	//アクセサ
 	GameObject* GetRootObject() { return pRootObject_; }
 	void SetRootObject(GameObject* root) { pRootObject_ = root; }
 	CollisionMap* GameManager::GetCollisionMap() { return pCollisionMap_; }
@@ -76,7 +80,7 @@ namespace GameManager {
 	SceneBase* GetScene() { return pScene_; }
 	void SetScene(SceneBase* stage) { pScene_ = stage; }
 
-
+	//GameManagerの中で使う
 	void CommonDraw()
 	{
 		if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
@@ -166,6 +170,7 @@ namespace GameManager {
 		Direct3D::BeginDraw2();
 		Direct3D::SetViewTwo();
 		for (int i = 1; i >= 0; i--) {
+			drawIndex_ = i;
 			Direct3D::SetViewPort(i);
 			Camera::Update(i);
 			pRootObject_->DrawSub();
