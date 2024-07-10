@@ -31,6 +31,22 @@ bool ButtonUI::IsWithinBound()
 
 void ButtonUI::Initialize()
 {
+	//画像データ読み込み
+	const std::string fileName[] = { "Image/ButtonFrame1.png", "Image/ButtonFrame2.png" };
+	for (int i = 0; i < 2; i++) {
+		hButtonPict_[i] = Image::Load(fileName[i]);
+		assert(hButtonPict_[i] >= 0);
+	}
+
+	hImagePict_ = Image::Load("Image/" + name + ".png");
+	assert(hImagePict_ >= 0);
+
+	//トランスフォームセット
+	Image::SetTransform(hButtonPict_[0], buttonTransform_);
+	Image::SetTransform(hButtonPict_[1], buttonTransform_);
+	Image::SetTransform(hImagePict_, imageTransform_);
+
+	//サイズ調整
 	XMFLOAT3 txtSi = Image::GetTextureSize(hButtonPict_[0]);
 	frameHalfSize_ = XMFLOAT2(txtSi.x * buttonTransform_.scale_.x / 2.0f, txtSi.y * buttonTransform_.scale_.y / 2.0f);
 

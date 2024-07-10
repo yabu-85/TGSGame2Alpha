@@ -33,16 +33,6 @@ void UIBase::OnClick()
 
 void UIBase::Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
 {
-	//画像データ読み込み
-	const std::string fileName[] = { "Image/ButtonFrame1.png", "Image/ButtonFrame2.png" };
-	for (int i = 0; i < 2; i++) {
-		hButtonPict_[i] = Image::Load(fileName[i]);
-		assert(hButtonPict_[i] >= 0);
-	}
-
-	hImagePict_ = Image::Load("Image/" + name + ".png");
-	assert(hImagePict_ >= 0);
-
 	//関数登録
 	onClick_ = onClick;
 
@@ -50,13 +40,10 @@ void UIBase::Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::func
 	buttonTransform_.scale_ = XMFLOAT3(size.x, size.y, 1.0f);
 	buttonTransform_.position_.x = pos.x;
 	buttonTransform_.position_.y = pos.y;
-	Image::SetTransform(hButtonPict_[0], buttonTransform_);
-	Image::SetTransform(hButtonPict_[1], buttonTransform_);
 
 	imageTransform_.scale_ = XMFLOAT3(tsize.x, tsize.y, 1.0f);
 	imageTransform_.position_ = buttonTransform_.position_;
-	Image::SetTransform(hImagePict_, imageTransform_);
-
+	
 	//継承先クラスのInitialize
 	Initialize();
 }

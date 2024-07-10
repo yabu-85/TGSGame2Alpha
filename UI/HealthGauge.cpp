@@ -68,18 +68,22 @@ void HealthGauge::Draw(int index)
 	XMFLOAT3 pos = pParent_->GetPosition();
 	pos.y += pParent_->GetBodyHeightHalf();
 
-	float camDist = CalculationDistance(pos, Camera::GetTarget(index));
-	//if (camDist > DRAW_RANGE) visuallyTime_[index]--;
-
 	//スクリーンポジション
 	XMFLOAT3 scrPos = Camera::CalcScreenPosition(pos);
+	XMFLOAT3 camTar = Camera::GetTarget(index);
 
-	//画角制限する
-	if (!Camera::IsScreenPositionWithinScreen(scrPos, DRAW_RANGE)) {
+	float camDist = CalculationDistance(pos, camTar);
+	if (camDist > MAX_DRAW_LENGTH) {
 		visuallyTime_[index]--;
 	}
 	else {
-		visuallyTime_[index] = 50;
+		//画角制限する
+		if (!Camera::IsScreenPositionWithinScreen(scrPos, DRAW_RANGE)) {
+			visuallyTime_[index]--;
+		}
+		else {
+			visuallyTime_[index] = 50;
+		}
 	}
 
 	//表示タイム中なら透明度設定

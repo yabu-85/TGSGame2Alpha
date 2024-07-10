@@ -169,7 +169,7 @@ namespace GameManager {
 
 		Direct3D::BeginDraw2();
 		Direct3D::SetViewTwo();
-		for (int i = 1; i >= 0; i--) {
+		for (int i = 0; i < 2; i++) {
 			drawIndex_ = i;
 			Direct3D::SetViewPort(i);
 			Camera::Update(i);
@@ -179,7 +179,6 @@ namespace GameManager {
 		}
 
 		Direct3D::SetViewOne();
-		Direct3D::SetViewPort(0);
 		Camera::SetOneProjectionMatrix();
 		GameManager::CommonDraw();
 
