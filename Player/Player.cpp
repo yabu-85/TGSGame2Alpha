@@ -87,7 +87,6 @@ void Player::Initialize()
     Direct3D::playerSpeed = moveSpeed_;
 
     EFFEKSEERLIB::gEfk->AddEffect("TAMA", "Particle/blurParticle.efk");
-
     EFFEKSEERLIB::EFKTransform t;//matrix isLoop, maxFrame, speed
     DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
     t.isLoop = true; //ŒJ‚è•Ô‚µON
