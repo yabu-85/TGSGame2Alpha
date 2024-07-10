@@ -5,7 +5,8 @@
 #include "../Engine/Global.h"
 #include <vector>
 
-Character::Character(GameObject* parent, std::string name) : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}
+Character::Character(GameObject* parent, std::string name)
+    : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}, bodyHeightHalf_(0.0f)
 {
     pHealthGauge_ = new HealthGauge(this);
     pDamageSystem_ = new DamageSystem();

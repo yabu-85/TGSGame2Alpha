@@ -40,6 +40,7 @@ void TestEnemy::Initialize()
 
     SetBodyRange(0.5f);
     SetBodyWeight(0.3f);
+    SetBodyHeightHalf(0.8f);
     enemyType_ = ENEMY_TYPE::ENEMY_TEST;
     pHealthGauge_->SetHeight(1.7f);
     pDamageSystem_->SetMaxHP(20);
@@ -148,7 +149,7 @@ void TestEnemy::Draw()
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
         float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
         pHealthGauge_->SetParcent(r);
-        pHealthGauge_->Draw();
+        pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
 
     CollisionDraw();

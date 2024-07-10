@@ -7,9 +7,10 @@ class DamageSystem;
 class Character : public GameObject
 {
     float damageTime_;
-    float bodyWeight_;  //めり込み時に使う重さ
-    float bodyRange_;   //めり込み時に使う範囲
-    XMFLOAT3 movement_; //移動量を保存するためのやつ
+    float bodyWeight_;      //めり込み時に使う重さ
+    float bodyRange_;       //めり込み時に使う範囲
+    float bodyHeightHalf_;  //高さの半分（注視点みたいなので使う)
+    XMFLOAT3 movement_;     //移動量を保存するためのやつ
 
 protected:
     HealthGauge* pHealthGauge_;
@@ -30,10 +31,13 @@ public:
     
     float GetDamageTime() { return damageTime_; }
     void SetDamageTime(float t) { damageTime_ = t; }
+
     float GetBodyRange() { return bodyRange_; }
     float GetBodyWeight() { return bodyWeight_; }
+    float GetBodyHeightHalf() { return bodyHeightHalf_; }
     void SetBodyWeight(float f) { bodyWeight_ = f; }
     void SetBodyRange(float f) { bodyRange_ = f; }
+    void SetBodyHeightHalf(float f) { bodyHeightHalf_ = f; }
 
     void SetMovement(XMFLOAT3 move) { movement_ = move; }                   //プレイヤーだけ追加処理ある
     void SetMovement(XMVECTOR move) { XMStoreFloat3(&movement_, move); }    //・・

@@ -62,6 +62,7 @@ void Player::Initialize()
     objectType_ = OBJECT_TYPE::Player;
     SetBodyRange(0.35f);
     SetBodyWeight(1.0f);
+    SetBodyHeightHalf(1.0f);
     pHealthGauge_->SetHeight(1.7f);
     pDamageSystem_->SetMaxHP(100);
     pDamageSystem_->SetHP(100);
@@ -185,7 +186,7 @@ void Player::Draw()
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
         float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
         pHealthGauge_->SetParcent(r);
-        pHealthGauge_->Draw();
+        pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
 
     CollisionDraw();
