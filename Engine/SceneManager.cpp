@@ -18,7 +18,7 @@ void SceneManager::Initialize()
 {
 	//Å‰‚ÌƒV[ƒ“‚ğ€”õ
 
-#if 0
+#if 1
 	currentSceneID_ = SCENE_ID_SELECT;
 	nextSceneID_ = currentSceneID_;
 	Instantiate<SelectScene>(this);

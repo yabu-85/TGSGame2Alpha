@@ -196,7 +196,7 @@
     <ClCompile Include="UI\ButtonUI.cpp" />
     <ClCompile Include="UI\DamageUI.cpp" />
     <ClCompile Include="UI\HealthGauge.cpp" />
-    <ClCompile Include="UI\SliderButton.cpp" />
+    <ClCompile Include="UI\SliderUI.cpp" />
     <ClCompile Include="UI\UIBase.cpp" />
     <ClCompile Include="Weapon\BulletBase.cpp" />
     <ClCompile Include="Weapon\Bullet_Normal.cpp" />
@@ -276,7 +276,7 @@
     <ClInclude Include="UI\ButtonUI.h" />
     <ClInclude Include="UI\DamageUI.h" />
     <ClInclude Include="UI\HealthGauge.h" />
-    <ClInclude Include="UI\SliderButton.h" />
+    <ClInclude Include="UI\SliderUI.h" />
     <ClInclude Include="UI\UIBase.h" />
     <ClInclude Include="Weapon\BulletBase.h" />
     <ClInclude Include="Weapon\Bullet_Normal.h" />

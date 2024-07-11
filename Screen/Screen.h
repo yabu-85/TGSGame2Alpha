@@ -10,6 +10,7 @@ class UIBase;
 
 enum UI_TYPE {
 	UI_BUTTON = 0,
+	UI_SLIDER,
 	UI_MAX,
 };
 

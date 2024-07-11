@@ -1,6 +1,7 @@
 #include "Screen.h"
 #include "../UI/UIBase.h"
 #include "../UI/ButtonUI.h"
+#include "../UI/SliderUI.h"
 #include "../Engine/Input.h"
 
 Screen::Screen() : state_(SCREEN_STATE::DRAW)
@@ -20,11 +21,7 @@ void Screen::Update()
 {
 	for (auto u : uiList_)
 	{
-		if (u->IsWithinBound()) {
-			if (Input::IsMouseButtonUp(0)) {
-				u->OnClick();
-			}
-		}
+		u->Update();
 	}
 }
 
@@ -53,12 +50,13 @@ void Screen::AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, 
 	UIBase* ui = nullptr;
 	switch (type)
 	{
-	case UI_BUTTON: ui = new ButtonUI(); break;
+	case UI_BUTTON: ui = new ButtonUI(pos, size, onClick, tsize); break;
+	case UI_SLIDER: ui = new SliderUI(pos, size, onClick, tsize); break;
 	}
 	if (!ui) return;
 
 	//¶¬‚Å‚«‚½‚©‚çUI‚Ì‰Šú‰»‚Æ’Ç‰Á
-	ui->Initialize(name, pos, size, onClick, tsize);
+	ui->Initialize(name);
 	uiList_.push_back(ui);
 }
 

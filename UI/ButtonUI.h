@@ -7,10 +7,12 @@ class ButtonUI : public UIBase
 	XMFLOAT2 frameHalfSize_;	//”¼•ª‚ÌƒTƒCƒY
 
 public:
-	ButtonUI();
+	ButtonUI(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
 	~ButtonUI() override;
+	void Update() override;
+	void Draw() override;
+	void Initialize(std::string name) override;
 	bool IsWithinBound() override;
-	void Initialize() override;
 
 };
 

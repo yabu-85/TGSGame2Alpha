@@ -3,47 +3,35 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/Input.h"
 
-UIBase::UIBase() : hButtonPict_{-1, -1}, hImagePict_(-1), alpha_{255}, isBound_(false)
+UIBase::UIBase(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize) 
+	: hButtonPict_{-1, -1}, hImagePict_(-1), alpha_{255}, isBound_(false)
 {
+	//関数登録
+	onClick_ = onClick;
+
+	//トランスフォーム
+	frameTransform_.scale_ = XMFLOAT3(size.x, size.y, 1.0f);
+	frameTransform_.position_.x = pos.x;
+	frameTransform_.position_.y = pos.y;
+
+	imageTransform_.scale_ = XMFLOAT3(tsize.x, tsize.y, 1.0f);
+	imageTransform_.position_ = frameTransform_.position_;
 }
 
 UIBase::~UIBase()
 {
 }
 
+void UIBase::Update()
+{
+}
+
 void UIBase::Draw()
 {
-	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
-	//押してない時はfalse(0)だから１が表示される
-	Image::SetTransform(hButtonPict_[isBound_], buttonTransform_);
-	Image::Draw(hButtonPict_[isBound_]);
-
-	//テキストの表示
-	Image::SetTransform(hImagePict_, imageTransform_);
-	Image::Draw(hImagePict_);
 }
 
 void UIBase::OnClick()
 {
-	if (onClick_) {
-		onClick_();
-	}
-}
-
-void UIBase::Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
-{
-	//関数登録
-	onClick_ = onClick;
-
-	//トランスフォーム
-	buttonTransform_.scale_ = XMFLOAT3(size.x, size.y, 1.0f);
-	buttonTransform_.position_.x = pos.x;
-	buttonTransform_.position_.y = pos.y;
-
-	imageTransform_.scale_ = XMFLOAT3(tsize.x, tsize.y, 1.0f);
-	imageTransform_.position_ = buttonTransform_.position_;
-	
-	//継承先クラスのInitialize
-	Initialize();
+	if (onClick_) onClick_();
 }

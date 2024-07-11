@@ -3,7 +3,8 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/Input.h"
 
-ButtonUI::ButtonUI() : UIBase(), widePos_(0.0f, 0.0f), frameHalfSize_(0.0f, 0.0f)
+ButtonUI::ButtonUI(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
+	: UIBase(pos, size, onClick, tsize), widePos_(0.0f, 0.0f), frameHalfSize_(0.0f, 0.0f)
 {
 }
 
@@ -11,25 +12,36 @@ ButtonUI::~ButtonUI()
 {
 }
 
-bool ButtonUI::IsWithinBound()
+void ButtonUI::Update()
 {
-	XMFLOAT3 mouse = Input::GetMousePosition();
-
-	if (mouse.y < widePos_.y + frameHalfSize_.y && mouse.y > widePos_.y - frameHalfSize_.y &&
-		mouse.x < widePos_.x + frameHalfSize_.x && mouse.x > widePos_.x - frameHalfSize_.x)
-	{
-		//範囲内に入り始めたら音再生
+	if (IsWithinBound()) {
+		//重なった時の音再生
 		//if (!isBound_) AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN);
 
+		//離したら関数呼び出し
+		if (Input::IsMouseButtonUp(0)) OnClick();
+
 		isBound_ = true;
-		return true;
+	}
+	else {
+		isBound_ = false;
+
 	}
 
-	isBound_ = false;
-	return false;
 }
 
-void ButtonUI::Initialize()
+void ButtonUI::Draw()
+{
+	//押してない時はfalse(0)だから１が表示される
+	Image::SetTransform(hButtonPict_[isBound_], frameTransform_);
+	Image::Draw(hButtonPict_[isBound_]);
+
+	//テキストの表示
+	Image::SetTransform(hImagePict_, imageTransform_);
+	Image::Draw(hImagePict_);
+}
+
+void ButtonUI::Initialize(std::string name)
 {
 	//画像データ読み込み
 	const std::string fileName[] = { "Image/ButtonFrame1.png", "Image/ButtonFrame2.png" };
@@ -42,17 +54,30 @@ void ButtonUI::Initialize()
 	assert(hImagePict_ >= 0);
 
 	//トランスフォームセット
-	Image::SetTransform(hButtonPict_[0], buttonTransform_);
-	Image::SetTransform(hButtonPict_[1], buttonTransform_);
+	Image::SetTransform(hButtonPict_[0], frameTransform_);
+	Image::SetTransform(hButtonPict_[1], frameTransform_);
 	Image::SetTransform(hImagePict_, imageTransform_);
 
 	//サイズ調整
 	XMFLOAT3 txtSi = Image::GetTextureSize(hButtonPict_[0]);
-	frameHalfSize_ = XMFLOAT2(txtSi.x * buttonTransform_.scale_.x / 2.0f, txtSi.y * buttonTransform_.scale_.y / 2.0f);
+	frameHalfSize_ = XMFLOAT2(txtSi.x * frameTransform_.scale_.x / 2.0f, txtSi.y * frameTransform_.scale_.y / 2.0f);
 
 	float screenWidth = (float)Direct3D::screenWidth_;		//スクリーンの幅
 	float screenHeight = (float)Direct3D::screenHeight_;	//スクリーンの高さ
-	widePos_.x = screenWidth / 2.0f + screenWidth / 2.0f * buttonTransform_.position_.x;
-	widePos_.y = screenHeight / 2.0f + screenHeight / 2.0f * -buttonTransform_.position_.y;
+	widePos_.x = screenWidth / 2.0f + screenWidth / 2.0f * frameTransform_.position_.x;
+	widePos_.y = screenHeight / 2.0f + screenHeight / 2.0f * -frameTransform_.position_.y;
 
+}
+
+bool ButtonUI::IsWithinBound()
+{
+	XMFLOAT3 mouse = Input::GetMousePosition();
+
+	if (mouse.y < widePos_.y + frameHalfSize_.y && mouse.y > widePos_.y - frameHalfSize_.y &&
+		mouse.x < widePos_.x + frameHalfSize_.x && mouse.x > widePos_.x - frameHalfSize_.x)
+	{
+		return true;
+	}
+
+	return false;
 }

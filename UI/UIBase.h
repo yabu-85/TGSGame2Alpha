@@ -13,8 +13,8 @@ protected:
 	int hImagePict_;					//表示する画像のハンドル
 	int alpha_;							//透明度
 	bool isBound_;						//範囲の内側にいるかどうか
-	
-	Transform buttonTransform_;
+
+	Transform frameTransform_;
 	Transform imageTransform_;
 	std::function<void()> onClick_;		//UIを押したら呼ぶ関数
 
@@ -23,16 +23,15 @@ protected:
 		UPPRESSED,
 	};
 
+
 public:
-	UIBase();
+	UIBase(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
 	virtual ~UIBase();
-	void Draw();
-	void OnClick();
-
-	virtual void Initialize() {};
-	void Initialize(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
-
-	virtual bool IsWithinBound() { return false; }
+	virtual void Update() = 0;
+	virtual void Draw() = 0;
+	virtual void Initialize(std::string name) = 0;
+	virtual bool IsWithinBound() = 0;
+	virtual void OnClick();
 
 };
 
