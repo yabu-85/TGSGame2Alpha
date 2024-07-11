@@ -18,6 +18,7 @@ public:
 	void Draw() override;
 	void Initialize(std::string name) override;
 	bool IsWithinBound() override;
+	void SelectUpdate() override;
 
 };
 

@@ -33,10 +33,10 @@ public:
 	virtual void Draw();
 
 	//UIの追加
-	void AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, std::function<void()> onClick);
-	void AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick);
+	UIBase* AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, std::function<void()> onClick);
+	UIBase* AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick);
 	//UIの追加（描画画像のサイズ指定込みの関数）
-	void AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
+	UIBase* AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
 
 	//Ui削除
 	bool DeleteUI(UIBase* ui);

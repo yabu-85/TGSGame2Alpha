@@ -27,6 +27,10 @@ namespace InputManager {
 		AIM,
 		ACTION,
 		JUMP,
+
+		SELECT,
+		RETURN,
+
 		CMD_MAX,
 	};
 

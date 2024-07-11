@@ -117,6 +117,31 @@ bool SliderUI::IsWithinBound()
 	return (dist <= BUTTON_SIZE);
 }
 
+void SliderUI::SelectUpdate()
+{
+	if (isSelect_) {
+		isBound_ = true;
+
+		//値を変える
+		if (isDragging_) {
+			//マウスの左ボタンが離されたとき、ドラッグを停止
+			if (Input::IsMouseButtonUp(0)) {
+				isDragging_ = false;
+				return;
+			}
+
+			Dragging();
+			return;
+		}
+
+		//マウスの左ボタンが押されたとき、ドラッグを開始
+		if (Input::IsMouseButtonDown(0)) {
+			Dragging();
+			isDragging_ = true;
+		}
+	}
+}
+
 void SliderUI::Dragging()
 {
 	float scrX = (float)Direct3D::screenWidth_;

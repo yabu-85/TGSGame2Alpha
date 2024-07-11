@@ -4,7 +4,7 @@
 #include "../Engine/Input.h"
 
 UIBase::UIBase(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize) 
-	: hButtonPict_{-1, -1}, hImagePict_(-1), alpha_{255}, isBound_(false)
+	: hButtonPict_{-1, -1}, hImagePict_(-1), alpha_{255}, isBound_(false), isSelect_(false)
 {
 	//ä÷êîìoò^
 	onClick_ = onClick;

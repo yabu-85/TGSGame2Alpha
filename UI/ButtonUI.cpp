@@ -22,6 +22,7 @@ void ButtonUI::Update()
 		if (Input::IsMouseButtonUp(0)) OnClick();
 
 		isBound_ = true;
+		isSelect_ = true;
 	}
 	else {
 		isBound_ = false;
@@ -80,4 +81,14 @@ bool ButtonUI::IsWithinBound()
 	}
 
 	return false;
+}
+
+void ButtonUI::SelectUpdate()
+{
+	if (isSelect_) {
+		isBound_ = true;
+
+		//ó£ÇµÇΩÇÁä÷êîåƒÇ—èoÇµ
+		if (Input::IsPadButtonDown(XINPUT_GAMEPAD_A, 0)) OnClick();
+	}
 }

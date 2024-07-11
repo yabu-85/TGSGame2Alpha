@@ -13,6 +13,7 @@ protected:
 	int hImagePict_;					//表示する画像のハンドル
 	int alpha_;							//透明度
 	bool isBound_;						//範囲の内側にいるかどうか
+	bool isSelect_;						//コントローラー用選択しているか
 
 	Transform frameTransform_;
 	Transform imageTransform_;
@@ -31,7 +32,15 @@ public:
 	virtual void Draw() = 0;
 	virtual void Initialize(std::string name) = 0;
 	virtual bool IsWithinBound() = 0;
+	virtual void SelectUpdate() = 0;
 	virtual void OnClick();
+
+	XMFLOAT3 GetPosition() { return frameTransform_.position_; }
+
+	bool GetBound() { return isBound_; }
+	bool GetSelect() { return isSelect_; }
+	void SetBound(bool b) { isBound_ = b; }
+	void SetSelect(bool b) { isSelect_ = b; }
 
 };
 
