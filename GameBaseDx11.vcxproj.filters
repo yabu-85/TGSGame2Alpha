@@ -302,6 +302,9 @@
     <ClCompile Include="Engine\Easing.cpp">
       <Filter>01Engine\ResourceManager</Filter>
     </ClCompile>
+    <ClCompile Include="UI\SliderUI.cpp">
+      <Filter>UI\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -534,6 +537,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Easing.h">
       <Filter>01Engine\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\SliderUI.h">
+      <Filter>UI\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

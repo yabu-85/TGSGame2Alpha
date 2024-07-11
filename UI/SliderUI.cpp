@@ -64,15 +64,18 @@ void SliderUI::Draw()
 	Image::Draw(hButtonPict_[1]);
 
 	//薄いほうのバー
+	float NXsize = Image::GetTextureSize(hButtonPict_[0]).x;
+	float NYsize = Image::GetTextureSize(hButtonPict_[0]).y;
 	Transform slider = frameTransform_;
 	slider.position_.x -= (frameSize_.x / scrX) - frameSize_.x / scrX * gaugePercent_;
-	Image::SetRect(hButtonPict_[0], 0, 0, (int)(frameSize_.x * gaugePercent_) , frameSize_.y);
+	Image::SetRect(hButtonPict_[0], 0, 0, (int)(NXsize * gaugePercent_) , NYsize);
 	Image::SetTransform(hButtonPict_[0], slider);
 	Image::Draw(hButtonPict_[0]);
 
 	//ボタン
 	Transform button = imageTransform_;
 	if (isBound_) button.scale_ = Float3Multiply(button.scale_, BOUND_SIZE);
+	Image::SetAlpha(hImagePict_, 100);
 	Image::SetTransform(hImagePict_, button);
 	Image::Draw(hImagePict_);
 }
@@ -138,35 +141,18 @@ void SliderUI::Dragging()
 		isDragging_ = false;
 		return;
 	}
-
-	//buttonPos
-	float sizeX = frameSize_.x / scrX;
-	float posE = frameTransform_.position_.x + sizeX;
-	float posS = frameTransform_.position_.x - sizeX;
-
-	//0～1に変換
+	
+	//０～１に変換
 	float mousePar = (mouse.x + 1.0f) * 0.5f;
-	float nPosE = (posE + 1.0f) * 0.5f;
-	float nPosS = (posS + 1.0f) * 0.5f;
+	float sizeX = frameSize_.x / scrX;
+	float posE = ((frameTransform_.position_.x + sizeX) + 1.0f) * 0.5f;
+	float posS = ((frameTransform_.position_.x - sizeX) + 1.0f) * 0.5f;
 
 	//ゲージ計算
-	float mousePosN = mousePar - nPosS;
-	mousePosN = (mousePosN / (1.0f - nPosS)) + ((1.0 - nPosE) * mousePosN);
-	gaugePercent_ = mousePosN;
+	gaugePercent_ = (mousePar - posS) / (posE - posS);
 	if (gaugePercent_ < 0.0f) gaugePercent_ = 0.0f;
 	else if (gaugePercent_ > 1.0f) gaugePercent_ = 1.0f;
 
-	OutputDebugStringA(std::to_string(mousePar).c_str());
-	OutputDebugString(" , ");
-	OutputDebugStringA(std::to_string(gaugePercent_).c_str());
-	OutputDebugString(" , ");
-	OutputDebugStringA(std::to_string(mousePosN).c_str());
-	OutputDebugString("\n");
-
-	if (mousePar >= 0.25f && mousePar <= 0.26f) {
-		int a = 0;
-	}
-	
 	//スライダーボタン
 	imageTransform_.position_.x = frameTransform_.position_.x + (sizeX * 2.0f * gaugePercent_) - sizeX;
 	buttonPosX_ = imageTransform_.position_.x;

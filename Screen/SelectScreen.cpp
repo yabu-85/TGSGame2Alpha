@@ -17,7 +17,8 @@ SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 	AddUI("A", UI_BUTTON, XMFLOAT2(-0.5f, 0.0f), XMFLOAT2(0.5, 0.2f), [this]() { if (!uiList_.empty()); }, XMFLOAT2(0.1f, 0.05f));
 	AddUI("B", UI_BUTTON, XMFLOAT2(0.5f, 0.0f), XMFLOAT2(0.5, 0.2f), [this]() { if (!uiList_.empty()); }, XMFLOAT2(0.1f, 0.05f));
 	
-	AddUI("B", UI_SLIDER, XMFLOAT2(0.25f, 0.5f), XMFLOAT2(1.0f, 1.0f), [this]() { if(!uiList_.empty()) ; }, XMFLOAT2(0.6f, 0.6f));
+	AddUI("B", UI_SLIDER, XMFLOAT2(-0.3f, 0.5f), XMFLOAT2(0.3f, 1.0f), [this]() { if(!uiList_.empty()) ; }, XMFLOAT2(0.6f, 0.6f));
+	AddUI("B", UI_SLIDER, XMFLOAT2(0.3f, 0.5f), XMFLOAT2(0.3f, 1.0f), [this]() { if(!uiList_.empty()) ; }, XMFLOAT2(0.6f, 0.6f));
 
 }
 
