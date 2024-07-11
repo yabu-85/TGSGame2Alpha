@@ -3,6 +3,7 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
+#include "../Engine/Easing.h"
 
 namespace {
 	static const float BOUND_SIZE = 1.1f;		//通常サイズに掛けて表示
@@ -143,24 +144,29 @@ void SliderUI::Dragging()
 	float posE = frameTransform_.position_.x + sizeX;
 	float posS = frameTransform_.position_.x - sizeX;
 
-	//ゲージ計算
+	//0～1に変換
 	float mousePar = (mouse.x + 1.0f) * 0.5f;
-	float addV = abs(posS) + abs(posE);
-	gaugePercent_ = (addV * mousePar);
+	float nPosE = (posE + 1.0f) * 0.5f;
+	float nPosS = (posS + 1.0f) * 0.5f;
+
+	//ゲージ計算
+	float mousePosN = mousePar - nPosS;
+	mousePosN = (mousePosN / (1.0f - nPosS)) + ((1.0 - nPosE) * mousePosN);
+	gaugePercent_ = mousePosN;
+	if (gaugePercent_ < 0.0f) gaugePercent_ = 0.0f;
+	else if (gaugePercent_ > 1.0f) gaugePercent_ = 1.0f;
 
 	OutputDebugStringA(std::to_string(mousePar).c_str());
 	OutputDebugString(" , ");
 	OutputDebugStringA(std::to_string(gaugePercent_).c_str());
+	OutputDebugString(" , ");
+	OutputDebugStringA(std::to_string(mousePosN).c_str());
 	OutputDebugString("\n");
 
-	if (mousePar >= 0.99f && mousePar <= 1.1f) {
+	if (mousePar >= 0.25f && mousePar <= 0.26f) {
 		int a = 0;
 	}
 	
-	//gaugePercent_ = (posE * 2.0f * mousePar + posS) + 1.0f * 0.5f;
-	if (gaugePercent_ < 0.0f) gaugePercent_ = 0.0f;
-	else if (gaugePercent_ > 1.0f) gaugePercent_ = 1.0f;
-
 	//スライダーボタン
 	imageTransform_.position_.x = frameTransform_.position_.x + (sizeX * 2.0f * gaugePercent_) - sizeX;
 	buttonPosX_ = imageTransform_.position_.x;
