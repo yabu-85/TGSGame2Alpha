@@ -9,6 +9,9 @@ namespace {
 	static const float BOUND_SIZE = 1.1f;		//通常サイズに掛けて表示
 	static const float BUTTON_SIZE = 0.05f;		//IsBoundの判定距離
 	static const float BORDER_POSX = 10000.0f;	//マウスのウィンドウ範囲外対処用
+	static const float HEIGHT_RANGE = 0.3f;		//ウィンドウ内での範囲外距離
+	static const float PAD_DEAD_ZONE = 0.1f;	//パッドのデッドゾーン
+	static const float PAD_FLUCTUATION = 0.05f;	//パッドのドラッキング変動値
 
 }
 
@@ -23,15 +26,18 @@ SliderUI::~SliderUI()
 
 void SliderUI::Update()
 {
+	SelectAnimUpdate();
+
 	//値を変える
 	if (isDragging_) {
-		//マウスの左ボタンが離されたとき、ドラッグを停止
-		if (Input::IsMouseButtonUp(0)) {
+		//ドラッグを停止
+		if (Input::IsMouseButtonUp(0) || Input::IsPadButtonUp(XINPUT_GAMEPAD_B, 0)) {
 			isDragging_ = false;
+			screenSelectPossible_ = true;
 			return;
 		}
 
-		Dragging();
+		screenSelectPossible_ = false;
 		return;
 	}
 
@@ -43,10 +49,10 @@ void SliderUI::Update()
 			isBound_ = true;
 		}
 
-		//マウスの左ボタンが押されたとき、ドラッグを開始
-		if (Input::IsMouseButtonDown(0)) {
-			Dragging();
+		//ドラッグを開始
+		if (Input::IsMouseButtonDown(0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_B, 0)) {
 			isDragging_ = true;
+			screenSelectPossible_ = false;
 		}
 	}
 	else {
@@ -57,18 +63,17 @@ void SliderUI::Update()
 
 void SliderUI::Draw()
 {
-	float scrX = (float)Direct3D::screenWidth_;
-
 	//濃いほうのバー
-	Image::SetTransform(hButtonPict_[1], frameTransform_);
 	Image::Draw(hButtonPict_[1]);
 
 	//薄いほうのバー
+	float scrX = (float)Direct3D::screenWidth_;
 	float NXsize = Image::GetTextureSize(hButtonPict_[0]).x;
 	float NYsize = Image::GetTextureSize(hButtonPict_[0]).y;
 	Transform slider = frameTransform_;
 	slider.position_.x -= (frameSize_.x / scrX) - frameSize_.x / scrX * gaugePercent_;
-	Image::SetRect(hButtonPict_[0], 0, 0, (int)(NXsize * gaugePercent_) , NYsize);
+	Image::SetAlpha(hButtonPict_[0], (int)(selectAnim_ * 255.0f));
+	Image::SetRect(hButtonPict_[0], 0, 0, (int)(NXsize * gaugePercent_), (int)NYsize);
 	Image::SetTransform(hButtonPict_[0], slider);
 	Image::Draw(hButtonPict_[0]);
 
@@ -100,6 +105,8 @@ void SliderUI::Initialize(std::string name)
 	imageTransform_.position_.x = frameTransform_.position_.x + (sizeX * 2.0f * gaugePercent_) - sizeX;
 	buttonPosX_ = imageTransform_.position_.x;
 
+	Image::SetTransform(hButtonPict_[1], frameTransform_);
+
 }
 
 bool SliderUI::IsWithinBound()
@@ -124,8 +131,8 @@ void SliderUI::SelectUpdate()
 
 		//値を変える
 		if (isDragging_) {
-			//マウスの左ボタンが離されたとき、ドラッグを停止
-			if (Input::IsMouseButtonUp(0)) {
+			//ドラッグを停止
+			if (Input::IsMouseButtonUp(0) || Input::IsPadButtonUp(XINPUT_GAMEPAD_B, 0)) {
 				isDragging_ = false;
 				return;
 			}
@@ -134,8 +141,8 @@ void SliderUI::SelectUpdate()
 			return;
 		}
 
-		//マウスの左ボタンが押されたとき、ドラッグを開始
-		if (Input::IsMouseButtonDown(0)) {
+		//ドラッグを開始
+		if (Input::IsMouseButtonDown(0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_B, 0)) {
 			Dragging();
 			isDragging_ = true;
 		}
@@ -146,6 +153,33 @@ void SliderUI::Dragging()
 {
 	float scrX = (float)Direct3D::screenWidth_;
 	float scrY = (float)Direct3D::screenHeight_;
+	float sizeX = frameSize_.x / scrX;
+
+	//コントローラー用
+	XMFLOAT3 mouseMove = Input::GetMouseMove();
+	if (mouseMove.x == 0.0f) {
+		//スティック移動
+		XMFLOAT3 lStick = Input::GetPadStickL(0);
+		if (lStick.x > PAD_DEAD_ZONE) gaugePercent_ += PAD_FLUCTUATION * abs(lStick.x);
+		else if (lStick.x < -PAD_DEAD_ZONE) gaugePercent_ -= PAD_FLUCTUATION * abs(lStick.x);
+
+		//矢印ボタン移動
+		else if (Input::IsPadButton(XINPUT_GAMEPAD_DPAD_RIGHT, 0)) gaugePercent_ += PAD_FLUCTUATION;
+		else if (Input::IsPadButton(XINPUT_GAMEPAD_DPAD_LEFT, 0)) gaugePercent_ -= PAD_FLUCTUATION;
+
+		//上限
+		if (gaugePercent_ > 1.0f) gaugePercent_ = 1.0f;
+		else if (gaugePercent_ < 0.0f) gaugePercent_ = 0.0f;
+
+		//スライダーボタン
+		imageTransform_.position_.x = frameTransform_.position_.x + (sizeX * 2.0f * gaugePercent_) - sizeX;
+		buttonPosX_ = imageTransform_.position_.x;
+
+		//関数呼び出し
+		OnClick();
+		return;
+	}
+
 
 	//ウィンドウ外の対処
 	XMFLOAT3 mouse = Input::GetMousePosition();
@@ -159,7 +193,6 @@ void SliderUI::Dragging()
 	mouse = { mouse.x / scrX, -(mouse.y / scrY), 0.0f };
 
 	//上下で終了判定
-	static const float HEIGHT_RANGE = 0.3f;
 	if (mouse.y > (frameTransform_.position_.y + HEIGHT_RANGE) ||
 		mouse.y < (frameTransform_.position_.y - HEIGHT_RANGE))
 	{
@@ -169,7 +202,6 @@ void SliderUI::Dragging()
 	
 	//０～１に変換
 	float mousePar = (mouse.x + 1.0f) * 0.5f;
-	float sizeX = frameSize_.x / scrX;
 	float posE = ((frameTransform_.position_.x + sizeX) + 1.0f) * 0.5f;
 	float posS = ((frameTransform_.position_.x - sizeX) + 1.0f) * 0.5f;
 

@@ -13,7 +13,7 @@ namespace {
 }
 
 
-Screen::Screen() : state_(SCREEN_STATE::DRAW)
+Screen::Screen() : state_(SCREEN_STATE::DRAW), selectCoolTime_(0)
 {
 }
 
@@ -37,13 +37,33 @@ void Screen::Update()
 		if (u->GetSelect()) selectUI = u;
 	}
 
-	//Selectの移動
-	XMFLOAT3 stick = Input::GetPadStickL(0);
+	//セレクト移動ダメならアップデートして終わり
+	if (!selectUI->GetSelectPossible()) {
+		selectUI->SelectUpdate();
+		OutputDebugString("noSelect\n");
+		return;
+	}
+
+	//Selectの移動（矢印ボタン
 	int dir = -1;
-	if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_RIGHT, 0) || stick.x > DEAD_ZONE) dir = 0;		//右
-	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_LEFT, 0) || stick.x < -DEAD_ZONE) dir = 1;	//左
-	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_UP, 0) || stick.y > DEAD_ZONE) dir = 2;		//上
-	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_DOWN, 0) || stick.y < -DEAD_ZONE) dir = 3;	//下
+	if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_RIGHT, 0)) dir = 0;
+	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_LEFT, 0)) dir = 1;
+	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_UP, 0)) dir = 2;
+	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_DOWN, 0)) dir = 3;
+
+	//Selectの移動（スティック
+	selectCoolTime_--;
+	if (dir <= -1 && selectCoolTime_ <= 0) {
+		XMFLOAT3 stick = Input::GetPadStickL(0);
+		if (stick.x > DEAD_ZONE) dir = 0;		//右
+		else if (stick.x < -DEAD_ZONE) dir = 1;	//左
+		else if (stick.y > DEAD_ZONE) dir = 2;		//上
+		else if (stick.y < -DEAD_ZONE) dir = 3;	//下
+		//選択したら
+		if (dir >= 0) selectCoolTime_ = 10;
+	}
+
+	//移動する場所検索
 	if (dir >= 0) {
 		UIBase* minUI = selectUI;
 		float minDist = 9999.9f;

@@ -1,6 +1,7 @@
 #include "PauseScreen.h"
 #include "../Engine/Image.h"
 #include "../Engine/SceneManager.h"
+#include "../UI/UIBase.h"
 
 PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 {
@@ -10,11 +11,14 @@ PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 		assert(hPict_[i] >= 0);
 	}
 
-	transform_.position_ = { 0.0f, 0.0f, 1.0f };
-	Image::SetTransform(hPict_[0], transform_);
+	Transform t;
+	Image::SetTransform(hPict_[0], t);
 	Image::SetFullScreenTransform(hPict_[1]);
+	Image::SetAlpha(hPict_[0], 150);
+	Image::SetAlpha(hPict_[1], 150);
 
-	AddUI("ReturnGame", UI_BUTTON, XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) state_ = ENDDRAW; }, XMFLOAT2(0.33f, 0.33f));
+	UIBase* ui = AddUI("ReturnGame", UI_BUTTON, XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) state_ = ENDDRAW; }, XMFLOAT2(0.33f, 0.33f));
+	if (ui) ui->SetSelect(true);
 
 }
 

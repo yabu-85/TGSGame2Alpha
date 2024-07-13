@@ -9,21 +9,21 @@ using namespace DirectX;
 class UIBase
 {
 protected:
+	bool isBound_;						//範囲の内側にいるかどうか
+	bool isSelect_;						//コントローラー用選択しているか
+	bool selectPlus_;					//アニメーション計算用
+	bool screenSelectPossible_;			//スクリーン画面でセレクトを変動させていいか
+
 	int hButtonPict_[2];				//UI本体の画像ハンドル
 	int hImagePict_;					//表示する画像のハンドル
 	int alpha_;							//透明度
-	bool isBound_;						//範囲の内側にいるかどうか
-	bool isSelect_;						//コントローラー用選択しているか
+	float selectAnim_;					//選択中のアニメーション０～１
 
-	Transform frameTransform_;
-	Transform imageTransform_;
+	Transform frameTransform_;			//UI自体のTransform
+	Transform imageTransform_;			//表示するImageとかのTransform
 	std::function<void()> onClick_;		//UIを押したら呼ぶ関数
 
-	enum BUTTON_STATE {
-		PRESSED = 0,
-		UPPRESSED,
-	};
-
+	void SelectAnimUpdate();			
 
 public:
 	UIBase(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
@@ -39,6 +39,8 @@ public:
 
 	bool GetBound() { return isBound_; }
 	bool GetSelect() { return isSelect_; }
+	bool GetSelectPossible() { return screenSelectPossible_; }
+
 	void SetBound(bool b) { isBound_ = b; }
 	void SetSelect(bool b) { isSelect_ = b; }
 

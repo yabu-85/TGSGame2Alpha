@@ -14,28 +14,31 @@ ButtonUI::~ButtonUI()
 
 void ButtonUI::Update()
 {
+	SelectAnimUpdate();
+
 	if (IsWithinBound()) {
 		//重なった時の音再生
 		//if (!isBound_) AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN);
 
 		//離したら関数呼び出し
-		if (Input::IsMouseButtonUp(0)) OnClick();
+		if (Input::IsMouseButtonUp(0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_B, 0)) OnClick();
 
 		isBound_ = true;
-		isSelect_ = true;
 	}
 	else {
 		isBound_ = false;
-
+	
 	}
-
 }
 
 void ButtonUI::Draw()
 {
-	//押してない時はfalse(0)だから１が表示される
-	Image::SetTransform(hButtonPict_[isBound_], frameTransform_);
-	Image::Draw(hButtonPict_[isBound_]);
+	//通常
+	Image::Draw(hButtonPict_[0]);
+
+	//セレクト
+	Image::SetAlpha(hButtonPict_[1], (int)(255.0f * selectAnim_));
+	Image::Draw(hButtonPict_[1]);
 
 	//テキストの表示
 	Image::SetTransform(hImagePict_, imageTransform_);
@@ -73,7 +76,6 @@ void ButtonUI::Initialize(std::string name)
 bool ButtonUI::IsWithinBound()
 {
 	XMFLOAT3 mouse = Input::GetMousePosition();
-
 	if (mouse.y < widePos_.y + frameHalfSize_.y && mouse.y > widePos_.y - frameHalfSize_.y &&
 		mouse.x < widePos_.x + frameHalfSize_.x && mouse.x > widePos_.x - frameHalfSize_.x)
 	{
@@ -88,7 +90,5 @@ void ButtonUI::SelectUpdate()
 	if (isSelect_) {
 		isBound_ = true;
 
-		//離したら関数呼び出し
-		if (Input::IsPadButtonDown(XINPUT_GAMEPAD_A, 0)) OnClick();
 	}
 }

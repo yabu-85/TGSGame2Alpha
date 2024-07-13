@@ -3,7 +3,6 @@
 #include <string>
 #include <DirectXMath.h>
 #include<functional>
-#include "../Engine/Transform.h"
 
 using namespace DirectX;
 class UIBase;
@@ -21,10 +20,11 @@ enum SCREEN_STATE {
 
 class Screen
 {
+	int selectCoolTime_;			//コントローラー用選択クールダウン
+
 protected:
-	std::vector<UIBase*> uiList_;
-	SCREEN_STATE state_;
-	Transform transform_;
+	std::vector<UIBase*> uiList_;	//登録されたUI一覧
+	SCREEN_STATE state_;			//
 
 public:
 	Screen();
