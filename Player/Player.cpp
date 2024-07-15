@@ -60,13 +60,15 @@ void Player::Initialize()
     }
 
     objectType_ = OBJECT_TYPE::Player;
+    transform_.position_ = start;
+
     SetBodyRange(0.35f);
     SetBodyWeight(1.0f);
     SetBodyHeightHalf(1.0f);
-    pHealthGauge_->SetHeight(1.7f);
+    pHealthGauge_ = new HealthGauge(this);
+    pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
     pDamageSystem_->SetMaxHP(100);
     pDamageSystem_->SetHP(100);
-    transform_.position_ = start;
     moveSpeed_ = 0.15f;
 
     pAim_ = Instantiate<Aim>(this);
@@ -85,15 +87,6 @@ void Player::Initialize()
     AddCollider(collid);
 
     Direct3D::playerSpeed = moveSpeed_;
-
-    EFFEKSEERLIB::gEfk->AddEffect("TAMA", "Particle/blurParticle.efk");
-    EFFEKSEERLIB::EFKTransform t;//matrix isLoop, maxFrame, speed
-    DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
-    t.isLoop = true; //繰り返しON
-    t.maxFrame = 80; //80フレーム
-    t.speed = 1.0; //スピード
-    mt = EFFEKSEERLIB::gEfk->Play("TAMA", t);
-
 }
 
 void Player::Update()
@@ -166,27 +159,20 @@ void Player::Update()
     Direct3D::PlayerPosition = transform_.position_;
     Direct3D::playerClimb = isClimb_;
     Direct3D::playerFaly = isFly_;
-
-    XMMATRIX tr = XMMatrixTranslation(0, 1.0, 0.5);
-    XMMATRIX rt = XMMatrixRotationY(XM_PI);
-    XMMATRIX sc = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-    DirectX::XMStoreFloat4x4(&(mt->matrix), rt * tr * sc * this->GetWorldMatrix());
-
 }
 
 void Player::Draw()
 {
-    DamageDraw();
-
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
-    Direct3D::emphasisTime_ = 0.0f;
 
+    /*
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
         float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
         pHealthGauge_->SetParcent(r);
         pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
+    */
 
     CollisionDraw();
 }

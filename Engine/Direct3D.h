@@ -62,7 +62,6 @@ namespace Direct3D
 	extern int		screenWidth_;			//スクリーンの幅
 	extern int		screenHeight_;			//スクリーンの高さ
 	extern bool		isDrawCollision_;		//コリジョンを表示するかフラグ
-	extern float	emphasisTime_;			//強調表示、弾丸に当たった時用の
 
 	extern XMFLOAT3	PlayerPosition;
 	extern XMFLOAT3	EnemyPosition;

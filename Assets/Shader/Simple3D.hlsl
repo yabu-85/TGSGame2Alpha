@@ -22,7 +22,6 @@ cbuffer global
     float4 camPos;          //カメラの座標
     float4 lightPos;        //ライトの座標
     float shininess;        //ハイライトの強さ
-    float emphasis;         //強調表示
     bool isTexture;         //テクスチャがあるか
 };
 
@@ -140,13 +139,6 @@ float4 PS(VS_OUT inData) : SV_Target
 	//もしアルファ値がすこしでも透明でなければ
     if (diffuse.a == 1.0f) color.a = 1.0f;
     else color.a = diffuse.a;
-
-    if (emphasis > 0.0f)
-    {
-        float r = color.r;
-        color.r = color.g + emphasis;
-        color.r + emphasis;
-    }
     
     return color;
 }

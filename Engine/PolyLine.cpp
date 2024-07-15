@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace {
-	static const float ALPHA_VALUE = 0.01f;
+	static const float ALPHA_VALUE = 0.05f;
 
 }
 

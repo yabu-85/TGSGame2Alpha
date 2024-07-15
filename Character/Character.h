@@ -6,7 +6,6 @@ class DamageSystem;
 
 class Character : public GameObject
 {
-    float damageTime_;
     float bodyWeight_;      //めり込み時に使う重さ
     float bodyRange_;       //めり込み時に使う範囲
     float bodyHeightHalf_;  //高さの半分（注視点みたいなので使う)
@@ -24,13 +23,8 @@ public:
     virtual void Draw() override = 0 {};
     virtual void Release() override = 0 {};
 
-    void DamageDraw();
-
     //キャラクター同士の衝突の際めり込みを避ける
     void ReflectCharacter();
-    
-    float GetDamageTime() { return damageTime_; }
-    void SetDamageTime(float t) { damageTime_ = t; }
 
     float GetBodyRange() { return bodyRange_; }
     float GetBodyWeight() { return bodyWeight_; }

@@ -16,7 +16,7 @@ namespace {
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
     : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()), startPos_(XMFLOAT3()),
-    pHitChara_(nullptr), minHitDist_(99999.9f), nextKill_(false), pCapsuleCollider_(nullptr), hModel_(-1), killWaitTime_(0)
+    pHitChara_(nullptr), minHitDist_(99999.9f), nextKill_(false), pCapsuleCollider_(nullptr), killWaitTime_(0)
 {
     // JSONファイル読み込み
     JsonReader::Load("Json/Weapon.json");
@@ -37,9 +37,6 @@ Bullet_Normal::~Bullet_Normal()
 
 void Bullet_Normal::Initialize()
 {
-    hModel_ = Model::Load("Model/bullet.fbx");
-    assert(hModel_ >= 0);
-
     pPolyLine_ = new PolyLine;
     pPolyLine_->Load("PolyImage/BulletLine.png");
     pPolyLine_->SetLength(POLY_LENG);
@@ -67,7 +64,6 @@ void Bullet_Normal::Update()
         DamageInfo info = DamageInfo(parameter_.damage_);
         pHitChara_->GetDamageSystem()->ApplyDamageDirectly(info);
         if (pHitChara_->GetDamageSystem()->IsDead()) pHitChara_->KillMe();
-        pHitChara_->SetDamageTime(1.0f);
 
         XMFLOAT3 damagePos = pHitChara_->GetPosition();
         damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
@@ -128,11 +124,6 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 
 void Bullet_Normal::Draw()
 {
-    if (!nextKill_) {
-        Model::SetTransform(hModel_, transform_);
-        Model::Draw(hModel_);
-    }
-
     pPolyLine_->Draw();
 }
 
@@ -146,7 +137,6 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
 {
     hitPos_ = wallHitPos;
     startPos_ = transform_.position_;
-    transform_.rotate_ = CalculationRotateXY(Float3Normalize(move_));
 
     //コライダー情報セット（進行方向に向き、進行方向逆の0.5サイズでCenterを取る
     XMFLOAT3 colCenter = Float3Multiply(move_, -0.5f);

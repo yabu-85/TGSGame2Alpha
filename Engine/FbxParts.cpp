@@ -276,43 +276,8 @@ void FbxParts::InitSkelton(FbxMesh * pMesh)
 		return;
 	}
 
-
 	// デフォーマ情報からスキンメッシュ情報を取得
 	pSkinInfo_ = (FbxSkin *)pDeformer;
-
-	// 頂点からポリゴンを逆引きするための情報を作成する
-	struct  POLY_INDEX
-	{
-		int *   polyIndex;      // ポリゴンの番号
-		int *   vertexIndex;    // 頂点の番号
-		int     numRef;         // 頂点を共有するポリゴンの数
-	};
-
-	POLY_INDEX * polyTable = new POLY_INDEX[vertexCount_];
-	for (DWORD i = 0; i < vertexCount_; i++)
-	{
-		// 三角形ポリゴンに合わせて、頂点とポリゴンの関連情報を構築する
-		// 総頂点数＝ポリゴン数×３頂点
-		polyTable[i].polyIndex = new int[polygonCount_ * 3];
-		polyTable[i].vertexIndex = new int[polygonCount_ * 3];
-		polyTable[i].numRef = 0;
-		ZeroMemory(polyTable[i].polyIndex, sizeof(int)* polygonCount_ * 3);
-		ZeroMemory(polyTable[i].vertexIndex, sizeof(int)* polygonCount_ * 3);
-
-		// ポリゴン間で共有する頂点を列挙する
-		for (DWORD k = 0; k < polygonCount_; k++)
-		{
-			for (int m = 0; m < 3; m++)
-			{
-				if (pMesh->GetPolygonVertex(k, m) == i)
-				{
-					polyTable[i].polyIndex[polyTable[i].numRef] = k;
-					polyTable[i].vertexIndex[polyTable[i].numRef] = m;
-					polyTable[i].numRef++;
-				}
-			}
-		}
-	}
 
 	// ボーン情報を取得する
 	numBone_ = pSkinInfo_->GetClusterCount();
@@ -392,15 +357,6 @@ void FbxParts::InitSkelton(FbxMesh * pMesh)
 		}
 		pBoneArray_[i].bindPose = XMLoadFloat4x4(&pose);
 	}
-
-	// 一時的なメモリ領域を解放する
-	for (DWORD i = 0; i < vertexCount_; i++)
-	{
-		SAFE_DELETE_ARRAY(polyTable[i].polyIndex);
-		SAFE_DELETE_ARRAY(polyTable[i].vertexIndex);
-	}
-	SAFE_DELETE_ARRAY(polyTable);
-
 }
 
 //コンスタントバッファ（シェーダーに情報を送るやつ）準備
@@ -482,7 +438,6 @@ void FbxParts::Draw(Transform& transform)
 		cb.shininess = pMaterial_[i].shininess;
 		cb.camPos = XMFLOAT4(Camera::GetPosition(0).x, Camera::GetPosition(0).y, Camera::GetPosition(0).z, 0);
 		cb.lightPos = Light::GetPosition(0);
-		cb.emphasis = Direct3D::emphasisTime_;
 		cb.mWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());
 		cb.mWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
 

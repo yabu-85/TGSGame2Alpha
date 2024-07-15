@@ -137,6 +137,7 @@
     <ClCompile Include="Character\DamageSystem.cpp" />
     <ClCompile Include="Enemy\EnemyBase.cpp" />
     <ClCompile Include="Enemy\EnemyManager.cpp" />
+    <ClCompile Include="Enemy\TestBoss.cpp" />
     <ClCompile Include="Enemy\TestEnemy.cpp" />
     <ClCompile Include="Engine\Audio.cpp" />
     <ClCompile Include="Engine\BillBoard.cpp" />
@@ -193,6 +194,7 @@
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
     <ClCompile Include="UI\AimCursor.cpp" />
+    <ClCompile Include="UI\BossHealthGauge.cpp" />
     <ClCompile Include="UI\ButtonUI.cpp" />
     <ClCompile Include="UI\DamageUI.cpp" />
     <ClCompile Include="UI\HealthGauge.cpp" />
@@ -213,6 +215,7 @@
     <ClInclude Include="Character\DamageSystem.h" />
     <ClInclude Include="Enemy\EnemyBase.h" />
     <ClInclude Include="Enemy\EnemyManager.h" />
+    <ClInclude Include="Enemy\TestBoss.h" />
     <ClInclude Include="Enemy\TestEnemy.h" />
     <ClInclude Include="Engine\Audio.h" />
     <ClInclude Include="Engine\BillBoard.h" />
@@ -273,6 +276,7 @@
     <ClInclude Include="State\StateBase.h" />
     <ClInclude Include="State\StateManager.h" />
     <ClInclude Include="UI\AimCursor.h" />
+    <ClInclude Include="UI\BossHealthGauge.h" />
     <ClInclude Include="UI\ButtonUI.h" />
     <ClInclude Include="UI\DamageUI.h" />
     <ClInclude Include="UI\HealthGauge.h" />

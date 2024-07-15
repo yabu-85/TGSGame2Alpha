@@ -38,17 +38,18 @@ void TestEnemy::Initialize()
     hModel_ = Model::Load("Model/Scarecrow.fbx");
     assert(hModel_ >= 0);
 
+    transform_.position_ = start;
+    enemyType_ = ENEMY_TYPE::ENEMY_TEST;
+    pMoveAction_ = new MoveAction(this, 0.05f, 0.1f);
+    pAstarMoveAction_ = new AstarMoveAction(this, 0.06f, 0.1f);
+
     SetBodyRange(0.5f);
     SetBodyWeight(0.3f);
     SetBodyHeightHalf(0.8f);
-    enemyType_ = ENEMY_TYPE::ENEMY_TEST;
-    pHealthGauge_->SetHeight(1.7f);
+    pHealthGauge_ = new HealthGauge(this);
+    pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
     pDamageSystem_->SetMaxHP(20);
     pDamageSystem_->SetHP(20);
-
-    transform_.position_ = start;
-    pMoveAction_ = new MoveAction(this, 0.05f, 0.1f);
-    pAstarMoveAction_ = new AstarMoveAction(this, 0.06f, 0.1f);
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.4f, 0.5f, vec);
@@ -140,11 +141,8 @@ void TestEnemy::Draw()
 {
     Direct3D::EnemyPosition = transform_.position_;
 
-    DamageDraw();
-
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
-    Direct3D::emphasisTime_ = 0.0f;
 
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
         float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
@@ -159,13 +157,4 @@ void TestEnemy::Release()
 {
     Model::Release(hModel_);
 
-}
-
-void TestEnemy::OnCollision(GameObject* pTarget)
-{
-    if (pTarget->GetObjectName().find("Enemy") != std::string::npos)
-    {
-        SetDamageTime(1.0f);
-
-    }
 }

@@ -4,20 +4,15 @@ class Character;
 
 class HealthGauge
 {
-	enum PNG_INDEX {
-		GAUGE = 0,
-		BACK,
-		MAX,
-	};
+protected:
+	bool isDraw_;				//表示するかどうか
+	int hPict_[2];				//画像ハンドル
+	int gaugeAlpha_[2];			//ゲージの透明度（2画面時は2つデータが必要）
+	int visuallyTime_[2];		//見ている時間
+	float parcent_;				//hpのパーセント
 
-	int hPict_[MAX];		//画像ハンドル
-	int gaugeAlpha_[2];		//ゲージの透明度（2画面時は2つデータが必要）
-	int visuallyTime_[2];	//見ている時間
-
-	float height_;			//uiの高さ
-	float parcent_;			//hpのパーセント
-	bool isDraw_;			//表示するかどうか
-	Transform transform_[2];//HpとHPBack用のTransform
+	XMFLOAT2 offsetPosition_;	//表示位置
+	Transform transform_;
 	Character* pParent_;
 
 	//Gaugeの透明度計算する
@@ -28,7 +23,7 @@ public:
 	virtual ~HealthGauge();
 	virtual void Draw(int index);
 
-	void SetHeight(float h);
+	void SetOffSetPosition(XMFLOAT2 pos);
 	void SetParcent(float f);
 	void SetIsDraw(bool b);
 

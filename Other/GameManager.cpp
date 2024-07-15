@@ -149,7 +149,7 @@ namespace GameManager {
 
 	void OnePlayerDraw()
 	{
-		ShadoDraw();
+	//	ShadoDraw();
 
 		Direct3D::BeginDraw2();
 		Camera::Update(0);

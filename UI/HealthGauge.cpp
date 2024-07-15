@@ -30,19 +30,17 @@ void HealthGauge::SetGaugeAlpha(int value, int index)
 	Image::SetAlpha(hPict_[1], gaugeAlpha_[index]);
 }
 
-HealthGauge::HealthGauge(Character* parent)
-	: parcent_(1.0f), height_(0.0f), gaugeAlpha_{ 0, 0 }, isDraw_(true), pParent_(parent), visuallyTime_{0, 0}
+HealthGauge::HealthGauge(Character* parent) : parcent_(1.0f), gaugeAlpha_{ 0, 0 }, isDraw_(true), pParent_(parent), visuallyTime_{0, 0}, offsetPosition_{0.0f, 0.0f}
 {
 	std::string fileName[] = { "Gauge", "GaugeFrame" };
-	for (int i = 0; i < MAX; i++) {
+	for (int i = 0; i < 2; i++) {
 		hPict_[i] = Image::Load("Image/" + fileName[i] + ".png");
 		assert(hPict_[i] >= 0);
 	}
 
 	halfSize = PngSizeX / (float)Direct3D::screenWidth_ * (DEFAULT_SIZE_X / 2.0f);
-	transform_[0].scale_.x = DEFAULT_SIZE_X;
-	transform_[0].scale_.y = DEFAULT_SIZE_Y;
-	transform_[1] = transform_[0];
+	transform_.scale_.x = DEFAULT_SIZE_X;
+	transform_.scale_.y = DEFAULT_SIZE_Y;
 }
 
 HealthGauge::~HealthGauge()
@@ -55,9 +53,13 @@ void HealthGauge::Draw(int index)
 	if (!isDraw_) {
 		SetGaugeAlpha(-ALPHA_VALUE, index);
 		if (gaugeAlpha_[index] > 0) {
-			for (int i = 0; i < 2; i++) {
-				Image::SetTransform(hPict_[i], transform_[i]);
+			Transform t = transform_;
+			for (int i = 1; i >= 0; i--) {
+				Image::SetTransform(hPict_[i], t);
 				Image::Draw(hPict_[i]);
+
+				//2‰ñ–Ú‚ÌŒvŽZ
+				t.scale_.x *= parcent_;
 			}
 		}
 		visuallyTime_[index] = 0;
@@ -94,27 +96,32 @@ void HealthGauge::Draw(int index)
 	if (gaugeAlpha_[index] > 0) {
 		//•\Ž¦ˆÊ’u‚ÌŒvŽZ
 		pos = pParent_->GetPosition();
-		pos.y += height_;
+		pos.x += offsetPosition_.x;
+		pos.y += offsetPosition_.y;
 		scrPos = Camera::CalcScreenPosition(pos);
 
-		for (int i = 0; i < 2; i++) {
-			transform_[i].position_.x = scrPos.x - halfSize;
-			transform_[i].position_.y = scrPos.y;
-			Image::SetTransform(hPict_[i], transform_[i]);
+		transform_.position_.x = scrPos.x - halfSize;
+		transform_.position_.y = scrPos.y;
+		
+		Transform t = transform_;
+		for (int i = 1; i >= 0; i--) {
+			Image::SetTransform(hPict_[i], t);
 			Image::Draw(hPict_[i]);
+
+			//2‰ñ–Ú‚ÌŒvŽZ
+			t.scale_.x *= parcent_;
 		}
 	}
 }
 
-void HealthGauge::SetHeight(float h)
+void HealthGauge::SetOffSetPosition(XMFLOAT2 pos)
 {
-	height_ = h;
+	offsetPosition_ = pos;
 }
 
 void HealthGauge::SetParcent(float f)
 {
 	parcent_ = f;
-	transform_[0].scale_.x = parcent_ * DEFAULT_SIZE_X;
 }
 
 void HealthGauge::SetIsDraw(bool b)

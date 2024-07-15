@@ -170,27 +170,28 @@ namespace Model
 		return boneIndex;
 	}
 
-	XMFLOAT3 GetBonePosition(int handle, int boneIndex, int partIndex)
+	XMFLOAT3 GetBonePosition(int handle, int partIndex, int boneIndex)
 	{
-		XMFLOAT3 pos = _datas[handle]->pFbx->GetBonePosition(boneIndex, partIndex);
+		XMFLOAT3 pos = _datas[handle]->pFbx->GetBonePosition(partIndex, boneIndex);
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix());
 		XMStoreFloat3(&pos, vec);
 		return pos;
 	}
 
-	XMFLOAT3 GetBoneAnimPosition(int handle, int boneIndex, int partIndex)
+	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex)
 	{
 		//相対座標（ボーンの中心からの位置）
-		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPosition(boneIndex, partIndex, (int)_datas[handle]->nowFrame);
+		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame);
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
 		XMStoreFloat3(&pos, vec);
 		return pos;
 	}
 
-	XMFLOAT3 GetBoneAnimRotate(int handle, int boneIndex, int partIndex)
+	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex)
 	{
 		//相対座標（ボーンの中心からの位置）
-		 XMFLOAT3 rot = _datas[handle]->pFbx->GetBoneAnimRotate(boneIndex, partIndex, (int)_datas[handle]->nowFrame);
+		XMFLOAT3 rot = _datas[handle]->pFbx->GetBoneAnimRotate(partIndex, boneIndex, (int)_datas[handle]->nowFrame);
+		
 		if (rot.x >= 90.0f || rot.x <= -90.0f) rot.y *= -1.0f;
 		return rot;
 	}

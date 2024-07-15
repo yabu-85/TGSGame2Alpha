@@ -39,7 +39,6 @@ namespace Direct3D
 	bool					isDrawCollision_ = true;	//コリジョンを表示するか
 	int						screenWidth_ = 0;
 	int						screenHeight_ = 0;
-	float					emphasisTime_ = 0.0f;
 
 	// シェーダーバンドルの保存用の変数
 	SHADER_TYPE currentType;

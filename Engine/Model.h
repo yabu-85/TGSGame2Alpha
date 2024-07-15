@@ -88,13 +88,13 @@ namespace Model
 	//引数：handle		調べたいモデルの番号
 	//引数：boneName	調べたいボーンの名前
 	//戻値：ボーンの位置（ワールド座標）
-	XMFLOAT3 GetBonePosition(int handle, int boneIndex, int partIndex);
+	XMFLOAT3 GetBonePosition(int handle, int partIndex, int boneIndex);
 
 	//アニメーション時のボーンの位置を取得
-	XMFLOAT3 GetBoneAnimPosition(int handle, int boneIndex, int partIndex);
+	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex);
 	
 	//アニメーション時のボーンの回転を取得
-	XMFLOAT3 GetBoneAnimRotate(int handle, int boneIndex, int partIndex);
+	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex);
 
 	//ワールド行列を設定
 	//引数：handle	設定したいモデルの番号

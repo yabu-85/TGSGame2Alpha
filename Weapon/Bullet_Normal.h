@@ -11,7 +11,6 @@ class Bullet_Normal : public BulletBase
 {
     bool isHit_;
     bool nextKill_;
-    int hModel_;
     int killWaitTime_;
     float minHitDist_;
     XMFLOAT3 hitPos_;

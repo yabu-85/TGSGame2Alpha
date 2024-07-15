@@ -8,7 +8,7 @@
 Character::Character(GameObject* parent, std::string name)
     : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}, bodyHeightHalf_(0.0f)
 {
-    pHealthGauge_ = new HealthGauge(this);
+    pHealthGauge_ = nullptr;
     pDamageSystem_ = new DamageSystem();
     CharacterManager::AddCharacter(this);
 }
@@ -22,12 +22,6 @@ Character::~Character()
 
 void Character::Update()
 {
-}
-
-void Character::DamageDraw()
-{
-    if (damageTime_ > 0.0f) damageTime_ -= 0.1f;
-    Direct3D::emphasisTime_ = damageTime_;
 }
 
 void Character::ReflectCharacter()

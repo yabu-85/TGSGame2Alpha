@@ -14,9 +14,9 @@ class Player : public Character
     int playerId_;              //プレイヤー番号
     int hModel_;                //モデル番号
 
-    int waistPart_;         //テストPartのインデックス
-    int waistListIndex_[8];    //テストBoneのインデックス
-    float waistRotateY_;    //テスト腰を想定したボーンのRotateY
+    int waistPart_;             //テストPartのインデックス
+    int waistListIndex_[8];     //テストBoneのインデックス
+    float waistRotateY_;        //テスト腰を想定したボーンのRotateY
 
     float gradually_;           //移動スピードの加減の値
     float moveSpeed_;           //移動スピード
@@ -25,12 +25,9 @@ class Player : public Character
     XMFLOAT3 playerMovement_;   //Normalizeの移動量を保存する用
     XMFLOAT3 climbPos_;         //登る目標座標
 
-    static XMFLOAT3 damageUIPos_;
-
     Aim* pAim_;
     StateManager* pStateManager_;
-
-    std::shared_ptr<EFFEKSEERLIB::EFKTransform> mt;
+    static XMFLOAT3 damageUIPos_;
 
     //関数
     void CalcRotate(XMFLOAT3 pos, float ratio);

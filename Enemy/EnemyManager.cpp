@@ -1,6 +1,7 @@
 #include "EnemyManager.h"
 #include "EnemyBase.h"
 #include "TestEnemy.h"
+#include "TestBoss.h"
 #include "../State/StateManager.h"
 
 namespace EnemyManager {
@@ -38,7 +39,7 @@ namespace EnemyManager {
 		switch (type)
 		{
 		case ENEMY_TEST: e = Instantiate<TestEnemy>(pParent_); break;
-		case ENEMY_TEST2: e = Instantiate<TestEnemy>(pParent_); break;
+		case ENEMY_BOSS: e = Instantiate<TestBoss>(pParent_); break;
 		default: return;
 		}
 		enemyList_.push_back(e);

@@ -27,7 +27,7 @@ TestScene::TestScene(GameObject * parent)
 //‰Šú‰»
 void TestScene::Initialize()
 {
-#if 1
+#if 0
 	GameManager::SetTwoPlayer();
 #else
 	GameManager::SetOnePlayer();
@@ -47,6 +47,8 @@ void TestScene::Initialize()
 
 	//AddScreen(new PlayScreen());
 	AddScreen(new PauseScreen());
+
+	EnemyManager::SpawnEnemy(ENEMY_BOSS);
 
 	//ƒ‚ƒfƒ‹Ž–‘O“Ç‚Ýž‚Ý
 	Model::Load("Model/Scarecrow.fbx");
@@ -76,9 +78,12 @@ void TestScene::Update()
 	trans.scale_ = XMFLOAT3(0.2f, 0.2f, 0.2f);
 	DirectX::XMStoreFloat4x4(&(mt->matrix), trans.GetWorldMatrix());
 
-	if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_TEST);
+	if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
 	if (Input::IsKeyDown(DIK_F2)) for(int i = 0; i < 10; i++) EnemyManager::SpawnEnemy(ENEMY_TEST);
-	if (Input::IsKeyDown(DIK_F3)) EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
+	if (Input::IsKeyDown(DIK_F3)) {
+		EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
+		EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestBossEnemy")));
+	}
 	if (Input::IsKeyDown(DIK_F4)) {
 		OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
 		OutputDebugString("\n");
