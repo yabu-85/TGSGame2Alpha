@@ -34,8 +34,7 @@ StageModelData::StageModelData() : hRayModelNum(-1), transform{ }
 
 //---------------------------------------------------------------------------------
 
-CollisionMap::CollisionMap(GameObject* parent)
-    : GameObject(parent, "CollisionMap"), handle_(-1)
+CollisionMap::CollisionMap(GameObject* parent) : GameObject(parent, "CollisionMap"), handle_(-1)
 {
     GameManager::SetCollisionMap(this);
 
@@ -136,9 +135,9 @@ void CollisionMap::Release()
 {
 }
 
-void CollisionMap::CreatIntersectDataTriangle()
+void CollisionMap::CreatIntersectDataTriangle(std::string fileName)
 {
-    modelList_ = StageEditor::LoadFileStage("Json/TestStage.json");
+    modelList_ = StageEditor::LoadFileStage(fileName);
 
     for (int i = 0; i < modelList_.size(); i++) {
         //コリジョン用モデル内なら飛ばす

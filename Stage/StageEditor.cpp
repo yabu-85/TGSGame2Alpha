@@ -9,12 +9,19 @@
 #include "../Engine/ImGui/imgui_impl_win32.h"
 #include "../Engine/Global.h"
 #include "../Other/GameManager.h"
-
 #include <fstream>
+
 using namespace std;
+
+namespace {
+    std::string currentStageFileName = "";
+    std::string currentNodeFileName = "";
+
+}
 
 std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileName)
 {
+    currentStageFileName = fileName;
     JsonReader::Load(fileName);
 
     std::vector<StageModelData> stage;
@@ -67,9 +74,9 @@ void StageEditor::DrawStageEditor()
     
     //セーブボタン
     if (ImGui::Button("CreateCollisionMap")) {
-        SaveFileStage(stageList, "Json/TestStage.json");
+        SaveFileStage(stageList, currentStageFileName);
         GameManager::GetCollisionMap()->IntersectDataReset();
-        GameManager::GetCollisionMap()->CreatIntersectDataTriangle();
+        GameManager::GetCollisionMap()->CreatIntersectDataTriangle(currentStageFileName);
     }
     
     //区切り線
@@ -173,6 +180,7 @@ void StageEditor::DrawStageEditor()
 
 std::vector<Node*> StageEditor::LoadFileNode(const std::string& fileName)
 {
+    currentNodeFileName = fileName;
     JsonReader::Load(fileName);
 
     std::vector<Node*> nodes;
@@ -243,7 +251,7 @@ void StageEditor::DrawNodeEditor()
 
     //セーブボタン
     if (ImGui::Button("Save NodeList")) {
-        SaveFileNode(nodeList, "Json/TestStageNode.json");
+        SaveFileNode(nodeList, currentNodeFileName);
     }
     ImGui::SameLine();
     //地面にくっつかせる

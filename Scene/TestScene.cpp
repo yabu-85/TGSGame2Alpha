@@ -43,17 +43,12 @@ void TestScene::Initialize()
 	RouteSearch::Initialize();
 	DamageUI::Initialize();
 	EnemyManager::SetParent(this);
+
 	AllDeleteScreen();
-
-	//AddScreen(new PlayScreen());
 	AddScreen(new PauseScreen());
-
 	EnemyManager::SpawnEnemy(ENEMY_BOSS);
 
-	//モデル事前読み込み
-	Model::Load("Model/Scarecrow.fbx");
-
-	EFFEKSEERLIB::gEfk->AddEffect("TAMA", "Particle/blurParticle.efk");
+	//Light
 	EFFEKSEERLIB::EFKTransform t;
 	DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
 	t.isLoop = true;
@@ -66,12 +61,12 @@ void TestScene::Initialize()
 //更新
 void TestScene::Update()
 {
+	SceneBase::Update();
+	
 	if (Input::IsKeyDown(DIK_N)) {
 		static_cast<SceneManager*>(FindObject("SceneManager"))->ChangeScene(SCENE_ID_SELECT);
 		return;
 	}
-
-	SceneBase::Update();
 	
 	Transform trans;
 	trans.position_ = XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z);

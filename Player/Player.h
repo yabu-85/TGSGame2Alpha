@@ -3,6 +3,7 @@
 #include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 class Aim;
+class Gun;
 class StateManager;
 
 class Player : public Character
@@ -26,6 +27,7 @@ class Player : public Character
     XMFLOAT3 climbPos_;         //“o‚é–Ú•WÀ•W
 
     Aim* pAim_;
+    Gun* pGun_;
     StateManager* pStateManager_;
     static XMFLOAT3 damageUIPos_;
 
@@ -71,6 +73,7 @@ public:
     int GetPlayerId() { return playerId_; }
     int GetModelHandle() { return hModel_; }
     Aim* GetAim() { return pAim_; }
+    Gun* GetGun() { return pGun_; }
     XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 
 };

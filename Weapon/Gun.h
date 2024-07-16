@@ -36,4 +36,6 @@ public:
     // e’e‚ğ¶¬‚·‚é
     template<class T>
     void ShootBullet(BulletType type);
+
+    AimCursor* GetAimCursor() { return pAimCursor_; }
 };

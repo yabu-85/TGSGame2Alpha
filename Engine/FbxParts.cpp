@@ -388,18 +388,19 @@ XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
 	float PI = 3.14159265358979f;
 	float threshold = 0.0f;
 	XMFLOAT3 rot = XMFLOAT3();
-	if (abs((float)mat.Get(2, 1) - 1.0f) < threshold) { // R(2,1) = sin(x) = 1‚ÌŽž
+	float absMat = (float)mat.Get(2, 1);
+	if (abs(absMat - 1.0f) < threshold) { // R(2,1) = sin(x) = 1‚ÌŽž
 		rot.x = PI / 2.0f;
 		rot.y = 0.0f;
 		rot.z = atan2f((float)mat.Get(1, 0), (float)mat.Get(0, 0));
 	}
-	else if (abs((float)mat.Get(2, 1) + 1.0f) < threshold) { // R(2,1) = sin(x) = -1‚ÌŽž
+	else if (abs(absMat + 1.0f) < threshold) { // R(2,1) = sin(x) = -1‚ÌŽž
 		rot.x = -PI / 2.0f;
 		rot.y = 0.0f;
 		rot.z = atan2f((float)mat.Get(1, 0), (float)mat.Get(0, 0));
 	}
 	else {
-		rot.x = asinf((float)mat.Get(2, 1));
+		rot.x = asinf(absMat);
 		rot.y = atan2f(-(float)mat.Get(2, 0), (float)mat.Get(2, 2));
 		rot.z = atan2f(-(float)mat.Get(0, 1), (float)mat.Get(1, 1));
 	}

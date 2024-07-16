@@ -33,8 +33,8 @@ namespace {
 }
 
 Player::Player(GameObject* parent)
-    : Character(parent, "Player"), hModel_(-1),  pAim_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()),
-    isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), pStateManager_(nullptr), playerId_(0),
+    : Character(parent, "Player"), hModel_(-1),  pAim_(nullptr), pGun_(nullptr), pStateManager_(nullptr), playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()),
+    isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f), playerId_(0),
     waistPart_(-1), waistRotateY_(0.0f)
 {
     for (int i = 0; i < 8; i++) waistListIndex_[i] = -1;
@@ -72,7 +72,7 @@ void Player::Initialize()
     moveSpeed_ = 0.15f;
 
     pAim_ = Instantiate<Aim>(this);
-    Instantiate<Gun>(this);
+    pGun_ = Instantiate<Gun>(this);
 
     pStateManager_ = new StateManager(this);
     pStateManager_->AddState(new PlayerWait(pStateManager_));

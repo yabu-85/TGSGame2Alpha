@@ -35,12 +35,32 @@ namespace {
 	float MAX_BURE = 0.04f;
 	float MIN_BURE = 0.00f;
 
+	//HitCursorーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+	//移動方向
+	XMFLOAT3 ONE_UP_VECTOR_HIT = XMFLOAT3(0.34f, 0.64f, 0.0f);
+	XMFLOAT3 ONE_RIGHT_VECTOR_HIT = XMFLOAT3(0.34f, -0.64f, 0.0f);
+	XMFLOAT3 ONE_DOWN_VECTOR_HIT = XMFLOAT3(-0.34f, -0.64f, 0.0f);
+	XMFLOAT3 ONE_LEFT_VECTOR_HIT = XMFLOAT3(-0.34f, 0.64f, 0.0f);
+	XMFLOAT3 ONE_VECTOR_ARRAY_HIT[4] = { ONE_UP_VECTOR_HIT, ONE_RIGHT_VECTOR_HIT, ONE_DOWN_VECTOR_HIT, ONE_LEFT_VECTOR_HIT };
+
+	XMFLOAT3 TWO_UP_VECTOR_HIT = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3 TWO_RIGHT_VECTOR_HIT = XMFLOAT3(1.3f, 0.0f, 0.0f);
+	XMFLOAT3 TWO_DOWN_VECTOR_HIT = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	XMFLOAT3 TWO_LEFT_VECTOR_HIT = XMFLOAT3(-1.3f, 0.0f, 0.0f);
+	XMFLOAT3 TWO_VECTOR_ARRAY_HIT[4] = { TWO_UP_VECTOR_HIT, TWO_RIGHT_VECTOR_HIT, TWO_DOWN_VECTOR_HIT, TWO_LEFT_VECTOR_HIT };
+	
+	//rotate
+	float ROTATE_ARRAY_HIT[4] = { 135, 45, -45, -135 };
+
 }
 
-AimCursor::AimCursor() : hPict_(-1), shotParce_(0.0f), shotDurace_(0.01f)
+AimCursor::AimCursor() : hPict_(-1), shotParce_(0.0f), shotDurace_(0.01f), hHitPict_(-1), hitParce_(0.0f), hitDurace_(0.05f)
 {
-	hPict_ = Image::Load("Image/cross.png");
+	hPict_ = Image::Load("Image/Cross.png");
+	hHitPict_ = Image::Load("Image/HitCross.png");
 	assert(hPict_ >= 0);
+	assert(hHitPict_ >= 0);
+
 }
 
 AimCursor::~AimCursor()
@@ -52,13 +72,15 @@ void AimCursor::Update()
 	shotParce_ -= shotDurace_;
 	if (shotParce_ < 0.0f) shotParce_ = 0.0f;
 
+	hitParce_ -= hitDurace_;
+	if (hitParce_ < 0.0f) hitParce_ = 0.0f;
+
 }
 
 void AimCursor::Draw()
 {
 	//大きさの時間経過Parcent
 	float parce = Easing::EaseInQuint(shotParce_);
-
 	for (int i = 0; i < 4; i++) {
 		Transform t;
 		
@@ -77,6 +99,27 @@ void AimCursor::Draw()
 		Image::Draw(hPict_);
 	}
 
+	//Hitの描画
+	if (hitParce_ > 0.0f) {
+		Transform t;
+		
+		for (int i = 0; i < 4; i++) {
+			if (GameManager::IsOnePlayer()) {
+				t.position_ = Float3Multiply(ONE_VECTOR_ARRAY_HIT[i], (MAX_MOVE * parce) + MIN_MOVE);
+				t.scale_ = ONE_PLAYER_SIZE;
+			}
+			else {
+				t.position_ = Float3Multiply(TWO_VECTOR_ARRAY_HIT[i], (MAX_MOVE * parce) + MIN_MOVE);
+				t.scale_ = TWO_PLAYER_SIZE_LIST[i];
+			}
+			t.rotate_.z = ROTATE_ARRAY_HIT[i];
+
+			Image::SetTransform(hHitPict_, t);
+			Image::SetAlpha(hHitPict_, (int)(255.0f * hitParce_));
+			Image::Draw(hHitPict_);
+		}
+	}
+
 }
 
 void AimCursor::Shot()
@@ -84,6 +127,11 @@ void AimCursor::Shot()
 	static const float ADD_POWER = 0.1f;
 	shotParce_ += ADD_POWER;
 	if (shotParce_ > 1.0f) shotParce_ = 1.0f;
+}
+
+void AimCursor::Hit()
+{
+	hitParce_ = 1.0f;
 }
 
 float AimCursor::GetBurePower()

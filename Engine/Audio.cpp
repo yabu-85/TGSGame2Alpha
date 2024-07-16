@@ -22,7 +22,7 @@ namespace Audio
 		IXAudio2SourceVoice** pSourceVoice = nullptr;
 
 		//同時再生最大数
-		int svNum;
+		int svNum = 1;
 
 		//ファイル名
 		std::string fileName;
@@ -55,8 +55,8 @@ int Audio::Load(std::string fileName, bool isLoop, int svNum)
 	//チャンク構造体
 	struct Chunk
 	{
-		char	id[5] =""; 			// ID
-		unsigned int	size = 0;	// サイズ
+		char id[5]; 		// ID
+		unsigned int size;	// サイズ
 	};
 
 	//ファイルを開く
@@ -77,7 +77,6 @@ int Audio::Load(std::string fileName, bool isLoop, int svNum)
 		ReadFile(hFile, &formatChunk.id, 4, &dwBytes, NULL);
 	}
 	ReadFile(hFile, &formatChunk.size, 4, &dwBytes, NULL);
-
 
 	//フォーマットを読み取る
 	//https://learn.microsoft.com/ja-jp/windows/win32/api/mmeapi/ns-mmeapi-waveformatex
@@ -150,12 +149,13 @@ int Audio::Load(std::string fileName, bool isLoop, int svNum)
 }
 
 //再生
-void Audio::Play(int ID)
+void Audio::Play(int ID, float volume)
 {
 	for (int i = 0; i < audioDatas[ID].svNum; i++)
 	{
 		XAUDIO2_VOICE_STATE state;
 		audioDatas[ID].pSourceVoice[i]->GetState(&state);
+		audioDatas[ID].pSourceVoice[i]->SetVolume(volume);
 
 		if (state.BuffersQueued == 0)
 		{

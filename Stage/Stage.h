@@ -3,7 +3,6 @@
 
 class Stage : public GameObject
 {
-	int hModel_;                //ƒ‚ƒfƒ‹”Ô†
 public:
 	Stage(GameObject* parent);
 	~Stage();
@@ -11,4 +10,6 @@ public:
 	void Update() override;
 	void Draw() override;
 	void Release() override;
+
+
 };

@@ -132,6 +132,9 @@
     <ClCompile Include="Action\RotateAction.cpp" />
     <ClCompile Include="AI\Node.cpp" />
     <ClCompile Include="AI\RouteSearch.cpp" />
+    <ClCompile Include="Animation\AnimationController.cpp" />
+    <ClCompile Include="Animation\AnimationNotify.cpp" />
+    <ClCompile Include="Animation\TestBossNotify.cpp" />
     <ClCompile Include="Character\Character.cpp" />
     <ClCompile Include="Character\CharacterManager.cpp" />
     <ClCompile Include="Character\DamageSystem.cpp" />
@@ -175,8 +178,10 @@
     <ClCompile Include="Engine\Texture.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Json\jsonReader.cpp" />
+    <ClCompile Include="Other\AudioManager.cpp" />
     <ClCompile Include="Other\GameManager.cpp" />
     <ClCompile Include="Other\InputManager.cpp" />
+    <ClCompile Include="Other\VFXManager.cpp" />
     <ClCompile Include="Player\Aim.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Scene\SceneBase.cpp" />
@@ -210,6 +215,9 @@
     <ClInclude Include="Action\RotateAction.h" />
     <ClInclude Include="AI\Node.h" />
     <ClInclude Include="AI\RouteSearch.h" />
+    <ClInclude Include="Animation\AnimationController.h" />
+    <ClInclude Include="Animation\AnimationNotify.h" />
+    <ClInclude Include="Animation\TestBossNotify.h" />
     <ClInclude Include="Character\Character.h" />
     <ClInclude Include="Character\CharacterManager.h" />
     <ClInclude Include="Character\DamageSystem.h" />
@@ -256,8 +264,10 @@
     <ClInclude Include="Engine\Transform.h" />
     <ClInclude Include="Json\json.hpp" />
     <ClInclude Include="Json\JsonReader.h" />
+    <ClInclude Include="Other\AudioManager.h" />
     <ClInclude Include="Other\GameManager.h" />
     <ClInclude Include="Other\InputManager.h" />
+    <ClInclude Include="Other\VFXManager.h" />
     <ClInclude Include="Player\Aim.h" />
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Scene\SceneBase.h" />

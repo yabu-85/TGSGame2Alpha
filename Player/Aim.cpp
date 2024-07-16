@@ -7,6 +7,7 @@
 #include "../Engine/Fbx.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/InputManager.h"
+#include "../Other/GameManager.h"
 #include <vector>
 
 namespace {
@@ -250,8 +251,7 @@ void Aim::RayCastStage()
     XMStoreFloat3(&dir, vDir);
     data.start = start;
     data.dir = dir;
-    CollisionMap* cMap = static_cast<CollisionMap*>(FindObject("CollisionMap"));
-    cMap->RaySelectCellVsSegment(cameraPosition_, &data);
+    GameManager::GetCollisionMap()->RaySelectCellVsSegment(cameraPosition_, &data);
 
     //ƒŒƒC“–‚½‚Á‚½E”»’è‹——£“à‚¾‚Á‚½‚ç
     if (data.dist <= distanceBehind_ + HEIGHT_RAY) {

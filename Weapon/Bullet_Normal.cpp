@@ -3,12 +3,15 @@
 #include "../Engine/Model.h"
 #include "../Engine/Global.h"
 #include "../Engine/PolyLine.h"
-#include "../Character/DamageSystem.h"
-#include "../Character/Character.h"
-#include "../UI/DamageUI.h"
-#include "../Stage/CollisionMap.h"
 #include "../Engine/CapsuleCollider.h"
 #include "../Json/JsonReader.h"
+#include "../Character/DamageSystem.h"
+#include "../Character/Character.h"
+#include "../Stage/CollisionMap.h"
+#include "../Other/GameManager.h"
+#include "../Player/Player.h"
+#include "../UI/AimCursor.h"
+#include "../UI/DamageUI.h"
 
 namespace {
     static const int POLY_LENG = 30;
@@ -68,9 +71,13 @@ void Bullet_Normal::Update()
         XMFLOAT3 damagePos = pHitChara_->GetPosition();
         damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
         DamageUI::AddDamage(damagePos, parameter_.damage_, playerId_);
-      
+
         transform_.position_ = pCapsuleCollider_->targetPos_;
         HitEffect();
+
+        //HitCursor
+        GameManager::GetPlayer(playerId_)->GetGun()->GetAimCursor()->Hit();
+        
 
         pPolyLine_->ClearFirstPosition();
         pPolyLine_->AddPosition(hitPos_);
@@ -146,7 +153,10 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
     AddCollider(pCapsuleCollider_);
     
     //PolyLine’Ç‰Á
-    float hitDist = CalculationDistance(transform_.position_, wallHitPos);
+    XMFLOAT3 targetPos = wallHitPos;
+    if (chara) targetPos = charaHitPos;
+
+    float hitDist = CalculationDistance(transform_.position_, targetPos);
     if (hitDist < parameter_.speed_) {
         XMFLOAT3 move = Float3Multiply(move_, (hitDist / parameter_.speed_));
         for (int i = 0; i < POLY_LENG - 1; i++) {
@@ -177,7 +187,6 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
 
 void Bullet_Normal::HitEffect()
 {
-    EFFEKSEERLIB::gEfk->AddEffect("HIT", "Particle/hit.efk");
     EFFEKSEERLIB::EFKTransform t;
     transform_.scale_ = XMFLOAT3(0.2f, 0.2f, 0.2f);
     DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());

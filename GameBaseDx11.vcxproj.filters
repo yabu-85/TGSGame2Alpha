@@ -84,6 +84,9 @@
     <Filter Include="UI\Gauge">
       <UniqueIdentifier>{2f88abba-1ec1-4f12-9ee1-ed8e91c4d22e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{8a128810-74f9-411e-ba2d-db5942dab939}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\BoxCollider.cpp">
@@ -313,6 +316,21 @@
     </ClCompile>
     <ClCompile Include="UI\HealthGauge.cpp">
       <Filter>UI\Gauge</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationController.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimationNotify.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\TestBossNotify.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Other\AudioManager.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Other\VFXManager.cpp">
+      <Filter>Other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -555,6 +573,21 @@
     </ClInclude>
     <ClInclude Include="UI\HealthGauge.h">
       <Filter>UI\Gauge</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimationController.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimationNotify.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\TestBossNotify.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Other\AudioManager.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Other\VFXManager.h">
+      <Filter>Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

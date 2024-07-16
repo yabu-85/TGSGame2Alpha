@@ -1,16 +1,16 @@
 #include "Stage.h"
+#include "CollisionMap.h"
 #include "../Engine/Model.h"
 #include "../Engine/Direct3D.h"
-
-#include "CollisionMap.h"
+#include "../AI/RouteSearch.h"
+#include "../Other/GameManager.h"
 
 namespace {
-	int handle[5] = { -1 };
 
 }
 
 Stage::Stage(GameObject* parent)
-	: GameObject(parent, "Stage"), hModel_(-1)
+	: GameObject(parent, "Stage")
 {
 }
 
@@ -20,8 +20,18 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-	CollisionMap* cMap = Instantiate<CollisionMap>(this);
-	cMap->CreatIntersectDataTriangle();
+	//ÉÇÉfÉãéñëOì«Ç›çûÇ›
+	Model::Load("Model/Scarecrow.fbx"); 
+	
+	Instantiate<CollisionMap>(this);
+
+#if 0
+	GameManager::GetCollisionMap()->CreatIntersectDataTriangle("Json/TestStage.json");
+	RouteSearch::LoadFileNode("Json/TestStageNode.json");
+#else 
+	GameManager::GetCollisionMap()->CreatIntersectDataTriangle("Json/PlaneStage.json");
+	RouteSearch::LoadFileNode("Json/PlaneStageNode.json");
+#endif
 
 }
 

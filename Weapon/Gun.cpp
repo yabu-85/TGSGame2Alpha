@@ -71,7 +71,6 @@ void Gun::Update()
         pPlayer_->GetAim()->SetCameraRotateReturn(false);
 
         //ƒqƒbƒgƒGƒtƒFƒNƒg
-        EFFEKSEERLIB::gEfk->AddEffect("GUNSHOT", "Particle/gunShot.efk");
         EFFEKSEERLIB::EFKTransform t;
         Transform transform;
         transform.position_ = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
@@ -239,16 +238,18 @@ void Gun::ShootBullet(BulletType type)
     }
     ClearCollider();
 
+    XMFLOAT3 endTarget = gunTar;
+
     //“G‚ð–Ú•W‚É‚µ‚Ä‚¢‚½ê‡
     Character* chara = nullptr;
-    /*  ‘¬“x‚Æ‚©ŠÖŒW‚È‚¢ˆêu‚Å“ž’B‚·‚é’e‚È‚çGun‚Å”»’è‚·‚é‚¾‚¯‚ÅÏ‚Þ‚©‚çAŽc‚µ‚Ä‚¨‚­
+    //‘¬“x‚Æ‚©ŠÖŒW‚È‚¢ˆêu‚Å“ž’B‚·‚é’e‚È‚çGun‚Å”»’è‚·‚é‚¾‚¯‚ÅÏ‚Þ‚©‚çAŽc‚µ‚Ä‚¨‚­
     if (minIndex >= 0) {
         chara = charaList[minIndex];
+        endTarget = minHitPos;
     }
-    */
 
     float bulletSpeed = pNewBullet->GetBulletParameter().speed_;
-    XMFLOAT3 move = Float3Sub(gunTar, gunTop);
+    XMFLOAT3 move = Float3Sub(endTarget, gunTop);
     move = Float3Multiply(Float3Normalize(move), bulletSpeed);
 
     pNewBullet->SetMove(move);

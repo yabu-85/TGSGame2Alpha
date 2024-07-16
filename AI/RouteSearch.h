@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <string>
 #include <DirectXMath.h>
 #include "Node.h"
 
@@ -17,6 +18,7 @@ namespace RouteSearch {
     void Initialize();
     void Release();
 
+    void LoadFileNode(std::string fileName);
     std::vector<Node*>& GetNodeList();
     
     void NodeModelDraw();

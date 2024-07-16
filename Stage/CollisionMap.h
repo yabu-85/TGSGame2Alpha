@@ -42,7 +42,7 @@ public:
     void Release() override;
 
     //Stageからデータ取得してTriangle作成
-    void CreatIntersectDataTriangle();
+    void CreatIntersectDataTriangle(std::string fileName);
     //作ったCollisionMapリセット
     void IntersectDataReset();
 

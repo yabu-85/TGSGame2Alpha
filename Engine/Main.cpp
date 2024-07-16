@@ -13,6 +13,7 @@
 #include "Audio.h"
 #include "Light.h"
 #include "EffekseeLib/EffekseerVFX.h"
+#include "../Other/VFXManager.h"
 #include "../Other/GameManager.h"
 #include "../Stage/StageEditor.h"
 
@@ -92,6 +93,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	EFFEKSEERLIB::gEfk = new EFFEKSEERLIB::EffekseerManager;
 	EFFEKSEERLIB::gEfk->Initialize(Direct3D::pDevice_, Direct3D::pContext_);
+	VFXManager::Initialize();
 
 	//ルートオブジェクト準備
 	//すべてのゲームオブジェクトの親となるオブジェクト
