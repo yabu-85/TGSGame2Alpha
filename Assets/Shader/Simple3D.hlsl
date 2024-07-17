@@ -135,7 +135,7 @@ float4 PS(VS_OUT inData) : SV_Target
         //影無しのところは反射光追加
         color += speculer;
     }
-       
+    
 	//もしアルファ値がすこしでも透明でなければ
     if (diffuse.a == 1.0f) color.a = 1.0f;
     else color.a = diffuse.a;

@@ -1,5 +1,8 @@
 #include "SniperGun.h"
+#include "BulletBase.h"
 #include "Bullet_Normal.h"
+#include "GunBase.h"
+
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
 #include "../Engine/Camera.h"
@@ -63,7 +66,6 @@ void SniperGun::Update()
         if (coolTime_ > 0) return;
 
         ShootBullet<Bullet_Normal>();
-        
         pAimCursor_->Shot();
 
         CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);

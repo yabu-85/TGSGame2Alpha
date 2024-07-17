@@ -9,7 +9,7 @@ class SniperGun : public GunBase
 {
 public:
     SniperGun(GameObject* parent);
-    ~SniperGun();
+    ~SniperGun() override;
     void Initialize() override;
     void Update() override;
     void Draw() override;

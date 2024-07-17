@@ -1,9 +1,9 @@
 #pragma once
+#include "BulletBase.h"
 #include "../Engine/GameObject.h"
 
 class Player;
 class AimCursor;
-class BulletBase;
 
 //èeÇä«óùÇ∑ÇÈÉNÉâÉX
 class GunBase : public GameObject
@@ -23,21 +23,24 @@ protected:
     Player* pPlayer_;
     AimCursor* pAimCursor_;
 
-    void ShootBulletCalc(BulletBase* pBullet);
-
+    void ShootBullet(BulletBase* pBullet);
 public:
     GunBase(GameObject* parent, const std::string& name);
-    virtual ~GunBase() override;
-    virtual void Initialize() override = 0;
-    virtual void Update() override = 0;
-    virtual void Draw() override = 0;
-    virtual void Release() override = 0;
+    virtual ~GunBase() override {};
+    virtual void Initialize() override {};
+    virtual void Update() override {};
+    virtual void Draw() override {};
+    virtual void Release() override {};
     virtual void OnCollision(GameObject* pTarget) override;
-
-    // èeíeÇê∂ê¨Ç∑ÇÈ
-    template<class T>
-    void ShootBullet();
 
     bool IsFirstPerson() { return isFirstPerson_; }
     AimCursor* GetAimCursor() { return pAimCursor_; }
+
+    // èeíeÇê∂ê¨Ç∑ÇÈ
+    template<class T>
+    void ShootBullet()
+    {
+        BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
+        ShootBullet(pNewBullet);
+    }
 };

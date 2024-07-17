@@ -1,18 +1,18 @@
 #include "GunBase.h"
+#include "BulletBase.h"
 #include "Bullet_Normal.h"
+
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
 #include "../Engine/Camera.h"
 #include "../Engine/SegmentCollider.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
-#include "../Other/InputManager.h"
 #include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
 #include "../UI/AimCursor.h"
-#include "../Scene/TestScene.h"
 
 GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
@@ -21,10 +21,6 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
 
-}
-
-GunBase::~GunBase()
-{
 }
 
 void GunBase::OnCollision(GameObject* pTarget)
@@ -37,23 +33,15 @@ void GunBase::OnCollision(GameObject* pTarget)
     }
 }
 
-template <class T>
-void GunBase::ShootBullet()
-{
-    //Bulletインスタンス作成
-    BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
-}
-
-void GunBase::ShootBulletCalc(BulletBase* pBullet)
+void GunBase::ShootBullet(BulletBase* pBullet)
 {
     coolTime_ = pBullet->GetBulletParameter().shotCoolTime_;
-    float calcDist = pNewBullet->GetBulletParameter().speed_ * pNewBullet->GetBulletParameter().killTimer_;
-    pNewBullet->SetPlayerId(playerId_);
+    float calcDist = pBullet->GetBulletParameter().speed_ * pBullet->GetBulletParameter().killTimer_;
+    pBullet->SetPlayerId(playerId_);
 
     //色々情報計算
     XMFLOAT3 cameraPos = Camera::GetPosition(playerId_);
     XMFLOAT3 cameraTar = Camera::GetTarget(playerId_);
-
     XMFLOAT3 GunBaseTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
     XMFLOAT3 GunBaseRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
     XMFLOAT3 cameraVec = Float3Sub(cameraTar, cameraPos);
@@ -146,11 +134,11 @@ void GunBase::ShootBulletCalc(BulletBase* pBullet)
         endTarget = minHitPos;
     }
 
-    float bulletSpeed = pNewBullet->GetBulletParameter().speed_;
+    float bulletSpeed = pBullet->GetBulletParameter().speed_;
     XMFLOAT3 move = Float3Sub(endTarget, GunBaseTop);
     move = Float3Multiply(Float3Normalize(move), bulletSpeed);
 
-    pNewBullet->SetMove(move);
-    pNewBullet->SetPosition(GunBaseTop);
-    pNewBullet->Shot(chara, GunBaseTar, minHitPos);
+    pBullet->SetMove(move);
+    pBullet->SetPosition(GunBaseTop);
+    pBullet->Shot(chara, GunBaseTar, minHitPos);
 }
