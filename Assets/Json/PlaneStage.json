@@ -1,13 +1,13 @@
 {
     "objects": [
         {
-            "fileName": "Model/planeStage.fbx",
+            "fileName": "planeStage",
             "position": {
                 "x": 50.0,
                 "y": 4.135000228881836,
                 "z": 50.0
             },
-            "rayFileName": "Model/Box.fbx",
+            "rayFileName": "none",
             "rotate": {
                 "x": 0.0,
                 "y": 0.0,
@@ -20,7 +20,7 @@
             }
         },
         {
-            "fileName": "Model/planeStage.fbx",
+            "fileName": "planeStage",
             "position": {
                 "x": 50.0,
                 "y": 20.454999923706055,
@@ -36,25 +36,6 @@
                 "x": 0.5680000185966492,
                 "y": 1.0230000019073486,
                 "z": 0.45500001311302185
-            }
-        },
-        {
-            "fileName": "Model/Box.fbx",
-            "position": {
-                "x": 50.0,
-                "y": 6.0980000495910645,
-                "z": 52.763999938964844
-            },
-            "rayFileName": "Model/planestage.fbx",
-            "rotate": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
             }
         }
     ]

@@ -20,6 +20,8 @@ protected:
     int rootPartIndex_; //ルートパーツインデックス
     int playerId_;      //プレイヤーID
 
+    int peekTime_;      //覗き込み時間計算用
+
     Player* pPlayer_;
     AimCursor* pAimCursor_;
 

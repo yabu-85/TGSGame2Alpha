@@ -171,15 +171,6 @@ void Player::Draw()
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 
-    //FPSかTPSかで判定して、WeaponのDrawSet
-    //覗き込み推移中には表示、推移し終わったら表示しないって感じのほうがいいかも
-    if (pGunBase_->IsFirstPerson() && InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        pGunBase_->Invisible();
-    }
-    else {
-        pGunBase_->Visible();
-    }
-
     /*
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
         float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();

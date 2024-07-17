@@ -19,8 +19,9 @@
 #include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 namespace {
-    XMFLOAT3 handOffset = { 0.2f, 0.7f, 0.1f };      // 移動量
-
+    static const XMFLOAT3 handOffset = { 0.2f, 0.7f, 0.1f };    //移動量
+    static const int PEEK_TIME = 30;                            //覗き込みにかかる時間
+        
 }
 
 SniperGun::SniperGun(GameObject* parent)
@@ -55,9 +56,21 @@ void SniperGun::Initialize()
 
 void SniperGun::Update()
 {
-    // クールタイムを減らす
     coolTime_--;
     pAimCursor_->Update();
+
+    //FPSかTPSかで判定
+    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
+        peekTime_--;
+        //覗き込み完了
+        if (peekTime_ <= 0) {
+            Invisible();
+        }
+    }
+    else {
+        peekTime_ = PEEK_TIME;
+        Visible();
+    }
 
     // 通常射撃
     if (InputManager::IsCmd(InputManager::ATTACK, playerId_))
@@ -97,7 +110,6 @@ void SniperGun::Update()
 void SniperGun::Draw()
 {
     transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
-
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 }

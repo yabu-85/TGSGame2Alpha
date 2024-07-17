@@ -63,15 +63,19 @@ void Aim::Update()
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
 
     if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
-        distanceBehind_ = 0.5f;
-        distanceHorizontal_ = 0.35f;
-        distanceHeight_ = 1.15f;
+        static const float TARGET_BEHIND = 0.01f;
+        static const float TARGET_HORIZONTAL = 0.35f;
+        static const float TARGET_HEIGHT = 1.15f;
+
+        distanceTargetBehind_ = TARGET_BEHIND;
+        distanceTargetHorizontal_ = TARGET_HORIZONTAL;
+        distanceTargetHeight_ = TARGET_HEIGHT;
         mouseSensitivity_ = (MOUSE_SPEED_DEFAULT * 0.7f);
     }
     else if(InputManager::IsCmdUp(InputManager::AIM, pPlayer_->GetPlayerId())) {
-        distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
-        distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
-        distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
+        distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
+        distanceTargetHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
+        distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;
         mouseSensitivity_ = MOUSE_SPEED_DEFAULT;
     }
 
@@ -149,6 +153,10 @@ void Aim::DefaultAim()
     XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
     XMMATRIX mView = mRotX * mRotY;
 
+    distanceBehind_ += (distanceTargetBehind_ - distanceBehind_) * 0.1f;
+    distanceHorizontal_ += (distanceTargetHorizontal_ - distanceTargetHorizontal_) * 0.1f;
+    distanceHeight_ += (distanceTargetHeight_ - distanceHeight_) * 0.1f;
+
     const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
     XMStoreFloat3(&aimDirection_, -caDire);
@@ -163,7 +171,6 @@ void Aim::DefaultAim()
 
     XMVECTOR caTarget = XMLoadFloat3(&cameraTarget_);
     XMVECTOR forwardV = XMVector3TransformNormal(forwardVector, mView);
-    distanceBehind_ = distanceBehind_ + ((distanceTargetBehind_ - distanceBehind_) * 0.1f);
     XMVECTOR camPos = caTarget + (forwardV * distanceBehind_);
     XMStoreFloat3(&cameraPosition_, camPos);
     XMStoreFloat3(&cameraTarget_, caTarget);

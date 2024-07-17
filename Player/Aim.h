@@ -46,11 +46,13 @@ class Aim : public GameObject
     XMFLOAT2 rotateShakeDirKeep_;   //カメラShake移動量保存
     XMFLOAT2 rotateShakeDirKeepSub_;//カメラShake移動量計算用
 
+    float mouseSensitivity_;        //マウス感度
     float distanceHeight_;          //Aimの高さ
     float distanceHorizontal_;      //左右にずらす距離
     float distanceBehind_;          //後ろから映す距離
-    float distanceTargetBehind_;    //後ろから映す目標距離
-    float mouseSensitivity_;        //マウス感度
+    float distanceTargetHeight_;    //高さ目標距離
+    float distanceTargetHorizontal_;//左右目標距離
+    float distanceTargetBehind_;    //距離目標距離
 
     int compulsionTime_;            //強制から戻るのに掛かる時間
     float compulsionComplement_;    //強制移動の補完具合
@@ -85,6 +87,8 @@ public:
     bool IsValid() { return isValid_; };
     void SetAimMove(bool b) { isMove_ = b; };
     bool IsAimMove() { return isMove_; }
+
+    //void SetFirstPerson();
 
     //進行方向ベクトルのAim情報を取得
     XMFLOAT3 GetAimDirection() { return aimDirection_; }
