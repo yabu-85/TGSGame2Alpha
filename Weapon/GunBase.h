@@ -1,11 +1,11 @@
 #pragma once
-#include "GunBase.h"
+#include "../Engine/GameObject.h"
 
 class Player;
 class AimCursor;
 
 //e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
-class Gun : public GunBase
+class GunBase : public GameObject
 {
     bool rayHit_;   //Collision”»’è‚Å•Û‘¶—p
     
@@ -19,14 +19,14 @@ class Gun : public GunBase
 
     Player* pPlayer_;
     AimCursor* pAimCursor_;
-    std::shared_ptr<EFFEKSEERLIB::EFKTransform> mt;
-
 public:
-    Gun(GameObject* parent);
-    ~Gun();
-    void Initialize() override;
-    void Update() override;
-    void Draw() override;
-    void Release() override;
+    GunBase(GameObject* parent, const std::string& name);
+    ~GunBase();
+    virtual void OnCollision(GameObject* pTarget) override;
 
+    // e’e‚ğ¶¬‚·‚é
+    template<class T>
+    void ShootBullet();
+
+    AimCursor* GetAimCursor() { return pAimCursor_; }
 };

@@ -87,7 +87,6 @@ void TestBoss::Initialize()
     pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(120, VFX_TYPE::Explode));
     pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(180, VFX_TYPE::Explode));
     pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(240, VFX_TYPE::Explode));
-    
     pAnimationController_->SetNextAnim(0, 0.3f);
 
 }
@@ -95,8 +94,9 @@ void TestBoss::Initialize()
 void TestBoss::Update()
 {
     pAnimationController_->Update();
-    //pStateManager_->Update();
 
+    if (Input::IsKey(DIK_T)) transform_.position_.x -= 0.5f;
+    if (Input::IsKey(DIK_Y)) transform_.position_.x += 0.5f;
     if (Input::IsKey(DIK_G)) transform_.rotate_.y += 10;
     if (Input::IsKey(DIK_H)) transform_.rotate_.y -= 10;
 

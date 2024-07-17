@@ -3,13 +3,6 @@
 
 class Character;
 
-// ’eŠÛ‚Ì–¼‘O‚ÆID‚ğŠÇ—‚·‚éenum
-enum class BulletType
-{
-    NORMAL,
-    MAX
-};
-
 // e’e‚ÌŠî’êƒNƒ‰ƒX
 class BulletBase : public GameObject
 {
@@ -31,13 +24,10 @@ protected:
     XMFLOAT3 move_;             //ˆÚ“®‚Ì‘¬“x‚Æ•ûŒü
 
 public:
-    BulletBase(GameObject* parent, BulletType bulletType, std::string name);
+    BulletBase(GameObject* parent, std::string name);
     virtual ~BulletBase() = default;
 
     virtual void Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHitPos) {};
-
-    // e’e‚Ìí—Ş‚ğæ“¾
-    BulletType GetBulletType() const { return bulletType_; }
 
     // e’e‚Ìƒpƒ‰ƒ[ƒ^‚ğæ“¾
     BulletParameter GetBulletParameter() const { return parameter_; }

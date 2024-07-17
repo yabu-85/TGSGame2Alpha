@@ -5,10 +5,10 @@ class Player;
 class AimCursor;
 
 //銃を管理するクラス
-class Gun : public GunBase
+class SniperGun : public GunBase
 {
     bool rayHit_;   //Collision判定で保存用
-    
+
     int hModel_;        //モデル番号
     int coolTime_;      //撃つクールダウン
     int topBoneIndex_;  //トップボーンインデックス
@@ -19,11 +19,10 @@ class Gun : public GunBase
 
     Player* pPlayer_;
     AimCursor* pAimCursor_;
-    std::shared_ptr<EFFEKSEERLIB::EFKTransform> mt;
 
 public:
-    Gun(GameObject* parent);
-    ~Gun();
+    SniperGun(GameObject* parent);
+    ~SniperGun();
     void Initialize() override;
     void Update() override;
     void Draw() override;

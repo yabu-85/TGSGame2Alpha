@@ -1,4 +1,5 @@
 #pragma once
+#include "../Engine/EffekseeLib/EffekseerVFX.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 
@@ -13,6 +14,6 @@ namespace VFXManager {
 	//TypeÇ≈éwíËÇµÇƒê∂ê¨ otherÅÅSwordSlahsÇ∆Ç©Ç≈égÇ§
 	void CreateVfx(XMFLOAT3 pos, VFX_TYPE type, XMFLOAT3 other = XMFLOAT3());
 
-	void CreateVfxExplode(XMFLOAT3 pos);
+	std::shared_ptr<EFFEKSEERLIB::EFKTransform> CreateVfxExplode(XMFLOAT3 pos);
 
 };

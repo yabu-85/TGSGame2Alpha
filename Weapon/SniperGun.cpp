@@ -1,4 +1,4 @@
-#include "Gun.h"
+#include "SniperGun.h"
 #include "Bullet_Normal.h"
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
@@ -13,24 +13,23 @@
 #include "../Character/CharacterManager.h"
 #include "../UI/AimCursor.h"
 #include "../Scene/TestScene.h"
-#include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 namespace {
     XMFLOAT3 handOffset = { 0.2f, 0.7f, 0.1f };      // 移動量
 
 }
 
-Gun::Gun(GameObject* parent)
-    : GunBase(parent, "Gun"), hModel_(-1), pPlayer_(nullptr), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
+SniperGun::SniperGun(GameObject* parent)
+    : GunBase(parent, "SniperGun"), hModel_(-1), pPlayer_(nullptr), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
     rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1)
 {
 }
 
-Gun::~Gun()
+SniperGun::~SniperGun()
 {
 }
 
-void Gun::Initialize()
+void SniperGun::Initialize()
 {
     hModel_ = Model::Load("Model/Rifle.fbx");
     assert(hModel_ >= 0);
@@ -49,7 +48,7 @@ void Gun::Initialize()
 
 }
 
-void Gun::Update()
+void SniperGun::Update()
 {
     // クールタイムを減らす
     coolTime_--;
@@ -80,7 +79,7 @@ void Gun::Update()
         t.isLoop = false;   //繰り返し
         t.maxFrame = 20;    //80フレーム
         t.speed = 1.0;      //スピード
-        EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
+        EFFEKSEERLIB::gEfk->Play("SniperGunSHOT", t);
     }
     else {
         //連続で打つのやめた時だけ、RotateShake戻り処理をTrueに
@@ -90,7 +89,7 @@ void Gun::Update()
 
 }
 
-void Gun::Draw()
+void SniperGun::Draw()
 {
     transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
 
@@ -98,6 +97,6 @@ void Gun::Draw()
     Model::Draw(hModel_);
 }
 
-void Gun::Release()
+void SniperGun::Release()
 {
 }

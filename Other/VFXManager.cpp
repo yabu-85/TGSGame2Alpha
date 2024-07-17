@@ -19,7 +19,7 @@ namespace VFXManager {
         }
     }
 
-    void CreateVfxExplode(XMFLOAT3 pos)
+    std::shared_ptr<EFFEKSEERLIB::EFKTransform> CreateVfxExplode(XMFLOAT3 pos)
     {
         Transform trans;
         trans.position_ = pos;
@@ -29,7 +29,7 @@ namespace VFXManager {
         t.isLoop = false;
         t.maxFrame = 80;
         t.speed = 1.0;
-        EFFEKSEERLIB::gEfk->Play("HIT", t);
+        return EFFEKSEERLIB::gEfk->Play("HIT", t);
     }
 
 }

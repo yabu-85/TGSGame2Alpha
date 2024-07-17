@@ -18,7 +18,7 @@ namespace {
 }
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
-    : BulletBase(parent, BulletType::NORMAL, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()), startPos_(XMFLOAT3()),
+    : BulletBase(parent, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()), startPos_(XMFLOAT3()),
     pHitChara_(nullptr), minHitDist_(99999.9f), nextKill_(false), pCapsuleCollider_(nullptr), killWaitTime_(0)
 {
     // JSONファイル読み込み
@@ -193,7 +193,7 @@ void Bullet_Normal::HitEffect()
     t.isLoop = false;   //繰り返し
     t.maxFrame = 80;    //80フレーム
     t.speed = 1.0;      //スピード
-    mt = EFFEKSEERLIB::gEfk->Play("HIT", t);
+    EFFEKSEERLIB::gEfk->Play("HIT", t);
 }
 
 void Bullet_Normal::KillBullet()

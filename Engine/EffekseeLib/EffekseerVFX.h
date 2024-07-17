@@ -5,6 +5,7 @@
 #include <string_view>
 #include <unordered_map>
 #include "../Camera.h"
+#include "../GameObject.h"
 #include <DirectXMath.h>
 #include <filesystem>
 
@@ -150,15 +151,20 @@ namespace EFFEKSEERLIB {
     {
     public:
         EFKInstance(const std::shared_ptr<EFKData>& effect_data)
-            : m_spEffectData(effect_data) {}
+            : m_spEffectData(effect_data), pGameObject_(nullptr) {}
+
+        ~EFKInstance() {
+            pGameObject_ = nullptr;
+        }
 
         std::shared_ptr<const EFKData> GetEffectData() const noexcept {
             return m_spEffectData;
         }
 
-        double                           elapsedTime = 0;
-        Effekseer::Handle                handle = 0;
-        std::shared_ptr<EFKTransform> effectTransform;
+        double                          elapsedTime = 0;
+        Effekseer::Handle               handle = 0;
+        std::shared_ptr<EFKTransform>   effectTransform;
+        GameObject*                     pGameObject_;
 
     private:
         const std::shared_ptr<EFKData> m_spEffectData;
@@ -182,7 +188,6 @@ namespace EFFEKSEERLIB {
         }
 
         void Update(double delta_time) {
-            Trigger();
 
             for (auto iter = EffectInstances.begin(); iter != EffectInstances.end();) 
             {
@@ -205,8 +210,24 @@ namespace EFFEKSEERLIB {
                 }
                 else {
                     rendererRef_->SetTime(static_cast<float>(data.elapsedTime));
-                    managerRef_->SetMatrix(handle, CnvMat43(tranform->matrix));
                     managerRef_->SetSpeed(handle, tranform->speed);
+
+                    //オブジェクトのTransformと同期
+                    if (data.pGameObject_) {
+                        //計算
+                        XMFLOAT4X4 mat = tranform->matrix;
+                        XMMATRIX m = XMLoadFloat4x4(&mat);
+                        m = XMMatrixTranspose(m);
+                        m *= data.pGameObject_->GetWorldMatrix();
+                        XMStoreFloat4x4(&mat, m);
+
+                        //セット
+                        managerRef_->SetMatrix(handle, CnvMat43(mat));
+                    }
+                    else {
+                        managerRef_->SetMatrix(handle, CnvMat43(tranform->matrix));
+                    }
+
                     data.elapsedTime += delta_time;
                     ++iter;
                 }
@@ -235,7 +256,7 @@ namespace EFFEKSEERLIB {
             EffectList.emplace(effect_name, std::make_shared<EFKData>(managerRef_, file_path));
         }
 
-        std::shared_ptr<EFKTransform> Play(std::string_view effect_name, const EFKTransform& effect_transform, bool is_unique = false) {
+        std::shared_ptr<EFKTransform> Play(std::string_view effect_name, const EFKTransform& effect_transform, bool is_unique = false, GameObject* pParent = nullptr) {
             if (is_unique) {
                 if (auto iter = EffectInstances.find(effect_name.data()); iter != EffectInstances.end()) {
                     return iter->second->effectTransform;
@@ -244,6 +265,7 @@ namespace EFFEKSEERLIB {
             if (auto iter = EffectList.find(effect_name.data()); iter != EffectList.end()) {
                 auto effect_instance = std::make_unique<EFKInstance>(iter->second);
                 effect_instance->effectTransform = std::make_shared<EFKTransform>(effect_transform);
+                effect_instance->pGameObject_ = pParent;
                 auto& sp_et = effect_instance->effectTransform;
                 EffectInstances.emplace(effect_name, std::move(effect_instance));
                 return sp_et;

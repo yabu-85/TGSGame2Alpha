@@ -1,6 +1,5 @@
 #pragma once
 #include "BulletBase.h"
-#include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 class PolyLine;
 class Character;
@@ -19,7 +18,6 @@ class Bullet_Normal : public BulletBase
     PolyLine* pPolyLine_;
     Character* pHitChara_;
     CapsuleCollider* pCapsuleCollider_;
-    std::shared_ptr<EFFEKSEERLIB::EFKTransform> mt;
 
     //対象に当たった時のエフェクト
     void HitEffect();

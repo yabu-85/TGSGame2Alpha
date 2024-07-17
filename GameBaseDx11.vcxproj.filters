@@ -332,6 +332,12 @@
     <ClCompile Include="Other\VFXManager.cpp">
       <Filter>Other</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon\SniperGun.cpp">
+      <Filter>Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon\GunBase.cpp">
+      <Filter>Weapon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -588,6 +594,12 @@
     </ClInclude>
     <ClInclude Include="Other\VFXManager.h">
       <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\SniperGun.h">
+      <Filter>Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\GunBase.h">
+      <Filter>Weapon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

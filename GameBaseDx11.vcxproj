@@ -208,6 +208,8 @@
     <ClCompile Include="Weapon\BulletBase.cpp" />
     <ClCompile Include="Weapon\Bullet_Normal.cpp" />
     <ClCompile Include="Weapon\Gun.cpp" />
+    <ClCompile Include="Weapon\GunBase.cpp" />
+    <ClCompile Include="Weapon\SniperGun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Action\BaseAction.h" />
@@ -295,6 +297,8 @@
     <ClInclude Include="Weapon\BulletBase.h" />
     <ClInclude Include="Weapon\Bullet_Normal.h" />
     <ClInclude Include="Weapon\Gun.h" />
+    <ClInclude Include="Weapon\GunBase.h" />
+    <ClInclude Include="Weapon\SniperGun.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\BillBoard.hlsl">
