@@ -15,8 +15,8 @@
 #include "../Scene/TestScene.h"
 
 GunBase::GunBase(GameObject* parent, const std::string& name)
-    : GameObject(parent, name), hModel_(-1), pPlayer_(nullptr), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
-    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1)
+    : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
+    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isFirstPerson_(false)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
@@ -24,22 +24,6 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
 }
 
 GunBase::~GunBase()
-{
-}
-
-void GunBase::Initialize()
-{
-}
-
-void GunBase::Update()
-{
-}
-
-void GunBase::Draw()
-{
-}
-
-void GunBase::Release()
 {
 }
 
@@ -58,7 +42,11 @@ void GunBase::ShootBullet()
 {
     //Bulletインスタンス作成
     BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
-    coolTime_ = pNewBullet->GetBulletParameter().shotCoolTime_;
+}
+
+void GunBase::ShootBulletCalc(BulletBase* pBullet)
+{
+    coolTime_ = pBullet->GetBulletParameter().shotCoolTime_;
     float calcDist = pNewBullet->GetBulletParameter().speed_ * pNewBullet->GetBulletParameter().killTimer_;
     pNewBullet->SetPlayerId(playerId_);
 
@@ -140,7 +128,7 @@ void GunBase::ShootBullet()
 
         vecDir = XMVector3TransformCoord(XMLoadFloat3(&GunBaseVec), matRotX * matRotY * matRotZ);
         XMStoreFloat3(&shotVec, vecDir);
-        
+
         data.dir = shotVec;
         calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist));
         GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);

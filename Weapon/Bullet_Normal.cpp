@@ -76,7 +76,7 @@ void Bullet_Normal::Update()
         HitEffect();
 
         //HitCursor
-        GameManager::GetPlayer(playerId_)->GetGun()->GetAimCursor()->Hit();
+        GameManager::GetPlayer(playerId_)->GetGunBase()->GetAimCursor()->Hit();
         
 
         pPolyLine_->ClearFirstPosition();

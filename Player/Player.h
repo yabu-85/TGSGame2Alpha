@@ -73,7 +73,7 @@ public:
     int GetPlayerId() { return playerId_; }
     int GetModelHandle() { return hModel_; }
     Aim* GetAim() { return pAim_; }
-    GunBase* GetGunBasen() { return pGunBase_; }
+    GunBase* GetGunBase() { return pGunBase_; }
     XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 
 };

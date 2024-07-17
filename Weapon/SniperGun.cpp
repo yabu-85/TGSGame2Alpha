@@ -13,6 +13,7 @@
 #include "../Character/CharacterManager.h"
 #include "../UI/AimCursor.h"
 #include "../Scene/TestScene.h"
+#include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 namespace {
     XMFLOAT3 handOffset = { 0.2f, 0.7f, 0.1f };      // 移動量
@@ -20,8 +21,7 @@ namespace {
 }
 
 SniperGun::SniperGun(GameObject* parent)
-    : GunBase(parent, "SniperGun"), hModel_(-1), pPlayer_(nullptr), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
-    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1)
+    : GunBase(parent, "SniperGun")
 {
 }
 
@@ -43,6 +43,8 @@ void SniperGun::Initialize()
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
+    isFirstPerson_ = true;
+
     //プレイヤーの手の位置まで調整
     transform_.position_ = handOffset;
 
@@ -61,6 +63,7 @@ void SniperGun::Update()
         if (coolTime_ > 0) return;
 
         ShootBullet<Bullet_Normal>();
+        
         pAimCursor_->Shot();
 
         CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
@@ -79,7 +82,7 @@ void SniperGun::Update()
         t.isLoop = false;   //繰り返し
         t.maxFrame = 20;    //80フレーム
         t.speed = 1.0;      //スピード
-        EFFEKSEERLIB::gEfk->Play("SniperGunSHOT", t);
+        EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
     }
     else {
         //連続で打つのやめた時だけ、RotateShake戻り処理をTrueに

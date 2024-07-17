@@ -6,8 +6,6 @@ class Character;
 // 銃弾の基底クラス
 class BulletBase : public GameObject
 {
-    BulletType bulletType_;
-
     // バレットの共通パラメータ
     struct BulletParameter
     {

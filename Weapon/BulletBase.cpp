@@ -1,6 +1,6 @@
 #include "BulletBase.h"
 
 BulletBase::BulletBase(GameObject* parent, std::string name)
-	: GameObject(parent, name), bulletType_(bulletType), playerId_(0)
+	: GameObject(parent, name), playerId_(0)
 {
 }

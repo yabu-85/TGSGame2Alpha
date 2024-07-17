@@ -21,8 +21,7 @@ namespace {
 }
 
 Gun::Gun(GameObject* parent)
-    : GunBase(parent, "Gun"), hModel_(-1), pPlayer_(nullptr), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
-    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1)
+    : GunBase(parent, "Gun")
 {
 }
 
@@ -44,6 +43,8 @@ void Gun::Initialize()
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
+    isFirstPerson_ = false; 
+
     //プレイヤーの手の位置まで調整
     transform_.position_ = handOffset;
 
@@ -61,7 +62,7 @@ void Gun::Update()
         //まだクールタイム中
         if (coolTime_ > 0) return;
 
-        ShootBullet<Bullet_Normal>();
+        //ShootBullet<Bullet_Normal>();
         pAimCursor_->Shot();
 
         CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
