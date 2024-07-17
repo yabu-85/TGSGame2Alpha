@@ -9,8 +9,11 @@ class SphereCollider;
 struct RayCastData;
 
 struct StageModelData {
+    int hModelNum;
     int hRayModelNum;
     std::string fileName;
+    std::string rayFileName;
+    
     Transform transform;
     StageModelData();
 };

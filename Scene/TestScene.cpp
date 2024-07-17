@@ -64,8 +64,8 @@ void TestScene::Update()
 	SceneBase::Update();
 	
 	if (Input::IsKeyDown(DIK_N)) {
-		static_cast<SceneManager*>(FindObject("SceneManager"))->ChangeScene(SCENE_ID_SELECT);
-		return;
+	//	static_cast<SceneManager*>(FindObject("SceneManager"))->ChangeScene(SCENE_ID_SELECT);
+	//	return;
 	}
 	
 	Transform trans;

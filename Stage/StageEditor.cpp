@@ -10,6 +10,8 @@
 #include "../Engine/Global.h"
 #include "../Other/GameManager.h"
 #include <fstream>
+#include <cstring> 
+#include <string>
 
 using namespace std;
 
@@ -29,10 +31,14 @@ std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileNa
     {
         StageModelData obj;
         obj.fileName = objJson["fileName"];
-        obj.hRayModelNum = Model::Load(obj.fileName);
+        obj.hModelNum = Model::Load(obj.fileName);
         obj.transform.position_ = { objJson["position"]["x"], objJson["position"]["y"], objJson["position"]["z"] };
         obj.transform.scale_ = { objJson["scale"]["x"], objJson["scale"]["y"], objJson["scale"]["z"] };
         obj.transform.rotate_ = { objJson["rotate"]["x"], objJson["rotate"]["y"], objJson["rotate"]["z"] };
+        
+        //Ray用モデル
+        obj.rayFileName = objJson["rayFileName"];;
+        obj.hRayModelNum = Model::Load(obj.rayFileName);
         stage.push_back(obj);
     }
 
@@ -46,6 +52,7 @@ void StageEditor::SaveFileStage(const std::vector<StageModelData>& stage, const 
     {
         nlohmann::json objJson;
         objJson["fileName"] = obj.fileName;
+        objJson["rayFileName"] = obj.rayFileName;
         objJson["position"] = { {"x", obj.transform.position_.x}, {"y", obj.transform.position_.y}, {"z", obj.transform.position_.z} };
         objJson["scale"] = { {"x", obj.transform.scale_.x}, {"y", obj.transform.scale_.y}, {"z", obj.transform.scale_.z} };
         objJson["rotate"] = { {"x", obj.transform.rotate_.x}, {"y", obj.transform.rotate_.y}, {"z", obj.transform.rotate_.z} };
@@ -89,7 +96,7 @@ void StageEditor::DrawStageEditor()
         modelHandle = Model::Load(input);
     }
 
-    //ボタンを無効にする
+    //入力ないからボタンを無効にする
     bool isButtonEnabled = strlen(input) > 0;
     if (!isButtonEnabled) ImGui::BeginDisabled();
     
@@ -114,7 +121,7 @@ void StageEditor::DrawStageEditor()
     {
         StageModelData& modelData = stageList[index];
 
-        // バッファサイズを増やす
+        //バッファサイズを増やす
         char name[256];
         sprintf_s(name, sizeof(name), "number : %d %s", count++, modelData.fileName.c_str());
 
@@ -156,6 +163,13 @@ void StageEditor::DrawStageEditor()
             ImGui::SliderFloat("Rz", &rot.z, 0.0f, RotMaxValue);
             modelData.transform.rotate_ = rot;
             ImGui::Columns(1);
+
+            //RayModelのFileName入力
+            char rayName[256];
+            strncpy_s(rayName, sizeof(rayName), modelData.rayFileName.c_str(), _TRUNCATE);
+            if (ImGui::InputText("Name", rayName, IM_ARRAYSIZE(rayName))) {
+                modelData.rayFileName = std::string(rayName);
+            }
 
             //削除ボタン
             if (ImGui::Button("Remove")) {

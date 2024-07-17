@@ -27,9 +27,10 @@ namespace {
 
 const float CollisionMap::boxSize = 5.0f;
 
-StageModelData::StageModelData() : hRayModelNum(-1), transform{ }
+StageModelData::StageModelData() : hModelNum(-1), hRayModelNum(-1), transform{ }
 {
     transform.position_ = XMFLOAT3(50.0f, 5.0f, 50.0f);
+    rayFileName = "none";
 }
 
 //---------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ void CollisionMap::Draw()
     }
 #endif
     
-#if 0
+#if 1
     for (auto e : modelList_) {
         Model::SetTransform(e.hRayModelNum, e.transform);
         Model::Draw(e.hRayModelNum);
@@ -124,8 +125,8 @@ void CollisionMap::Draw()
 
 #if 1
     for (auto e : modelList_) {
-        Model::SetTransform(e.hRayModelNum, e.transform);
-        Model::Draw(e.hRayModelNum);
+        Model::SetTransform(e.hModelNum, e.transform);
+        Model::Draw(e.hModelNum);
     }
 #endif
 
@@ -140,12 +141,12 @@ void CollisionMap::CreatIntersectDataTriangle(std::string fileName)
     modelList_ = StageEditor::LoadFileStage(fileName);
 
     for (int i = 0; i < modelList_.size(); i++) {
-        //コリジョン用モデル内なら飛ばす
-        if (modelList_[i].hRayModelNum <= -1) continue;
-        
         //Collision用のモデルポリゴンを取得
         std::vector<PolygonData> polyList;
-        Model::GetAllPolygon(modelList_[i].hRayModelNum, polyList);
+
+        //コリジョン用モデルある場合
+        if (modelList_[i].hRayModelNum >= 0) Model::GetAllPolygon(modelList_[i].hRayModelNum, polyList);
+        else Model::GetAllPolygon(modelList_[i].hModelNum, polyList);
 
         //モデルデータの座標を計算
         for (int j = 0; j < polyList.size(); j++) {
