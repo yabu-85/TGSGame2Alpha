@@ -7,6 +7,7 @@ class AimCursor;
 //e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class SniperGun : public GunBase
 {
+    int hPict_;
 public:
     SniperGun(GameObject* parent);
     ~SniperGun() override;

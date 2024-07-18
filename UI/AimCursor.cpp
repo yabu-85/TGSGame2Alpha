@@ -43,14 +43,15 @@ namespace {
 	XMFLOAT3 ONE_LEFT_VECTOR_HIT = XMFLOAT3(-0.34f, 0.64f, 0.0f);
 	XMFLOAT3 ONE_VECTOR_ARRAY_HIT[4] = { ONE_UP_VECTOR_HIT, ONE_RIGHT_VECTOR_HIT, ONE_DOWN_VECTOR_HIT, ONE_LEFT_VECTOR_HIT };
 
-	XMFLOAT3 TWO_UP_VECTOR_HIT = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3 TWO_RIGHT_VECTOR_HIT = XMFLOAT3(1.3f, 0.0f, 0.0f);
-	XMFLOAT3 TWO_DOWN_VECTOR_HIT = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	XMFLOAT3 TWO_LEFT_VECTOR_HIT = XMFLOAT3(-1.3f, 0.0f, 0.0f);
+	XMFLOAT3 TWO_UP_VECTOR_HIT = XMFLOAT3(1.3f, 1.0f, 0.0f);
+	XMFLOAT3 TWO_RIGHT_VECTOR_HIT = XMFLOAT3(1.3f, -1.0f, 0.0f);
+	XMFLOAT3 TWO_DOWN_VECTOR_HIT = XMFLOAT3(-1.3f, -1.0f, 0.0f);
+	XMFLOAT3 TWO_LEFT_VECTOR_HIT = XMFLOAT3(-1.3f, 1.0f, 0.0f);
 	XMFLOAT3 TWO_VECTOR_ARRAY_HIT[4] = { TWO_UP_VECTOR_HIT, TWO_RIGHT_VECTOR_HIT, TWO_DOWN_VECTOR_HIT, TWO_LEFT_VECTOR_HIT };
 	
 	//rotate
-	float ROTATE_ARRAY_HIT[4] = { 135, 45, -45, -135 };
+	float ONE_ROTATE_ARRAY_HIT[4] = { 135, 45, -45, -135 };		//右上、右下、左下、左上
+	float TWO_ROTATE_ARRAY_HIT[4] = { 120, 55, -55, -120 };
 
 }
 
@@ -107,12 +108,13 @@ void AimCursor::Draw()
 			if (GameManager::IsOnePlayer()) {
 				t.position_ = Float3Multiply(ONE_VECTOR_ARRAY_HIT[i], (MAX_MOVE * parce) + MIN_MOVE);
 				t.scale_ = ONE_PLAYER_SIZE;
+				t.rotate_.z = ONE_ROTATE_ARRAY_HIT[i];
 			}
 			else {
 				t.position_ = Float3Multiply(TWO_VECTOR_ARRAY_HIT[i], (MAX_MOVE * parce) + MIN_MOVE);
 				t.scale_ = TWO_PLAYER_SIZE_LIST[i];
+				t.rotate_.z = TWO_ROTATE_ARRAY_HIT[i];
 			}
-			t.rotate_.z = ROTATE_ARRAY_HIT[i];
 
 			Image::SetTransform(hHitPict_, t);
 			Image::SetAlpha(hHitPict_, (int)(255.0f * hitParce_));

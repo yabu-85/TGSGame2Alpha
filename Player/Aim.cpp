@@ -28,11 +28,13 @@ Aim::Aim(GameObject* parent)
     : GameObject(parent, "Aim"), cameraPosition_{ 0,0,0 }, cameraTarget_{ 0,0,0 }, aimDirection_{ 0,0,0 }, cameraOffset_{ 0,0,0 },
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
-    shakeDirection_{ 1,0,0,0 }, isValid_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), 
+    shakeDirection_{ 1,0,0,0 }, isValid_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
     rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false)
 {
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
+    distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
+    distanceTargetHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
     distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
     distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
 
@@ -64,9 +66,8 @@ void Aim::Update()
 
     if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
         static const float TARGET_BEHIND = 0.01f;
-        static const float TARGET_HORIZONTAL = 0.35f;
-        static const float TARGET_HEIGHT = 1.15f;
-
+        static const float TARGET_HORIZONTAL = 0.2f;
+        static const float TARGET_HEIGHT = 0.94f;
         distanceTargetBehind_ = TARGET_BEHIND;
         distanceTargetHorizontal_ = TARGET_HORIZONTAL;
         distanceTargetHeight_ = TARGET_HEIGHT;
@@ -153,9 +154,9 @@ void Aim::DefaultAim()
     XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
     XMMATRIX mView = mRotX * mRotY;
 
-    distanceBehind_ += (distanceTargetBehind_ - distanceBehind_) * 0.1f;
-    distanceHorizontal_ += (distanceTargetHorizontal_ - distanceTargetHorizontal_) * 0.1f;
-    distanceHeight_ += (distanceTargetHeight_ - distanceHeight_) * 0.1f;
+    distanceBehind_ += (distanceTargetBehind_ - distanceBehind_) * distanceIncreaseAmount_;
+    distanceHorizontal_ += (distanceTargetHorizontal_ - distanceHorizontal_) * distanceIncreaseAmount_;
+    distanceHeight_ += (distanceTargetHeight_ - distanceHeight_) * distanceIncreaseAmount_;
 
     const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);

@@ -53,6 +53,7 @@ class Aim : public GameObject
     float distanceTargetHeight_;    //高さ目標距離
     float distanceTargetHorizontal_;//左右目標距離
     float distanceTargetBehind_;    //距離目標距離
+    float distanceIncreaseAmount_;  //高さ/左右/距離３つの増加量
 
     int compulsionTime_;            //強制から戻るのに掛かる時間
     float compulsionComplement_;    //強制移動の補完具合
@@ -89,6 +90,7 @@ public:
     bool IsAimMove() { return isMove_; }
 
     //void SetFirstPerson();
+    void SetDistanceIncreaseAmount(float f) { distanceIncreaseAmount_ = f; }
 
     //進行方向ベクトルのAim情報を取得
     XMFLOAT3 GetAimDirection() { return aimDirection_; }

@@ -16,7 +16,7 @@
 
 GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
-    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isFirstPerson_(false)
+    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isFirstPerson_(false), isPeeking_(false)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();

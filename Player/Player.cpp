@@ -74,10 +74,9 @@ void Player::Initialize()
     pDamageSystem_->SetHP(100);
     moveSpeed_ = 0.15f;
 
-    pAim_ = Instantiate<Aim>(this);
-    
     //pGunBase_ = Instantiate<Gun>(this);
     pGunBase_ = Instantiate<SniperGun>(this);
+    pAim_ = Instantiate<Aim>(this);
 
     pStateManager_ = new StateManager(this);
     pStateManager_->AddState(new PlayerWait(pStateManager_));
@@ -168,18 +167,28 @@ void Player::Update()
 
 void Player::Draw()
 {
-    Model::SetTransform(hModel_, transform_);
-    Model::Draw(hModel_);
+    if (GameManager::GetDrawIndex() == playerId_) {
+        if (pGunBase_->IsFirstPerson() && pGunBase_->IsPeeking()) {
+        }
+        else {
+            Model::SetTransform(hModel_, transform_);
+            Model::Draw(hModel_);
+        }
 
-    /*
-    if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
-        float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
-        pHealthGauge_->SetParcent(r);
-        pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
-    */
+    else {
+        Model::SetTransform(hModel_, transform_);
+        Model::Draw(hModel_);
+        
+        if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
+            float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
+            pHealthGauge_->SetParcent(r);
+            pHealthGauge_->Draw(GameManager::GetDrawIndex());
+        }
 
-    CollisionDraw();
+    }
+
+    //CollisionDraw();
 }
 
 void Player::Release()

@@ -11,6 +11,7 @@ class GunBase : public GameObject
 protected:
     bool rayHit_;       //Collision判定で保存用
     bool isFirstPerson_;//一人称視点かどうか(false＝三人称
+    bool isPeeking_;
 
     int hModel_;        //モデル番号
     int coolTime_;      //撃つクールダウン
@@ -36,6 +37,7 @@ public:
     virtual void OnCollision(GameObject* pTarget) override;
 
     bool IsFirstPerson() { return isFirstPerson_; }
+    bool IsPeeking() { return isPeeking_; }
     AimCursor* GetAimCursor() { return pAimCursor_; }
 
     // 銃弾を生成する
