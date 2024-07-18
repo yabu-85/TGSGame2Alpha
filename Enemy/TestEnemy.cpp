@@ -148,7 +148,9 @@ void TestEnemy::Draw()
         pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
 
-    CollisionDraw();
+    if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP)
+        CollisionDraw();
+
 }
 
 void TestEnemy::Release()

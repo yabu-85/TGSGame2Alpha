@@ -114,15 +114,24 @@ void CollisionMap::Draw()
     }
 #endif
     
+    //Collision表示
 #if 1
+    if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
-        Model::SetTransform(e.hRayModelNum, e.transform);
-        Model::Draw(e.hRayModelNum);
+        if (e.hRayModelNum >= 0) {
+            Model::SetTransform(e.hRayModelNum, e.transform);
+            Model::Draw(e.hRayModelNum);
+        }
+        else {
+            Model::SetTransform(e.hModelNum, e.transform);
+            Model::Draw(e.hModelNum);
+        }
     }
 #endif
 
     Direct3D::SetShader(type);
 
+    //普通のマップ表示
 #if 1
     for (auto e : modelList_) {
         Model::SetTransform(e.hModelNum, e.transform);

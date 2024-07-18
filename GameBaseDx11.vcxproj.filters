@@ -338,6 +338,9 @@
     <ClCompile Include="Weapon\GunBase.cpp">
       <Filter>Weapon</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon\Bullet_Sniper.cpp">
+      <Filter>Weapon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -599,6 +602,9 @@
       <Filter>Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Weapon\GunBase.h">
+      <Filter>Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\Bullet_Sniper.h">
       <Filter>Weapon</Filter>
     </ClInclude>
   </ItemGroup>

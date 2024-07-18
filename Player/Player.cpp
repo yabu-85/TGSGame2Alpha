@@ -70,8 +70,8 @@ void Player::Initialize()
     pDamageSystem_->SetHP(100);
     moveSpeed_ = 0.15f;
 
-    //pGunBase_ = Instantiate<Gun>(this);
-    pGunBase_ = Instantiate<SniperGun>(this);
+    pGunBase_ = Instantiate<Gun>(this);
+    //pGunBase_ = Instantiate<SniperGun>(this);
     pAim_ = Instantiate<Aim>(this);
 
     pStateManager_ = new StateManager(this);

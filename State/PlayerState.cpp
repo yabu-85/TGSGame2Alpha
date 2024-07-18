@@ -63,7 +63,7 @@ void PlayerJump::OnEnter()
 
 //------------------------------------------------------------------
 
-PlayerClimb::PlayerClimb(StateManager* owner) : StateBase(owner)
+PlayerClimb::PlayerClimb(StateManager* owner) : StateBase(owner), time_(0)
 {
 	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
 }
@@ -73,5 +73,12 @@ void PlayerClimb::Update()
 	pPlayer_->WallClimb();
 
 	//I—¹ˆ—
+	time_++;
+	if (time_ >= 60) {
+		pPlayer_->SetClimb(false);
+		owner_->ChangeState("Wait");
+		return;
+	}
+
 	if(!pPlayer_->IsClimb()) owner_->ChangeState("Wait");
 }

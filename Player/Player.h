@@ -68,6 +68,7 @@ public:
 
     bool IsFly() { return isFly_; }
     bool IsClimb() { return isClimb_; }
+    void SetClimb(bool b) { isClimb_ = b; }
 
     int GetPlayerId() { return playerId_; }
     int GetModelHandle() { return hModel_; }

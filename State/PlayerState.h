@@ -34,6 +34,7 @@ public:
 
 class PlayerClimb : public StateBase
 {
+	int time_;
 	Player* pPlayer_;
 public:
 	PlayerClimb(StateManager* owner);
