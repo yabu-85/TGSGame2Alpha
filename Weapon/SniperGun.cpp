@@ -27,7 +27,7 @@ namespace {
 }
 
 SniperGun::SniperGun(GameObject* parent)
-    : GunBase(parent, "SniperGun")
+    : GunBase(parent, "SniperGun"), hPict_(-1)
 {
 }
 
@@ -52,6 +52,7 @@ void SniperGun::Initialize()
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
+    LoadGunJson("SniperGun");
     isFirstPerson_ = true;
 
     //プレイヤーの手の位置まで調整
@@ -64,7 +65,7 @@ void SniperGun::Update()
     coolTime_--;
     pAimCursor_->Update();
 
-    //FPSかTPSかで判定
+    //のぞき込み処理
     if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
         pPlayer_->GetAim()->SetDistanceIncreaseAmount(AIM_DISTANCE_INCREASE);
         peekTime_--;
@@ -79,27 +80,29 @@ void SniperGun::Update()
         isPeeking_ = false;
     }
 
-    // 通常射撃
-    if (InputManager::IsCmd(InputManager::ATTACK, playerId_))
+    //リロード中
+    if (currentReloadTime_ >= 1) {
+        OutputDebugString("reloading\n");
+        Reload();
+        return;
+    }
+
+    OutputDebugStringA(std::to_string(currentMagazineCount_).c_str());
+    OutputDebugString("\n");
+
+    //リロード
+    if (InputManager::IsCmdDown(InputManager::RELOAD, playerId_)) {
+        PressedReload();
+    }
+
+    //通常射撃
+    if (InputManager::IsCmdDown(InputManager::ATTACK, playerId_))
     {
-        //まだクールタイム中
-        if (coolTime_ > 0) {
-            pPlayer_->GetAim()->SetCameraRotateReturn(true); 
-            return;
-        }
-
-        ShootBullet<Bullet_Sniper>();
-        pAimCursor_->Shot();
-
-        CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 3.0f), 3);
-        pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
-        pPlayer_->GetAim()->SetCameraRotateReturn(false);
-
+        PressedShot();
     }
     else {
-        //連続で打つのやめた時だけ、RotateShake戻り処理をTrueに
+        //RotateShake戻り処理をTrueに
         pPlayer_->GetAim()->SetCameraRotateReturn(true);
-
     }
 
 }
@@ -130,4 +133,38 @@ void SniperGun::Draw()
 
 void SniperGun::Release()
 {
+}
+
+void SniperGun::PressedShot()
+{
+    //まだクールタイム中
+    if (coolTime_ > 0) {
+        pPlayer_->GetAim()->SetCameraRotateReturn(true);
+        return;
+    }
+
+    //マガジン計算
+    if (currentMagazineCount_ <= 0) return;
+    currentMagazineCount_--;
+
+    ShotBullet<Bullet_Sniper>();
+    pAimCursor_->Shot();
+
+    CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 3.0f), 3);
+    pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
+    pPlayer_->GetAim()->SetCameraRotateReturn(false);
+}
+
+void SniperGun::PressedReload()
+{
+    //すでに満タン
+    if (currentMagazineCount_ >= magazineCount_) return;
+    //すでにリロード中
+    if (currentReloadTime_ > 0) return;
+    //クールタイムでっす
+    if (coolTime_ > 0) return;
+
+    currentReloadTime_ = reloadTime_;
+    coolTime_ = reloadTime_;
+
 }

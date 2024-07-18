@@ -27,7 +27,7 @@ TestScene::TestScene(GameObject * parent)
 //èâä˙âª
 void TestScene::Initialize()
 {
-#if 1
+#if 0
 	GameManager::SetTwoPlayer();
 #else
 	GameManager::SetOnePlayer();
@@ -46,8 +46,7 @@ void TestScene::Initialize()
 
 	AllDeleteScreen();
 	AddScreen(new PauseScreen());
-	EnemyManager::SpawnEnemy(ENEMY_BOSS);
-
+	
 	//Light
 	EFFEKSEERLIB::EFKTransform t;
 	DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());

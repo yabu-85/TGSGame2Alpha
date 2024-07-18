@@ -13,6 +13,8 @@
 #include "../UI/AimCursor.h"
 #include "../UI/DamageUI.h"
 
+BulletBase::BulletParameter Bullet_Normal::parameter_;
+
 namespace {
     static const int POLY_LENG = 30;
 }
@@ -21,17 +23,20 @@ Bullet_Normal::Bullet_Normal(GameObject* parent)
     : BulletBase(parent, "Bullet_Normal"), pPolyLine_(nullptr), isHit_(false), hitPos_(XMFLOAT3()), startPos_(XMFLOAT3()),
     pHitChara_(nullptr), minHitDist_(99999.9f), nextKill_(false), pCapsuleCollider_(nullptr), killWaitTime_(0)
 {
-    // JSONファイル読み込み
-    JsonReader::Load("Json/Weapon.json");
+    //JSONファイル読み込み
+    JsonReader::Load("Json/Bullet.json");
     auto& bullet_normal = JsonReader::GetSection("Bullet_Normal");
 
-    // パラメータを取得
+    //パラメータを取得
     parameter_.damage_ = bullet_normal["damage"];
     parameter_.shotCoolTime_ = bullet_normal["shotCoolTime"];
     parameter_.speed_ = bullet_normal["speed"];
     parameter_.killTimer_ = bullet_normal["killTimer"];
     parameter_.collisionScale_ = bullet_normal["collisionScale"];
-    parameter_.isPenetration_ = bullet_normal["isPenetration"];
+
+    if (bullet_normal["isPenetration"] == 0) parameter_.isPenetration_ = false;
+    else parameter_.isPenetration_ = true;
+
 }
 
 Bullet_Normal::~Bullet_Normal()
@@ -63,21 +68,19 @@ void Bullet_Normal::Update()
     }
 
     if (pHitChara_) {
+        transform_.position_ = pCapsuleCollider_->targetPos_;
+        HitEffect();
+        
         //ダメージ与える（HP０以下なら倒すのここでやっとく
         DamageInfo info = DamageInfo(parameter_.damage_);
         pHitChara_->GetDamageSystem()->ApplyDamageDirectly(info);
         if (pHitChara_->GetDamageSystem()->IsDead()) pHitChara_->KillMe();
 
-        XMFLOAT3 damagePos = pHitChara_->GetPosition();
-        damagePos = Float3Add(damagePos, pHitChara_->GetDamageUIPos());
-        DamageUI::AddDamage(damagePos, parameter_.damage_, playerId_);
-
-        transform_.position_ = pCapsuleCollider_->targetPos_;
-        HitEffect();
+        //DamageUI
+        DamageUI::AddDamage(transform_.position_, parameter_.damage_, playerId_);
 
         //HitCursor
         GameManager::GetPlayer(playerId_)->GetGunBase()->GetAimCursor()->Hit();
-        
 
         pPolyLine_->ClearFirstPosition();
         pPolyLine_->AddPosition(hitPos_);
@@ -183,6 +186,11 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
         }
     }
 
+}
+
+BulletBase::BulletParameter Bullet_Normal::GetBulletParameter()
+{
+    return parameter_;
 }
 
 void Bullet_Normal::HitEffect()

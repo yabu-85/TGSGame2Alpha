@@ -29,7 +29,6 @@ class Player : public Character
     Aim* pAim_;
     GunBase* pGunBase_;
     StateManager* pStateManager_;
-    static XMFLOAT3 damageUIPos_;
 
     //ä÷êî
     void CalcRotate(XMFLOAT3 pos, float ratio);
@@ -74,7 +73,6 @@ public:
     int GetModelHandle() { return hModel_; }
     Aim* GetAim() { return pAim_; }
     GunBase* GetGunBase() { return pGunBase_; }
-    XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 
 };
 

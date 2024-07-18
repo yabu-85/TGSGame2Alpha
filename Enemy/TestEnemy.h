@@ -9,8 +9,6 @@ class AstarMoveAction;
 
 class TestEnemy : public EnemyBase
 {
-    static XMFLOAT3 damageUIPos_;
-
     bool isGround = false;
     bool moveReady_;
     float gravity_ = 0.0f;
@@ -25,6 +23,4 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
-
-    XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 };

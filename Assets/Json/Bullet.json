@@ -1,0 +1,18 @@
+{
+  "Bullet_Normal": {
+    "isPenetration": 0,
+    "damage": 3,
+    "shotCoolTime": 5,
+    "speed": 4.0,
+    "killTimer": 12,
+    "collisionScale": 0.1
+  },
+  "Bullet_Sniper": {
+    "isPenetration": 0,
+    "damage": 50,
+    "shotCoolTime": 60,
+    "speed": 4.0,
+    "killTimer": 12,
+    "collisionScale": 0.1
+  }
+}

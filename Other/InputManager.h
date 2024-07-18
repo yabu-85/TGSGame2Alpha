@@ -25,6 +25,7 @@ namespace InputManager {
 
 		ATTACK,
 		AIM,
+		RELOAD,
 		ACTION,
 		JUMP,
 

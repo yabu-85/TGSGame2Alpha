@@ -11,15 +11,11 @@
 #include "../Other/InputManager.h"
 #include "../Stage/CollisionMap.h"
 #include "../Stage/StageEditor.h"
-
-#include "../Weapon/Gun.h"
-#include "../Weapon/SniperGun.h"
-
 #include "../Other/GameManager.h"
 #include "../UI/HealthGauge.h"
 #include "../Character/DamageSystem.h"
-
-XMFLOAT3 Player::damageUIPos_ = XMFLOAT3(0.5f, 1.5f, 0.0f);
+#include "../Weapon/Gun.h"
+#include "../Weapon/SniperGun.h"
 
 namespace {
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
@@ -31,7 +27,7 @@ namespace {
     const float WorldGravity = 0.005f;
     const float PlayerHeightSize = 1.3f;
 
-    const XMFLOAT3 start = XMFLOAT3(50.0f, 10.0f, 50.0f);
+    const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
 }
 
@@ -63,7 +59,7 @@ void Player::Initialize()
     }
 
     objectType_ = OBJECT_TYPE::Player;
-    transform_.position_ = start;
+    transform_.position_ = START_POS;
 
     SetBodyRange(0.35f);
     SetBodyWeight(1.0f);
@@ -96,7 +92,7 @@ void Player::Initialize()
 void Player::Update()
 {
     //デバッグ用
-    if (Input::IsKeyDown(DIK_Z)) transform_.position_ = start;
+    if (Input::IsKeyDown(DIK_Z)) transform_.position_ = START_POS;
     if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
     if (isCreative_) {
         if (Input::IsKey(DIK_SPACE)) playerMovement_.y += moveSpeed_ * 0.5f;

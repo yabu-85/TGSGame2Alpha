@@ -12,10 +12,8 @@
 #include "../Other/GameManager.h"
 #include "../Other/VFXManager.h"
 
-XMFLOAT3 TestBoss::damageUIPos_ = XMFLOAT3(0.5f, 1.5f, 0.0f);
-
 namespace {
-    const XMFLOAT3 start = { 50.0f, 5.0f, 50.0f }; //スタートポジション
+    const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 5.0f, 50.0f);
 
 }
 
@@ -33,7 +31,7 @@ void TestBoss::Initialize()
     hModel_ = Model::Load("Model/TREX.fbx");
     assert(hModel_ >= 0);
 
-    transform_.position_ = start;
+    transform_.position_ = START_POS;
     enemyType_ = ENEMY_TYPE::ENEMY_TEST;
 
     SetBodyRange(0.5f);

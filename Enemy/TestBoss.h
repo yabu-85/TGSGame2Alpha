@@ -35,8 +35,6 @@ const int TESTBOSS_ANIMATION_DATA[(int)TESTBOSS_ANIMATION::MAX][2]{
 
 class TestBoss : public EnemyBase
 {
-    static XMFLOAT3 damageUIPos_;
-
     int boneIndex_[MAX_INDEX * 2];
     int partIndex_[MAX_INDEX * 2];
 
@@ -50,6 +48,4 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
-
-    XMFLOAT3 GetDamageUIPos() override { return damageUIPos_; }
 };

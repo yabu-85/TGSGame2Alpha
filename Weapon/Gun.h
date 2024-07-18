@@ -7,6 +7,8 @@ class AimCursor;
 //e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Gun : public GunBase
 {
+    void PressedShot() override;
+    void PressedReload() override;
 public:
     Gun(GameObject* parent);
     ~Gun() override;

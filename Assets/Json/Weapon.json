@@ -1,18 +1,10 @@
 {
-  "Bullet_Normal": {
-    "damage": 2,
-    "shotCoolTime": 5,
-    "speed": 4.0,
-    "killTimer": 12,
-    "collisionScale": 0.1,
-    "isPenetration": 0
+  "Gun": {
+    "reloadTime": 80,
+    "magazineCount": 40
   },
-  "Bullet_Sniper": {
-    "damage": 50,
-    "shotCoolTime": 60,
-    "speed": 4.0,
-    "killTimer": 12,
-    "collisionScale": 0.1,
-    "isPenetration": 0
+  "SniperGun": {
+    "reloadTime": 30,
+    "magazineCount": 1
   }
 }

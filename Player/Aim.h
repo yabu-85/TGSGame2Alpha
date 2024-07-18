@@ -17,7 +17,7 @@ struct CameraRotateShakeInfo {
     XMFLOAT2 rotate;    //‰ñ“]—Ê
     int time;           //‚©‚©‚éŽžŠÔ    
 
-    CameraRotateShakeInfo() : rotate(0), time(0) {};
+    CameraRotateShakeInfo() : rotate{ 0,0 }, time(0) {};
     CameraRotateShakeInfo(XMFLOAT2 r, int t) : rotate(r), time(t) {};
 };
 

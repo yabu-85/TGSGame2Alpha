@@ -40,5 +40,4 @@ public:
     virtual void ResetMovement() { movement_ = { 0.0f, 0.0f, 0.0f }; };
     
     DamageSystem* GetDamageSystem() { return pDamageSystem_; }
-    virtual XMFLOAT3 GetDamageUIPos() = 0;
 };

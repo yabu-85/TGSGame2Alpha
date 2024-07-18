@@ -1,11 +1,10 @@
 #include "GunBase.h"
 #include "BulletBase.h"
-#include "Bullet_Normal.h"
-
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
 #include "../Engine/Camera.h"
 #include "../Engine/SegmentCollider.h"
+#include "../Json/JsonReader.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
 #include "../Other/GameManager.h"
@@ -16,11 +15,11 @@
 
 GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
-    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isFirstPerson_(false), isPeeking_(false)
+    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isFirstPerson_(false), 
+    isPeeking_(false), peekTime_(0), reloadTime_(0), currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
-
 }
 
 void GunBase::OnCollision(GameObject* pTarget)
@@ -33,7 +32,7 @@ void GunBase::OnCollision(GameObject* pTarget)
     }
 }
 
-void GunBase::ShootBullet(BulletBase* pBullet)
+void GunBase::ShotBullet(BulletBase* pBullet)
 {
     coolTime_ = pBullet->GetBulletParameter().shotCoolTime_;
     float calcDist = pBullet->GetBulletParameter().speed_ * pBullet->GetBulletParameter().killTimer_;
@@ -141,4 +140,29 @@ void GunBase::ShootBullet(BulletBase* pBullet)
     pBullet->SetMove(move);
     pBullet->SetPosition(GunBaseTop);
     pBullet->Shot(chara, GunBaseTar, minHitPos);
+}
+
+void GunBase::LoadGunJson(std::string fileName)
+{
+    //銃弾ごとの設定を読み込む
+    JsonReader::Load("Json/Weapon.json");
+    auto& gunSection = JsonReader::GetSection(fileName);
+
+    //マガジン数の初期化
+    magazineCount_ = gunSection["magazineCount"];
+    currentMagazineCount_ = magazineCount_;
+
+    //リロード時間の初期化
+    reloadTime_ = gunSection["reloadTime"];
+    currentReloadTime_ = 0;
+}
+
+void GunBase::Reload()
+{
+    currentReloadTime_--;
+
+    //リロード官僚
+    if (currentReloadTime_ <= 0) {
+        currentMagazineCount_ = magazineCount_;
+    }
 }

@@ -13,13 +13,11 @@
 #include "../Player/Player.h"
 #include "../UI/HealthGauge.h"
 
-XMFLOAT3 TestEnemy::damageUIPos_ = XMFLOAT3(0.5f, 1.5f, 0.0f);
-
 namespace {
     const float gravity = 0.002f;                   //掛かる重力
     const float HeightSize = 1.3f;                  //一番上
-    const XMFLOAT3 start = { 50.0f, 10.0f, 50.0f }; //スタートポジション
 
+    const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 10.0f, 50.0f);
 }
 
 TestEnemy::TestEnemy(GameObject* parent)
@@ -38,7 +36,7 @@ void TestEnemy::Initialize()
     hModel_ = Model::Load("Model/Scarecrow.fbx");
     assert(hModel_ >= 0);
 
-    transform_.position_ = start;
+    transform_.position_ = START_POS;
     enemyType_ = ENEMY_TYPE::ENEMY_TEST;
     pMoveAction_ = new MoveAction(this, 0.05f, 0.1f);
     pAstarMoveAction_ = new AstarMoveAction(this, 0.06f, 0.1f);

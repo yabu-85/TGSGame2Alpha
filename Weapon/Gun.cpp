@@ -43,6 +43,7 @@ void Gun::Initialize()
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
+    LoadGunJson("Gun");
     isFirstPerson_ = false; 
 
     //プレイヤーの手の位置まで調整
@@ -52,42 +53,28 @@ void Gun::Initialize()
 
 void Gun::Update()
 {
-    // クールタイムを減らす
+    //クールタイムを減らす
     coolTime_--;
     pAimCursor_->Update();
 
-    // 通常射撃
-    if (InputManager::IsCmd(InputManager::ATTACK, playerId_))
-    {
-        //まだクールタイム中
-        if (coolTime_ > 0) return;
-
-        //ShootBullet<Bullet_Normal>();
-        pAimCursor_->Shot();
-
-        CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
-        pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
-        pPlayer_->GetAim()->SetCameraRotateReturn(false);
-
-        //ヒットエフェクト
-        EFFEKSEERLIB::EFKTransform t;
-        Transform transform;
-        transform.position_ = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
-        transform.rotate_ = Float3Add(pPlayer_->GetRotate(), transform_.rotate_);
-        transform.rotate_.y += +180.0f;
-        transform.rotate_.x = -transform.rotate_.x;
-        transform.scale_ = transform_.scale_;
-        DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
-        t.isLoop = false;   //繰り返し
-        t.maxFrame = 20;    //80フレーム
-        t.speed = 1.0;      //スピード
-        EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
+    //リロード中
+    if (currentReloadTime_ >= 1) {
+        Reload();
+        return;
     }
-    else {
-        //連続で打つのやめた時だけ、RotateShake戻り処理をTrueに
-        if(coolTime_ >= 0) pPlayer_->GetAim()->SetCameraRotateReturn(true);
 
+    //リロード
+    if (InputManager::IsCmdDown(InputManager::RELOAD, playerId_)) {
+        PressedReload();
     }
+
+    //通常射撃
+    if (InputManager::IsCmd(InputManager::ATTACK, playerId_)) {
+        PressedShot();
+    }
+
+    //RotateShake戻り処理をTrueに
+    if (currentMagazineCount_ <= 0) pPlayer_->GetAim()->SetCameraRotateReturn(true);
 
 }
 
@@ -101,4 +88,49 @@ void Gun::Draw()
 
 void Gun::Release()
 {
+}
+
+void Gun::PressedShot()
+{
+    //まだクールタイム中
+    if (coolTime_ > 0) return;
+
+    //マガジン計算
+    if (currentMagazineCount_ <= 0) return;
+    currentMagazineCount_--;
+
+    ShotBullet<Bullet_Normal>();
+    pAimCursor_->Shot();
+
+    CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
+    pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
+    pPlayer_->GetAim()->SetCameraRotateReturn(false);
+
+    //ヒットエフェクト
+    EFFEKSEERLIB::EFKTransform t;
+    Transform transform;
+    transform.position_ = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
+    transform.rotate_ = Float3Add(pPlayer_->GetRotate(), transform_.rotate_);
+    transform.rotate_.y += +180.0f;
+    transform.rotate_.x = -transform.rotate_.x;
+    transform.scale_ = transform_.scale_;
+    DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
+    t.isLoop = false;   //繰り返し
+    t.maxFrame = 20;    //80フレーム
+    t.speed = 1.0;      //スピード
+    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
+}
+
+void Gun::PressedReload()
+{
+    //すでに満タン
+    if (currentMagazineCount_ >= magazineCount_) return;
+    //すでにリロード中
+    if (currentReloadTime_ > 0) return;
+    //クールタイムでっす
+    if (coolTime_ > 0) return;
+
+    currentReloadTime_ = reloadTime_;
+    coolTime_ = reloadTime_;
+    pPlayer_->GetAim()->SetCameraRotateReturn(true);
 }

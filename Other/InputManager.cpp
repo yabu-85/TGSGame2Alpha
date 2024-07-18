@@ -17,6 +17,7 @@ namespace InputManager {
 
 		std::make_pair(MOUSE, 0),		//ATTACK
 		std::make_pair(MOUSE, 1),		//AIM
+		std::make_pair(KEY, DIK_R),		//RELOAD
 		std::make_pair(KEY, DIK_E),		//ACTION
 		std::make_pair(KEY, DIK_SPACE),	//JUMP
 	};
@@ -29,7 +30,8 @@ namespace InputManager {
 
 		std::make_pair(TRRIGERR, 0),					//ATTACK
 		std::make_pair(TRRIGERL, 1),					//AIM
-		std::make_pair(CONTROLLER, 0),					//ACTION
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//RELOAD
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//ACTION
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),	//JUMP
 	};
 

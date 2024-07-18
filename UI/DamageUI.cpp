@@ -9,8 +9,8 @@
 namespace {
 	const XMFLOAT3 ONE_TEXT_SCALE = XMFLOAT3(0.7f, 0.7f, 1.0f);	//分割無し文字サイズ
 	const XMFLOAT3 TWO_TEXT_SCALE = XMFLOAT3(1.0f, 0.7f, 1.0f);	//分割あり文字サイズ
+	const float TEXT_POSITION_Y = 0.4f;							//文字ポジション
 
-	const XMFLOAT2 TEXT_POSITION = XMFLOAT2(0.3f, 0.4f);	//文字ポジション
 	const int	ALPHA_REDUCE = 25;							//透明度下げる値
 	const float TIME_REDUCE = 0.03f;						//Time下げる値
 	const float RANDOM_POS_MAX = 0.3f;						//0～Xのランダムな値の最大値
@@ -64,6 +64,7 @@ namespace DamageUI {
 
 		//ポジションずらして設定
 		ui.wPos = _pos;
+		ui.wPos.y += TEXT_POSITION_Y;
 		ui.wPos.x += (float)std::rand() / RAND_MAX * RANDOM_POS_MAX;
 		ui.wPos.y += (float)std::rand() / RAND_MAX * RANDOM_POS_MAX;
 		damageList_[index].push_back(ui);
