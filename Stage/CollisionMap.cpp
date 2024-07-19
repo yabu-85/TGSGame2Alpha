@@ -115,7 +115,7 @@ void CollisionMap::Draw()
 #endif
     
     //Collision•\Ž¦
-#if 1
+#if 0
     if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
         if (e.hRayModelNum >= 0) {
@@ -212,16 +212,12 @@ bool CollisionMap::CellWallRayCast(XMFLOAT3 plaPos, RayCastData* _data)
 
 bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 {
+    //‚Ü‚¸Center‚ÌêŠ‚Å”»’è
     XMFLOAT3 pos = Float3Add(collid->center_, collid->pGameObject_->GetWorldPosition());
     Cell* cell = GetCell(pos);
     bool hit = false;
-    if (cell) hit = cell->SphereVsTriangle(collid, push);
-
-    pos.y -= collid->size_.x;
-    Cell* nCell = GetCell(pos);
-    if (nCell && nCell != cell && nCell->SphereVsTriangle(collid, push)) hit = true;
-
-    return hit;
+    if (!cell) return false;
+    return cell->SphereVsTriangle(collid, push);
 }
 
 void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)

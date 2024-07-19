@@ -17,7 +17,7 @@ CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XM
 	type_ = COLLIDER_CAPSULE;
 
 	//リリース時は判定枠は表示しない
-#ifdef _DEBUG
+#if 1 // _DEBUG
 	//テスト表示用判定枠
 	hDebugModel_ = Model::Load("DebugCollision/sphereCollider.fbx");
 #endif
@@ -25,7 +25,7 @@ CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XM
 
 void CapsuleCollider::Draw(XMFLOAT3 position)
 {
-#ifdef _DEBUG
+#if 1
 	XMFLOAT3 fDir;
 	XMStoreFloat3(&fDir, direction_); 
 	if (fDir.x == 0.0f && fDir.y == 0.0f && fDir.z == 0.0f) fDir.z = 0.0001f;
