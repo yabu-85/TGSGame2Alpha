@@ -1,6 +1,6 @@
 #include "sceneManager.h"
 #include "../Scene/TestScene.h"
-#include "../Scene/SelectScene.h"
+#include "../Scene/TitleScene.h"
 
 #include "Model.h"
 #include "Image.h"
@@ -18,10 +18,10 @@ void SceneManager::Initialize()
 {
 	//ç≈èâÇÃÉVÅ[ÉìÇèÄîı
 
-#if 0
+#if 1
 	currentSceneID_ = SCENE_ID_SELECT;
 	nextSceneID_ = currentSceneID_;
-	Instantiate<SelectScene>(this);
+	Instantiate<TitleScene>(this);
 #else
 	currentSceneID_ = SCENE_ID_TEST;
 	nextSceneID_ = currentSceneID_;
@@ -52,7 +52,7 @@ void SceneManager::Update()
 		switch (nextSceneID_)
 		{
 		case SCENE_ID_TEST: Instantiate<TestScene>(this); break;
-		case SCENE_ID_SELECT: Instantiate<SelectScene>(this); break;
+		case SCENE_ID_SELECT: Instantiate<TitleScene>(this); break;
 
 		}
 		Audio::Initialize();

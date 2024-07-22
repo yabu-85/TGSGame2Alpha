@@ -38,8 +38,8 @@ Aim::Aim(GameObject* parent)
     distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
     distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
 
-    static const float TARGET_BEHIND = 0.03f;
-    static const float TARGET_HORIZONTAL = 0.25f;
+    static const float TARGET_BEHIND = 0.05f;
+    static const float TARGET_HORIZONTAL = 0.1f;
     static const float TARGET_HEIGHT = 1.04f;
     distanceTargetBehind_ = TARGET_BEHIND;
     distanceTargetHorizontal_ = TARGET_HORIZONTAL;
@@ -74,16 +74,21 @@ void Aim::Update()
     if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
         static const float TARGET_BEHIND = 0.01f;
         static const float TARGET_HORIZONTAL = 0.2f;
-        static const float TARGET_HEIGHT = 0.94f;
+        //static const float TARGET_HEIGHT = 0.94f;
+        static const float TARGET_HEIGHT = 1.04f;
+
         distanceTargetBehind_ = TARGET_BEHIND;
         distanceTargetHorizontal_ = TARGET_HORIZONTAL;
         distanceTargetHeight_ = TARGET_HEIGHT;
         mouseSensitivity_ = (MOUSE_SPEED_DEFAULT * 0.7f);
     }
     else if(InputManager::IsCmdUp(InputManager::AIM, pPlayer_->GetPlayerId())) {
-        distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
-        distanceTargetHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
-        distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;
+        static const float TARGET_BEHIND = 0.05f;
+        static const float TARGET_HORIZONTAL = 0.1f;
+        static const float TARGET_HEIGHT = 1.04f;
+        distanceTargetBehind_ = TARGET_BEHIND;
+        distanceTargetHorizontal_ = TARGET_HORIZONTAL;
+        distanceTargetHeight_ = TARGET_HEIGHT;
         mouseSensitivity_ = MOUSE_SPEED_DEFAULT;
     }
 

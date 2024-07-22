@@ -1,10 +1,10 @@
 #pragma once
 #include "SceneBase.h"
 
-class SelectScene : public SceneBase
+class TitleScene : public SceneBase
 {
 public:
-	SelectScene(GameObject* parent);
+	TitleScene(GameObject* parent);
 	void Initialize() override;
 	void Update() override;
 	void Draw() override;

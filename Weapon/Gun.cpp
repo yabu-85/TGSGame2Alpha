@@ -57,6 +57,17 @@ void Gun::Update()
     coolTime_--;
     pAimCursor_->Update();
 
+    XMFLOAT3 GunBaseTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
+    XMFLOAT3 GunBaseRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
+    XMFLOAT3 GunCenter = Float3Sub(GunBaseTop, GunBaseRoot);
+
+    OutputDebugStringA(std::to_string(GunBaseTop.x).c_str());
+    OutputDebugString(" , ");
+    OutputDebugStringA(std::to_string(GunBaseTop.y).c_str());
+    OutputDebugString(" , ");
+    OutputDebugStringA(std::to_string(GunBaseTop.z).c_str());
+    OutputDebugString("\n");
+
     //ƒŠƒ[ƒh’†
     if (currentReloadTime_ >= 1) {
         Reload();

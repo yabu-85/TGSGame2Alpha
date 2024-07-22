@@ -2,7 +2,7 @@
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
 #include "../Screen/PlayScreen.h"
-#include "../Screen/PauseScreen.h"
+#include "../Screen/SettingScreen.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
@@ -45,7 +45,7 @@ void TestScene::Initialize()
 	EnemyManager::SetParent(this);
 
 	AllDeleteScreen();
-	AddScreen(new PauseScreen());
+	AddScreen(new SettingScreen());
 	
 	//Light
 	EFFEKSEERLIB::EFKTransform t;

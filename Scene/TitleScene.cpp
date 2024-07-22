@@ -1,4 +1,4 @@
-#include "SelectScene.h"
+#include "TitleScene.h"
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
 #include "../Screen/SelectScreen.h"
@@ -8,13 +8,13 @@
 #include "../Engine/SceneManager.h"
 
 //コンストラクタ
-SelectScene::SelectScene(GameObject * parent)
-	: SceneBase(parent, "SelectScene")
+TitleScene::TitleScene(GameObject * parent)
+	: SceneBase(parent, "TitleScene")
 {
 }
 
 //初期化
-void SelectScene::Initialize()
+void TitleScene::Initialize()
 {
 	GameManager::SetOnePlayer();
 
@@ -24,7 +24,7 @@ void SelectScene::Initialize()
 }
 
 //更新
-void SelectScene::Update()
+void TitleScene::Update()
 {
 	SceneBase::Update();
 
@@ -36,13 +36,13 @@ void SelectScene::Update()
 }
 
 //描画
-void SelectScene::Draw()
+void TitleScene::Draw()
 {
 
 }
 
 //開放
-void SelectScene::Release()
+void TitleScene::Release()
 {
 
 }

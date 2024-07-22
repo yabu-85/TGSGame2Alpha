@@ -51,9 +51,6 @@
     <Filter Include="AI">
       <UniqueIdentifier>{df51c2cc-3028-4682-ac7b-57c0db1aa6ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Stage">
-      <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
-    </Filter>
     <Filter Include="State">
       <UniqueIdentifier>{9309f86f-8dbd-49b2-a29b-5e9088508f33}</UniqueIdentifier>
     </Filter>
@@ -65,9 +62,6 @@
     </Filter>
     <Filter Include="Enemy">
       <UniqueIdentifier>{888ef92a-f8aa-4c29-b0ac-e1e0b9ba689f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Player">
-      <UniqueIdentifier>{41b3bdd3-76b7-4a9f-b1e6-fef76a352c41}</UniqueIdentifier>
     </Filter>
     <Filter Include="03Scene">
       <UniqueIdentifier>{a0e2a2cb-753a-45e7-8dc4-a4fff9ad6de4}</UniqueIdentifier>
@@ -86,6 +80,12 @@
     </Filter>
     <Filter Include="Animation">
       <UniqueIdentifier>{8a128810-74f9-411e-ba2d-db5942dab939}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stage">
+      <UniqueIdentifier>{4eb8a7df-f6d4-4c3b-89c9-1420d1761802}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player">
+      <UniqueIdentifier>{41b3bdd3-76b7-4a9f-b1e6-fef76a352c41}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -281,9 +281,6 @@
     <ClCompile Include="Engine\EffekseeLib\EffekseerVFX.cpp">
       <Filter>01Engine\Effekseer</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\SelectScene.cpp">
-      <Filter>03Scene</Filter>
-    </ClCompile>
     <ClCompile Include="Scene\SceneBase.cpp">
       <Filter>03Scene</Filter>
     </ClCompile>
@@ -340,6 +337,12 @@
     </ClCompile>
     <ClCompile Include="Weapon\Bullet_Sniper.cpp">
       <Filter>Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\TitleScene.cpp">
+      <Filter>03Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen\SettingScreen.cpp">
+      <Filter>Screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -544,9 +547,6 @@
     <ClInclude Include="Engine\EffekseeLib\EffekseerVFX.h">
       <Filter>01Engine\Effekseer</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\SelectScene.h">
-      <Filter>03Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Scene\SceneBase.h">
       <Filter>03Scene</Filter>
     </ClInclude>
@@ -606,6 +606,12 @@
     </ClInclude>
     <ClInclude Include="Weapon\Bullet_Sniper.h">
       <Filter>Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\TitleScene.h">
+      <Filter>03Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen\SettingScreen.h">
+      <Filter>Screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

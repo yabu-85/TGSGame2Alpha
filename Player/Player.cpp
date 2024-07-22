@@ -50,9 +50,6 @@ void Player::Initialize()
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
 
-    if (GameManager::GetPlayer(0)) playerId_ = 1;
-    GameManager::SetPlayer(this, playerId_);
-
     waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
     std::string boneName[8] = { "thigh.L", "thigh.R", "shin.R", "shin.L", "foot.R", "foot.L", "toe.R", "toe.L" };
     for (int i = 0; i < 8;i++) {
@@ -60,9 +57,13 @@ void Player::Initialize()
     }
 #endif 
 
+    //PlayerIDセット
+    if (GameManager::GetPlayer(0)) playerId_ = 1;
+    GameManager::SetPlayer(this, playerId_);
+
+    //パラメータセット
     objectType_ = OBJECT_TYPE::Player;
     transform_.position_ = START_POS;
-
     SetBodyRange(0.35f);
     SetBodyWeight(1.0f);
     SetBodyHeightHalf(1.0f);
@@ -72,8 +73,8 @@ void Player::Initialize()
     pDamageSystem_->SetHP(100);
     moveSpeed_ = 0.15f;
 
-    //pGunBase_ = Instantiate<Gun>(this);
-    pGunBase_ = Instantiate<SniperGun>(this);
+    pGunBase_ = Instantiate<Gun>(this);
+    //pGunBase_ = Instantiate<SniperGun>(this);
     pAim_ = Instantiate<Aim>(this);
 
     pStateManager_ = new StateManager(this);
@@ -128,7 +129,7 @@ void Player::Update()
     }
 #endif
 
-    OutputDebugString("\n");
+    //OutputDebugString("\n");
     pStateManager_->Update();
 
     //空中にいる
@@ -195,7 +196,7 @@ void Player::Draw()
     }
 #endif
 
-    CollisionDraw();
+    //CollisionDraw();
 }
 
 void Player::Release()
@@ -356,11 +357,11 @@ bool Player::StageFloarBounce(float perDist, float calcHeight)
         transform_.position_.y += PlayerHeightSize - rayData.dist;
         gravity_ = 0.0f;
         isFly_ = false;
-        OutputDebugString("on Floar\n");
+    //    OutputDebugString("on Floar\n");
         return true;
     }
     
-    OutputDebugString("out Floar\n");
+    //OutputDebugString("out Floar\n");
     return false;
 }
 
