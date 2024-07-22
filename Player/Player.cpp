@@ -46,6 +46,7 @@ Player::~Player()
 
 void Player::Initialize()
 {
+#if 0
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
 
@@ -57,6 +58,7 @@ void Player::Initialize()
     for (int i = 0; i < 8;i++) {
         waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneName[i]);
     }
+#endif 
 
     objectType_ = OBJECT_TYPE::Player;
     transform_.position_ = START_POS;
@@ -170,6 +172,7 @@ void Player::Update()
 
 void Player::Draw()
 {
+#if 0
     if (GameManager::GetDrawIndex() == playerId_) {
         if (pGunBase_->IsFirstPerson() && pGunBase_->IsPeeking()) {
         }
@@ -190,6 +193,7 @@ void Player::Draw()
         }
 
     }
+#endif
 
     CollisionDraw();
 }

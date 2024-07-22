@@ -73,7 +73,6 @@ public:
     void SetClimb(bool b) { isClimb_ = b; }
 
     int GetPlayerId() { return playerId_; }
-    int GetModelHandle() { return hModel_; }
     Aim* GetAim() { return pAim_; }
     GunBase* GetGunBase() { return pGunBase_; }
 
