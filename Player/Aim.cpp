@@ -39,7 +39,7 @@ Aim::Aim(GameObject* parent)
     distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
 
     static const float TARGET_BEHIND = 0.05f;
-    static const float TARGET_HORIZONTAL = 0.1f;
+    static const float TARGET_HORIZONTAL = 0.0f;
     static const float TARGET_HEIGHT = 1.04f;
     distanceTargetBehind_ = TARGET_BEHIND;
     distanceTargetHorizontal_ = TARGET_HORIZONTAL;
@@ -71,6 +71,7 @@ void Aim::Update()
     if (Input::IsKey(DIK_3)) distanceTargetBehind_ += 0.1f;
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
 
+    /*
     if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
         static const float TARGET_BEHIND = 0.01f;
         static const float TARGET_HORIZONTAL = 0.2f;
@@ -91,6 +92,8 @@ void Aim::Update()
         distanceTargetHeight_ = TARGET_HEIGHT;
         mouseSensitivity_ = MOUSE_SPEED_DEFAULT;
     }
+    */
+    
 
     if (compulsionTime_ > 0) {
         //‹­§ˆÚ“®

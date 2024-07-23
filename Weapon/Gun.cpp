@@ -16,7 +16,7 @@
 #include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 namespace {
-    XMFLOAT3 handOffset = { 0.2f, 0.7f, 0.1f };      // 移動量
+    XMFLOAT3 handOffset = { 0.3f, 0.7f, 0.3f };      // 移動量
 
 }
 
@@ -31,13 +31,16 @@ Gun::~Gun()
 
 void Gun::Initialize()
 {
-    hModel_ = Model::Load("Model/Rifle.fbx");
+    hModel_ = Model::Load("Model/Rifle2.fbx");
     assert(hModel_ >= 0);
 
-    Model::GetPartBoneIndex(hModel_, "Top", &topBoneIndex_, &topPartIndex_);
-    Model::GetPartBoneIndex(hModel_, "Root", &rootBoneIndex_, &rootPartIndex_);
+    Model::GetPartBoneIndex(hModel_, "Top", &topPartIndex_, &topBoneIndex_);
+    Model::GetPartBoneIndex(hModel_, "Root", &rootPartIndex_, &rootBoneIndex_);
     assert(topBoneIndex_ >= 0);
     assert(rootBoneIndex_ >= 0);
+
+    Model::GetPartBoneIndex(hModel_, "PeakRoot", &peekRootPartIndex_, &peekRootBoneIndex_);
+    assert(peekRootPartIndex_ >= 0);
 
     pAimCursor_ = new AimCursor();
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
@@ -45,10 +48,6 @@ void Gun::Initialize()
 
     LoadGunJson("Gun");
     isFirstPerson_ = false; 
-
-    //プレイヤーの手の位置まで調整
-    transform_.position_ = handOffset;
-
 }
 
 void Gun::Update()
@@ -57,20 +56,50 @@ void Gun::Update()
     coolTime_--;
     pAimCursor_->Update();
 
-    XMFLOAT3 GunBaseTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
-    XMFLOAT3 GunBaseRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
-    XMFLOAT3 GunCenter = Float3Sub(GunBaseTop, GunBaseRoot);
+    if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
+        Transform* panret = transform_.pParent_;
+        transform_.position_ = XMFLOAT3();
+        transform_.rotate_.y = pPlayer_->GetRotate().y;
+        transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
+        transform_.pParent_ = nullptr;
+        Model::SetTransform(hModel_, transform_);
+        transform_.pParent_ = panret;
 
-    OutputDebugStringA(std::to_string(GunBaseTop.x).c_str());
-    OutputDebugString(" , ");
-    OutputDebugStringA(std::to_string(GunBaseTop.y).c_str());
-    OutputDebugString(" , ");
-    OutputDebugStringA(std::to_string(GunBaseTop.z).c_str());
-    OutputDebugString("\n");
+        XMFLOAT3 camP = Float3Sub(Camera::GetTarget(playerId_), Camera::GetPosition(playerId_));
+        camP = Float3Normalize(camP);
+        XMFLOAT3 peekPos = Camera::GetPosition(playerId_);
+        peekPos = Float3Add(peekPos, camP);
+
+        XMFLOAT3 peekRoot = Model::GetBonePosition(hModel_, peekRootPartIndex_, peekRootBoneIndex_);
+
+        OutputDebugStringA(std::to_string(pPlayer_->GetRotate().y).c_str());
+        OutputDebugString("\n");
+
+        /*
+        OutputDebugStringA(std::to_string(peekRoot.x).c_str());
+        OutputDebugString(" , ");
+        OutputDebugStringA(std::to_string(peekRoot.y).c_str());
+        OutputDebugString(" , ");
+        OutputDebugStringA(std::to_string(peekRoot.z).c_str());
+        OutputDebugString("\n");
+        */
+
+        peekRoot = Float3Sub(peekPos, peekRoot);
+        transform_.position_ = Float3Sub(peekRoot, pPlayer_->GetPosition());
+    }
+    else {
+        transform_.position_ = handOffset;
+        transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
+    }
 
     //リロード中
     if (currentReloadTime_ >= 1) {
         Reload();
+
+        //終わり
+        if (currentReloadTime_ <= 0) {
+            Model::SetAnimFrame(hModel_, 0, 0, 0.0f);
+        }
         return;
     }
 
@@ -91,8 +120,6 @@ void Gun::Update()
 
 void Gun::Draw()
 {
-    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
-
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 }
@@ -120,7 +147,7 @@ void Gun::PressedShot()
     //ヒットエフェクト
     EFFEKSEERLIB::EFKTransform t;
     Transform transform;
-    transform.position_ = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
+    transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
     transform.rotate_ = Float3Add(pPlayer_->GetRotate(), transform_.rotate_);
     transform.rotate_.y += +180.0f;
     transform.rotate_.x = -transform.rotate_.x;
@@ -144,4 +171,5 @@ void Gun::PressedReload()
     currentReloadTime_ = reloadTime_;
     coolTime_ = reloadTime_;
     pPlayer_->GetAim()->SetCameraRotateReturn(true);
+    Model::SetAnimFrame(hModel_, 0, 200, (float)(200.0f / reloadTime_ * 0.5f) );
 }

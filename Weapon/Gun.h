@@ -7,6 +7,9 @@ class AimCursor;
 //e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Gun : public GunBase
 {
+    int peekRootBoneIndex_;
+    int peekRootPartIndex_;
+
     void PressedShot() override;
     void PressedReload() override;
 public:

@@ -41,8 +41,8 @@ void GunBase::ShotBullet(BulletBase* pBullet)
     //êFÅXèÓïÒåvéZ
     XMFLOAT3 cameraPos = Camera::GetPosition(playerId_);
     XMFLOAT3 cameraTar = Camera::GetTarget(playerId_);
-    XMFLOAT3 GunBaseTop = Model::GetBonePosition(hModel_, topBoneIndex_, topPartIndex_);
-    XMFLOAT3 GunBaseRoot = Model::GetBonePosition(hModel_, rootBoneIndex_, rootPartIndex_);
+    XMFLOAT3 GunBaseTop = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
+    XMFLOAT3 GunBaseRoot = Model::GetBonePosition(hModel_, rootPartIndex_, rootBoneIndex_);
     XMFLOAT3 cameraVec = Float3Sub(cameraTar, cameraPos);
     float cameraDist = CalculationDistance(cameraVec);
     cameraVec = Float3Normalize(cameraVec);
