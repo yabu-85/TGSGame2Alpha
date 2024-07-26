@@ -15,8 +15,10 @@
 #include "../Scene/TestScene.h"
 #include "../Engine/EffekseeLib/EffekseerVFX.h"
 
+#include "../Engine/Input.h"
+
 namespace {
-    XMFLOAT3 handOffset = { 0.3f, 0.7f, 0.3f };      // ˆÚ“®—Ê
+    XMFLOAT3 handOffset = { 0.15f, 0.7f, 0.05f };      // ˆÚ“®—Ê
 
 }
 
@@ -42,6 +44,7 @@ void Gun::Initialize()
     Model::GetPartBoneIndex(hModel_, "PeakRoot", &peekRootPartIndex_, &peekRootBoneIndex_);
     assert(peekRootPartIndex_ >= 0);
 
+    transform_.pParent_ = nullptr;
     pAimCursor_ = new AimCursor();
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
@@ -56,41 +59,24 @@ void Gun::Update()
     coolTime_--;
     pAimCursor_->Update();
 
-    if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
-        Transform* panret = transform_.pParent_;
-        transform_.position_ = XMFLOAT3();
-        transform_.rotate_.y = pPlayer_->GetRotate().y;
-        transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
-        transform_.pParent_ = nullptr;
-        Model::SetTransform(hModel_, transform_);
-        transform_.pParent_ = panret;
+    static float rotateY = 0.0f;
+    if(Input::IsKey(DIK_V)) rotateY += 1.0f;
+    if (Input::IsKey(DIK_B)) rotateY -= 1.0f;
 
-        XMFLOAT3 camP = Float3Sub(Camera::GetTarget(playerId_), Camera::GetPosition(playerId_));
-        camP = Float3Normalize(camP);
-        XMFLOAT3 peekPos = Camera::GetPosition(playerId_);
-        peekPos = Float3Add(peekPos, camP);
+    int p, b, handle;
+    handle = pPlayer_->GetModelHandle();
+    Model::GetPartBoneIndex(handle, "Weapon", &p, &b);
+    transform_.position_ = Model::GetBoneAnimPosition(handle, p, b);
+    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
+    transform_.rotate_.y = pPlayer_->GetRotate().y;
 
-        XMFLOAT3 peekRoot = Model::GetBonePosition(hModel_, peekRootPartIndex_, peekRootBoneIndex_);
-
-        OutputDebugStringA(std::to_string(pPlayer_->GetRotate().y).c_str());
-        OutputDebugString("\n");
-
-        /*
-        OutputDebugStringA(std::to_string(peekRoot.x).c_str());
-        OutputDebugString(" , ");
-        OutputDebugStringA(std::to_string(peekRoot.y).c_str());
-        OutputDebugString(" , ");
-        OutputDebugStringA(std::to_string(peekRoot.z).c_str());
-        OutputDebugString("\n");
-        */
-
-        peekRoot = Float3Sub(peekPos, peekRoot);
-        transform_.position_ = Float3Sub(peekRoot, pPlayer_->GetPosition());
+    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
+        Model::SetAnimFrame(handle, 150, 150, 1.0f);
     }
     else {
-        transform_.position_ = handOffset;
-        transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
+        Model::SetAnimFrame(handle, 0, 120, 1.0f);
     }
+
 
     //ƒŠƒ[ƒh’†
     if (currentReloadTime_ >= 1) {

@@ -38,9 +38,9 @@ Aim::Aim(GameObject* parent)
     distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
     distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
 
-    static const float TARGET_BEHIND = 0.05f;
+    static const float TARGET_BEHIND = 0.11f;
     static const float TARGET_HORIZONTAL = 0.0f;
-    static const float TARGET_HEIGHT = 1.04f;
+    static const float TARGET_HEIGHT = 1.1f;
     distanceTargetBehind_ = TARGET_BEHIND;
     distanceTargetHorizontal_ = TARGET_HORIZONTAL;
     distanceTargetHeight_ = TARGET_HEIGHT;

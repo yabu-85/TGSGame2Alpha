@@ -27,7 +27,7 @@ TestScene::TestScene(GameObject * parent)
 //‰Šú‰»
 void TestScene::Initialize()
 {
-#if 0
+#if 1
 	GameManager::SetTwoPlayer();
 #else
 	GameManager::SetOnePlayer();

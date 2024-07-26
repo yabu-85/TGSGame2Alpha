@@ -30,7 +30,6 @@ FbxParts::~FbxParts()
 	}
 
 
-
 	SAFE_DELETE_ARRAY(pVertexData_);
 	for (DWORD i = 0; i < materialCount_; i++)
 	{
@@ -83,12 +82,12 @@ void FbxParts::InitVertex(fbxsdk::FbxMesh * mesh)
 
 			/////////////////////////頂点の位置/////////////////////////////////////
 			FbxVector4 pos = mesh->GetControlPointAt(index);
-			pVertexData_[index].position = XMFLOAT3((float)pos[0], (float)pos[1], (float)pos[2]);
+			pVertexData_[index].position = XMFLOAT3((float)-pos[0], (float)pos[1], (float)pos[2]);
 
 			/////////////////////////頂点の法線/////////////////////////////////////
 			FbxVector4 Normal;
 			mesh->GetPolygonVertexNormal(poly, vertex, Normal);	//ｉ番目のポリゴンの、ｊ番目の頂点の法線をゲット
-			pVertexData_[index].normal = XMFLOAT3((float)Normal[0], (float)Normal[1], (float)Normal[2]);
+			pVertexData_[index].normal = XMFLOAT3((float)-Normal[0], (float)Normal[1], (float)Normal[2]);
 
 			///////////////////////////頂点のＵＶ/////////////////////////////////////
 			FbxLayerElementUV * pUV = mesh->GetLayer(0)->GetUVs();
@@ -123,14 +122,11 @@ void FbxParts::InitVertex(fbxsdk::FbxMesh * mesh)
 	D3D11_SUBRESOURCE_DATA data_vertex;
 	data_vertex.pSysMem = pVertexData_;
 	Direct3D::pDevice_->CreateBuffer(&bd_vertex, &data_vertex, &pVertexBuffer_);
-
-
 }
 
 //マテリアル準備
 void FbxParts::InitMaterial(fbxsdk::FbxNode * pNode)
 {
-
 	// マテリアルバッファの生成
 	materialCount_ = pNode->GetMaterialCount();
 	pMaterial_ = new MATERIAL[materialCount_];
@@ -153,7 +149,6 @@ void FbxParts::InitMaterial(fbxsdk::FbxNode * pNode)
 		diffuse = pPhong->Diffuse;
 
 
-
 		// 環境光＆拡散反射光＆鏡面反射光の反射成分値をマテリアルバッファにコピー
 		pMaterial_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
 		pMaterial_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
@@ -168,18 +163,14 @@ void FbxParts::InitMaterial(fbxsdk::FbxNode * pNode)
 			pMaterial_[i].shininess = (float)pPhong->Shininess;
 		}
 
-
 		InitTexture(pMaterial, i);
-
 	}
-
 }
 
 //テクスチャ準備
 void FbxParts::InitTexture(fbxsdk::FbxSurfaceMaterial * pMaterial, const DWORD &i)
 {
 	pMaterial_[i].pTexture = nullptr;
-
 
 	// テクスチャー情報の取得
 	FbxProperty  lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
@@ -197,12 +188,8 @@ void FbxParts::InitTexture(fbxsdk::FbxSurfaceMaterial * pMaterial, const DWORD &
 		_splitpath_s(texture->GetRelativeFileName(), nullptr, 0, nullptr, 0, name, _MAX_FNAME, ext, _MAX_EXT);
 		wsprintf(name, "%s%s", name, ext);
 
-
-
 		pMaterial_[i].pTexture = new Texture;
 		pMaterial_[i].pTexture->Load(name);
-
-
 	}
 }
 
@@ -212,9 +199,6 @@ void FbxParts::InitIndex(fbxsdk::FbxMesh * mesh)
 	// マテリアルの数だけインデックスバッファーを作成
 	ppIndexBuffer_ = new ID3D11Buffer*[materialCount_];
 	ppIndexData_ = new DWORD*[materialCount_];
-
-	
-
 	int count = 0;
 
 	// マテリアルから「ポリゴン平面」の情報を抽出する
@@ -303,8 +287,6 @@ void FbxParts::InitSkelton(FbxMesh * pMesh)
 	}
 
 
-
-
 	// それぞれのボーンに影響を受ける頂点を調べる
 	// そこから逆に、頂点ベースでボーンインデックス・重みを整頓する
 	for (int i = 0; i < numBone_; i++)
@@ -313,7 +295,7 @@ void FbxParts::InitSkelton(FbxMesh * pMesh)
 		int * piIndex = ppCluster_[i]->GetControlPointIndices();       //ボーン/ウェイト情報の番号
 		double * pdWeight = ppCluster_[i]->GetControlPointWeights();     //頂点ごとのウェイト情報
 
-																				 //頂点側からインデックスをたどって、頂点サイドで整理する
+		//頂点側からインデックスをたどって、頂点サイドで整理する
 		for (int k = 0; k < numIndex; k++)
 		{
 			// 頂点に関連付けられたウェイト情報がボーン５本以上の場合は、重みの大きい順に４本に絞る
@@ -375,11 +357,15 @@ void FbxParts::IntConstantBuffer()
 
 void FbxParts::RotateOrient()
 {
-	for (OrientRotateInfo e : orientRotateList_) {
-		float angleInRadians = XMConvertToRadians(e.orientRotateY);
-		XMMATRIX rotationMatrix = XMMatrixRotationY(angleInRadians);
-		pBoneArray_[e.boneIndex].diffPose *= rotationMatrix;
+	/*
+	for (const auto& pair : orientRotateMap_) {
+		XMMATRIX rotationMatrix = 
+			XMMatrixRotationX(XMConvertToRadians(pair.second.orientRotate.x)) * 
+			XMMatrixRotationY(XMConvertToRadians(pair.second.orientRotate.y)) *
+			XMMatrixRotationZ(XMConvertToRadians(pair.second.orientRotate.z));
+		pBoneArray_[pair.second.boneIndex].diffPose *= rotationMatrix;
 	}
+	*/
 }
 
 XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
@@ -515,8 +501,11 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 		// 作成された関節行列を使って、頂点を変形する
 		XMVECTOR Pos = XMLoadFloat3(&pWeightArray_[i].posOrigin);
 		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
-		XMStoreFloat3(&pVertexData_[i].position,XMVector3TransformCoord(Pos, matrix));
-		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix));
+		XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
+		XMFLOAT3X3 mat33;
+		XMStoreFloat3x3(&mat33, matrix);
+		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
+		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
 
 	}
 	
@@ -586,6 +575,18 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time)
 	pos.x = (float)mCurrentOrentation[3][0];
 	pos.y = (float)mCurrentOrentation[3][1];
 	pos.z = (float)mCurrentOrentation[3][2];
+
+	//Orient
+	/*
+	OrientRotateInfo info = orientRotateMap_[index];
+	XMMATRIX rotationMatrix =
+		XMMatrixRotationX(XMConvertToRadians(info.orientRotate.x)) *
+		XMMatrixRotationY(XMConvertToRadians(info.orientRotate.y)) *
+		XMMatrixRotationZ(XMConvertToRadians(info.orientRotate.z));
+	XMVECTOR v = XMVector3Transform(XMLoadFloat3(&pos), rotationMatrix);
+	XMStoreFloat3(&pos, v);
+	*/
+
 	return pos;
 }
 
@@ -634,21 +635,23 @@ void FbxParts::RayCast(RayCastData * data)
 
 int FbxParts::AddOrientRotateBone(int index)
 {
+	/*
 	OrientRotateInfo data;
 	data.boneIndex = index;
-	data.orientRotateY = 0.0f;
-	orientRotateList_.push_back(data);
-	return ((int)orientRotateList_.size() - 1);
+	data.orientRotate = XMFLOAT3();
+	orientRotateMap_[index] = data;
+	*/
+	return index;
 }
 
 void FbxParts::ResetOrientRotateBone()
 {
-	orientRotateList_.clear();
+	//orientRotateMap_.clear();
 }
 
-void FbxParts::SetOrientRotateBone(int index, float rotate)
+void FbxParts::SetOrientRotateBone(int index, XMFLOAT3 rotate)
 {
-	orientRotateList_.at(index).orientRotateY = rotate;
+	//orientRotateMap_[index].orientRotate = rotate;
 }
 
 std::vector<PolygonData> FbxParts::GetAllPolygon(FbxNode* pNode)

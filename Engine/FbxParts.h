@@ -12,12 +12,6 @@ class Fbx;
 struct RayCastData;
 struct PolygonData;
 
-struct OrientRotateInfo
-{
-	int boneIndex = -1;
-	float orientRotateY = 0.0f;
-};
-
 //-----------------------------------------------------------
 //FBXの１つのパーツを扱うクラス
 //-----------------------------------------------------------
@@ -112,8 +106,6 @@ class FbxParts
 	Bone*			pBoneArray_;	// 各関節の情報
 	Weight*			pWeightArray_;	// ウェイト情報（頂点の対する各関節の影響度合い）
 
-	std::vector<OrientRotateInfo> orientRotateList_;
-
 	/////////privateな関数（Init関数から呼ばれる）//////////////////////////
 	void InitVertex(fbxsdk::FbxMesh * mesh);	//頂点バッファ準備
 	void InitMaterial(fbxsdk::FbxNode * pNode);	//マテリアル準備
@@ -180,7 +172,7 @@ public:
 
 	void ResetOrientRotateBone();
 
-	void SetOrientRotateBone(int index, float rotate);
+	void SetOrientRotateBone(int index, XMFLOAT3 rotate);
 
 	std::vector<PolygonData> GetAllPolygon(FbxNode* pNode);
 

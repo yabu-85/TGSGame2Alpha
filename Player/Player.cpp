@@ -46,13 +46,17 @@ Player::~Player()
 
 void Player::Initialize()
 {
-#if 0
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
 
+#if 0
     waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
-    std::string boneName[8] = { "thigh.L", "thigh.R", "shin.R", "shin.L", "foot.R", "foot.L", "toe.R", "toe.L" };
-    for (int i = 0; i < 8;i++) {
+    std::string boneName[] = { 
+        "spine.002", "spine.003", "spine.004", "spine.005",
+        "shoulder.L", "upper_arm.L", "forearm.L", "hand.L", "palm.02.L", "f_middle.01.L",
+        "shoulder.R", "upper_arm.R", "forearm.R", "hand.R", "palm.02.R", "f_middle.01.R", "Weapon"
+    };
+    for (int i = 0; i < 17;i++) {
         waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneName[i]);
     }
 #endif 
@@ -71,7 +75,7 @@ void Player::Initialize()
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
     pDamageSystem_->SetMaxHP(100);
     pDamageSystem_->SetHP(100);
-    moveSpeed_ = 0.15f;
+    moveSpeed_ = 0.07f;
 
     pGunBase_ = Instantiate<Gun>(this);
     //pGunBase_ = Instantiate<SniperGun>(this);
@@ -85,9 +89,11 @@ void Player::Initialize()
     pStateManager_->ChangeState("Wait");
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
-    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.4f, 0.4f, vec);
+    CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.3f, 0.65f, vec);
     collid->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(collid);
+
+    Model::SetAnimFrame(hModel_, 0, 120, 1.0f);
 
     Direct3D::playerSpeed = moveSpeed_;
 }
@@ -119,13 +125,13 @@ void Player::Update()
     static const float ORIENT_ROTATE_SPEED = 5.0f;
     if (Input::IsKey(DIK_NUMPAD4)) {
         waistRotateY_ -= ORIENT_ROTATE_SPEED;
-        for(int i = 0;i < 8;i++)
-        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], waistRotateY_);
+        for(int i = 0;i < 17;i++)
+        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
     }
     if (Input::IsKey(DIK_NUMPAD5)) {
-        waistRotateY_ += ORIENT_ROTATE_SPEED;
-        for (int i = 0; i < 8; i++)
-        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], waistRotateY_);
+        waistRotateY_ = -pAim_->GetRotate().x;
+        for (int i = 0; i < 17; i++)
+        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], XMFLOAT3(waistRotateY_, 0.0f, 0.0f));
     }
 #endif
 
@@ -154,13 +160,11 @@ void Player::Update()
     
     StageWallBounce();
 
-    //　地上・登り状態じゃないとき、地面に立っているか判定
+    //地上・登り状態じゃないとき、地面に立っているか判定
     if (!isFly_ && !isClimb_) {
         isFly_ = true;
         StageFloarBounce(0.2f);
     }
-
-
 
     //ReflectCharacter();
 
@@ -169,21 +173,15 @@ void Player::Update()
     Direct3D::PlayerPosition = transform_.position_;
     Direct3D::playerClimb = isClimb_;
     Direct3D::playerFaly = isFly_;
+
+    Model::SetTransform(hModel_, transform_);
+
 }
 
 void Player::Draw()
 {
-#if 0
-    if (GameManager::GetDrawIndex() == playerId_) {
-        if (pGunBase_->IsFirstPerson() && pGunBase_->IsPeeking()) {
-        }
-        else {
-            Model::SetTransform(hModel_, transform_);
-            Model::Draw(hModel_);
-        }
-
-    }
-    else {
+    //Shadowと自分じゃない時は表示
+    if (GameManager::GetDrawIndex() != playerId_) {
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
         
@@ -192,11 +190,8 @@ void Player::Draw()
             pHealthGauge_->SetParcent(r);
             pHealthGauge_->Draw(GameManager::GetDrawIndex());
         }
-
     }
-#endif
 
-    //CollisionDraw();
 }
 
 void Player::Release()

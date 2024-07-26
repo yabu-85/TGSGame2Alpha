@@ -240,7 +240,7 @@ namespace Model
 		_datas[handle]->pFbx->ResetOrientRotateBone();
 	}
 
-	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, float rotate)
+	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, XMFLOAT3 rotate)
 	{
 		_datas[handle]->pFbx->SetOrientRotateBone(partIndex, listIndex, rotate);
 	}

@@ -186,7 +186,7 @@ int Fbx::AddOrientRotateBone(std::string boneName)
 		if (parts_[i]->GetBoneIndex(boneName, &boneIndex)) {
 			partIndex = i;
 			int index = parts_[i]->AddOrientRotateBone(boneIndex);
-			return index;
+			return boneIndex;
 		}
 	}
 	return -1;
@@ -200,7 +200,7 @@ void Fbx::ResetOrientRotateBone()
 	}
 }
 
-void Fbx::SetOrientRotateBone(int partIndex, int listIndex, float rotate)
+void Fbx::SetOrientRotateBone(int partIndex, int listIndex, XMFLOAT3 rotate)
 {
 	parts_[partIndex]->SetOrientRotateBone(listIndex, rotate);
 }

@@ -25,7 +25,14 @@ namespace Model
 		float nowFrame, animSpeed;
 		int startFrame, endFrame;
 
-		//初期化
+		struct OrientRotateInfo
+		{
+			int boneIndex = -1;
+			XMFLOAT3 orientRotate = XMFLOAT3();
+		};
+		std::vector<OrientRotateInfo> orientRotateDatas_;
+	
+	//初期化
 		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0)
 		{
 		}
@@ -42,6 +49,7 @@ namespace Model
 			animSpeed = speed;
 		}
 	};
+
 
 
 	//初期化
@@ -118,7 +126,7 @@ namespace Model
 	void ResetOrientRotateBone(int handle);
 	
 	//回転軸セット
-	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, float rotate);
+	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, XMFLOAT3 rotate);
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list);

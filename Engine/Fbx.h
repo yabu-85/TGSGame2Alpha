@@ -100,7 +100,7 @@ public:
 
 	void ResetOrientRotateBone();
 
-	void SetOrientRotateBone(int partIndex, int listIndex, float rotate);
+	void SetOrientRotateBone(int partIndex, int listIndex, XMFLOAT3 rotate);
 
 	//‚·‚×‚Ä‚Ìƒ|ƒŠƒSƒ“Žæ“¾
 	void GetAllPolygon(std::vector<PolygonData>& list);
