@@ -4,6 +4,14 @@
 #include "Fbx.h"
 #include "Transform.h"
 
+//UEで言う、LookAtのデータ
+struct OrientRotateInfo
+{
+	int boneIndex;			//ボーンのインデックス
+	XMFLOAT3 orientRotate;	//回転量
+	OrientRotateInfo() : boneIndex(-1), orientRotate(XMFLOAT3()) {}
+};
+
 //-----------------------------------------------------------
 //3Dモデル（FBXファイル）を管理する
 //-----------------------------------------------------------
@@ -25,14 +33,9 @@ namespace Model
 		float nowFrame, animSpeed;
 		int startFrame, endFrame;
 
-		struct OrientRotateInfo
-		{
-			int boneIndex = -1;
-			XMFLOAT3 orientRotate = XMFLOAT3();
-		};
 		std::vector<OrientRotateInfo> orientRotateDatas_;
-	
-	//初期化
+		
+		//初期化
 		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0)
 		{
 		}
@@ -126,7 +129,7 @@ namespace Model
 	void ResetOrientRotateBone(int handle);
 	
 	//回転軸セット
-	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, XMFLOAT3 rotate);
+	void SetOrietnRotateBone(int handle, int listIndex, XMFLOAT3 rotate);
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list);

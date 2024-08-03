@@ -31,14 +31,15 @@ std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileNa
     {
         StageModelData obj;
         obj.fileName = objJson["fileName"];
-        obj.hModelNum = Model::Load("Model/" + obj.fileName + ".fbx");
+        obj.hModelNum = Model::Load("Model/Stage/" + obj.fileName + ".fbx");
         obj.transform.position_ = { objJson["position"]["x"], objJson["position"]["y"], objJson["position"]["z"] };
         obj.transform.scale_ = { objJson["scale"]["x"], objJson["scale"]["y"], objJson["scale"]["z"] };
         obj.transform.rotate_ = { objJson["rotate"]["x"], objJson["rotate"]["y"], objJson["rotate"]["z"] };
         
         //Ray—pƒ‚ƒfƒ‹
         obj.rayFileName = objJson["rayFileName"];;
-        obj.hRayModelNum = Model::Load("Model/" + obj.rayFileName + ".fbx");
+        obj.hRayModelNum = Model::Load("Model/Stage/" + obj.rayFileName + ".fbx");
+        
         stage.push_back(obj);
     }
 

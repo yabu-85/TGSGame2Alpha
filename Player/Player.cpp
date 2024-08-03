@@ -29,6 +29,8 @@ namespace {
 
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
+    int orientBoneSize = 0;
+
 }
 
 Player::Player(GameObject* parent)
@@ -49,17 +51,19 @@ void Player::Initialize()
     hModel_ = Model::Load("Model/desiFiter.fbx");
     assert(hModel_ >= 0);
 
-#if 0
+#if 1
     waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
     std::string boneName[] = { 
-        "spine.002", "spine.003", "spine.004", "spine.005",
-        "shoulder.L", "upper_arm.L", "forearm.L", "hand.L", "palm.02.L", "f_middle.01.L",
-        "shoulder.R", "upper_arm.R", "forearm.R", "hand.R", "palm.02.R", "f_middle.01.R", "Weapon"
+        //"upper_arm.L", "forearm.L", "hand.L", "palm.02.L", "f_middle.01.L",
+        //"upper_arm.R", "forearm.R", "hand.R", "palm.02.R", "f_middle.01.R", "Weapon"
+        //"spine.005"
+        "shoulder.L", "upper_arm.L","forearm.L", "hand.L", "palm.02.L", "f_middle.01.L"
     };
-    for (int i = 0; i < 17;i++) {
+    orientBoneSize = (int)sizeof(boneName) / sizeof(boneName[0]);
+    for (int i = 0; i < orientBoneSize;i++) {
         waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneName[i]);
     }
-#endif 
+#endif
 
     //PlayerIDセット
     if (GameManager::GetPlayer(0)) playerId_ = 1;
@@ -121,17 +125,19 @@ void Player::Update()
     }
 
     //Orientテスト
-#if 0
+#if 1
     static const float ORIENT_ROTATE_SPEED = 5.0f;
     if (Input::IsKey(DIK_NUMPAD4)) {
         waistRotateY_ -= ORIENT_ROTATE_SPEED;
-        for(int i = 0;i < 17;i++)
-        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
+        for(int i = 0;i < orientBoneSize;i++)
+        Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
     }
     if (Input::IsKey(DIK_NUMPAD5)) {
-        waistRotateY_ = -pAim_->GetRotate().x;
-        for (int i = 0; i < 17; i++)
-        Model::SetOrietnRotateBone(hModel_, waistPart_, waistListIndex_[i], XMFLOAT3(waistRotateY_, 0.0f, 0.0f));
+        //waistRotateY_ = -pAim_->GetRotate().x;
+        waistRotateY_ -= ORIENT_ROTATE_SPEED;
+
+        for (int i = 0; i < orientBoneSize; i++)
+        Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateY_, 0.0f, 0.0f));
     }
 #endif
 
@@ -152,10 +158,10 @@ void Player::Update()
         //重力処理
         gravity_ += WorldGravity;
         transform_.position_.y -= gravity_;
-
         
         StageFloarBounce(0.0f, -1.0f);
         StageFloarBounce();
+        //StageRoofBounce();
     }
     
     StageWallBounce();
@@ -164,6 +170,7 @@ void Player::Update()
     if (!isFly_ && !isClimb_) {
         isFly_ = true;
         StageFloarBounce(0.2f);
+        //StageRoofBounce();
     }
 
     //ReflectCharacter();
@@ -181,7 +188,7 @@ void Player::Update()
 void Player::Draw()
 {
     //Shadowと自分じゃない時は表示
-    if (GameManager::GetDrawIndex() != playerId_) {
+    if (!GameManager::IsOnePlayer() && GameManager::GetDrawIndex() != playerId_) {
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
         
@@ -191,6 +198,7 @@ void Player::Draw()
             pHealthGauge_->Draw(GameManager::GetDrawIndex());
         }
     }
+    CollisionDraw();
 
 }
 
@@ -363,6 +371,8 @@ bool Player::StageFloarBounce(float perDist, float calcHeight)
 bool Player::StageWallBounce()
 {
     //下
+    //修正箇所
+
     XMVECTOR push = XMVectorZero();
     CapsuleCollider* cCollid = static_cast<CapsuleCollider*>(colliderList_.front());
     SphereCollider* collid = new SphereCollider(XMFLOAT3(), cCollid->size_.x);
@@ -390,6 +400,7 @@ bool Player::StageWallBounce()
     GameManager::GetCollisionMap()->CellSphereVsTriangle(sCollid, push);
 #endif 
 
+    return false;
 }
 
 bool Player::StageRoofBounce()

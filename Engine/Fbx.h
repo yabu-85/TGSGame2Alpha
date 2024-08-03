@@ -6,6 +6,7 @@
 #include "Transform.h"
 
 class FbxParts;
+struct OrientRotateInfo;
 
 //レイキャスト用構造体
 struct RayCastData
@@ -49,18 +50,10 @@ class Fbx
 	// アニメーションのフレームレート
 	FbxTime::EMode	_frameRate;
 
-	//アニメーション速度
-	float			_animSpeed;
-
-	//アニメーションの最初と最後のフレーム
-	int _startFrame, _endFrame;
-
-
 	//ノードの中身を調べる
 	//引数：pNode		調べるノード
 	//引数：pPartsList	パーツのリスト
 	void CheckNode(FbxNode* pNode, std::vector<FbxParts*> *pPartsList);
-
 
 public:
 	Fbx();
@@ -73,7 +66,7 @@ public:
 
 	//描画
 	//引数：World	ワールド行列
-	void    Draw(Transform& transform, int frame);
+	void    Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas);
 
 	//解放
 	void    Release();
@@ -95,12 +88,6 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
-
-	int AddOrientRotateBone(std::string boneName);
-
-	void ResetOrientRotateBone();
-
-	void SetOrientRotateBone(int partIndex, int listIndex, XMFLOAT3 rotate);
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(std::vector<PolygonData>& list);

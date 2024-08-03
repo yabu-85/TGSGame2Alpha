@@ -115,15 +115,18 @@ void CollisionMap::Draw()
 #endif
     
     //Collision•\Ž¦
-#if 0
+#if 1
     if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
+        Transform t = e.transform;
+        t.scale_.x = -t.scale_.x;
+
         if (e.hRayModelNum >= 0) {
-            Model::SetTransform(e.hRayModelNum, e.transform);
+            Model::SetTransform(e.hRayModelNum, t);
             Model::Draw(e.hRayModelNum);
         }
         else {
-            Model::SetTransform(e.hModelNum, e.transform);
+            Model::SetTransform(e.hModelNum, t);
             Model::Draw(e.hModelNum);
         }
     }

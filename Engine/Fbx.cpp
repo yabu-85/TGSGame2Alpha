@@ -1,13 +1,11 @@
 #include "Fbx.h"
 #include "Direct3D.h"
 #include "FbxParts.h"
+#include "Model.h"
 
-
-
-Fbx::Fbx():_animSpeed(0)
+Fbx::Fbx() : _frameRate(), pFbxScene_(nullptr), pFbxManager_(nullptr)
 {
 }
-
 
 Fbx::~Fbx()
 {
@@ -139,7 +137,7 @@ XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)
 	return parts_[partIndex]->GetBoneRotate(boneIndex, time);
 }
 
-void Fbx::Draw(Transform& transform, int frame)
+void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas)
 {
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
@@ -150,11 +148,10 @@ void Fbx::Draw(Transform& transform, int frame)
 		FbxTime     time;
 		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
 
-
 		//スキンアニメーション（ボーン有り）の場合
 		if (parts_[k]->GetSkinInfo() != nullptr)
 		{
-			parts_[k]->DrawSkinAnime(transform, time);
+			parts_[k]->DrawSkinAnime(transform, time, orientDatas);
 		}
 
 		//メッシュアニメーションの場合
@@ -174,35 +171,6 @@ void Fbx::RayCast(RayCastData * data)
 	{
 		parts_[i]->RayCast(data);
 	}
-}
-
-int Fbx::AddOrientRotateBone(std::string boneName)
-{
-	int partIndex = -1;
-	int boneIndex = -1;
-
-	for (int i = 0; i < parts_.size(); i++)
-	{
-		if (parts_[i]->GetBoneIndex(boneName, &boneIndex)) {
-			partIndex = i;
-			int index = parts_[i]->AddOrientRotateBone(boneIndex);
-			return boneIndex;
-		}
-	}
-	return -1;
-}
-
-void Fbx::ResetOrientRotateBone()
-{
-	for (int i = 0; i < parts_.size(); i++)
-	{
-		parts_[i]->ResetOrientRotateBone();
-	}
-}
-
-void Fbx::SetOrientRotateBone(int partIndex, int listIndex, XMFLOAT3 rotate)
-{
-	parts_[partIndex]->SetOrientRotateBone(listIndex, rotate);
 }
 
 void Fbx::GetAllPolygon(std::vector<PolygonData>& list)

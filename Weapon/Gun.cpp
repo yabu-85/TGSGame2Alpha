@@ -74,7 +74,7 @@ void Gun::Update()
         Model::SetAnimFrame(handle, 150, 150, 1.0f);
     }
     else {
-        Model::SetAnimFrame(handle, 0, 120, 1.0f);
+        Model::SetAnimFrame(handle, 180, 180, 1.0f);
     }
 
 
@@ -134,9 +134,9 @@ void Gun::PressedShot()
     EFFEKSEERLIB::EFKTransform t;
     Transform transform;
     transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
-    transform.rotate_ = Float3Add(pPlayer_->GetRotate(), transform_.rotate_);
-    transform.rotate_.y += +180.0f;
+    transform.rotate_ = transform_.rotate_;
     transform.rotate_.x = -transform.rotate_.x;
+    transform.rotate_.y += 180.0f;
     transform.scale_ = transform_.scale_;
     DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
     t.isLoop = false;   //ŒJ‚è•Ô‚µ

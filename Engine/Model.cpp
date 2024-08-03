@@ -82,11 +82,9 @@ namespace Model
 		if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
 			_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
 
-
-
 		if (_datas[handle]->pFbx)
 		{
-			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame);
+			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_);
 		}
 	}
 
@@ -182,6 +180,18 @@ namespace Model
 	{
 		//相対座標（ボーンの中心からの位置）
 		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame);
+	
+		/*
+		//Orient
+		OrientRotateInfo info = _datas[handle]->orientRotateDatas_[0].boneIndex;
+		XMMATRIX rotationMatrix =
+			XMMatrixRotationX(XMConvertToRadians(info.orientRotate.x)) *
+			XMMatrixRotationY(XMConvertToRadians(info.orientRotate.y)) *
+			XMMatrixRotationZ(XMConvertToRadians(info.orientRotate.z));
+		XMVECTOR v = XMVector3Transform(XMLoadFloat3(&pos), rotationMatrix);
+		XMStoreFloat3(&pos, v);
+		*/
+
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
 		XMStoreFloat3(&pos, vec);
 		return pos;
@@ -191,7 +201,6 @@ namespace Model
 	{
 		//相対座標（ボーンの中心からの位置）
 		XMFLOAT3 rot = _datas[handle]->pFbx->GetBoneAnimRotate(partIndex, boneIndex, (int)_datas[handle]->nowFrame);
-		
 		if (rot.x >= 90.0f || rot.x <= -90.0f) rot.y *= -1.0f;
 		return rot;
 	}
@@ -232,17 +241,22 @@ namespace Model
 
 	int AddOrientRotateBone(int handle, std::string boneName)
 	{
-		return _datas[handle]->pFbx->AddOrientRotateBone(boneName);
+		OrientRotateInfo data;
+		data.boneIndex = GetBoneIndex(handle, boneName);
+		data.orientRotate = XMFLOAT3();
+		_datas[handle]->orientRotateDatas_.push_back(data);
+		int size = (int)_datas[handle]->orientRotateDatas_.size() - 1;
+		return size;
 	}
 
 	void ResetOrientRotateBone(int handle)
 	{
-		_datas[handle]->pFbx->ResetOrientRotateBone();
+		_datas[handle]->orientRotateDatas_.clear();
 	}
 
-	void SetOrietnRotateBone(int handle, int partIndex, int listIndex, XMFLOAT3 rotate)
+	void SetOrietnRotateBone(int handle, int listIndex, XMFLOAT3 rotate)
 	{
-		_datas[handle]->pFbx->SetOrientRotateBone(partIndex, listIndex, rotate);
+		_datas[handle]->orientRotateDatas_[listIndex].orientRotate = rotate;
 	}
 
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list)

@@ -1,22 +1,22 @@
 {
     "objects": [
         {
-            "fileName": "StageSet",
+            "fileName": "StageSet1",
             "position": {
                 "x": 50.0,
                 "y": 5.0,
                 "z": 50.0
             },
-            "rayFileName": "StageSetRay",
+            "rayFileName": "StageSet1Ray",
             "rotate": {
-                "x": 90.0,
+                "x": 0.0,
                 "y": 0.0,
                 "z": 0.0
             },
             "scale": {
-                "x": 1.0570000410079956,
-                "y": 1.0570000410079956,
-                "z": 1.0570000410079956
+                "x": 1.0,
+                "y": 0.593999981880188,
+                "z": 1.0
             }
         }
     ]

@@ -88,9 +88,6 @@ float4 PS(VS_OUT inData) : SV_Target
 	//正規化しておかないと面の明るさがおかしくなる
     inData.normal.w = 0;
     inData.normal = normalize(inData.normal);
-
-    float4 shade = saturate(dot(-lightDir, inData.normal));
-    shade.a = 1;
     
     float4 diffuse;
 	//テクスチャ有無
@@ -107,10 +104,11 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	//環境光（アンビエント）
 	//これはMaya側で指定し、グローバル変数で受け取ったものをそのまま
-    float4 ambient = float4(0.1f, 0.1f, 0.1f, 1.0f);
+    float4 ambient = float4(0.3f, 0.3f, 0.3f, 1.0f);
 
 	//最終的な色
-    float4 color = diffuse * shade + ambient * diffuse;
+    float4 color = 0.0f;
+    float4 shade = 0.0f;
     
     inData.lightTex /= inData.lightTex.w;
     float TexValue = g_depthTexture.Sample(g_depthSampler, inData.lightTex.xy).r;
@@ -118,13 +116,20 @@ float4 PS(VS_OUT inData) : SV_Target
     
     //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
     //誤差いい感じの値で調整
-    if (TexValue + -0.001 < LightLength)
+    if (TexValue + 0.005 < LightLength)
     {
+        color = ambient * diffuse;
+
         //ライトに照らされない場所は影の効果を低く
-        color -= color * shade * 0.2f;
+       // color -= color * shade * 0.5f;
     }
     else
     {
+        shade = saturate(dot(-lightDir, inData.normal));
+        shade.a = 1;
+        
+        color = diffuse * shade + ambient * diffuse;
+        
         //鏡面反射光（スペキュラー）
         float4 speculer = float4(0.0f, 0.0f, 0.0f, 1.0f); //とりあえずハイライトは無しにしておいて…
         float4 specColor = float4(1.0f, 1.0f, 1.0f, 1.0f);

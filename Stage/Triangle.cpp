@@ -25,7 +25,7 @@ XMVECTOR Triangle::GetNormal()
 }
 
 // 30“x‚ðƒ‰ƒWƒAƒ“‚É•ÏŠ·
-const float MaxAngleRad = XMConvertToRadians(30.0f);
+const float MaxAngleRad = XMConvertToRadians(45.0f);
 const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 bool Triangle::IsMovable()

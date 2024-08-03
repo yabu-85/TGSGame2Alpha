@@ -4,6 +4,7 @@
 #include "Direct3D.h"
 #include "Camera.h"
 #include "Light.h"
+#include "Model.h"
 
 //コンストラクタ
 FbxParts::FbxParts():
@@ -454,8 +455,37 @@ void FbxParts::Draw(Transform& transform)
 
 }
 
+// 回転行列からオイラー角を抽出する関数
+XMFLOAT3 GetEulerAnglesFromMatrix(const XMMATRIX& matrix) {
+	XMFLOAT4X4 mat;
+	XMStoreFloat4x4(&mat, matrix);
+
+	XMFLOAT3 euler;
+
+	// オイラー角を計算
+	if (mat.m[0][2] < 1.0f) {
+		if (mat.m[0][2] > -1.0f) {
+			euler.y = asinf(mat.m[0][2]);
+			euler.x = atan2f(-mat.m[1][2], mat.m[2][2]);
+			euler.z = atan2f(-mat.m[0][1], mat.m[0][0]);
+		}
+		else { // mat.m[0][2] == -1
+			euler.y = -XM_PIDIV2;
+			euler.x = -atan2f(mat.m[1][0], mat.m[1][1]);
+			euler.z = 0.0f;
+		}
+	}
+	else { // mat.m[0][2] == 1
+		euler.y = XM_PIDIV2;
+		euler.x = atan2f(mat.m[1][0], mat.m[1][1]);
+		euler.z = 0.0f;
+	}
+
+	return euler;
+}
+
 //ボーン有りのモデルを描画
-void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
+void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
 {
 	// ボーンごとの現在の行列を取得する
 	for (int i = 0; i < numBone_; i++)
@@ -473,14 +503,57 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 			}
 		}
 
-		// オフセット時のポーズの差分を計算する
+		//オフセット時のポーズの差分を計算する
 		pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
 		pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
 		pBoneArray_[i].diffPose *= pBoneArray_[i].newPose;
 	}
 
-	//Orientの計算
-	RotateOrient();
+	// Orientの計算
+	for (const auto& pair : orientDatas)
+	{
+		// 平行移動行列を作成する
+		XMFLOAT3 bonePosition;
+		XMStoreFloat3(&bonePosition, pBoneArray_[pair.boneIndex].newPose.r[3]);
+		XMMATRIX translationToOrigin = XMMatrixTranslation(bonePosition.x, bonePosition.y, bonePosition.z);
+
+		//回転行列を作成する
+		XMMATRIX mat2 =
+			XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
+			XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
+			XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
+
+		//mat2を分解して回転成分を抽出
+		XMVECTOR scale2, rotation2, translation2;
+		XMMatrixDecompose(&scale2, &rotation2, &translation2, mat2);
+
+		//mat1を分解して回転成分を抽出
+		XMVECTOR scale1, rotation1, translation1;
+		XMMatrixDecompose(&scale1, &rotation1, &translation1, pBoneArray_[pair.boneIndex].newPose);
+
+		//mat1とmat2を合わせた回転Matrixの生成
+		XMVECTOR combinedRotation = XMQuaternionMultiply(rotation2, rotation2);
+		XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(combinedRotation);
+
+		// mat1のスケールと平行移動を新しい行列に適用
+		XMMATRIX resultMatrix = XMMatrixScalingFromVector(scale1) * rotationMatrix;
+		resultMatrix.r[3] = pBoneArray_[pair.boneIndex].newPose.r[3]; // 平行移動成分をコピー
+
+		
+		XMMATRIX preMatrix = pBoneArray_[pair.boneIndex - 1].newPose;
+		XMVECTOR transVector = pBoneArray_[pair.boneIndex].newPose.r[3];
+		
+		pBoneArray_[pair.boneIndex].newPose = pBoneArray_[pair.boneIndex].newPose * mat2;
+		if (pair.boneIndex == 7) {
+		//	pBoneArray_[pair.boneIndex].newPose.r[3] = translationToOrigin.r[3];
+		}
+		else {
+		//	pBoneArray_[pair.boneIndex].newPose.r[3] = transVector;
+		}
+
+		pBoneArray_[pair.boneIndex].diffPose = XMMatrixInverse(nullptr, pBoneArray_[pair.boneIndex].bindPose);
+		pBoneArray_[pair.boneIndex].diffPose *= pBoneArray_[pair.boneIndex].newPose;
+	}
 
 	// 各ボーンに対応した頂点の変形制御
 	for (DWORD i = 0; i < vertexCount_; i++)
@@ -495,7 +568,6 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 				break;
 			}
 			matrix += pBoneArray_[pWeightArray_[i].pBoneIndex[m]].diffPose * pWeightArray_[i].pBoneWeight[m];
-
 		}
 
 		// 作成された関節行列を使って、頂点を変形する
@@ -506,7 +578,6 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 		XMStoreFloat3x3(&mat33, matrix);
 		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
 		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
-
 	}
 	
 	// 頂点バッファをロックして、変形させた後の頂点情報で上書きする
@@ -518,9 +589,7 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time)
 		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);
 	}
 
-
 	Draw(transform);
-
 }
 
 void FbxParts::DrawMeshAnime(Transform& transform, FbxTime time, FbxScene * scene)
@@ -575,18 +644,6 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time)
 	pos.x = (float)mCurrentOrentation[3][0];
 	pos.y = (float)mCurrentOrentation[3][1];
 	pos.z = (float)mCurrentOrentation[3][2];
-
-	//Orient
-	/*
-	OrientRotateInfo info = orientRotateMap_[index];
-	XMMATRIX rotationMatrix =
-		XMMatrixRotationX(XMConvertToRadians(info.orientRotate.x)) *
-		XMMatrixRotationY(XMConvertToRadians(info.orientRotate.y)) *
-		XMMatrixRotationZ(XMConvertToRadians(info.orientRotate.z));
-	XMVECTOR v = XMVector3Transform(XMLoadFloat3(&pos), rotationMatrix);
-	XMStoreFloat3(&pos, v);
-	*/
-
 	return pos;
 }
 
@@ -631,27 +688,6 @@ void FbxParts::RayCast(RayCastData * data)
 			}
 		}
 	}
-}
-
-int FbxParts::AddOrientRotateBone(int index)
-{
-	/*
-	OrientRotateInfo data;
-	data.boneIndex = index;
-	data.orientRotate = XMFLOAT3();
-	orientRotateMap_[index] = data;
-	*/
-	return index;
-}
-
-void FbxParts::ResetOrientRotateBone()
-{
-	//orientRotateMap_.clear();
-}
-
-void FbxParts::SetOrientRotateBone(int index, XMFLOAT3 rotate)
-{
-	//orientRotateMap_[index].orientRotate = rotate;
 }
 
 std::vector<PolygonData> FbxParts::GetAllPolygon(FbxNode* pNode)

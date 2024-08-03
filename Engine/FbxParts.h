@@ -11,6 +11,7 @@ using namespace DirectX;
 class Fbx;
 struct RayCastData;
 struct PolygonData;
+struct OrientRotateInfo;
 
 //-----------------------------------------------------------
 //FBXの１つのパーツを扱うクラス
@@ -137,7 +138,7 @@ public:
 	//ボーン有りのモデルを描画
 	//引数：transform	行列情報
 	//引数：time		フレーム情報（１アニメーション内の今どこか）
-	void DrawSkinAnime(Transform& transform, FbxTime time);
+	void DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
 
 	//ボーン無しのモデルを描画
 	//引数：transform	行列情報
@@ -167,12 +168,6 @@ public:
 	//レイキャスト（レイを飛ばして当たり判定）
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(RayCastData *data);
-
-	int AddOrientRotateBone(int index);
-
-	void ResetOrientRotateBone();
-
-	void SetOrientRotateBone(int index, XMFLOAT3 rotate);
 
 	std::vector<PolygonData> GetAllPolygon(FbxNode* pNode);
 

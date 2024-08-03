@@ -66,8 +66,8 @@ void Aim::Update()
     if (Input::IsKeyDown(DIK_5)) isValid_ = !isValid_;
     if (!IsValid()) return;
     
-    if (Input::IsKey(DIK_1)) distanceHeight_ += 0.1f;
-    if (Input::IsKey(DIK_2)) distanceHeight_ -= 0.1f;
+    if (Input::IsKey(DIK_1)) distanceTargetHeight_ += 0.1f;
+    if (Input::IsKey(DIK_2)) distanceTargetHeight_ -= 0.1f;
     if (Input::IsKey(DIK_3)) distanceTargetBehind_ += 0.1f;
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
 
