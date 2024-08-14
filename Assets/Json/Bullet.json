@@ -10,7 +10,7 @@
   "Bullet_Sniper": {
     "isPenetration": 0,
     "damage": 50,
-    "shotCoolTime": 60,
+    "shotCoolTime": 10,
     "speed": 7.0,
     "killTimer": 12,
     "collisionScale": 0.1

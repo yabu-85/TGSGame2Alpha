@@ -25,7 +25,7 @@ void Stage::Initialize()
 	
 	Instantiate<CollisionMap>(this);
 
-#if 1
+#if 0
 	if (false) {
 		GameManager::GetCollisionMap()->CreatIntersectDataTriangle("Json/Stage1.json");
 		RouteSearch::LoadFileNode("Json/PlaneStageNode.json");

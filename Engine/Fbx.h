@@ -66,7 +66,7 @@ public:
 
 	//描画
 	//引数：World	ワールド行列
-	void    Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas);
+	void    Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas, bool isShadow);
 
 	//解放
 	void    Release();

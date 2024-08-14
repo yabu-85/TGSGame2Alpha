@@ -137,7 +137,7 @@ XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)
 	return parts_[partIndex]->GetBoneRotate(boneIndex, time);
 }
 
-void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas)
+void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas, bool isShadow)
 {
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
@@ -151,13 +151,13 @@ void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &o
 		//スキンアニメーション（ボーン有り）の場合
 		if (parts_[k]->GetSkinInfo() != nullptr)
 		{
-			parts_[k]->DrawSkinAnime(transform, time, orientDatas);
+			parts_[k]->DrawSkinAnime(transform, time, orientDatas, isShadow);
 		}
 
 		//メッシュアニメーションの場合
 		else
 		{
-			parts_[k]->DrawMeshAnime(transform, time, pFbxScene_);
+			parts_[k]->DrawMeshAnime(transform, time, pFbxScene_, isShadow);
 		}
 	}
 }

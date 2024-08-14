@@ -5,6 +5,7 @@
 class Aim;
 class GunBase;
 class StateManager;
+class CapsuleCollider;
 
 class Player : public Character
 {
@@ -14,6 +15,7 @@ class Player : public Character
 
     int playerId_;              //プレイヤー番号
     int hModel_;                //モデル番号
+    int hFPSModel_;             //FPS表示用のモデル
 
     int waistPart_;             //テストPartのインデックス
     int waistListIndex_[20];     //テストBoneのインデックス
@@ -29,6 +31,7 @@ class Player : public Character
     Aim* pAim_;
     GunBase* pGunBase_;
     StateManager* pStateManager_;
+    CapsuleCollider* pCapsuleCollider_;
 
     //関数
     void CalcRotate(XMFLOAT3 pos, float ratio);
@@ -73,6 +76,8 @@ public:
     void SetClimb(bool b) { isClimb_ = b; }
 
     int GetModelHandle() { return hModel_; }
+    int GetFPSModelHandle() { return hFPSModel_; }
+
     int GetPlayerId() { return playerId_; }
     Aim* GetAim() { return pAim_; }
     GunBase* GetGunBase() { return pGunBase_; }

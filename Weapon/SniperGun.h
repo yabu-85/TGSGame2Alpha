@@ -8,9 +8,10 @@ class AimCursor;
 class SniperGun : public GunBase
 {
     int hPict_;
+    int animTime_;
 
     void PressedShot() override;
-    void PressedReload() override;
+    bool PressedReload() override;
 public:
     SniperGun(GameObject* parent);
     ~SniperGun() override;

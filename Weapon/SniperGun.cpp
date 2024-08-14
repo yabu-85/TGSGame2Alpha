@@ -27,7 +27,7 @@ namespace {
 }
 
 SniperGun::SniperGun(GameObject* parent)
-    : GunBase(parent, "SniperGun"), hPict_(-1)
+    : GunBase(parent, "SniperGun"), hPict_(-1), animTime_(0)
 {
 }
 
@@ -37,17 +37,18 @@ SniperGun::~SniperGun()
 
 void SniperGun::Initialize()
 {
-    hModel_ = Model::Load("Model/Rifle.fbx");
+    hModel_ = Model::Load("Model/Rifle2.fbx");
     assert(hModel_ >= 0);
 
-    Model::GetPartBoneIndex(hModel_, "Top", &topBoneIndex_, &topPartIndex_);
-    Model::GetPartBoneIndex(hModel_, "Root", &rootBoneIndex_, &rootPartIndex_);
+    Model::GetPartBoneIndex(hModel_, "Top", &topPartIndex_, &topBoneIndex_);
+    Model::GetPartBoneIndex(hModel_, "Root", &rootPartIndex_, &rootBoneIndex_);
     assert(topBoneIndex_ >= 0);
     assert(rootBoneIndex_ >= 0);
 
     hPict_ = Image::Load("Image/SniperPeak.png");
     assert(hPict_ >= 0);
 
+    transform_.pParent_ = nullptr;
     pAimCursor_ = new AimCursor();
     TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
@@ -64,10 +65,66 @@ void SniperGun::Update()
 {
     coolTime_--;
     pAimCursor_->Update();
+    SetGunHandPosition();
+
+    //アニメーションセット
+    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
+        if (animTime_ <= 0) {
+            Model::SetAnimFrame(hPlayerModel_, 120, 140, 0.5f);
+            Model::SetAnimFrame(pPlayer_->GetFPSModelHandle(), 120, 140, 0.5f);
+            animTime_ = 0;
+        }
+        if (animTime_ == 20) {
+            Model::SetAnimFrame(hPlayerModel_, 140, 260, 0.5f);
+            int handle = pPlayer_->GetFPSModelHandle();
+            Model::SetAnimFrame(handle, 140, 260, 0.5f);
+        }
+
+        animTime_++;
+    }
+    else {
+        if (InputManager::IsCmdUp(InputManager::AIM, playerId_)) {
+            Model::SetAnimFrame(hPlayerModel_, 260, 280, 0.5f);
+            Model::SetAnimFrame(pPlayer_->GetFPSModelHandle(), 260, 280, 0.5f);
+            animTime_ = 0;
+        }
+
+        if (animTime_ == -20) {
+            Model::SetAnimFrame(hPlayerModel_, 0, 120, 0.5f);
+            Model::SetAnimFrame(pPlayer_->GetFPSModelHandle(), 0, 120, 0.5f);
+        }
+
+        animTime_--;
+    }
+
+    //リロード中の処理
+    if (currentReloadTime_ > 0) {
+        Reload();
+        //リロード終了
+        if (currentMagazineCount_ == magazineCount_) {
+            Model::SetAnimFrame(hModel_, 0, 0, 1.0f);
+            Model::SetAnimFrame(pPlayer_->GetFPSModelHandle(), 0, 0, 1.0f);
+        }
+
+        return;
+    }
+
+    //撃った後の自動リロード
+    if (coolTime_ <= 0 && currentMagazineCount_ < magazineCount_) {
+        PressedReload();
+        //Peeking
+        isPeeking_ = false;
+        peekTime_ = PEEK_TIME;
+
+        //アニメーション
+        Model::SetAnimFrame(hPlayerModel_, 0, 120, 0.5f);
+        Model::SetAnimFrame(pPlayer_->GetFPSModelHandle(), 0, 120, 0.5f);
+        animTime_ = 0;
+        return;
+    }
 
     //のぞき込み処理
     if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        pPlayer_->GetAim()->SetDistanceIncreaseAmount(AIM_DISTANCE_INCREASE);
         peekTime_--;
         
         //覗き込み完了
@@ -80,36 +137,22 @@ void SniperGun::Update()
         isPeeking_ = false;
     }
 
-    //リロード中
-    if (currentReloadTime_ >= 1) {
-        OutputDebugString("reloading\n");
-        Reload();
-        return;
-    }
-
-    OutputDebugStringA(std::to_string(currentMagazineCount_).c_str());
-    OutputDebugString("\n");
-
-    //リロード
-    if (InputManager::IsCmdDown(InputManager::RELOAD, playerId_)) {
-        PressedReload();
-    }
-
     //通常射撃
     if (InputManager::IsCmdDown(InputManager::ATTACK, playerId_))
     {
         PressedShot();
-    }
-    else {
-        //RotateShake戻り処理をTrueに
-        pPlayer_->GetAim()->SetCameraRotateReturn(true);
     }
 
 }
 
 void SniperGun::Draw()
 {
-    if (pPlayer_->GetPlayerId() == GameManager::GetDrawIndex()) {
+    int dI = GameManager::GetDrawIndex();
+    Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
+    if (pPlayer_->GetPlayerId() == dI) {
+        //Shadoの場合Return
+        if (type == Direct3D::SHADER_SHADOWMAP) return;
+
         if (isPeeking_) {
             if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
                 Transform t;
@@ -123,7 +166,8 @@ void SniperGun::Draw()
             Model::Draw(hModel_);
         }
     }
-    else {
+    //自分の影表示はしない
+    else if (type != Direct3D::SHADER_SHADOWMAP) {
         transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
@@ -139,7 +183,6 @@ void SniperGun::PressedShot()
 {
     //まだクールタイム中
     if (coolTime_ > 0) {
-        pPlayer_->GetAim()->SetCameraRotateReturn(true);
         return;
     }
 
@@ -152,19 +195,21 @@ void SniperGun::PressedShot()
 
     CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 3.0f), 3);
     pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
-    pPlayer_->GetAim()->SetCameraRotateReturn(false);
+    pPlayer_->GetAim()->SetCameraRotateReturn(true);
+
 }
 
-void SniperGun::PressedReload()
+bool SniperGun::PressedReload()
 {
     //すでに満タン
-    if (currentMagazineCount_ >= magazineCount_) return;
+    if (currentMagazineCount_ >= magazineCount_) return false;
     //すでにリロード中
-    if (currentReloadTime_ > 0) return;
+    if (currentReloadTime_ > 0) return false;
     //クールタイムでっす
-    if (coolTime_ > 0) return;
+    if (coolTime_ > 0) return false;
 
+    Model::SetAnimFrame(hModel_, 0, 170, 1.0f);
     currentReloadTime_ = reloadTime_;
     coolTime_ = reloadTime_;
-
+    return true;
 }

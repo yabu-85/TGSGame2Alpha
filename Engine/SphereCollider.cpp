@@ -19,6 +19,12 @@ SphereCollider::SphereCollider(XMFLOAT3 center, float radius)
 #endif
 }
 
+SphereCollider::~SphereCollider()
+{
+	Model::Release(hDebugModel_);
+
+}
+
 //ÚG”»’è
 //ˆø”Ftarget	‘Šè‚Ì“–‚½‚è”»’è
 //–ß’lFÚG‚µ‚Ä‚ê‚Îtrue

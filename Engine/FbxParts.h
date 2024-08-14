@@ -42,6 +42,7 @@ class FbxParts
 		XMFLOAT4	lightPos;
 		FLOAT		shininess;
 		BOOL		isTexture;
+		BOOL		isShadow;
 	};
 
 	// マテリアル情報（質感の情報）
@@ -133,18 +134,18 @@ public:
 
 	//描画
 	//引数：world	ワールド行列
-	void Draw(Transform& transform);
+	void Draw(Transform& transform, bool isShadow);
 
 	//ボーン有りのモデルを描画
 	//引数：transform	行列情報
 	//引数：time		フレーム情報（１アニメーション内の今どこか）
-	void DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
+	void DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow);
 
 	//ボーン無しのモデルを描画
 	//引数：transform	行列情報
 	//引数：time		フレーム情報（１アニメーション内の今どこか）
 	//引数：scene		Fbxファイルから読み込んだシーン情報
-	void DrawMeshAnime(Transform& transform, FbxTime time, FbxScene* scene);
+	void DrawMeshAnime(Transform& transform, FbxTime time, FbxScene* scene, bool isShadow);
 
 	//ボーンのインデックスを取得
 	bool GetBoneIndex(std::string boneName, int* index);

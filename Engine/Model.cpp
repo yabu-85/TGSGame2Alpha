@@ -84,7 +84,7 @@ namespace Model
 
 		if (_datas[handle]->pFbx)
 		{
-			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_);
+			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, _datas[handle]->isShadow);
 		}
 	}
 
@@ -262,6 +262,11 @@ namespace Model
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list)
 	{
 		_datas[handle]->pFbx->GetAllPolygon(list);
+	}
+
+	void SetShadow(int handle, bool b)
+	{
+		_datas[handle]->isShadow = b;
 	}
 
 }

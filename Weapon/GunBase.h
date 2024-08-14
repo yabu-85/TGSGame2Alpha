@@ -14,10 +14,13 @@ protected:
     bool isPeeking_;    //完全にのぞき込みしている状態か
 
     int hModel_;        //モデル番号
+    int hPlayerModel_;  //プレイヤーのモデル番号
     int topBoneIndex_;  //トップボーンインデックス
     int topPartIndex_;  //トップパーツインデックス
     int rootBoneIndex_; //ルートボーンインデックス
     int rootPartIndex_; //ルートパーツインデックス
+    int handBoneIndex_; //プレイヤーの手のボーン
+    int handPartIndex_; //プレイヤーの手のパーツ
 
     int playerId_;                  //プレイヤーID
     int coolTime_;                  //撃つクールダウン
@@ -32,10 +35,11 @@ protected:
     AimCursor* pAimCursor_;
 
     void LoadGunJson(std::string fileName);         //銃の情報読み込み
+    void SetGunHandPosition();                      //手の位置に銃のポジションを合わせる
     void Reload();                                  //リロード中の処理
     virtual void ShotBullet(BulletBase* pBullet);   //銃弾発射の処理
     virtual void PressedShot() {};                  //発射のボタン押した
-    virtual void PressedReload() {};                //リロードのボタン押した
+    virtual bool PressedReload() { return false; }; //リロードのボタン押した
 
 public:
     GunBase(GameObject* parent, const std::string& name);

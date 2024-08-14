@@ -35,8 +35,10 @@ namespace Model
 
 		std::vector<OrientRotateInfo> orientRotateDatas_;
 		
+		bool isShadow;
+
 		//初期化
-		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0)
+		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isShadow(true)
 		{
 		}
 
@@ -130,6 +132,8 @@ namespace Model
 	
 	//回転軸セット
 	void SetOrietnRotateBone(int handle, int listIndex, XMFLOAT3 rotate);
+
+	void SetShadow(int handle, bool b);
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list);

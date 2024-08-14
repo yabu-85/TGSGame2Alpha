@@ -63,20 +63,13 @@ void Gun::Update()
     if(Input::IsKey(DIK_V)) rotateY += 1.0f;
     if (Input::IsKey(DIK_B)) rotateY -= 1.0f;
 
-    int p, b, handle;
-    handle = pPlayer_->GetModelHandle();
-    Model::GetPartBoneIndex(handle, "Weapon", &p, &b);
-    transform_.position_ = Model::GetBoneAnimPosition(handle, p, b);
-    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
-    transform_.rotate_.y = pPlayer_->GetRotate().y;
-
+    SetGunHandPosition();
     if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        Model::SetAnimFrame(handle, 150, 150, 1.0f);
+        Model::SetAnimFrame(hPlayerModel_, 150, 150, 1.0f);
     }
     else {
-        Model::SetAnimFrame(handle, 180, 180, 1.0f);
+        Model::SetAnimFrame(hPlayerModel_, 180, 180, 1.0f);
     }
-
 
     //リロード中
     if (currentReloadTime_ >= 1) {
@@ -145,17 +138,18 @@ void Gun::PressedShot()
     EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
 }
 
-void Gun::PressedReload()
+bool Gun::PressedReload()
 {
     //すでに満タン
-    if (currentMagazineCount_ >= magazineCount_) return;
+    if (currentMagazineCount_ >= magazineCount_) return false;
     //すでにリロード中
-    if (currentReloadTime_ > 0) return;
+    if (currentReloadTime_ > 0) return false;
     //クールタイムでっす
-    if (coolTime_ > 0) return;
+    if (coolTime_ > 0) return false;
 
     currentReloadTime_ = reloadTime_;
     coolTime_ = reloadTime_;
     pPlayer_->GetAim()->SetCameraRotateReturn(true);
     Model::SetAnimFrame(hModel_, 0, 200, (float)(200.0f / reloadTime_ * 0.5f) );
+    return true;
 }

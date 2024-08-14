@@ -395,7 +395,7 @@ XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
 }
 
 //描画
-void FbxParts::Draw(Transform& transform)
+void FbxParts::Draw(Transform& transform, bool isShadow)
 {
 	//今から描画する頂点情報をシェーダに伝える
 	UINT stride = sizeof(VERTEX);
@@ -485,9 +485,9 @@ XMFLOAT3 GetEulerAnglesFromMatrix(const XMMATRIX& matrix) {
 }
 
 //ボーン有りのモデルを描画
-void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
+void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow)
 {
-	// ボーンごとの現在の行列を取得する
+	//ボーンごとの現在の行列を取得する
 	for (int i = 0; i < numBone_; i++)
 	{
 		FbxAnimEvaluator * evaluator = ppCluster_[i]->GetLink()->GetScene()->GetAnimationEvaluator();
@@ -509,7 +509,7 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 		pBoneArray_[i].diffPose *= pBoneArray_[i].newPose;
 	}
 
-	// Orientの計算
+	//Orientの計算
 	for (const auto& pair : orientDatas)
 	{
 		// 平行移動行列を作成する
@@ -538,7 +538,6 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 		// mat1のスケールと平行移動を新しい行列に適用
 		XMMATRIX resultMatrix = XMMatrixScalingFromVector(scale1) * rotationMatrix;
 		resultMatrix.r[3] = pBoneArray_[pair.boneIndex].newPose.r[3]; // 平行移動成分をコピー
-
 		
 		XMMATRIX preMatrix = pBoneArray_[pair.boneIndex - 1].newPose;
 		XMVECTOR transVector = pBoneArray_[pair.boneIndex].newPose.r[3];
@@ -555,10 +554,10 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 		pBoneArray_[pair.boneIndex].diffPose *= pBoneArray_[pair.boneIndex].newPose;
 	}
 
-	// 各ボーンに対応した頂点の変形制御
+	//各ボーンに対応した頂点の変形制御
 	for (DWORD i = 0; i < vertexCount_; i++)
 	{
-		// 各頂点ごとに、「影響するボーン×ウェイト値」を反映させた関節行列を作成する
+		//各頂点ごとに、「影響するボーン×ウェイト値」を反映させた関節行列を作成する
 		XMMATRIX  matrix;
 		ZeroMemory(&matrix, sizeof(matrix));
 		for (int m = 0; m < numBone_; m++)
@@ -570,7 +569,7 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 			matrix += pBoneArray_[pWeightArray_[i].pBoneIndex[m]].diffPose * pWeightArray_[i].pBoneWeight[m];
 		}
 
-		// 作成された関節行列を使って、頂点を変形する
+		//作成された関節行列を使って、頂点を変形する
 		XMVECTOR Pos = XMLoadFloat3(&pWeightArray_[i].posOrigin);
 		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
 		XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
@@ -580,7 +579,7 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
 	}
 	
-	// 頂点バッファをロックして、変形させた後の頂点情報で上書きする
+	//頂点バッファをロックして、変形させた後の頂点情報で上書きする
 	D3D11_MAPPED_SUBRESOURCE msr = {};
 	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
 	if (msr.pData)
@@ -589,10 +588,10 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);
 	}
 
-	Draw(transform);
+	Draw(transform, isShadow);
 }
 
-void FbxParts::DrawMeshAnime(Transform& transform, FbxTime time, FbxScene * scene)
+void FbxParts::DrawMeshAnime(Transform& transform, FbxTime time, FbxScene * scene, bool isShadow)
 {
 	//// その瞬間の自分の姿勢行列を得る
 	//FbxAnimEvaluator *evaluator = scene->GetAnimationEvaluator();
@@ -607,7 +606,7 @@ void FbxParts::DrawMeshAnime(Transform& transform, FbxTime time, FbxScene * scen
 	//	}
 	//}
 
-	Draw(transform);
+	Draw(transform, isShadow);
 }
 
 bool FbxParts::GetBoneIndex(std::string boneName, int* index)

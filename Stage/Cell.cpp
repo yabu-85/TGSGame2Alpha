@@ -2,7 +2,8 @@
 #include "Triangle.h"
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
-
+#include "../Engine/GameObject.h"
+#include "../Engine/Global.h"
 #include "../Engine/Collider.h"
 #include "../Engine/SphereCollider.h"
 
@@ -79,12 +80,9 @@ bool Cell::SegmentVsWallTriangle(RayCastData* _data)
 	return hit;
 }
 
-#include "../Engine/GameObject.h"
-#include "../Engine/Global.h"
 bool Cell::SphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 {
 	bool hit = false;
-	/*
 	for (int i = 0; i < (int)floarTriangles_.size(); i++) {
 		if (collid->IsHitCircleVsTriangle(collid, &floarTriangles_[i], push)) {
 			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
@@ -96,8 +94,6 @@ bool Cell::SphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 			hit = true;
 		}
 	}
-	*/
-	
 	
 	for (int i = 0; i < (int)wallTriangles_.size(); i++) {
 		if (collid->IsHitCircleVsTriangle(collid, &wallTriangles_[i], push)) {

@@ -11,7 +11,7 @@ class Gun : public GunBase
     int peekRootPartIndex_;
 
     void PressedShot() override;
-    void PressedReload() override;
+    bool PressedReload() override;
 public:
     Gun(GameObject* parent);
     ~Gun() override;

@@ -23,6 +23,7 @@ cbuffer global
     float4 lightPos;        //ライトの座標
     float shininess;        //ハイライトの強さ
     bool isTexture;         //テクスチャがあるか
+    bool isShadow;          //影適応するか
 };
 
 //───────────────────────────────────────
@@ -116,7 +117,7 @@ float4 PS(VS_OUT inData) : SV_Target
     
     //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
     //誤差いい感じの値で調整
-    if (TexValue + 0.005 < LightLength)
+    if (isShadow && TexValue + 0.003 < LightLength)
     {
         color = ambient * diffuse;
 

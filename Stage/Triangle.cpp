@@ -2,6 +2,11 @@
 #include "../Engine/Fbx.h"
 #include "../Engine/Direct3D.h"
 
+namespace {
+	const float MaxAngleRad = XMConvertToRadians(45.0f);
+	const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+}
+
 Triangle::Triangle(XMFLOAT3& p1, XMFLOAT3& p2, XMFLOAT3& p3)
 {
 	position[0] = XMLoadFloat3(&p1);
@@ -24,16 +29,14 @@ XMVECTOR Triangle::GetNormal()
 	return normal;
 }
 
-// 30“x‚ðƒ‰ƒWƒAƒ“‚É•ÏŠ·
-const float MaxAngleRad = XMConvertToRadians(45.0f);
-const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
 bool Triangle::IsMovable()
 {
 	float dotProduct = XMVectorGetX(XMVector3Dot(normal, up));
 	float angleRad = acosf(dotProduct);
-	bool b = angleRad <= MaxAngleRad;
-	return b;
+	float angleDeg = XMConvertToDegrees(angleRad);
+	bool a = angleRad <= MaxAngleRad;
+	bool b = angleRad >= (XMConvertToRadians(90.0f) + MaxAngleRad);
+	return (a || b);
 }
 
 void Triangle::RayCast(RayCastData* data)

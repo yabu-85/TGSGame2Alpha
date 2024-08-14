@@ -132,7 +132,6 @@ namespace GameManager {
 
 	void ShadoDraw()
 	{	
-		drawIndex_ = -1;
 		XMFLOAT3 pos = Camera::GetPosition(0);
 		XMFLOAT3 tar = Camera::GetTarget(0);
 		XMFLOAT4 lightPos = Light::GetPosition(0);
@@ -153,6 +152,7 @@ namespace GameManager {
 	{
 		ShadoDraw();
 
+		drawIndex_ = 0;
 		Direct3D::BeginDraw2();
 		Camera::Update(0);
 		pRootObject_->DrawSub();
