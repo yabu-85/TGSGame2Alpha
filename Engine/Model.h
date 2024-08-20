@@ -8,8 +8,9 @@
 struct OrientRotateInfo
 {
 	int boneIndex;			//ボーンのインデックス
+	int parentBoneIndex;	//親ボーンのインデックス（Rootの場合-1）
 	XMFLOAT3 orientRotate;	//回転量
-	OrientRotateInfo() : boneIndex(-1), orientRotate(XMFLOAT3()) {}
+	OrientRotateInfo() : boneIndex(-1), parentBoneIndex(-1), orientRotate(XMFLOAT3()) {}
 };
 
 //-----------------------------------------------------------
@@ -124,8 +125,8 @@ namespace Model
 	//引数：data	必要なものをまとめたデータ
 	void RayCast(int handle, RayCastData *data);
 
-	//リストに追加
-	int AddOrientRotateBone(int handle, std::string boneName);
+	//リストに追加（Rootの場合ParentBoneは入力しない）
+	int AddOrientRotateBone(int handle, std::string boneName, std::string parentBoneName = "");
 
 	//リスト初期化
 	void ResetOrientRotateBone(int handle);

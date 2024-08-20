@@ -428,6 +428,7 @@ void FbxParts::Draw(Transform& transform, bool isShadow)
 		cb.lightPos = Light::GetPosition(0);
 		cb.mWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());
 		cb.mWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
+		cb.isShadow = isShadow;
 
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
@@ -512,44 +513,27 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 	//Orientの計算
 	for (const auto& pair : orientDatas)
 	{
-		// 平行移動行列を作成する
-		XMFLOAT3 bonePosition;
-		XMStoreFloat3(&bonePosition, pBoneArray_[pair.boneIndex].newPose.r[3]);
-		XMMATRIX translationToOrigin = XMMatrixTranslation(bonePosition.x, bonePosition.y, bonePosition.z);
-
 		//回転行列を作成する
-		XMMATRIX mat2 =
+		XMMATRIX matR =
 			XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
 			XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
 			XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
 
-		//mat2を分解して回転成分を抽出
-		XMVECTOR scale2, rotation2, translation2;
-		XMMatrixDecompose(&scale2, &rotation2, &translation2, mat2);
-
-		//mat1を分解して回転成分を抽出
-		XMVECTOR scale1, rotation1, translation1;
-		XMMatrixDecompose(&scale1, &rotation1, &translation1, pBoneArray_[pair.boneIndex].newPose);
-
-		//mat1とmat2を合わせた回転Matrixの生成
-		XMVECTOR combinedRotation = XMQuaternionMultiply(rotation2, rotation2);
-		XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(combinedRotation);
-
-		// mat1のスケールと平行移動を新しい行列に適用
-		XMMATRIX resultMatrix = XMMatrixScalingFromVector(scale1) * rotationMatrix;
-		resultMatrix.r[3] = pBoneArray_[pair.boneIndex].newPose.r[3]; // 平行移動成分をコピー
-		
-		XMMATRIX preMatrix = pBoneArray_[pair.boneIndex - 1].newPose;
-		XMVECTOR transVector = pBoneArray_[pair.boneIndex].newPose.r[3];
-		
-		pBoneArray_[pair.boneIndex].newPose = pBoneArray_[pair.boneIndex].newPose * mat2;
-		if (pair.boneIndex == 7) {
-		//	pBoneArray_[pair.boneIndex].newPose.r[3] = translationToOrigin.r[3];
+		if (pair.parentBoneIndex <= -1) {
+			XMVECTOR translation = pBoneArray_[pair.boneIndex].newPose.r[3];	//座標MATRIX
+			pBoneArray_[pair.boneIndex].newPose = pBoneArray_[pair.boneIndex].newPose * matR;
+			pBoneArray_[pair.boneIndex].newPose.r[3] = translation;
 		}
 		else {
-		//	pBoneArray_[pair.boneIndex].newPose.r[3] = transVector;
+			//子Boneの始点を計算し、親Boneの始点を原点として、子Boneの始点を座標でmatRと計算
+			XMVECTOR localPosition = pBoneArray_[pair.boneIndex].newPose.r[3] - pBoneArray_[pair.parentBoneIndex].newPose.r[3];
+			XMVECTOR childPos = XMVector3Transform(localPosition, matR) + pBoneArray_[pair.parentBoneIndex].newPose.r[3];
+			pBoneArray_[pair.boneIndex].newPose *= matR;
+			
+			//座標をWは変更なしで代入
+			pBoneArray_[pair.boneIndex].newPose.r[3] = XMVectorSetW(childPos, 1.0f);
 		}
-
+		
 		pBoneArray_[pair.boneIndex].diffPose = XMMatrixInverse(nullptr, pBoneArray_[pair.boneIndex].bindPose);
 		pBoneArray_[pair.boneIndex].diffPose *= pBoneArray_[pair.boneIndex].newPose;
 	}
@@ -634,15 +618,54 @@ XMFLOAT3 FbxParts::GetBonePosition(int index)
 	return pos;
 }
 
-XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time)
+XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
 {
 	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
 	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
-
 	XMFLOAT3 pos = XMFLOAT3();
 	pos.x = (float)mCurrentOrentation[3][0];
 	pos.y = (float)mCurrentOrentation[3][1];
 	pos.z = (float)mCurrentOrentation[3][2];
+
+	for (const auto& pair : orientDatas) {
+		if (pair.boneIndex == index) {
+			if (pair.parentBoneIndex <= -1) {
+				XMFLOAT3 endPos = XMFLOAT3();
+				XMStoreFloat3(&endPos, pBoneArray_[pair.boneIndex].newPose.r[3]);
+				return endPos;
+			}
+			else {
+				//回転行列を作成する
+				XMMATRIX matR =
+					XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
+					XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
+					XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
+
+				FbxMatrix mParentCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[pair.parentBoneIndex]->GetLink(), time);
+				XMFLOAT3 parentBone = XMFLOAT3();
+				parentBone.x = (float)mParentCurrentOrentation[3][0];
+				parentBone.y = (float)mParentCurrentOrentation[3][1];
+				parentBone.z = (float)mParentCurrentOrentation[3][2];
+
+				//子Boneの始点を計算し、親Boneの始点を原点として、子Boneの始点を座標でmatRと計算
+				XMVECTOR localPosition = XMLoadFloat3(&pos) - XMLoadFloat3(&parentBone);
+				XMVECTOR childPos = XMVector3Transform(localPosition, matR) + XMLoadFloat3(&parentBone);
+				XMVECTOR vPos = XMVector3Transform(XMLoadFloat3(&pos), matR);
+
+				//座標をWは変更なしで代入
+				vPos = XMVectorSetW(childPos, 1.0f);
+				XMStoreFloat3(&pos, vPos);
+				return pos;
+			}
+		}
+	}
+	
+	XMFLOAT4X4  m;
+	XMStoreFloat4x4(&m, pBoneArray_[index].newPose);
+	//XMFLOAT3 pos = XMFLOAT3();
+	pos.x = m._41;
+	pos.y = m._42;
+	pos.z = m._43;
 	return pos;
 }
 

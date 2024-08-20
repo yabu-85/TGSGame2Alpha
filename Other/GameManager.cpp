@@ -109,10 +109,13 @@ namespace GameManager {
 
 		ImGui::Begin("Hello");//ImGui‚Ìˆ—‚ðŠJŽn
 		{
-			XMFLOAT4 position = Light::GetPosition(0);
-			XMFLOAT4 target = Light::GetTarget(0);
+			XMFLOAT3 position = Camera::GetPosition(0);
+			XMFLOAT3 target = Camera::GetTarget(0);
+
 			ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
 			ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
+			ImGui::Text("PlayerCamX: (%.2f)", Direct3D::playerCamX);
+			ImGui::Text("PlayerCamX: (%.2f)", Direct3D::playerCamY);
 			ImGui::Separator();
 			ImGui::Text("Player: (%.2f, %.2f, %.2f)", Direct3D::PlayerPosition.x, Direct3D::PlayerPosition.y, Direct3D::PlayerPosition.z);
 			ImGui::Text("Enemy : (%.2f, %.2f, %.2f)", Direct3D::EnemyPosition.x, Direct3D::EnemyPosition.y, Direct3D::EnemyPosition.z);
@@ -150,9 +153,9 @@ namespace GameManager {
 
 	void OnePlayerDraw()
 	{
-		ShadoDraw();
-
 		drawIndex_ = 0;
+		ShadoDraw();
+		
 		Direct3D::BeginDraw2();
 		Camera::Update(0);
 		pRootObject_->DrawSub();

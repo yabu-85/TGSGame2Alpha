@@ -123,11 +123,11 @@ XMFLOAT3 Fbx::GetBonePosition(int partIndex, int boneIndex)
 	return parts_[partIndex]->GetBonePosition(boneIndex);
 }
 
-XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame)
+XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas)
 {
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBonePosition(boneIndex, time);
+	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas);
 }
 
 XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)

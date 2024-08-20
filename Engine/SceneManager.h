@@ -7,6 +7,7 @@ enum SCENE_ID
 {
 	SCENE_ID_SELECT = 0,
 	SCENE_ID_TEST,
+	SCENE_ID_PLAY,
 };
 
 //-----------------------------------------------------------

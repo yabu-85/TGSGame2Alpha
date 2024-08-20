@@ -9,18 +9,20 @@ class AimCursor;
 class GunBase : public GameObject
 {
 protected:
-    bool rayHit_;       //Collision判定で保存用
-    bool isFirstPerson_;//一人称視点かどうか(false＝三人称
-    bool isPeeking_;    //完全にのぞき込みしている状態か
+    bool rayHit_;           //Collision判定で保存用
+    bool isFirstPerson_;    //一人称視点かどうか(false＝三人称
+    bool isPeeking_;        //完全にのぞき込みしている状態か
 
-    int hModel_;        //モデル番号
-    int hPlayerModel_;  //プレイヤーのモデル番号
-    int topBoneIndex_;  //トップボーンインデックス
-    int topPartIndex_;  //トップパーツインデックス
-    int rootBoneIndex_; //ルートボーンインデックス
-    int rootPartIndex_; //ルートパーツインデックス
-    int handBoneIndex_; //プレイヤーの手のボーン
-    int handPartIndex_; //プレイヤーの手のパーツ
+    int hModel_;            //モデル番号
+    int hPlayerModel_;      //プレイヤーのモデル番号
+    int hPlayerFPSModel_;   //FPS用モデル番号
+
+    int topBoneIndex_;      //トップボーンインデックス
+    int topPartIndex_;      //トップパーツインデックス
+    int rootBoneIndex_;     //ルートボーンインデックス
+    int rootPartIndex_;     //ルートパーツインデックス
+    int handBoneIndex_;     //プレイヤーの手のボーン
+    int handPartIndex_;     //プレイヤーの手のパーツ
 
     int playerId_;                  //プレイヤーID
     int coolTime_;                  //撃つクールダウン

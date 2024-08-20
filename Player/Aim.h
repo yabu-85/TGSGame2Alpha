@@ -118,4 +118,7 @@ public:
     void SetCameraRotateShake(const CameraRotateShakeInfo& info);
     void SetCameraRotateReturn(bool b) { isRotateShakeReturn_ = b; }
 
+    void SetDistanceHeight(float height) { distanceHeight_ = height; distanceTargetHeight_ = height; }
+    void SetDistanceBehind(float behind) { distanceBehind_ = behind; distanceTargetBehind_ = behind; }
+        
 };

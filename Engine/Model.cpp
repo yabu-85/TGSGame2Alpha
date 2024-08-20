@@ -179,19 +179,7 @@ namespace Model
 	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex)
 	{
 		//相対座標（ボーンの中心からの位置）
-		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame);
-	
-		/*
-		//Orient
-		OrientRotateInfo info = _datas[handle]->orientRotateDatas_[0].boneIndex;
-		XMMATRIX rotationMatrix =
-			XMMatrixRotationX(XMConvertToRadians(info.orientRotate.x)) *
-			XMMatrixRotationY(XMConvertToRadians(info.orientRotate.y)) *
-			XMMatrixRotationZ(XMConvertToRadians(info.orientRotate.z));
-		XMVECTOR v = XMVector3Transform(XMLoadFloat3(&pos), rotationMatrix);
-		XMStoreFloat3(&pos, v);
-		*/
-
+		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_);
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
 		XMStoreFloat3(&pos, vec);
 		return pos;
@@ -239,10 +227,20 @@ namespace Model
 			_datas[handle]->pFbx->RayCast(data); 
 	}
 
-	int AddOrientRotateBone(int handle, std::string boneName)
+	int AddOrientRotateBone(int handle, std::string boneName, std::string parentBoneName)
 	{
 		OrientRotateInfo data;
+
+		//BoneIndexの計算
 		data.boneIndex = GetBoneIndex(handle, boneName);
+		assert(data.boneIndex >= 0);
+
+		if (!parentBoneName.empty()) {
+			data.parentBoneIndex = GetBoneIndex(handle, parentBoneName);
+			assert(data.parentBoneIndex >= 0);
+		}
+		else data.parentBoneIndex = -1;
+
 		data.orientRotate = XMFLOAT3();
 		_datas[handle]->orientRotateDatas_.push_back(data);
 		int size = (int)_datas[handle]->orientRotateDatas_.size() - 1;

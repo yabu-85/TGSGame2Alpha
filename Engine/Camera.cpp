@@ -11,8 +11,8 @@ XMMATRIX _billBoard;
 void Camera::Initialize()
 {
 	for (int i = 0; i < 2; i++) {
-		_position[i] = XMFLOAT3(0, 3, -10);	//カメラの位置
-		_target[i] = XMFLOAT3(0, 0, 0);	//カメラの焦点
+		_position[i] = XMFLOAT3(40, 10, 60);	//カメラの位置
+		_target[i] = XMFLOAT3(50, 5, 50);	//カメラの焦点
 	}
 
 	//////////////////////縦に潰れるの直すとこ

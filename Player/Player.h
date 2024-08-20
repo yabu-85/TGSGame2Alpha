@@ -19,7 +19,9 @@ class Player : public Character
 
     int waistPart_;             //テストPartのインデックス
     int waistListIndex_[20];     //テストBoneのインデックス
+    float waistRotateX_;        //テスト腰を想定したボーンのRotateX
     float waistRotateY_;        //テスト腰を想定したボーンのRotateY
+    float waistRotateZ_;        //テスト腰を想定したボーンのRotateZ
 
     float gradually_;           //移動スピードの加減の値
     float moveSpeed_;           //移動スピード

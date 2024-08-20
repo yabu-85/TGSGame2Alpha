@@ -54,19 +54,33 @@ void Player::Initialize()
 
     hFPSModel_ = Model::Load("Model/gunFiterFPS.fbx");
     assert(hFPSModel_ >= 0);
-    
+
     //Orient登録
-#if 0
+#if 1
     waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
-    std::string boneName[] = { 
-        //"upper_arm.L", "forearm.L", "hand.L", "palm.02.L", "f_middle.01.L",
-        //"upper_arm.R", "forearm.R", "hand.R", "palm.02.R", "f_middle.01.R", "Weapon"
-        //"spine.005"
-        "shoulder.L", "upper_arm.L","forearm.L", "hand.L", "palm.02.L", "f_middle.01.L"
+    std::pair<std::string, std::string> boneNameList[] = {
+        { "upper_arm.R",    "" },
+        { "forearm.R",      "upper_arm.R" },
+        { "hand.R",         "upper_arm.R" },
+        { "palm.02.R",      "upper_arm.R" },
+        { "Weapon",         "upper_arm.R" },
+        { "f_middle.01.R",  "upper_arm.R" },
+
+        { "upper_arm.L",    "" },
+        { "forearm.L",      "upper_arm.L" },
+        { "hand.L",         "upper_arm.L" },
+        { "palm.02.L",      "upper_arm.L" },
+        { "f_middle.01.L",  "upper_arm.L" },
+
+        { "spine.004", ""},
+        { "spine.005", "spine.004" },
+        { "eye", "spine.004" },
+        { "eye.001", "spine.004" },
     };
-    orientBoneSize = (int)sizeof(boneName) / sizeof(boneName[0]);
+    orientBoneSize = (int)sizeof(boneNameList) / sizeof(boneNameList[0]);
     for (int i = 0; i < orientBoneSize;i++) {
-        waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneName[i]);
+        waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneNameList[i].first, boneNameList[i].second);
+        Model::AddOrientRotateBone(hFPSModel_, boneNameList[i].first, boneNameList[i].second);
     }
 #endif
 
@@ -77,7 +91,7 @@ void Player::Initialize()
     //パラメータセット
     objectType_ = OBJECT_TYPE::Player;
     transform_.position_ = START_POS;
-    SetBodyRange(0.35f);
+    SetBodyRange(0.15f);
     SetBodyWeight(1.0f);
     SetBodyHeightHalf(1.0f);
     pHealthGauge_ = new HealthGauge(this);
@@ -87,7 +101,6 @@ void Player::Initialize()
     moveSpeed_ = 0.07f;
 
     pAim_ = Instantiate<Aim>(this);
-    //pGunBase_ = Instantiate<Gun>(this);
     pGunBase_ = Instantiate<SniperGun>(this);
     
     pStateManager_ = new StateManager(this);
@@ -102,8 +115,10 @@ void Player::Initialize()
     pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(pCapsuleCollider_);
 
-    Model::SetAnimFrame(hModel_, 0, 120, 1.0f);
+    //初期化
+    Draw();
 
+    Model::SetAnimFrame(hModel_, 0, 120, 1.0f);
     Direct3D::playerSpeed = moveSpeed_;
 }
 
@@ -130,20 +145,20 @@ void Player::Update()
     }
 
     //Orientテスト
-#if 0
-    static const float ORIENT_ROTATE_SPEED = 5.0f;
-    if (Input::IsKey(DIK_NUMPAD4)) {
-        waistRotateY_ -= ORIENT_ROTATE_SPEED;
-        for(int i = 0;i < orientBoneSize;i++)
-        Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
+#if 1
+    static const float ORIENT_ROTATE_SPEED = 3.0f;
+    waistRotateX_ = -pAim_->GetRotate().x;
+    if (Input::IsKey(DIK_NUMPAD4)) waistRotateX_ += ORIENT_ROTATE_SPEED;
+    if (Input::IsKey(DIK_NUMPAD5)) waistRotateY_ += ORIENT_ROTATE_SPEED;
+    if (Input::IsKey(DIK_NUMPAD6)) waistRotateZ_ += ORIENT_ROTATE_SPEED;
+    if (Input::IsKeyDown(DIK_NUMPAD9)) {
+        waistRotateX_ = 0.0f;
+        waistRotateY_ = 0.0f;
+        waistRotateZ_ = 0.0f;
     }
-    if (Input::IsKey(DIK_NUMPAD5)) {
-        //waistRotateY_ = -pAim_->GetRotate().x;
-        waistRotateY_ -= ORIENT_ROTATE_SPEED;
 
-        for (int i = 0; i < orientBoneSize; i++)
-        Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateY_, 0.0f, 0.0f));
-    }
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, waistRotateY_, waistRotateZ_));
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, waistRotateY_, waistRotateZ_));
 #endif
 
     //HealthGaugeセット
@@ -190,6 +205,7 @@ void Player::Update()
 
     //Weapon用にここでSet
     Model::SetTransform(hModel_, transform_);
+    Model::SetTransform(hFPSModel_, transform_);
 }
 
 void Player::Draw()
@@ -199,17 +215,8 @@ void Player::Draw()
         return;
     }
 
-
     //自分自身の表示（アニメーション進めるために映らない場所でDraw
     if (GameManager::GetDrawIndex() == playerId_) {
-        Transform t;
-        t.position_.y = 10000;
-        Model::SetTransform(hModel_, t);
-        Model::Draw(hModel_);
-
-        //戻す
-        Model::SetTransform(hModel_, transform_);
-    
         Model::SetTransform(hFPSModel_, transform_);
         Model::Draw(hFPSModel_);
     }
@@ -222,8 +229,6 @@ void Player::Draw()
         pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
 
-    //コリジョン
-    CollisionDraw();
 }
 
 void Player::Release()

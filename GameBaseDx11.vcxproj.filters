@@ -344,6 +344,9 @@
     <ClCompile Include="Screen\SettingScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
+    <ClCompile Include="Scene\PlayScene.cpp">
+      <Filter>03Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -612,6 +615,9 @@
     </ClInclude>
     <ClInclude Include="Screen\SettingScreen.h">
       <Filter>Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\PlayScene.h">
+      <Filter>03Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

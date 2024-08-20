@@ -80,7 +80,7 @@ public:
 	XMFLOAT3 GetBonePosition(int partIndex, int boneIndex);
 
 	//任意のアニメーション時のボーンの位置を取得
-	XMFLOAT3 GetBoneAnimPosition(int partIndex, int boneIndex, int frame);
+	XMFLOAT3 GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas);
 
 	//任意のアニメーション時のボーンの回転を取得
 	XMFLOAT3 GetBoneAnimRotate(int partIndex, int boneIndex, int frame);

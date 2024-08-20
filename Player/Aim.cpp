@@ -5,6 +5,7 @@
 #include "../Engine/Global.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/Fbx.h"
+#include "../Engine/Model.h"
 #include "../Stage/CollisionMap.h"
 #include "../Other/InputManager.h"
 #include "../Other/GameManager.h"
@@ -12,7 +13,7 @@
 
 namespace {
     static const float UP_MOUSE_LIMIT = -80.0f;                     //回転限界値
-    static const float DOWN_MOUSE_LIMIT = 80.0f;                    //回転限界値
+    static const float DOWN_MOUSE_LIMIT = 60.0f;                    //回転限界値
     
     static const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
     static const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
@@ -22,6 +23,9 @@ namespace {
     static const float DISTANCE_BEHIND_DEFAULT = 3.0f;              //どのくらい後ろから移すかのデフォルト値
     static const float DISTANCE_HEIGHT_DEFAULT = 1.3f;              //Aimの高さ
     static const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
+
+    const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
 }
 
 Aim::Aim(GameObject* parent)
@@ -38,7 +42,7 @@ Aim::Aim(GameObject* parent)
     distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
     distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
 
-    static const float TARGET_BEHIND = 0.11f;
+    static const float TARGET_BEHIND = 3.11f;
     static const float TARGET_HORIZONTAL = 0.0f;
     static const float TARGET_HEIGHT = 1.1f;
     distanceTargetBehind_ = TARGET_BEHIND;
@@ -71,30 +75,6 @@ void Aim::Update()
     if (Input::IsKey(DIK_3)) distanceTargetBehind_ += 0.1f;
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
 
-    /*
-    if (InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
-        static const float TARGET_BEHIND = 0.01f;
-        static const float TARGET_HORIZONTAL = 0.2f;
-        //static const float TARGET_HEIGHT = 0.94f;
-        static const float TARGET_HEIGHT = 1.04f;
-
-        distanceTargetBehind_ = TARGET_BEHIND;
-        distanceTargetHorizontal_ = TARGET_HORIZONTAL;
-        distanceTargetHeight_ = TARGET_HEIGHT;
-        mouseSensitivity_ = (MOUSE_SPEED_DEFAULT * 0.7f);
-    }
-    else if(InputManager::IsCmdUp(InputManager::AIM, pPlayer_->GetPlayerId())) {
-        static const float TARGET_BEHIND = 0.05f;
-        static const float TARGET_HORIZONTAL = 0.1f;
-        static const float TARGET_HEIGHT = 1.04f;
-        distanceTargetBehind_ = TARGET_BEHIND;
-        distanceTargetHorizontal_ = TARGET_HORIZONTAL;
-        distanceTargetHeight_ = TARGET_HEIGHT;
-        mouseSensitivity_ = MOUSE_SPEED_DEFAULT;
-    }
-    */
-    
-
     if (compulsionTime_ > 0) {
         //強制移動
         if (isCompulsion_) {
@@ -104,11 +84,41 @@ void Aim::Update()
         }
     }
 
-    if (isMove_) {
-        CalcMouseMove();
+    if (isMove_) CalcMouseMove();
+   
+    bool Aimfps = true;
+    if (Aimfps) {
+        CameraRotateShake();
+     
+        //Eyeポジション設定
+        int eyeBone, eyePart;
+        int eyeBone1, eyePart1;
+        int hFPSModel_ = pPlayer_->GetFPSModelHandle();
+        Model::GetPartBoneIndex(hFPSModel_, "eye", &eyePart, &eyeBone);
+        Model::GetPartBoneIndex(hFPSModel_, "eye.001", &eyePart1, &eyeBone1);
+        XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hFPSModel_, eyePart, eyeBone);
+        XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hFPSModel_, eyePart1, eyeBone1);
+        
+        int playerID = pPlayer_->GetPlayerId();
+        Camera::SetPosition(eyePos, playerID);
+        Camera::SetTarget(eyePos1, playerID);
+
+        XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));
+        XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
+        XMMATRIX mView = mRotX * mRotY; XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
+        XMStoreFloat3(&aimDirection_, -caDire);
+
+        Direct3D::playerCamX = transform_.rotate_.x;
+        Direct3D::playerCamY = transform_.rotate_.y;
+
+        return;
     }
 
     DefaultAim();
+
+    Direct3D::playerCamX = transform_.rotate_.x;
+    Direct3D::playerCamY = transform_.rotate_.y;
+
 }
 
 void Aim::Draw()
@@ -130,7 +140,6 @@ void Aim::SetCameraShake(const CameraShakeInfo& info)
     
     center_ = XMVectorZero();
     sign_ = 1.0f;
-
 }
 
 void Aim::SetCameraRotateShake(const CameraRotateShakeInfo& info)
@@ -173,7 +182,6 @@ void Aim::DefaultAim()
     distanceHorizontal_ += (distanceTargetHorizontal_ - distanceHorizontal_) * distanceIncreaseAmount_;
     distanceHeight_ += (distanceTargetHeight_ - distanceHeight_) * distanceIncreaseAmount_;
 
-    const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
     XMStoreFloat3(&aimDirection_, -caDire);
 
@@ -187,16 +195,15 @@ void Aim::DefaultAim()
 
     XMVECTOR caTarget = XMLoadFloat3(&cameraTarget_);
     XMVECTOR forwardV = XMVector3TransformNormal(forwardVector, mView);
-    XMVECTOR camPos = caTarget + (forwardV * distanceBehind_);
+    XMVECTOR camPos = caTarget + forwardV * distanceBehind_;
     XMStoreFloat3(&cameraPosition_, camPos);
-    XMStoreFloat3(&cameraTarget_, caTarget);
 
     //カメラShake
     CameraShake();
 
     //RayCastしてその値を上書きする
     RayCastStage();
-
+    
     //カメラ情報をセット
     Camera::SetPosition(cameraPosition_, pPlayer_->GetPlayerId());
     Camera::SetTarget(cameraTarget_, pPlayer_->GetPlayerId());
@@ -280,7 +287,7 @@ void Aim::RayCastStage()
     if (data.dist <= distanceBehind_ + HEIGHT_RAY) {
         distanceBehind_ = data.dist - HEIGHT_RAY;
     }
-
+    
     XMVECTOR camPos = XMLoadFloat3(&cameraTarget_) + (vDir * distanceBehind_);
     XMStoreFloat3(&cameraPosition_, camPos);
 }

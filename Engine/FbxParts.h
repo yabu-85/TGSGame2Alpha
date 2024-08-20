@@ -157,7 +157,7 @@ public:
 	XMFLOAT3 GetBonePosition(int index);
 
 	//任意のボーンの位置を取得
-	XMFLOAT3 GetBonePosition(int index, FbxTime time);
+	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
 
 	//任意のボーンの回転を取得
 	XMFLOAT3 GetBoneRotate(int index, FbxTime time);
