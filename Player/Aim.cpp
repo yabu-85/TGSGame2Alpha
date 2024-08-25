@@ -12,17 +12,19 @@
 #include <vector>
 
 namespace {
-    static const float UP_MOUSE_LIMIT = -80.0f;                     //回転限界値
-    static const float DOWN_MOUSE_LIMIT = 60.0f;                    //回転限界値
+    bool FPSAimMode = true;
+
+    const float UP_MOUSE_LIMIT = -80.0f;                     //回転限界値
+    const float DOWN_MOUSE_LIMIT = 60.0f;                    //回転限界値
     
-    static const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
-    static const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
+    const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
+    const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
-    static const float MOUSE_SPEED_DEFAULT = 0.1f;                  //感度
-    static const float DISTANCE_HORIZONTAL_DEFAULT = 0.30f;         //どのくらい左右にずらすか
-    static const float DISTANCE_BEHIND_DEFAULT = 3.0f;              //どのくらい後ろから移すかのデフォルト値
-    static const float DISTANCE_HEIGHT_DEFAULT = 1.3f;              //Aimの高さ
-    static const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
+    const float MOUSE_SPEED_DEFAULT = 0.1f;                  //感度
+    const float DISTANCE_HORIZONTAL_DEFAULT = 0.30f;         //どのくらい左右にずらすか
+    const float DISTANCE_BEHIND_DEFAULT = 3.0f;              //どのくらい後ろから移すかのデフォルト値
+    const float DISTANCE_HEIGHT_DEFAULT = 1.3f;              //Aimの高さ
+    const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
 
     const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
@@ -33,7 +35,7 @@ Aim::Aim(GameObject* parent)
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
     shakeDirection_{ 1,0,0,0 }, isValid_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
-    rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false)
+    rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false), rotateShakeDirKeepSub_(XMFLOAT2())
 {
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;
@@ -66,9 +68,10 @@ void Aim::Initialize()
 
 void Aim::Update()
 {
-    //デバッグ用
-    if (Input::IsKeyDown(DIK_5)) isValid_ = !isValid_;
     if (!IsValid()) return;
+    
+    //デバッグ用
+    if (Input::IsKeyDown(DIK_5)) isMove_ = !isMove_;
     
     if (Input::IsKey(DIK_1)) distanceTargetHeight_ += 0.1f;
     if (Input::IsKey(DIK_2)) distanceTargetHeight_ -= 0.1f;
@@ -86,31 +89,8 @@ void Aim::Update()
 
     if (isMove_) CalcMouseMove();
    
-    bool Aimfps = true;
-    if (Aimfps) {
-        CameraRotateShake();
-     
-        //Eyeポジション設定
-        int eyeBone, eyePart;
-        int eyeBone1, eyePart1;
-        int hFPSModel_ = pPlayer_->GetFPSModelHandle();
-        Model::GetPartBoneIndex(hFPSModel_, "eye", &eyePart, &eyeBone);
-        Model::GetPartBoneIndex(hFPSModel_, "eye.001", &eyePart1, &eyeBone1);
-        XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hFPSModel_, eyePart, eyeBone);
-        XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hFPSModel_, eyePart1, eyeBone1);
-        
-        int playerID = pPlayer_->GetPlayerId();
-        Camera::SetPosition(eyePos, playerID);
-        Camera::SetTarget(eyePos1, playerID);
-
-        XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));
-        XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
-        XMMATRIX mView = mRotX * mRotY; XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
-        XMStoreFloat3(&aimDirection_, -caDire);
-
-        Direct3D::playerCamX = transform_.rotate_.x;
-        Direct3D::playerCamY = transform_.rotate_.y;
-
+    if (FPSAimMode) {
+        FPSAim();
         return;
     }
 
@@ -168,6 +148,33 @@ void Aim::SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar, int returnTime, float comple
 }
 
 //------------------------------------private--------------------------------------------
+
+void Aim::FPSAim()
+{
+    CameraRotateShake();
+
+    //Eyeポジション設定
+    int eyeBone, eyePart;
+    int eyeBone1, eyePart1;
+    int hFPSModel_ = pPlayer_->GetFPSModelHandle();
+    Model::GetPartBoneIndex(hFPSModel_, "eye", &eyePart, &eyeBone);
+    Model::GetPartBoneIndex(hFPSModel_, "eye.001", &eyePart1, &eyeBone1);
+    XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hFPSModel_, eyePart, eyeBone);
+    XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hFPSModel_, eyePart1, eyeBone1);
+
+    int playerID = pPlayer_->GetPlayerId();
+    Camera::SetPosition(eyePos, playerID);
+    Camera::SetTarget(eyePos1, playerID);
+
+    XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));
+    XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));
+    XMMATRIX mView = mRotX * mRotY;
+    XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
+    XMStoreFloat3(&aimDirection_, -caDire);
+
+    Direct3D::playerCamX = transform_.rotate_.x;
+    Direct3D::playerCamY = transform_.rotate_.y;
+}
 
 void Aim::DefaultAim()
 {

@@ -143,6 +143,8 @@ public:
 	//RootJobを取得
 	GameObject* GetRootJob();
 
+	//ObjectTypeの取得
+	OBJECT_TYPE GetObjectType() const { return objectType_; }
 
 	//各アクセス関数
 	XMFLOAT3 GetPosition() { return transform_.position_; }
@@ -167,8 +169,6 @@ private:
 	//オブジェクト削除（再帰）
 	//引数：obj　削除するオブジェクト
 	void KillObjectSub(GameObject* obj);
-
-	OBJECT_TYPE GetObjectType() const { return objectType_; }
 
 private:
 	//フラグ

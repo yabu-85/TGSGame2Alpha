@@ -5,6 +5,7 @@
 void DamageSystem::ApplyDamageDirectly(const DamageInfo& damageinfo)
 {
 	hp_ -= damageinfo.damage;
+	OnDamageReceived(damageinfo);
 
 }
 

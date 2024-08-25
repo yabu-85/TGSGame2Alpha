@@ -38,14 +38,14 @@ struct KnockBackInfo {
 class DamageSystem {
 	int hp_;            //HP
 	int maxHp_;         //最大HP
-	std::vector<DamageInfo> damageInfoList_;    //ダメージを与えられた情報のリスト
 
     int knockBackTime_;             //ノックバックの時間
     int knockBackTimeMax_;          //ノックバックの時間保存用
     XMFLOAT3 knockBackDirection_;   //ノックバックさせる方向
     KNOCK_TYPE knockType_;          //ノックバックのタイプ
-
     GameObject* pParent_;           //親
+
+	std::vector<DamageInfo> damageInfoList_;    //ダメージを与えられた情報のリスト
 
 public:
     //DamageInfoを考慮しないApplyDamage関数
@@ -63,13 +63,27 @@ public:
     void AddDamageInfo(const DamageInfo& damageInfo);
     void RemoveDamageInfo(const DamageInfo& damageInfo);
 
-    bool IsDead() { return hp_ <= 0; }
+    /// <summary>
+    /// ダメージを与えた時に呼ばれる関数
+    /// 自動的に呼ばれるわけではないから、手動で関数呼ぶ
+    /// </summary>
+    /// <param name="damageInfo"></param>
+    virtual void OnDamageDealt(const DamageInfo& damageInfo) {};
+
+    /// <summary>
+    /// ダメージを与えられたときに呼ばれる関数
+    /// ApplyDamageから自動的に呼ばれる
+    /// </summary>
+    /// <param name="damageInfo"></param>
+    virtual void OnDamageReceived(const DamageInfo& damageInfo) {};
 
     //アクセサ
     void SetHP(int i) { hp_ = i; }
     void SetMaxHP(int i) { maxHp_ = i; }
     int GetHP() { return hp_; }
     int GetMaxHP() { return maxHp_; }
+
+    bool IsHealthZero() { return hp_ <= 0; }
 
 };
 

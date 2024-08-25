@@ -15,7 +15,6 @@ class Bullet_Normal : public BulletBase
     XMFLOAT3 hitPos_;
     XMFLOAT3 startPos_;
 
-    static BulletBase::BulletParameter parameter_;
     PolyLine* pPolyLine_;
     Character* pHitChara_;
     CapsuleCollider* pCapsuleCollider_;
@@ -36,5 +35,4 @@ public:
     void OnCollision(GameObject* pTarget) override;
     void Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHitPos) override;
 
-    BulletParameter GetBulletParameter() override;
 };

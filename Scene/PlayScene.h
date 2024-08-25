@@ -2,11 +2,13 @@
 #include "SceneBase.h"
 
 class AimCursor;
+class Player;
 
 class PlayScene : public SceneBase
 {
 	int time_;					//Œo‰ßŽžŠÔ
 
+	Player* pPlayer_[2];
 	AimCursor* pAimCursor_[2];
 
 public:

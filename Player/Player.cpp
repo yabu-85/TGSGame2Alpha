@@ -31,6 +31,7 @@ namespace {
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
     int orientBoneSize = 0;
+    int downOrientBoneSize = 0;
 
 }
 
@@ -72,15 +73,32 @@ void Player::Initialize()
         { "palm.02.L",      "upper_arm.L" },
         { "f_middle.01.L",  "upper_arm.L" },
 
-        { "spine.004", ""},
-        { "spine.005", "spine.004" },
-        { "eye", "spine.004" },
-        { "eye.001", "spine.004" },
+        { "spine.004",  ""},
+        { "spine.005",  "spine.004" },
+        { "eye",        "spine.004" },
+        { "eye.001",    "spine.004" },  //15
     };
+    std::pair<std::string, std::string> boneDownNameList[] = {
+        { "thigh.R",    ""},
+        { "shin.R",     "thigh.R" },
+        { "foot.R",     "thigh.R" },
+        { "toe.R",      "thigh.R" },
+
+        { "thigh.L",    ""},
+        { "shin.L",     "thigh.L" },
+        { "foot.L",     "thigh.L" },
+        { "toe.L",      "thigh.L" },
+    };
+
     orientBoneSize = (int)sizeof(boneNameList) / sizeof(boneNameList[0]);
+    downOrientBoneSize = (int)sizeof(boneDownNameList) / sizeof(boneDownNameList[0]);
+
     for (int i = 0; i < orientBoneSize;i++) {
         waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneNameList[i].first, boneNameList[i].second);
         Model::AddOrientRotateBone(hFPSModel_, boneNameList[i].first, boneNameList[i].second);
+    }
+    for (int i = 0; i < downOrientBoneSize; i++) {
+        downListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneDownNameList[i].first, boneDownNameList[i].second);
     }
 #endif
 
@@ -88,16 +106,20 @@ void Player::Initialize()
     if (GameManager::GetPlayer(0)) playerId_ = 1;
     GameManager::SetPlayer(this, playerId_);
 
+    Model::SetTransform(hModel_, transform_);
+    Model::SetTransform(hFPSModel_, transform_);
+
     //パラメータセット
     objectType_ = OBJECT_TYPE::Player;
-    transform_.position_ = START_POS;
-    SetBodyRange(0.15f);
+    SetBodyRange(0.2f);
     SetBodyWeight(1.0f);
     SetBodyHeightHalf(1.0f);
+    
+    SetMaxHP(100);
+    SetHP(100);
+    
     pHealthGauge_ = new HealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
-    pDamageSystem_->SetMaxHP(100);
-    pDamageSystem_->SetHP(100);
     moveSpeed_ = 0.07f;
 
     pAim_ = Instantiate<Aim>(this);
@@ -115,10 +137,6 @@ void Player::Initialize()
     pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(pCapsuleCollider_);
 
-    //初期化
-    Draw();
-
-    Model::SetAnimFrame(hModel_, 0, 120, 1.0f);
     Direct3D::playerSpeed = moveSpeed_;
 }
 
@@ -146,24 +164,13 @@ void Player::Update()
 
     //Orientテスト
 #if 1
-    static const float ORIENT_ROTATE_SPEED = 3.0f;
+    //上下視点
     waistRotateX_ = -pAim_->GetRotate().x;
-    if (Input::IsKey(DIK_NUMPAD4)) waistRotateX_ += ORIENT_ROTATE_SPEED;
-    if (Input::IsKey(DIK_NUMPAD5)) waistRotateY_ += ORIENT_ROTATE_SPEED;
-    if (Input::IsKey(DIK_NUMPAD6)) waistRotateZ_ += ORIENT_ROTATE_SPEED;
-    if (Input::IsKeyDown(DIK_NUMPAD9)) {
-        waistRotateX_ = 0.0f;
-        waistRotateY_ = 0.0f;
-        waistRotateZ_ = 0.0f;
-    }
-
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, waistRotateY_, waistRotateZ_));
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, waistRotateY_, waistRotateZ_));
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    //腰下
+    for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
 #endif
-
-    //HealthGaugeセット
-    float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
-    pHealthGauge_->SetParcent(r);
 
     //ステート
     pStateManager_->Update();
@@ -226,13 +233,27 @@ void Player::Draw()
         Model::Draw(hModel_);
 
         //HealthGauge表示
-        pHealthGauge_->Draw(GameManager::GetDrawIndex());
+        if (healthGaugeDrawTime_ > 0) {
+            healthGaugeDrawTime_--;
+            float r = (float)GetHP() / (float)GetMaxHP();
+            pHealthGauge_->SetParcent(r);
+            pHealthGauge_->Draw(GameManager::GetDrawIndex());
+        }
     }
 
 }
 
 void Player::Release()
 {
+}
+
+void Player::OnDamageDealt(const DamageInfo& damageInfo)
+{
+    if (damageInfo.name == "P_Bullet") {
+        if (playerId_ == 0) GameManager::GetPlayer(1)->SetHealthGaugeDrawTime(30);
+        else GameManager::GetPlayer(0)->SetHealthGaugeDrawTime(30);
+    }
+
 }
 
 //private関数：Rotateの計算する--------------------------------

@@ -1,10 +1,10 @@
 #pragma once
+#include "DamageSystem.h"
 #include "../Engine/GameObject.h"
 
 class HealthGauge;
-class DamageSystem;
 
-class Character : public GameObject
+class Character : public GameObject, public DamageSystem
 {
     float bodyWeight_;      //‚ß‚è‚İ‚Ég‚¤d‚³
     float bodyRange_;       //‚ß‚è‚İ‚Ég‚¤”ÍˆÍ
@@ -13,7 +13,6 @@ class Character : public GameObject
 
 protected:
     HealthGauge* pHealthGauge_;
-    DamageSystem* pDamageSystem_;
 
 public:
     Character(GameObject* parent, std::string name);
@@ -38,6 +37,5 @@ public:
     XMFLOAT3 GetMovement() { return movement_; }
     XMVECTOR GetMovementVector() { return XMLoadFloat3(&movement_); }
     virtual void ResetMovement() { movement_ = { 0.0f, 0.0f, 0.0f }; };
-    
-    DamageSystem* GetDamageSystem() { return pDamageSystem_; }
+
 };

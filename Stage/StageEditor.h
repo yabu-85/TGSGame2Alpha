@@ -5,11 +5,12 @@
 class CollisionMap;
 class Node;
 struct StageModelData;
+struct StageEnvironment;
 
 namespace StageEditor {
 	//Modelーーーーーーーーーーーーーーーーーーーーーーーーーー
     std::vector<StageModelData> LoadFileStage(const std::string& fileName);
-	void SaveFileStage(const std::vector<StageModelData>& stage, const std::string& fileName);
+	void SaveFileStage(const std::vector<StageModelData>& stage, StageEnvironment& info, const std::string& fileName);
 	void DrawStageEditor();
 	
 	//経路探索のノードーーーーーーーーーーーーーーーーーーー

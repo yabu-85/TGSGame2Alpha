@@ -9,14 +9,12 @@ Character::Character(GameObject* parent, std::string name)
     : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}, bodyHeightHalf_(0.0f)
 {
     pHealthGauge_ = nullptr;
-    pDamageSystem_ = new DamageSystem();
     CharacterManager::AddCharacter(this);
 }
 
 Character::~Character()
 {
     SAFE_DELETE(pHealthGauge_);
-    SAFE_DELETE(pDamageSystem_);
     CharacterManager::RemoveCharacter(this);
 }
 

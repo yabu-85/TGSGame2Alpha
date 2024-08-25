@@ -47,6 +47,9 @@ void SniperGun::Initialize()
     assert(hPict_ >= 0);
 
     transform_.pParent_ = nullptr;
+    transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
+    transform_.rotate_.y = pPlayer_->GetRotate().y;
+
     pAimCursor_ = new AimCursor();
     PlayScene* scene = static_cast<PlayScene*>(FindObject("PlayScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
@@ -173,6 +176,7 @@ void SniperGun::Draw()
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     if (type == Direct3D::SHADER_SHADOWMAP) return;
 
+    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     int dI = GameManager::GetDrawIndex();
     if (pPlayer_->GetPlayerId() == dI) {
 
@@ -188,14 +192,12 @@ void SniperGun::Draw()
             }
         }
         else {
-            transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
             Model::SetTransform(hModel_, transform_);
             Model::Draw(hModel_);
         }
     }
     //‘ŠŽè‚Ì•\Ž¦
     else {
-        transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
     }

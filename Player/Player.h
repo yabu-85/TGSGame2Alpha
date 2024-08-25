@@ -16,12 +16,13 @@ class Player : public Character
     int playerId_;              //プレイヤー番号
     int hModel_;                //モデル番号
     int hFPSModel_;             //FPS表示用のモデル
+    int healthGaugeDrawTime_;   //そのままー
 
     int waistPart_;             //テストPartのインデックス
-    int waistListIndex_[20];     //テストBoneのインデックス
+    int waistListIndex_[15];    //テストBoneのインデックス
+    int downListIndex_[8];      //リストインデックス
     float waistRotateX_;        //テスト腰を想定したボーンのRotateX
     float waistRotateY_;        //テスト腰を想定したボーンのRotateY
-    float waistRotateZ_;        //テスト腰を想定したボーンのRotateZ
 
     float gradually_;           //移動スピードの加減の値
     float moveSpeed_;           //移動スピード
@@ -46,6 +47,11 @@ public:
     void Draw() override;
     void Release() override;
 
+    //ダメージを与えた時
+    void OnDamageDealt(const DamageInfo& damageInfo) override;
+    //HealthGauge表示時間セット
+    void SetHealthGaugeDrawTime(int i) { healthGaugeDrawTime_ = i; }
+
     //Camera
     void TargetRotate(XMFLOAT3 pos, float ratio = 1.0f);
     void Rotate();
@@ -60,9 +66,7 @@ public:
 
     //当たり判定(perDist=許容範囲)
     bool StageFloarBounce(float perDist = 0.0f, float calcHeight = 0.0f);
-
     bool StageWallBounce();
-
     bool StageRoofBounce();
 
     //Jump
@@ -73,6 +77,7 @@ public:
     void CheckWallClimb();
     void WallClimb();
 
+    //フラグ
     bool IsFly() { return isFly_; }
     bool IsClimb() { return isClimb_; }
     void SetClimb(bool b) { isClimb_ = b; }
@@ -82,7 +87,7 @@ public:
 
     int GetPlayerId() { return playerId_; }
     Aim* GetAim() { return pAim_; }
-    GunBase* GetGunBase() { return pGunBase_; }
+    GunBase* GetGun() { return pGunBase_; }
 
 };
 

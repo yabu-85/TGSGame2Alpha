@@ -47,10 +47,12 @@ void TestEnemy::Initialize()
     SetBodyRange(0.2f);
     SetBodyWeight(0.3f);
     SetBodyHeightHalf(0.8f);
+
+    SetMaxHP(20);
+    SetHP(20);
+
     pHealthGauge_ = new HealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
-    pDamageSystem_->SetMaxHP(20);
-    pDamageSystem_->SetHP(20);
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     CapsuleCollider* collid = new CapsuleCollider(XMFLOAT3(0.0f, 0.85f, 0.0f), 0.4f, 0.5f, vec);
@@ -240,13 +242,12 @@ void TestEnemy::Draw()
     Model::Draw(hModel_);
 
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
-        float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
+        float r = (float)GetHP() / (float)GetMaxHP();
         pHealthGauge_->SetParcent(r);
         pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
 
-    if (false && Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP)
-        CollisionDraw();
+    //if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) CollisionDraw();
 
 }
 

@@ -1,6 +1,9 @@
 #include "StageEditor.h"
+#include "CollisionMap.h"
+#include "Stage.h"
+#include "../Scene/SceneBase.h"
+#include "../Stage/Stage.h"
 #include "../Json/JsonReader.h"
-#include "../Stage/CollisionMap.h"
 #include "../Player/Player.h"
 #include "../AI/Node.h"
 #include "../Engine/Model.h"
@@ -46,7 +49,7 @@ std::vector<StageModelData> StageEditor::LoadFileStage(const std::string& fileNa
     return stage;
 }
 
-void StageEditor::SaveFileStage(const std::vector<StageModelData>& stage, const std::string& fileName)
+void StageEditor::SaveFileStage(const std::vector<StageModelData>& stage, StageEnvironment& info, const std::string& fileName)
 {
     nlohmann::json j;
     for (const auto& obj : stage)
@@ -59,6 +62,16 @@ void StageEditor::SaveFileStage(const std::vector<StageModelData>& stage, const 
         objJson["rotate"] = { {"x", obj.transform.rotate_.x}, {"y", obj.transform.rotate_.y}, {"z", obj.transform.rotate_.z} };
         j["objects"].push_back(objJson);
     }
+
+    //Environment
+    nlohmann::json environmentJson;
+    environmentJson["gravity"] = info.gravity;
+    environmentJson["startRotateY1"] = info.startRotateY[0];
+    environmentJson["startRotateY2"] = info.startRotateY[1];
+    environmentJson["startPosition1"] = { {"x", info.startPosition[0].x }, {"y", info.startPosition[0].y }, {"z", info.startPosition[0].z }};
+    environmentJson["startPosition2"] = { {"x", info.startPosition[1].x }, {"y", info.startPosition[1].y }, {"z", info.startPosition[1].z }};
+    environmentJson["lightPosition"] = { {"x", info.lightPosition.x }, {"y", info.lightPosition.y }, {"z", info.lightPosition.z }};
+    j["environment"] = environmentJson;
 
     std::ofstream ofs(fileName);
     if (!ofs.is_open())
@@ -82,7 +95,11 @@ void StageEditor::DrawStageEditor()
     
     //セーブボタン
     if (ImGui::Button("CreateCollisionMap")) {
-        SaveFileStage(stageList, currentStageFileName);
+        Stage* stage = static_cast<Stage*>(GameManager::GetScene()->FindObject("Stage"));
+        StageEnvironment stageEnvironment = StageEnvironment();
+        if (stage) stageEnvironment = stage->GetStageEnvironment();
+
+        SaveFileStage(stageList, stageEnvironment, currentStageFileName);
         GameManager::GetCollisionMap()->IntersectDataReset();
         GameManager::GetCollisionMap()->CreatIntersectDataTriangle(currentStageFileName);
     }
@@ -101,7 +118,7 @@ void StageEditor::DrawStageEditor()
     bool isButtonEnabled = strlen(input) > 0;
     if (!isButtonEnabled) ImGui::BeginDisabled();
     
-    // セーブボタン
+    //追加ボタン
     if (ImGui::Button("AddObject")) {
         StageModelData data = StageModelData();
         data.fileName = input;

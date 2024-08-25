@@ -13,10 +13,9 @@
 #include "../UI/AimCursor.h"
 #include "../UI/DamageUI.h"
 
-BulletBase::BulletParameter Bullet_Normal::parameter_;
-
 namespace {
     static const int POLY_LENG = 30;
+
 }
 
 Bullet_Normal::Bullet_Normal(GameObject* parent)
@@ -33,9 +32,6 @@ Bullet_Normal::Bullet_Normal(GameObject* parent)
     parameter_.speed_ = bullet_normal["speed"];
     parameter_.killTimer_ = bullet_normal["killTimer"];
     parameter_.collisionScale_ = bullet_normal["collisionScale"];
-
-    if (bullet_normal["isPenetration"] == 0) parameter_.isPenetration_ = false;
-    else parameter_.isPenetration_ = true;
 
 }
 
@@ -73,14 +69,14 @@ void Bullet_Normal::Update()
         
         //ƒ_ƒ[ƒW—^‚¦‚éiHP‚OˆÈ‰º‚È‚ç“|‚·‚Ì‚±‚±‚Å‚â‚Á‚Æ‚­
         DamageInfo info = DamageInfo(parameter_.damage_);
-        pHitChara_->GetDamageSystem()->ApplyDamageDirectly(info);
-        if (pHitChara_->GetDamageSystem()->IsDead()) pHitChara_->KillMe();
+        pHitChara_->ApplyDamageDirectly(info);
+        if (pHitChara_->IsHealthZero()) pHitChara_->KillMe();
 
         //DamageUI
         DamageUI::AddDamage(transform_.position_, parameter_.damage_, playerId_);
 
         //HitCursor
-        GameManager::GetPlayer(playerId_)->GetGunBase()->GetAimCursor()->Hit();
+        GameManager::GetPlayer(playerId_)->GetGun()->GetAimCursor()->Hit();
 
         pPolyLine_->ClearFirstPosition();
         pPolyLine_->AddPosition(hitPos_);
@@ -186,11 +182,6 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
         }
     }
 
-}
-
-BulletBase::BulletParameter Bullet_Normal::GetBulletParameter()
-{
-    return parameter_;
 }
 
 void Bullet_Normal::HitEffect()

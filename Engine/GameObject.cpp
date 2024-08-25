@@ -293,7 +293,7 @@ GameObject * GameObject::GetRootJob()
 
 void GameObject::UpdateSub()
 {
-	Update();
+	if (IsEntered()) Update();
 
 	for (auto it = childList_.begin(); it != childList_.end(); it++)
 	{
@@ -377,15 +377,6 @@ void GameObject::TwoWindowDrawSub()
 void GameObject::DrawSs()
 {
 }
-
-
-
-
-////ローカル行列の取得（このオブジェクトの行列）
-//XMMATRIX GameObject::GetLocalMatrix(void)
-//{
-//	return transform_.GetWorldMatrix();
-//}
 
 //ワールド行列の取得（親の影響を受けた最終的な行列）
 XMMATRIX GameObject::GetWorldMatrix(void)

@@ -1,5 +1,8 @@
 #include "PlayScene.h"
 #include "../Player/Player.h"
+#include "../Player/Aim.h"
+#include "../Weapon/GunBase.h"
+
 #include "../Stage/Stage.h"
 #include "../Screen/PlayScreen.h"
 #include "../Screen/SettingScreen.h"
@@ -25,9 +28,6 @@ PlayScene::PlayScene(GameObject * parent)
 {
 }
 
-//最初は画面分割はなしで
-//ステージ見せた後に分割する
-
 //初期化
 void PlayScene::Initialize()
 {
@@ -35,9 +35,26 @@ void PlayScene::Initialize()
 	GameManager::SetOnePlayer();
 	Camera::SetOneProjectionMatrix();
 
-	Instantiate<Stage>(this);
-	Instantiate<Player>(this);
-	Instantiate<Player>(this);
+	Stage* pStage = Instantiate<Stage>(this);
+	pPlayer_[0] = Instantiate<Player>(this);
+	pPlayer_[1] = Instantiate<Player>(this);
+
+	//Stage情報読み込み
+	if (pStage) {
+		StageEnvironment stageEnvironment = pStage->GetStageEnvironment();
+		for (int i = 0; i < 2; i++) {
+			pPlayer_[i]->SetPosition(stageEnvironment.startPosition[i]);
+			pPlayer_[i]->SetRotateY(stageEnvironment.startRotateY[i]);
+		}
+		XMFLOAT4 lightPos = XMFLOAT4(stageEnvironment.lightPosition.x, stageEnvironment.lightPosition.y, stageEnvironment.lightPosition.z, 1.0f);
+		Light::SetPosition(0, lightPos);
+	}
+
+	for (int i = 0; i < 2; i++) {
+		pPlayer_[i]->Leave();
+		pPlayer_[i]->GetAim()->Leave();
+		//pPlayer_[i]->GetGun()->Leave();
+	}
 
 	RouteSearch::Initialize();
 	DamageUI::Initialize();
@@ -52,8 +69,18 @@ void PlayScene::Initialize()
 void PlayScene::Update()
 {
 	time_++;
-	if (time_ >= 10) {
-		GameManager::SetTwoPlayer();
+	if (time_ == 3) {
+		pPlayer_[0]->Enter();
+		pPlayer_[1]->Enter();
+		pPlayer_[0]->GetAim()->Enter();
+		pPlayer_[1]->GetAim()->Enter();
+		//GameManager::SetTwoPlayer();
+	}
+	else {
+		static float CAMERA_X = 42.0f;
+		CAMERA_X += 0.05f;
+		Camera::SetPosition(XMFLOAT3(CAMERA_X, 15.0f, 55.0f), 0);
+		Camera::SetTarget(XMFLOAT3(50.0f, 5.0f, 50.0f), 0);
 
 	}
 

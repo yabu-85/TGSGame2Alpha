@@ -37,10 +37,13 @@ void TestBoss::Initialize()
     SetBodyRange(0.5f);
     SetBodyWeight(0.3f);
     SetBodyHeightHalf(0.8f);
+    
+    SetMaxHP(1000);
+    SetHP(1000);
+
     pHealthGauge_ = new BossHealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.2f, 0.8f));
-    pDamageSystem_->SetMaxHP(1000);
-    pDamageSystem_->SetHP(1000);
+
 
     XMVECTOR vec = { 0.0f, 0.0f, 0.0f, 0.0f };
     XMFLOAT3 center = XMFLOAT3();
@@ -121,7 +124,7 @@ void TestBoss::Draw()
     Model::Draw(hModel_);
 
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
-        float r = (float)pDamageSystem_->GetHP() / (float)pDamageSystem_->GetMaxHP();
+        float r = (float)GetHP() / (float)GetMaxHP();
         pHealthGauge_->SetParcent(r);
         pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }

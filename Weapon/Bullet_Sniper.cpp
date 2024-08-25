@@ -13,10 +13,9 @@
 #include "../UI/AimCursor.h"
 #include "../UI/DamageUI.h"
 
-BulletBase::BulletParameter Bullet_Sniper::parameter_;
-
 namespace {
-    static const int POLY_LENG = 30;
+    static const int POLY_LENG = 30;    //PolyLineの長さ
+
 }
 
 Bullet_Sniper::Bullet_Sniper(GameObject* parent)
@@ -34,9 +33,6 @@ Bullet_Sniper::Bullet_Sniper(GameObject* parent)
     parameter_.killTimer_ = Bullet_Sniper["killTimer"];
     parameter_.collisionScale_ = Bullet_Sniper["collisionScale"];
     
-    if (Bullet_Sniper["isPenetration"] == 0) parameter_.isPenetration_ = false; 
-    else parameter_.isPenetration_ = true;
-
 }
 
 Bullet_Sniper::~Bullet_Sniper()
@@ -52,11 +48,12 @@ void Bullet_Sniper::Initialize()
     pPolyLine_->SetAlpha(0.5f);
     pPolyLine_->SetMoveAlphaFlag();
 
-    killWaitTime_ = 20;
+    killWaitTime_ = POLY_LENG;
 }
 
 void Bullet_Sniper::Update()
 {
+    //Kill待機開始
     if (nextKill_) {
         killWaitTime_--;
 
@@ -67,20 +64,27 @@ void Bullet_Sniper::Update()
         return;
     }
 
+    //Charaに当たった
     if (pHitChara_) {
+        Player* pPlayer = GameManager::GetPlayer(playerId_);
         transform_.position_ = pCapsuleCollider_->targetPos_;
         HitEffect();
 
         //ダメージ与える（HP０以下なら倒すのここでやっとく
         DamageInfo info = DamageInfo(parameter_.damage_);
-        pHitChara_->GetDamageSystem()->ApplyDamageDirectly(info);
-        if (pHitChara_->GetDamageSystem()->IsDead()) pHitChara_->KillMe();
+        info.owner = GetParent();
+        info.name = "P_Bullet";
+        pHitChara_->ApplyDamageDirectly(info);
+        if (pHitChara_->IsHealthZero()) pHitChara_->KillMe();
+
+        //ダメージ与えた通知出す
+        pPlayer->OnDamageDealt(info);
 
         //DamageUI
         DamageUI::AddDamage(transform_.position_, parameter_.damage_, playerId_);
 
         //HitCursor
-        GameManager::GetPlayer(playerId_)->GetGunBase()->GetAimCursor()->Hit();
+        pPlayer->GetGun()->GetAimCursor()->Hit();
 
         pPolyLine_->ClearFirstPosition();
         pPolyLine_->AddPosition(hitPos_);
@@ -90,6 +94,7 @@ void Bullet_Sniper::Update()
         return;
     }
 
+    //時間消滅計算
     if (parameter_.killTimer_ <= 0) {
         //コリジョンマップに当たっていた場合
         if (isHit_) {
@@ -134,7 +139,9 @@ void Bullet_Sniper::OnCollision(GameObject* pTarget)
 
 void Bullet_Sniper::Draw()
 {
-    pPolyLine_->Draw();
+    //Shadowの場合描画しない
+    if(Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) pPolyLine_->Draw();
+
 }
 
 void Bullet_Sniper::Release()
@@ -186,11 +193,6 @@ void Bullet_Sniper::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
         }
     }
 
-}
-
-BulletBase::BulletParameter Bullet_Sniper::GetBulletParameter()
-{
-    return parameter_;
 }
 
 void Bullet_Sniper::HitEffect()

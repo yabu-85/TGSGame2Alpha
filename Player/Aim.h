@@ -67,7 +67,8 @@ class Aim : public GameObject
 
     Player* pPlayer_;
 
-    void DefaultAim();      //通常のAimの計算
+    void FPSAim();          //FPS用
+    void DefaultAim();      //三人称視点の計算
     void Compulsion();      //強制移動時の計算
     void BackCompulsion();  //強制移動から通常に移るときの計算
 

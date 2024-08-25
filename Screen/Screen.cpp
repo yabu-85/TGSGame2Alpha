@@ -40,7 +40,6 @@ void Screen::Update()
 	//セレクト移動ダメならアップデートして終わり
 	if (!selectUI->GetSelectPossible()) {
 		selectUI->SelectUpdate();
-		OutputDebugString("noSelect\n");
 		return;
 	}
 

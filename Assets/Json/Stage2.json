@@ -1,4 +1,24 @@
 {
+    "environment": {
+        "gravity": 0.05000000074505806,
+        "lightPosition": {
+            "x": 50.0,
+            "y": 20.0,
+            "z": 50.0
+        },
+        "startPosition1": {
+            "x": 50.0,
+            "y": 5.840000152587891,
+            "z": 73.0
+        },
+        "startPosition2": {
+            "x": 50.0,
+            "y": 5.840000152587891,
+            "z": 27.0
+        },
+        "startRotateY1": 0.0,
+        "startRotateY2": 180.0
+    },
     "objects": [
         {
             "fileName": "StageSet2",
@@ -10,12 +30,12 @@
             "rayFileName": "StageSet2Ray",
             "rotate": {
                 "x": 0.0,
-                "y": 0.0,
+                "y": 33.487998962402344,
                 "z": 0.0
             },
             "scale": {
                 "x": 1.0,
-                "y": 1.3769999742507935,
+                "y": 1.0470000505447388,
                 "z": 1.0
             }
         }
