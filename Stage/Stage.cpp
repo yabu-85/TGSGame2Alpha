@@ -25,8 +25,8 @@ void Stage::Initialize()
 	CollisionMap* pCollisionMap = Instantiate<CollisionMap>(this);
 	PlayScene* pPlayScene = static_cast<PlayScene*>(GetParent());
 
-#if 1
-	if (true) {
+#if 0
+	if (false) {
 		pCollisionMap->CreatIntersectDataTriangle("Json/Stage1.json");
 		RouteSearch::LoadFileNode("Json/PlaneStageNode.json");
 		LoadStageEnvironment("Json/Stage1.json");

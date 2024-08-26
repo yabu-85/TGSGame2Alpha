@@ -74,7 +74,7 @@ void PlayScene::Update()
 		pPlayer_[1]->Enter();
 		pPlayer_[0]->GetAim()->Enter();
 		pPlayer_[1]->GetAim()->Enter();
-		//GameManager::SetTwoPlayer();
+		GameManager::SetTwoPlayer();
 	}
 	else {
 		static float CAMERA_X = 42.0f;

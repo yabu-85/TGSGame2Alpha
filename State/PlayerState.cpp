@@ -4,6 +4,20 @@
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
 
+//移動していない場合Orientは0にしておく
+//移動している場合はその方向に向ける、上半身はAim方向へ
+
+//Wait		
+//のぞき込み	
+//撃つ
+//リロード
+
+//Jump
+//撃つ
+//リロード
+
+//Climd
+
 PlayerWait::PlayerWait(StateManager* owner) : StateBase(owner)
 {
 	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
@@ -11,8 +25,13 @@ PlayerWait::PlayerWait(StateManager* owner) : StateBase(owner)
 
 void PlayerWait::Update()
 {
-	//入力
 	int playerId = pPlayer_->GetPlayerId();
+
+	//のぞき込み
+	//リロード
+	//撃つ
+
+	//入力
 	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
 	else if (InputManager::IsCmdDown(InputManager::JUMP, playerId) && pPlayer_->IsReadyJump()) owner_->ChangeState("Jump");
 
@@ -32,8 +51,9 @@ PlayerMove::PlayerMove(StateManager* owner) : StateBase(owner)
 
 void PlayerMove::Update()
 {
-	//入力
 	int playerId = pPlayer_->GetPlayerId();
+	
+	//入力
 	if (InputManager::IsCmdDown(InputManager::JUMP, playerId) && pPlayer_->IsReadyJump()) owner_->ChangeState("Jump");
 	else if (!InputManager::CmdWalk(playerId)) owner_->ChangeState("Wait");
 
