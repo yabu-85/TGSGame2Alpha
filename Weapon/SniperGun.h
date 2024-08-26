@@ -12,6 +12,8 @@ class SniperGun : public GunBase
 
     void PressedShot() override;
     bool PressedReload() override;
+    void ResetReload() override;
+
 public:
     SniperGun(GameObject* parent);
     ~SniperGun() override;

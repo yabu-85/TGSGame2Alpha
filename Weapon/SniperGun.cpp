@@ -242,3 +242,10 @@ bool SniperGun::PressedReload()
     coolTime_ = reloadTime_;
     return true;
 }
+
+void SniperGun::ResetReload()
+{
+    coolTime_ = 0;
+    currentReloadTime_ = 0;
+    Model::SetAnimFrame(hModel_, 0, 0, 1.0f);
+}
