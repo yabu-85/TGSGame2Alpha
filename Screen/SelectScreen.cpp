@@ -1,6 +1,7 @@
 #include "SelectScreen.h"
 #include "../Engine/SceneManager.h"
 #include "../UI/UIBase.h"
+#include "../UI/ModelButtonUI.h"
 #include "../Scene/SceneBase.h"
 #include "../Screen/SettingScreen.h"
 #include "../Screen/PauseScreen.h"
@@ -13,7 +14,16 @@ SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 		pSceneManager->ChangeScene(SCENE_ID_TEST);
 		}, XMFLOAT2(1.0f, 0.5f));
 	if (ui) ui->SetSelect(true);
+	
+	UIBase* ui2 = nullptr;
+	ui2 = ui2->UIInstantiate<ModelButtonUI>("Model/Stage/StageT3.fbx", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.7f, 0.3f), [this]()
+	{
 
+	});
+
+	AddUI(ui2);
+
+	/*
 	AddUI("Setting", UI_BUTTON, XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.7f, 0.3f), [this]() {
 		GameManager::GetScene()->AddScreen(new SettingScreen());
 	}, XMFLOAT2(1.0f, 0.5f));
@@ -21,6 +31,7 @@ SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 	AddUI("Exit", UI_BUTTON, XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.7f, 0.3f), [this]() {
 		GameManager::GetScene()->AddScreen(new PauseScreen());
 	}, XMFLOAT2(1.0f, 0.5f));
+	*/
 
 }
 

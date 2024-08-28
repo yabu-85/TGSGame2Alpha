@@ -23,6 +23,7 @@ protected:
 	Transform imageTransform_;			//•\¦‚·‚éImage‚Æ‚©‚ÌTransform
 	std::function<void()> onClick_;		//UI‚ğ‰Ÿ‚µ‚½‚çŒÄ‚ÔŠÖ”
 
+	//‘I‘ğ’†‚ÌselectAnim‚ÌŒvZ
 	void SelectAnimUpdate();			
 
 public:
@@ -43,6 +44,21 @@ public:
 
 	void SetBound(bool b) { isBound_ = b; }
 	void SetSelect(bool b) { isSelect_ = b; }
+
+	//UI‚ğ¶¬‚·‚é
+	template<class T>
+	inline T* UIInstantiate(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick)
+	{
+		T* ui = new T(pos, size, onClick, XMFLOAT2());
+		ui->Initialize(name);
+		return ui;
+	}
+	template<class T>
+	inline T* UIInstantiate(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
+	{
+		T* ui = new T(pos, size, onClick, tsize);
+		ui->Initialize(name);
+	}
 
 };
 

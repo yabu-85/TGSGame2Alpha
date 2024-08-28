@@ -347,6 +347,9 @@
     <ClCompile Include="Scene\PlayScene.cpp">
       <Filter>03Scene</Filter>
     </ClCompile>
+    <ClCompile Include="UI\ModelButtonUI.cpp">
+      <Filter>UI\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -618,6 +621,9 @@
     </ClInclude>
     <ClInclude Include="Scene\PlayScene.h">
       <Filter>03Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ModelButtonUI.h">
+      <Filter>UI\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

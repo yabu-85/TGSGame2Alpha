@@ -124,6 +124,11 @@ void Screen::Draw()
 	}
 }
 
+void Screen::AddUI(UIBase* ui)
+{
+	uiList_.push_back(ui);
+}
+
 UIBase* Screen::AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, std::function<void()> onClick)
 {
 	XMFLOAT2 size = { 1.0f, 1.0f };
@@ -143,6 +148,7 @@ UIBase* Screen::AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 siz
 	{
 	case UI_BUTTON: ui = new ButtonUI(pos, size, onClick, tsize); break;
 	case UI_SLIDER: ui = new SliderUI(pos, size, onClick, tsize); break;
+	case UI_MODEL:  ui = new SliderUI(pos, size, onClick, tsize); break;
 	}
 	if (!ui) return nullptr;
 
