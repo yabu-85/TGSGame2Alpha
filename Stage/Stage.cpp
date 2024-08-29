@@ -23,25 +23,22 @@ Stage::~Stage()
 void Stage::Initialize()
 {
 	CollisionMap* pCollisionMap = Instantiate<CollisionMap>(this);
-	PlayScene* pPlayScene = static_cast<PlayScene*>(GetParent());
 
-#if 0
-	if (false) {
+	if (PlayScene::GetStageType() == STAGE_TYPE::STAGE_PLANE) {
+		pCollisionMap->CreatIntersectDataTriangle("Json/PlaneStage.json");
+		RouteSearch::LoadFileNode("Json/PlaneStageNode.json");
+		LoadStageEnvironment("Json/PlaneStage.json");
+	}
+	else if (PlayScene::GetStageType() == STAGE_TYPE::STAGE_1) {
 		pCollisionMap->CreatIntersectDataTriangle("Json/Stage1.json");
 		RouteSearch::LoadFileNode("Json/PlaneStageNode.json");
 		LoadStageEnvironment("Json/Stage1.json");
 	}
-	else {
+	else if(PlayScene::GetStageType() == STAGE_TYPE::STAGE_2) {
 		pCollisionMap->CreatIntersectDataTriangle("Json/Stage2.json");
 		RouteSearch::LoadFileNode("Json/PlaneStageNode.json");
 		LoadStageEnvironment("Json/Stage2.json");
 	}
-
-#else 
-	pCollisionMap->CreatIntersectDataTriangle("Json/PlaneStage.json");
-	RouteSearch::LoadFileNode("Json/PlaneStageNode.json");
-	LoadStageEnvironment("Json/PlaneStage.json");
-#endif
 
 }
 

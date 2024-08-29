@@ -21,10 +21,11 @@
 #include "../UI/AimCursor.h"
 #include "../Other/GameManager.h"
 
+STAGE_TYPE PlayScene::stageType_ = STAGE_PLANE;
+
 //コンストラクタ
 PlayScene::PlayScene(GameObject * parent)
-	: SceneBase(parent, "PlayScene"), pAimCursor_{nullptr, nullptr},
-	time_(0)
+	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), pPlayer_{ nullptr, nullptr }
 {
 }
 
