@@ -5,8 +5,8 @@
 //ÉQÅ[ÉÄÇ…ìoèÍÇ∑ÇÈÉVÅ[Éì
 enum SCENE_ID
 {
-	SCENE_ID_SELECT = 0,
-	SCENE_ID_TEST,
+	SCENE_ID_TITLE = 0,
+	SCENE_ID_SELECT,
 	SCENE_ID_PLAY,
 };
 

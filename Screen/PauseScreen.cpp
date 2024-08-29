@@ -17,9 +17,6 @@ PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 	Image::SetAlpha(hPict_[0], 150);
 	Image::SetAlpha(hPict_[1], 150);
 
-	UIBase* ui = AddUI("ReturnGame", UI_BUTTON, XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.5, 0.2f), [this]() { if(!uiList_.empty()) state_ = ENDDRAW; }, XMFLOAT2(0.33f, 0.33f));
-	if (ui) ui->SetSelect(true);
-
 }
 
 PauseScreen::~PauseScreen()

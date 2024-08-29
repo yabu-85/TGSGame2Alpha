@@ -12,7 +12,6 @@
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
 #include "../UI/AimCursor.h"
-#include "../Scene/TestScene.h"
 #include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 #include "../Engine/Input.h"
@@ -46,8 +45,8 @@ void Gun::Initialize()
 
     transform_.pParent_ = nullptr;
     pAimCursor_ = new AimCursor();
-    TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
-    if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
+    //TestScene* scene = static_cast<TestScene*>(FindObject("TestScene"));
+    //if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
     LoadGunJson("Gun");
     isFirstPerson_ = false; 

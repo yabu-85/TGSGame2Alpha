@@ -1,5 +1,4 @@
 #include "sceneManager.h"
-#include "../Scene/TestScene.h"
 #include "../Scene/TitleScene.h"
 #include "../Scene/PlayScene.h"
 
@@ -20,7 +19,7 @@ void SceneManager::Initialize()
 	//最初のシーンを準備
 
 #if 1
-	currentSceneID_ = SCENE_ID_SELECT;
+	currentSceneID_ = SCENE_ID_TITLE;
 	nextSceneID_ = currentSceneID_;
 	Instantiate<TitleScene>(this);
 #else
@@ -52,7 +51,6 @@ void SceneManager::Update()
 		//次のシーンを作成
 		switch (nextSceneID_)
 		{
-		case SCENE_ID_TEST: Instantiate<TestScene>(this); break;
 		case SCENE_ID_SELECT: Instantiate<TitleScene>(this); break;
 		case SCENE_ID_PLAY: Instantiate<PlayScene>(this); break;
 

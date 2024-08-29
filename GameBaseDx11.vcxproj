@@ -186,13 +186,13 @@
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Scene\PlayScene.cpp" />
     <ClCompile Include="Scene\SceneBase.cpp" />
-    <ClCompile Include="Scene\TestScene.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="Screen\PauseScreen.cpp" />
     <ClCompile Include="Screen\PlayScreen.cpp" />
     <ClCompile Include="Screen\Screen.cpp" />
     <ClCompile Include="Screen\SelectScreen.cpp" />
     <ClCompile Include="Screen\SettingScreen.cpp" />
+    <ClCompile Include="Screen\TitleScreen.cpp" />
     <ClCompile Include="Stage\Cell.cpp" />
     <ClCompile Include="Stage\CollisionMap.cpp" />
     <ClCompile Include="Stage\Stage.cpp" />
@@ -205,7 +205,6 @@
     <ClCompile Include="UI\ButtonUI.cpp" />
     <ClCompile Include="UI\DamageUI.cpp" />
     <ClCompile Include="UI\HealthGauge.cpp" />
-    <ClCompile Include="UI\ModelButtonUI.cpp" />
     <ClCompile Include="UI\SliderUI.cpp" />
     <ClCompile Include="UI\UIBase.cpp" />
     <ClCompile Include="Weapon\BulletBase.cpp" />
@@ -278,13 +277,13 @@
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Scene\PlayScene.h" />
     <ClInclude Include="Scene\SceneBase.h" />
-    <ClInclude Include="Scene\TestScene.h" />
     <ClInclude Include="Scene\TitleScene.h" />
     <ClInclude Include="Screen\PauseScreen.h" />
     <ClInclude Include="Screen\PlayScreen.h" />
     <ClInclude Include="Screen\Screen.h" />
     <ClInclude Include="Screen\SelectScreen.h" />
     <ClInclude Include="Screen\SettingScreen.h" />
+    <ClInclude Include="Screen\TitleScreen.h" />
     <ClInclude Include="Stage\Cell.h" />
     <ClInclude Include="Stage\CollisionMap.h" />
     <ClInclude Include="Stage\Stage.h" />
@@ -298,7 +297,6 @@
     <ClInclude Include="UI\ButtonUI.h" />
     <ClInclude Include="UI\DamageUI.h" />
     <ClInclude Include="UI\HealthGauge.h" />
-    <ClInclude Include="UI\ModelButtonUI.h" />
     <ClInclude Include="UI\SliderUI.h" />
     <ClInclude Include="UI\UIBase.h" />
     <ClInclude Include="Weapon\BulletBase.h" />

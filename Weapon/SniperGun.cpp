@@ -35,7 +35,7 @@ SniperGun::~SniperGun()
 
 void SniperGun::Initialize()
 {
-    hModel_ = Model::Load("Model/Rifle2.fbx");
+    hModel_ = Model::Load("Model/Rifle.fbx");
     assert(hModel_ >= 0);
 
     Model::GetPartBoneIndex(hModel_, "Top", &topPartIndex_, &topBoneIndex_);

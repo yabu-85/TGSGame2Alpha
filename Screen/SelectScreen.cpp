@@ -1,37 +1,32 @@
 #include "SelectScreen.h"
 #include "../Engine/SceneManager.h"
-#include "../UI/UIBase.h"
-#include "../UI/ModelButtonUI.h"
 #include "../Scene/SceneBase.h"
 #include "../Screen/SettingScreen.h"
 #include "../Screen/PauseScreen.h"
 #include "../Other/GameManager.h"
+#include "../UI/ButtonUI.h"
 
 SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 {
-	UIBase* ui = AddUI("Play", UI_BUTTON, XMFLOAT2(0.0f, 0.5f), XMFLOAT2(0.7f, 0.3f), [this]() {
-		SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
-		pSceneManager->ChangeScene(SCENE_ID_TEST);
-		}, XMFLOAT2(1.0f, 0.5f));
-	if (ui) ui->SetSelect(true);
+	UIBase* ui = nullptr;
 	
-	UIBase* ui2 = nullptr;
-	ui2 = ui2->UIInstantiate<ModelButtonUI>("Model/Stage/StageT3.fbx", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.7f, 0.3f), [this]()
+	//Stage1
+	ui = ui->UIInstantiate<ButtonUI>("A", XMFLOAT2(0.5f, 0.0f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.1f, 0.1f), [this]()
 	{
-
 	});
+	AddUI(ui);
+	ui->SetSelect(true);
 
-	AddUI(ui2);
+	//Stage2
+	AddUI(ui->UIInstantiate<ButtonUI>("B", XMFLOAT2(-0.5f, 0.0f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.1f, 0.1f), [this]()
+	{
+	}));
 
-	/*
-	AddUI("Setting", UI_BUTTON, XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.7f, 0.3f), [this]() {
-		GameManager::GetScene()->AddScreen(new SettingScreen());
-	}, XMFLOAT2(1.0f, 0.5f));
-
-	AddUI("Exit", UI_BUTTON, XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.7f, 0.3f), [this]() {
-		GameManager::GetScene()->AddScreen(new PauseScreen());
-	}, XMFLOAT2(1.0f, 0.5f));
-	*/
+	//–ß‚è
+	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.2f, 0.2f), [this]()
+	{
+		state_ = ENDDRAW;
+	}));
 
 }
 

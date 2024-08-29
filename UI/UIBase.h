@@ -49,15 +49,14 @@ public:
 	template<class T>
 	inline T* UIInstantiate(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick)
 	{
-		T* ui = new T(pos, size, onClick, XMFLOAT2());
-		ui->Initialize(name);
-		return ui;
+		return UIInstantiate<T>(name, pos, size, XMFLOAT2(1.0f, 1.0f), onClick);
 	}
 	template<class T>
-	inline T* UIInstantiate(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
+	inline T* UIInstantiate(std::string name, XMFLOAT2 pos, XMFLOAT2 size, XMFLOAT2 tsize, std::function<void()> onClick)
 	{
 		T* ui = new T(pos, size, onClick, tsize);
 		ui->Initialize(name);
+		return ui;
 	}
 
 };

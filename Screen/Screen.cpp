@@ -129,35 +129,6 @@ void Screen::AddUI(UIBase* ui)
 	uiList_.push_back(ui);
 }
 
-UIBase* Screen::AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, std::function<void()> onClick)
-{
-	XMFLOAT2 size = { 1.0f, 1.0f };
-	return AddUI(name, type, pos, size, onClick);
-}
-
-UIBase* Screen::AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick)
-{
-	return AddUI(name, type, pos, size, onClick, XMFLOAT2(1.0f, 1.0f));
-}
-
-UIBase* Screen::AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
-{
-	//インスタンス生成
-	UIBase* ui = nullptr;
-	switch (type)
-	{
-	case UI_BUTTON: ui = new ButtonUI(pos, size, onClick, tsize); break;
-	case UI_SLIDER: ui = new SliderUI(pos, size, onClick, tsize); break;
-	case UI_MODEL:  ui = new SliderUI(pos, size, onClick, tsize); break;
-	}
-	if (!ui) return nullptr;
-
-	//生成できたからUIの初期化と追加
-	ui->Initialize(name);
-	uiList_.push_back(ui);
-	return ui;
-}
-
 bool Screen::DeleteUI(UIBase* ui)
 {
 	for (auto iter = uiList_.begin(); iter != uiList_.end();) {

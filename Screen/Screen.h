@@ -7,13 +7,6 @@
 using namespace DirectX;
 class UIBase;
 
-enum UI_TYPE {
-	UI_BUTTON = 0,	//文字表示ありのボタン
-	UI_SLIDER,		//スライダー
-	UI_MODEL,		//枠の中にモデルを表示するやつ
-	UI_MAX,
-};
-
 enum SCREEN_STATE {
 	DRAW = 0,
 	ENDDRAW,
@@ -33,20 +26,11 @@ public:
 	virtual void Update();
 	virtual void Draw();
 
-	//Ui削除
+	//UI追加
+	void AddUI(UIBase* ui);
+	
+	//UI削除
 	bool DeleteUI(UIBase* ui);
 
 	SCREEN_STATE GetUIState() { return state_; };
-
-	void AddUI(UIBase* ui);
-
-	//UIの追加
-	UIBase* AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, std::function<void()> onClick);
-	UIBase* AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick);
-
-	//UIの追加（描画画像のサイズ指定込みの関数）
-	UIBase* AddUI(std::string name, UI_TYPE type, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize);
-
-	
-
 };

@@ -72,9 +72,6 @@
     <Filter Include="01Engine\Effekseer">
       <UniqueIdentifier>{98212cc5-e1a8-4612-b2d6-6f03e83b822e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Screen">
-      <UniqueIdentifier>{ed0d7075-0b66-4d30-a329-c69e1b887c10}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\Gauge">
       <UniqueIdentifier>{2f88abba-1ec1-4f12-9ee1-ed8e91c4d22e}</UniqueIdentifier>
     </Filter>
@@ -86,6 +83,12 @@
     </Filter>
     <Filter Include="Player">
       <UniqueIdentifier>{41b3bdd3-76b7-4a9f-b1e6-fef76a352c41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Screen">
+      <UniqueIdentifier>{ed0d7075-0b66-4d30-a329-c69e1b887c10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Screen\Base">
+      <UniqueIdentifier>{9c659a01-fc88-4b16-86d2-b9d6778d5323}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -212,9 +215,6 @@
     <ClCompile Include="State\StateManager.cpp">
       <Filter>State\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\TestScene.cpp">
-      <Filter>03Scene</Filter>
-    </ClCompile>
     <ClCompile Include="AI\Node.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -287,9 +287,6 @@
     <ClCompile Include="Screen\PauseScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
-    <ClCompile Include="Screen\Screen.cpp">
-      <Filter>Screen</Filter>
-    </ClCompile>
     <ClCompile Include="Screen\SelectScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
@@ -347,8 +344,11 @@
     <ClCompile Include="Scene\PlayScene.cpp">
       <Filter>03Scene</Filter>
     </ClCompile>
-    <ClCompile Include="UI\ModelButtonUI.cpp">
-      <Filter>UI\UI</Filter>
+    <ClCompile Include="Screen\Screen.cpp">
+      <Filter>Screen\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen\TitleScreen.cpp">
+      <Filter>Screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -484,9 +484,6 @@
     <ClInclude Include="State\StateManager.h">
       <Filter>State\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\TestScene.h">
-      <Filter>03Scene</Filter>
-    </ClInclude>
     <ClInclude Include="AI\Node.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -559,9 +556,6 @@
     <ClInclude Include="Screen\PauseScreen.h">
       <Filter>Screen</Filter>
     </ClInclude>
-    <ClInclude Include="Screen\Screen.h">
-      <Filter>Screen</Filter>
-    </ClInclude>
     <ClInclude Include="Screen\SelectScreen.h">
       <Filter>Screen</Filter>
     </ClInclude>
@@ -622,8 +616,11 @@
     <ClInclude Include="Scene\PlayScene.h">
       <Filter>03Scene</Filter>
     </ClInclude>
-    <ClInclude Include="UI\ModelButtonUI.h">
-      <Filter>UI\UI</Filter>
+    <ClInclude Include="Screen\Screen.h">
+      <Filter>Screen\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen\TitleScreen.h">
+      <Filter>Screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
