@@ -20,6 +20,10 @@ namespace InputManager {
 		std::make_pair(KEY, DIK_R),		//RELOAD
 		std::make_pair(KEY, DIK_E),		//ACTION
 		std::make_pair(KEY, DIK_SPACE),	//JUMP
+
+		std::make_pair(MOUSE, 0),		//SELECT
+		std::make_pair(MOUSE, 1),		//RETURN
+		std::make_pair(KEY, DIK_TAB),	//PAUSE
 	};
 
 	const std::array<std::pair<TYPE, int>, CMD_MAX> DEFAULT_COMMAND {
@@ -33,6 +37,10 @@ namespace InputManager {
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//RELOAD
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//ACTION
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),	//JUMP
+	
+		std::make_pair(MOUSE, 0),		//SELECT
+		std::make_pair(MOUSE, 1),		//RETURN
+		std::make_pair(KEY, DIK_TAB),	//PAUSE
 	};
 
 }

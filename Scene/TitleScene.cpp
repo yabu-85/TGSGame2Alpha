@@ -11,7 +11,7 @@
 
 //コンストラクタ
 TitleScene::TitleScene(GameObject * parent)
-	: SceneBase(parent, "TitleScene")
+	: SceneBase(parent, "TitleScene"), time_(0)
 {
 }
 
@@ -33,7 +33,10 @@ void TitleScene::Initialize()
 //更新
 void TitleScene::Update()
 {
-	SceneBase::Update();
+	time_++;
+	
+	//ちょっと待ってからUpdate
+	if(time_ >= 10) SceneBase::Update();
 
 	if (Input::IsKeyDown(DIK_M)) {
 		static_cast<SceneManager*>(FindObject("SceneManager"))->ChangeScene(SCENE_ID_PLAY);

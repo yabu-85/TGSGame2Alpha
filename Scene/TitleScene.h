@@ -3,6 +3,8 @@
 
 class TitleScene : public SceneBase
 {
+	int time_;		//Œo‰ßŽžŠÔ
+
 public:
 	TitleScene(GameObject* parent);
 	void Initialize() override;

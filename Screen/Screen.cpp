@@ -28,6 +28,9 @@ Screen::~Screen()
 
 void Screen::Update()
 {
+	//UIない場合は終了
+	if (uiList_.empty()) return;
+
 	//最後に選択したやつはハイライト表示する
 	UIBase* boundUI = nullptr;
 	UIBase* selectUI = nullptr;

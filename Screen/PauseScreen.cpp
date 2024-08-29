@@ -25,9 +25,8 @@ PauseScreen::~PauseScreen()
 
 void PauseScreen::Draw()
 {
-	Screen::Draw();
-	
 	Image::Draw(hPict_[1]);
-	Image::Draw(hPict_[0]);
-
+	Image::Draw(hPict_[0]); 
+	
+	Screen::Draw();
 }

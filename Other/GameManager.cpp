@@ -84,14 +84,14 @@ namespace GameManager {
 	void CommonDraw()
 	{
 		if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
-			pScene_->CommonUIDraw();
+			if(pScene_) pScene_->CommonUIDraw();
 		}
 	}
 
 	void IndividualDraw(int index)
 	{
 		if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
-			pScene_->IndividualUIDraw(index);
+			if (pScene_) pScene_->IndividualUIDraw(index);
 		}
 
 		DamageUI::Draw(index);

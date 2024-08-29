@@ -4,8 +4,7 @@
 #include "../Weapon/GunBase.h"
 
 #include "../Stage/Stage.h"
-#include "../Screen/PlayScreen.h"
-#include "../Screen/SettingScreen.h"
+#include "../Screen/PauseScreen.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
@@ -20,12 +19,13 @@
 #include "../UI/DamageUI.h"
 #include "../UI/AimCursor.h"
 #include "../Other/GameManager.h"
+#include "../Other/InputManager.h"
 
 STAGE_TYPE PlayScene::stageType_ = STAGE_PLANE;
 
 //コンストラクタ
 PlayScene::PlayScene(GameObject * parent)
-	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), pPlayer_{ nullptr, nullptr }
+	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), pPlayer_{ nullptr, nullptr }, preStageDraw_(true)
 {
 }
 
@@ -62,27 +62,45 @@ void PlayScene::Initialize()
 	EnemyManager::SetParent(this);
 
 	AllDeleteScreen();
-	AddScreen(new SettingScreen());
 
 }
 
 //更新
 void PlayScene::Update()
 {
-	time_++;
-	if (time_ == 3) {
-		pPlayer_[0]->Enter();
-		pPlayer_[1]->Enter();
-		pPlayer_[0]->GetAim()->Enter();
-		pPlayer_[1]->GetAim()->Enter();
-		GameManager::SetTwoPlayer();
+	//Pause画面
+	if (InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
+		AddScreen(new PauseScreen());
+		return;
 	}
-	else {
-		static float CAMERA_X = 42.0f;
-		CAMERA_X += 0.05f;
-		Camera::SetPosition(XMFLOAT3(CAMERA_X, 15.0f, 55.0f), 0);
-		Camera::SetTarget(XMFLOAT3(50.0f, 5.0f, 50.0f), 0);
 
+	//ゲーム開始前のStage描画
+	time_++;
+	if (preStageDraw_) {
+		if (time_ == 3) {
+			//Updateの許可
+			pPlayer_[0]->Enter();
+			pPlayer_[1]->Enter();
+			pPlayer_[0]->GetAim()->Enter();
+			pPlayer_[1]->GetAim()->Enter();
+			
+			GameManager::SetTwoPlayer();
+			preStageDraw_ = false;
+		}
+		else {
+			//カメラの移動
+			static float CAMERA_X = 42.0f;
+			CAMERA_X += 0.05f;
+			Camera::SetPosition(XMFLOAT3(CAMERA_X, 15.0f, 55.0f), 0);
+			Camera::SetTarget(XMFLOAT3(50.0f, 5.0f, 50.0f), 0);
+		}
+	}
+
+	//ゲーム勝利判定
+	if (GameManager::GetPlayer(0)->IsDead() || GameManager::GetPlayer(1)->IsDead()) {
+		SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
+		pSceneManager->ChangeScene(SCENE_ID_TITLE);
+		return;
 	}
 
 	SceneBase::Update();
@@ -134,4 +152,12 @@ void PlayScene::IndividualUIDraw(int index)
 {
 	if (pAimCursor_[index]) pAimCursor_[index]->Draw();
 
+}
+
+void PlayScene::SetAllObjectEnter()
+{
+}
+
+void PlayScene::SetAllObjectLeave()
+{
 }

@@ -31,6 +31,7 @@ namespace InputManager {
 
 		SELECT,
 		RETURN,
+		PAUSE,
 
 		CMD_MAX,
 	};

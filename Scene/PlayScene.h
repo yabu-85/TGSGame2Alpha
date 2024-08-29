@@ -12,8 +12,9 @@ enum STAGE_TYPE {
 
 class PlayScene : public SceneBase
 {
-	int time_;					//経過時間
-	static STAGE_TYPE stageType_;		//今のステージのタイプ（これから出すステージのタイプ）
+	bool preStageDraw_;				//戦闘が始まる前のステージ描画中か
+	int time_;						//経過時間
+	static STAGE_TYPE stageType_;	//今のステージのタイプ（これから出すステージのタイプ）
 
 	Player* pPlayer_[2];
 	AimCursor* pAimCursor_[2];
@@ -27,6 +28,11 @@ public:
 	void CommonUIDraw() override;
 	void IndividualUIDraw(int index) override;
 
+	//対象のオブジェクトのUpdate操作
+	void SetAllObjectEnter();
+	void SetAllObjectLeave();
+
+	//StageTypeのセット
 	static void SetStageType(STAGE_TYPE stageType) { stageType_ = stageType; }
 	static STAGE_TYPE GetStageType() { return stageType_; }
 
