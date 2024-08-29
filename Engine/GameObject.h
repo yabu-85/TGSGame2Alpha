@@ -60,17 +60,9 @@ public:
 	void DrawSub();
 	void ReleaseSub();
 
-	void DrawSs();
-	void TwoWindowDrawSub();
-
-	////ローカル行列の取得（このオブジェクトの行列）
-	////戻値：ローカル行列
-	//XMMATRIX GetLocalMatrix();
-
 	//ワールド行列の取得（親の影響を受けた最終的な行列）
 	//戻値：ワールド行列
 	XMMATRIX GetWorldMatrix();
-
 
 
 	//各フラグの制御
@@ -85,6 +77,8 @@ public:
 	bool IsEntered();		// Update実行していいか
 	bool IsVisibled();		// Draw実行していいか
 
+	void AllChildEnter();	//全ての子供のUpdateを許可
+	void AllChildLeave();	//全ての子供のUpdateを拒否
 
 	//子オブジェクトリストを取得
 	//戻値：子オブジェクトリスト

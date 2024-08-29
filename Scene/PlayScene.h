@@ -12,6 +12,7 @@ enum STAGE_TYPE {
 
 class PlayScene : public SceneBase
 {
+	bool isPause_;					//Pause中かどうか
 	bool preStageDraw_;				//戦闘が始まる前のステージ描画中か
 	int time_;						//経過時間
 	static STAGE_TYPE stageType_;	//今のステージのタイプ（これから出すステージのタイプ）

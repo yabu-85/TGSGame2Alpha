@@ -8,8 +8,8 @@ using namespace DirectX;
 class UIBase;
 
 enum SCREEN_STATE {
-	DRAW = 0,
-	ENDDRAW,
+	DRAW = 0,	//描画中
+	ENDDRAW,	//描画終了（Killされる）
 };
 
 class Screen
@@ -18,7 +18,7 @@ class Screen
 
 protected:
 	std::vector<UIBase*> uiList_;	//登録されたUI一覧
-	SCREEN_STATE state_;			//
+	SCREEN_STATE state_;			//描画ステート
 
 public:
 	Screen();

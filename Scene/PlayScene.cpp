@@ -68,9 +68,18 @@ void PlayScene::Initialize()
 //XV
 void PlayScene::Update()
 {
-	//Pause‰æ–Ê
+	//Pause‰æ–ÊŒÄ‚Ño‚µ
 	if (InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
 		AddScreen(new PauseScreen());
+		AllChildLeave();
+		isPause_ = true;
+		return;
+	}
+	
+	//Pause’†‚Ìˆ—
+	if (isPause_ && !pScreenList_.empty()) {
+		isPause_ = false;
+		AllChildEnter();
 		return;
 	}
 
@@ -143,15 +152,17 @@ void PlayScene::Release()
 
 void PlayScene::CommonUIDraw()
 {
-	SceneBase::Draw();
+	SceneBase::CommonUIDraw();
 	RouteSearch::NodeModelDraw();
 
 }
 
 void PlayScene::IndividualUIDraw(int index)
 {
+	SceneBase::IndividualUIDraw(index);
+	
+	//AimCursor
 	if (pAimCursor_[index]) pAimCursor_[index]->Draw();
-
 }
 
 void PlayScene::SetAllObjectEnter()

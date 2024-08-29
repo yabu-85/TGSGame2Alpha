@@ -2,6 +2,8 @@
 #include "../Engine/Image.h"
 #include "../Engine/SceneManager.h"
 #include "../UI/UIBase.h"
+#include "../Other/GameManager.h"
+#include "../Engine/Camera.h"
 
 PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 {
@@ -25,8 +27,21 @@ PauseScreen::~PauseScreen()
 
 void PauseScreen::Draw()
 {
+	//‰æ–Ê•ªŠ„–³‚µ‚É
+	GameManager::SetOnePlayer();
+	Camera::SetOneProjectionMatrix();
+	Direct3D::SetViewOne();
+	Direct3D::SetViewPort(0);
+
 	Image::Draw(hPict_[1]);
 	Image::Draw(hPict_[0]); 
 	
 	Screen::Draw();
+
+	//‰æ–Ê•ªŠ„2‚É–ß‚·
+	GameManager::SetTwoPlayer();
+	Camera::SetTwoProjectionMatrix();
+	Direct3D::SetViewTwo();
+	Direct3D::SetViewPort(0);
+
 }

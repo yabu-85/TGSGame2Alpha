@@ -200,7 +200,7 @@ HWND InitApp(HINSTANCE hInstance, int screenWidth, int screenHeight, int nCmdSho
 	wc.lpszMenuName = nullptr;						//メニュー（なし）
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);	//背景（白）
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);	//背景(まぶしいから黒に変更）
 	RegisterClassEx(&wc);
 
 	//ウィンドウサイズの計算
