@@ -350,6 +350,9 @@
     <ClCompile Include="Screen\TitleScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
+    <ClCompile Include="Screen\ExitScreen.cpp">
+      <Filter>Screen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -620,6 +623,9 @@
       <Filter>Screen\Base</Filter>
     </ClInclude>
     <ClInclude Include="Screen\TitleScreen.h">
+      <Filter>Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen\ExitScreen.h">
       <Filter>Screen</Filter>
     </ClInclude>
   </ItemGroup>

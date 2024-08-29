@@ -51,16 +51,14 @@ void PlayScene::Initialize()
 		Light::SetPosition(0, lightPos);
 	}
 
-	for (int i = 0; i < 2; i++) {
-		pPlayer_[i]->Leave();
-		pPlayer_[i]->GetAim()->Leave();
-		//pPlayer_[i]->GetGun()->Leave();
-	}
+	//自分より下のUpdateを拒否
+	AllChildLeave();
+	Enter();
 
+	//色々初期化
 	RouteSearch::Initialize();
 	DamageUI::Initialize();
 	EnemyManager::SetParent(this);
-
 	AllDeleteScreen();
 
 }
@@ -69,18 +67,32 @@ void PlayScene::Initialize()
 void PlayScene::Update()
 {
 	//Pause画面呼び出し
-	if (InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
+	if (!isPause_ && InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
 		AddScreen(new PauseScreen());
+		
+		//自分より下のUpdateを拒否
 		AllChildLeave();
+		Enter();
+
 		isPause_ = true;
 		return;
 	}
 	
 	//Pause中の処理
-	if (isPause_ && !pScreenList_.empty()) {
-		isPause_ = false;
-		AllChildEnter();
-		return;
+	if (isPause_) {
+		SceneBase::Update();
+
+		//Pause終了の処理
+		if (pScreenList_.empty()) {
+			isPause_ = false;
+			if(!preStageDraw_) AllChildEnter();
+		
+		}
+		//Pause中
+		else {
+			return;
+
+		}
 	}
 
 	//ゲーム開始前のStage描画
@@ -88,11 +100,8 @@ void PlayScene::Update()
 	if (preStageDraw_) {
 		if (time_ == 3) {
 			//Updateの許可
-			pPlayer_[0]->Enter();
-			pPlayer_[1]->Enter();
-			pPlayer_[0]->GetAim()->Enter();
-			pPlayer_[1]->GetAim()->Enter();
-			
+			AllChildEnter();
+
 			GameManager::SetTwoPlayer();
 			preStageDraw_ = false;
 		}
@@ -107,13 +116,11 @@ void PlayScene::Update()
 
 	//ゲーム勝利判定
 	if (GameManager::GetPlayer(0)->IsDead() || GameManager::GetPlayer(1)->IsDead()) {
-		SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
-		pSceneManager->ChangeScene(SCENE_ID_TITLE);
-		return;
+		//SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
+		//pSceneManager->ChangeScene(SCENE_ID_TITLE);
+		//return;
 	}
 
-	SceneBase::Update();
-	
 	//デバッグ用
 	{
 		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
@@ -163,12 +170,4 @@ void PlayScene::IndividualUIDraw(int index)
 	
 	//AimCursor
 	if (pAimCursor_[index]) pAimCursor_[index]->Draw();
-}
-
-void PlayScene::SetAllObjectEnter()
-{
-}
-
-void PlayScene::SetAllObjectLeave()
-{
 }

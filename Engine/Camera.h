@@ -18,6 +18,12 @@ namespace Camera
 	//焦点（見る位置）を設定
 	void SetTarget(XMFLOAT3 target, int id);
 
+	//ズーム（0 ～ 1 低ければ低い程視野角が低い）
+	void SetPeekFOVZoom(float zoom, int id);
+
+	//ズーム取得
+	float GetPeekFOVZoom(int id);
+
 	//位置を取得
 	XMFLOAT3 GetPosition(int id);
 
@@ -31,10 +37,10 @@ namespace Camera
 	XMMATRIX GetProjectionMatrix();
 
 	//一人用Projに設定
-	void SetOneProjectionMatrix();
+	void SetOneProjectionMatrix(float zoom = 1.0f);
 
 	//二人用Projに設定
-	void SetTwoProjectionMatrix();
+	void SetTwoProjectionMatrix(float zoom = 1.0f);
 
 	//ビルボード用回転行列を取得
 	XMMATRIX GetBillboardMatrix();

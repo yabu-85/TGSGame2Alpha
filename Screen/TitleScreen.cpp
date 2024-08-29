@@ -11,7 +11,7 @@ TitleScreen::TitleScreen() : Screen(), hPict_{ -1, -1 }
 {
 	UIBase* ui = nullptr;
 
-	//Stage1
+	//Play
 	ui = ui->UIInstantiate<ButtonUI>("Play", XMFLOAT2(0.0f, 0.5f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
 			GameManager::GetScene()->AddScreen(new SelectScreen);
@@ -19,7 +19,7 @@ TitleScreen::TitleScreen() : Screen(), hPict_{ -1, -1 }
 	AddUI(ui);
 	ui->SetSelect(true);
 
-	//Stage2
+	//Setting
 	AddUI(ui->UIInstantiate<ButtonUI>("Setting", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.5f, 0.5f), [this]()
 		{
 			GameManager::GetScene()->AddScreen(new SettingScreen);

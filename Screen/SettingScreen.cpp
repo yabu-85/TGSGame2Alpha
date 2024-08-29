@@ -1,5 +1,7 @@
 #include "SettingScreen.h"
 #include "../Engine/SceneManager.h"
+#include "../Engine/Camera.h"
+#include "../Other/GameManager.h"
 #include "../UI/SliderUI.h"
 #include "../UI/ButtonUI.h"
 
@@ -33,6 +35,18 @@ SettingScreen::~SettingScreen()
 
 void SettingScreen::Draw()
 {
+	//‰æ–Ê•ªŠ„–³‚µ‚É
+	Camera::SetOneProjectionMatrix();
+	Direct3D::SetViewOne();
+	Direct3D::SetViewPort(0);
+
 	Screen::Draw();
 	
+	//‰æ–Ê•ªŠ„2‚É–ß‚·
+	if (!GameManager::IsOnePlayer()) {
+		Camera::SetTwoProjectionMatrix();
+		Direct3D::SetViewTwo();
+		Direct3D::SetViewPort(0);
+	}
+
 }

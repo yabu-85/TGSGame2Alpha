@@ -151,6 +151,10 @@ void SniperGun::Update()
     //‚Ì‚¼‚«‚İˆ—
     if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
         peekTime_--;
+
+        float zoom = (float)peekTime_ / (float)PEEK_TIME;
+        zoom = std::clamp(zoom, 0.7f, 1.0f);
+        Camera::SetPeekFOVZoom(zoom, playerId_);
         
         //”`‚«‚İŠ®—¹
         if (peekTime_ <= 0) {
@@ -160,6 +164,7 @@ void SniperGun::Update()
     else {
         peekTime_ = PEEK_TIME;
         isPeeking_ = false;
+        Camera::SetPeekFOVZoom(1.0f, playerId_);
     }
 
     //’ÊíËŒ‚

@@ -158,6 +158,7 @@ namespace GameManager {
 		
 		Direct3D::BeginDraw2();
 		Camera::Update(0);
+		Camera::SetOneProjectionMatrix();
 		pRootObject_->DrawSub();
 		EFFEKSEERLIB::gEfk->Draw();
 		GameManager::IndividualDraw(0);
@@ -178,6 +179,8 @@ namespace GameManager {
 			drawIndex_ = i;
 			Direct3D::SetViewPort(i);
 			Camera::Update(i);
+			Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
+
 			pRootObject_->DrawSub();
 			EFFEKSEERLIB::gEfk->Draw();
 			GameManager::IndividualDraw(i);

@@ -15,10 +15,11 @@ class PlayScene : public SceneBase
 	bool isPause_;					//Pause中かどうか
 	bool preStageDraw_;				//戦闘が始まる前のステージ描画中か
 	int time_;						//経過時間
-	static STAGE_TYPE stageType_;	//今のステージのタイプ（これから出すステージのタイプ）
 
 	Player* pPlayer_[2];
 	AimCursor* pAimCursor_[2];
+
+	static STAGE_TYPE stageType_;	//今のステージのタイプ（これから出すステージのタイプ）
 
 public:
 	PlayScene(GameObject* parent);
@@ -28,10 +29,6 @@ public:
 	void Release() override;
 	void CommonUIDraw() override;
 	void IndividualUIDraw(int index) override;
-
-	//対象のオブジェクトのUpdate操作
-	void SetAllObjectEnter();
-	void SetAllObjectLeave();
 
 	//StageTypeのセット
 	static void SetStageType(STAGE_TYPE stageType) { stageType_ = stageType; }

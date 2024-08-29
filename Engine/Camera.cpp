@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "Direct3D.h"
 
+float _zoom[2];
 XMFLOAT3 _position[2];
 XMFLOAT3 _target[2];
 XMMATRIX _view;
@@ -11,6 +12,7 @@ XMMATRIX _billBoard;
 void Camera::Initialize()
 {
 	for (int i = 0; i < 2; i++) {
+		_zoom[i] = 1.0f;
 		_position[i] = XMFLOAT3(40, 10, 60);	//カメラの位置
 		_target[i] = XMFLOAT3(50, 5, 50);	//カメラの焦点
 	}
@@ -26,7 +28,6 @@ void Camera::Update(int id)
 	_view = XMMatrixLookAtLH(XMVectorSet(_position[id].x, _position[id].y, _position[id].z, 0),
 		XMVectorSet(_target[id].x, _target[id].y, _target[id].z, 0), XMVectorSet(0, 1, 0, 0));
 
-
 	//ビルボード行列
 	//（常にカメラの方を向くように回転させる行列。パーティクルでしか使わない）
 	//http://marupeke296.com/DXG_No11_ComeOnBillboard.html
@@ -36,6 +37,11 @@ void Camera::Update(int id)
 
 //焦点を設定
 void Camera::SetTarget(XMFLOAT3 target, int id) { _target[id] = target; }
+
+//ズーム設定
+void Camera::SetPeekFOVZoom(float zoom, int id) { _zoom[id] = zoom; }
+
+float Camera::GetPeekFOVZoom(int id) {	return _zoom[id]; }
 
 //位置を設定
 void Camera::SetPosition(XMFLOAT3 position, int id) { _position[id] = position; }
@@ -52,14 +58,16 @@ XMMATRIX Camera::GetViewMatrix() { return _view; }
 //プロジェクション行列を取得
 XMMATRIX Camera::GetProjectionMatrix() { return _proj; }
 
-void Camera::SetOneProjectionMatrix()
+//一人用プロジェクション行列計算
+void Camera::SetOneProjectionMatrix(float zoom)
 {
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, ((FLOAT)Direct3D::screenWidth_) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4 * zoom, ((FLOAT)Direct3D::screenWidth_) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 }
 
-void Camera::SetTwoProjectionMatrix()
+//二人用プロジェクション行列計算
+void Camera::SetTwoProjectionMatrix(float zoom)
 {
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4 * zoom, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 }
 
 //ビルボード用回転行列を取得
