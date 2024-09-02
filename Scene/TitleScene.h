@@ -3,7 +3,8 @@
 
 class TitleScene : public SceneBase
 {
-	int time_;		//Œo‰ßŠÔ
+	int stageModel_;	//•\¦‚·‚éStage‚Ì”Ô†
+	int time_;			//Œo‰ßŠÔ
 
 public:
 	TitleScene(GameObject* parent);

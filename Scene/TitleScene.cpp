@@ -8,10 +8,11 @@
 #include "../Engine/Camera.h"
 #include "../Engine/Light.h"
 #include "../Screen/TitleScreen.h"
+#include "../Stage/CollisionMap.h"
 
 //コンストラクタ
 TitleScene::TitleScene(GameObject * parent)
-	: SceneBase(parent, "TitleScene"), time_(0)
+	: SceneBase(parent, "TitleScene"), time_(0), stageModel_(0)
 {
 }
 
@@ -23,10 +24,15 @@ void TitleScene::Initialize()
 	AllDeleteScreen();
 	AddScreen(new TitleScreen());
 
-	Light::SetPosition(0, XMFLOAT4(0.0f, 5.0f, 0.0f, 1.0f));
-	Camera::SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f), 0);
-	Camera::SetTarget(XMFLOAT3(0.0f, 0.0f, -10.0f), 0);
+	Light::SetPosition(0, XMFLOAT4(50.0f, 20.0f, 55.0f, 1.0f));
+	Camera::SetPosition(XMFLOAT3(60.0f, 15.0f, 40.0f), 0);
+	Camera::SetTarget(XMFLOAT3(50.0f, 0.0f, 50.0f), 0);
 	Camera::Update(0);
+
+	//最初はStage１に設定
+	CollisionMap* pCollisionMap = Instantiate<CollisionMap>(this);
+	pCollisionMap->SetStageModelList("Json/Stage1.json");
+	stageModel_ = 1;
 
 }
 
@@ -38,10 +44,28 @@ void TitleScene::Update()
 	//ちょっと待ってからUpdate
 	if(time_ >= 10) SceneBase::Update();
 
-	if (Input::IsKeyDown(DIK_M)) {
-		static_cast<SceneManager*>(FindObject("SceneManager"))->ChangeScene(SCENE_ID_PLAY);
-		return;
+	//モデルの入れ替え
+	if (time_ % 200 == 0) {
+		if (stageModel_ == 1) {
+			GameManager::GetCollisionMap()->SetStageModelList("Json/Stage2.json");
+			stageModel_ = 2;
+		}
+		else if (stageModel_ == 2) {
+			GameManager::GetCollisionMap()->SetStageModelList("Json/Stage1.json");
+			stageModel_ = 1;
+		}
 	}
+
+	//カメラの回転
+	static const float valueZ = 0.005f;
+	static const float CameraCenter = 50.0f;
+	static const float cameraPosX = 20.0f;
+	static float value = 0.0f;
+	
+	value += valueZ;
+	float CamX = CameraCenter + cameraPosX * std::cosf(value);
+	float CamZ = CameraCenter + cameraPosX * std::sinf(value);
+	Camera::SetPosition(XMFLOAT3(CamX, 15.0f, CamZ), 0);
 
 }
 

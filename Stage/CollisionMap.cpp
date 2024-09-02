@@ -148,10 +148,18 @@ void CollisionMap::Release()
 {
 }
 
-void CollisionMap::CreatIntersectDataTriangle(std::string fileName)
+void CollisionMap::SetStageModelList(std::string fileName)
 {
     modelList_ = StageEditor::LoadFileStage(fileName);
+}
 
+void CollisionMap::StageModelListReset()
+{
+    modelList_.clear();
+}
+
+void CollisionMap::CreatIntersectDataTriangle()
+{
     for (int i = 0; i < modelList_.size(); i++) {
         //Collision—p‚Ìƒ‚ƒfƒ‹ƒ|ƒŠƒSƒ“‚ðŽæ“¾
         std::vector<PolygonData> polyList;

@@ -101,7 +101,8 @@ void StageEditor::DrawStageEditor()
 
         SaveFileStage(stageList, stageEnvironment, currentStageFileName);
         GameManager::GetCollisionMap()->IntersectDataReset();
-        GameManager::GetCollisionMap()->CreatIntersectDataTriangle(currentStageFileName);
+        GameManager::GetCollisionMap()->SetStageModelList(currentStageFileName);
+        GameManager::GetCollisionMap()->CreatIntersectDataTriangle();
     }
     
     //‹æØ‚èü

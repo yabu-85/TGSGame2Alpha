@@ -21,12 +21,9 @@ struct StageModelData {
 class CollisionMap : public GameObject
 {
     int handle_;
+    
     Cell*** cells_ = 0;
 
-public:
-    static const float boxSize; //Cellのサイズ
-
-private:
     //指定したCellのポインタを取得(範囲外ならnullptr)
     Cell* GetCell(XMFLOAT3 pos);
 
@@ -36,7 +33,8 @@ private:
     std::vector<StageModelData> modelList_;
 
 public:
-
+    static const float boxSize; //Cellのサイズ
+    
     CollisionMap(GameObject* parent);
     ~CollisionMap();
     void Initialize() override;
@@ -44,8 +42,15 @@ public:
     void Draw() override;
     void Release() override;
 
-    //Stageからデータ取得してTriangle作成
-    void CreatIntersectDataTriangle(std::string fileName);
+    //モデルリストを読み込みだけ（Triangleの作成はしない）
+    void SetStageModelList(std::string fileName);
+
+    //作ったCollisionMapリセット
+    void StageModelListReset();
+
+    //modelList_からTriangle作成
+    void CreatIntersectDataTriangle();
+
     //作ったCollisionMapリセット
     void IntersectDataReset();
 
