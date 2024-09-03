@@ -1,0 +1,8 @@
+{
+  "Player1": {
+    "aimSensitivtiy": 0.5,
+  },
+  "Player2": {
+    "aimSensitivtiy": 0.5,
+  }
+}

@@ -9,6 +9,7 @@
 #include "../Stage/CollisionMap.h"
 #include "../Other/InputManager.h"
 #include "../Other/GameManager.h"
+#include "../Json/JsonReader.h"
 #include <vector>
 
 namespace {
@@ -37,6 +38,16 @@ Aim::Aim(GameObject* parent)
     shakeDirection_{ 1,0,0,0 }, isValid_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
     rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false), rotateShakeDirKeepSub_(XMFLOAT2())
 {
+}
+
+Aim::~Aim()
+{
+}
+
+void Aim::Initialize()
+{
+    pPlayer_ = static_cast<Player*>(GetParent());
+ 
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
@@ -53,16 +64,18 @@ Aim::Aim(GameObject* parent)
 
     mouseSensitivity_ = MOUSE_SPEED_DEFAULT;
     compulsionComplement_ = COMPULSION_COMPLEMENT_DEFAULT;
-}
 
-Aim::~Aim()
-{
-}
+#if 0
+    //èeíeÇ≤Ç∆ÇÃê›íËÇì«Ç›çûÇﬁ
+    JsonReader::Load("Json/PlayerSetting.json");
+    auto& gunSection = JsonReader::GetSection("Player1");
 
-void Aim::Initialize()
-{
-    pPlayer_ = static_cast<Player*>(GetParent());
-    DefaultAim();
+    //É}ÉKÉWÉìêîÇÃèâä˙âª
+    mouseSensitivity_ = gunSection["magazineCount"];
+#endif
+
+    if (FPSAimMode) FPSAim();
+    else DefaultAim();
 
 }
 
@@ -154,11 +167,9 @@ void Aim::FPSAim()
     CameraRotateShake();
 
     //EyeÉ|ÉWÉVÉáÉìê›íË
-    int eyeBone, eyePart;
-    int eyeBone1, eyePart1;
     int hFPSModel_ = pPlayer_->GetFPSModelHandle();
-    Model::GetPartBoneIndex(hFPSModel_, "eye", &eyePart, &eyeBone);
-    Model::GetPartBoneIndex(hFPSModel_, "eye.001", &eyePart1, &eyeBone1);
+    Model::GetPartBoneIndex(hFPSModel_, "eye", &eyePart, &eyeBone);         //Root
+    Model::GetPartBoneIndex(hFPSModel_, "eye.001", &eyePart1, &eyeBone1);   //Top
     XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hFPSModel_, eyePart, eyeBone);
     XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hFPSModel_, eyePart1, eyeBone1);
 

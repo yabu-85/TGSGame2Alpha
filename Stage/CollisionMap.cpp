@@ -115,7 +115,7 @@ void CollisionMap::Draw()
 #endif
     
     //Collision•\Ž¦
-#if 1
+#if 0
     if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
         Transform t = e.transform;

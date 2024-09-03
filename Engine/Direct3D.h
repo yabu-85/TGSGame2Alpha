@@ -10,7 +10,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 using namespace DirectX;
-#define PC_CTRL 1
+#define PC_CTRL 0
 
 //-----------------------------------------------------------
 //‰æ–Ê‚Ì•`‰æ‚ÉŠÖ‚·‚éˆ—

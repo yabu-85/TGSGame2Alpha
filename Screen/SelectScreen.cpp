@@ -12,7 +12,7 @@ SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 	UIBase* ui = nullptr;
 
 	//Stage1
-	ui = ui->UIInstantiate<ButtonUI>("Stage1", XMFLOAT2(0.5f, 0.0f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.1f, 0.1f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("Stage1", XMFLOAT2(-0.5f, 0.0f), XMFLOAT2(0.4f, 0.4f), XMFLOAT2(0.3f, 0.3f), [this]()
 		{
 			//ステージタイプセット
 			PlayScene::SetStageType(STAGE_1);
@@ -24,7 +24,7 @@ SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 	ui->SetSelect(true);
 
 	//Stage2
-	AddUI(ui->UIInstantiate<ButtonUI>("Stage2", XMFLOAT2(-0.5f, 0.0f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.1f, 0.1f), [this]()
+	AddUI(ui->UIInstantiate<ButtonUI>("Stage2", XMFLOAT2(0.5f, 0.0f), XMFLOAT2(0.4f, 0.4f), XMFLOAT2(0.3f, 0.3f), [this]()
 		{
 			//ステージタイプセット
 			PlayScene::SetStageType(STAGE_2);
@@ -34,7 +34,7 @@ SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
 		}));
 
 	//戻り
-	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.2f, 0.2f), [this]()
+	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
 			state_ = ENDDRAW;
 		}));

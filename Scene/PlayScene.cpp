@@ -44,8 +44,12 @@ void PlayScene::Initialize()
 	if (pStage) {
 		StageEnvironment stageEnvironment = pStage->GetStageEnvironment();
 		for (int i = 0; i < 2; i++) {
+			//座標
 			pPlayer_[i]->SetPosition(stageEnvironment.startPosition[i]);
-			pPlayer_[i]->SetRotateY(stageEnvironment.startRotateY[i]);
+
+			//回転
+			pPlayer_[i]->GetAim()->SetRotateY(stageEnvironment.startRotateY[i] - 180.0f);
+			pPlayer_[i]->TargetRotate(Float3Add(transform_.position_, pPlayer_[i]->GetAim()->GetAimDirection()), 1.0f);
 		}
 		XMFLOAT4 lightPos = XMFLOAT4(stageEnvironment.lightPosition.x, stageEnvironment.lightPosition.y, stageEnvironment.lightPosition.z, 1.0f);
 		Light::SetPosition(0, lightPos);
@@ -98,7 +102,7 @@ void PlayScene::Update()
 	//ゲーム開始前のStage描画
 	time_++;
 	if (preStageDraw_) {
-		if (time_ == 3) {
+		if (time_ == 300) {
 			//Updateの許可
 			AllChildEnter();
 
@@ -116,9 +120,9 @@ void PlayScene::Update()
 
 	//ゲーム勝利判定
 	if (GameManager::GetPlayer(0)->IsDead() || GameManager::GetPlayer(1)->IsDead()) {
-		//SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
-		//pSceneManager->ChangeScene(SCENE_ID_TITLE);
-		//return;
+		SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
+		pSceneManager->ChangeScene(SCENE_ID_TITLE);
+		return;
 	}
 
 	//デバッグ用

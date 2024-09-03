@@ -7,17 +7,17 @@
             "z": 50.0
         },
         "startPosition1": {
-            "x": 50.0,
-            "y": 5.840000152587891,
-            "z": 73.0
+            "x": 37.35,
+            "y": 5.84,
+            "z": 30.10
         },
-        "startPosition2": {
-            "x": 50.0,
-            "y": 5.840000152587891,
-            "z": 27.0
-        },
-        "startRotateY1": 0.0,
-        "startRotateY2": 180.0
+      "startPosition2": {
+        "x": 62.99,
+        "y": 5.84,
+        "z": 69.59
+      },
+        "startRotateY1": 392.0,
+        "startRotateY2": 573.0
     },
     "objects": [
         {

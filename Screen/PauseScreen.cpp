@@ -27,15 +27,15 @@ PauseScreen::PauseScreen() : Screen(), hPict_{ -1, -1 }
 	UIBase* ui = nullptr;
 	
 	//PauseI—¹
-	ui = ui->UIInstantiate<ButtonUI>("Ok", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.5f, 0.4f), XMFLOAT2(0.4f, 0.4f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("ReturnGame", XMFLOAT2(0.0f, -0.1f), XMFLOAT2(0.6f, 0.4f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
 			state_ = ENDDRAW;
 		});
 	AddUI(ui);
 	ui->SetSelect(true);
 
-	//Setting
-	AddUI(ui->UIInstantiate<ButtonUI>("Setting", XMFLOAT2(0.0f, -0.35f), XMFLOAT2(0.5f, 0.4f), XMFLOAT2(0.5f, 0.5f), [this]()
+	//Option
+	AddUI(ui->UIInstantiate<ButtonUI>("Option", XMFLOAT2(0.0f, -0.4f), XMFLOAT2(0.5f, 0.4f), XMFLOAT2(0.5f, 0.5f), [this]()
 		{
 			GameManager::GetScene()->AddScreen(new SettingScreen);
 		}));

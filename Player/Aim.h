@@ -25,11 +25,17 @@ class Player;
 
 class Aim : public GameObject
 {
+    //フラグ
     bool isValid_;                  //全ての挙動を止める
     bool isMove_;                   //エイムを動かすかどうか
     bool isCompulsion_;             //強制的に移動させる状態か
     bool isRotateShakeReturn_;      //RotateShakeの戻り処理する
 
+    //FPSModeで使う
+    int eyeBone, eyePart;
+    int eyeBone1, eyePart1;
+
+    //CameraShakeで使う
     int iterations_;                //反復回数
     float sign_;                    //計算用CameraShake
     float shakeSpeed_;              //Shakeする速さ
@@ -40,12 +46,20 @@ class Aim : public GameObject
     XMVECTOR center_;               //カメラShake計算用
     XMVECTOR shakeDirection_;       //カメラShake方向
 
+    //RotateShakeで使う
     int rotateShakeTime_;           //回転にかかる時間
     int rotateShakeTimeCalc_;       //時間計測用
     XMFLOAT2 rotateShakeDirection_; //カメラShake方向
     XMFLOAT2 rotateShakeDirKeep_;   //カメラShake移動量保存
     XMFLOAT2 rotateShakeDirKeepSub_;//カメラShake移動量計算用
 
+    //強制移動で使う
+    int compulsionTime_;            //強制から戻るのに掛かる時間
+    float compulsionComplement_;    //強制移動の補完具合
+    XMFLOAT3 compulsionTarget_;     //強制時のカメラの焦点目標
+    XMFLOAT3 compulsionPosisiton_;  //強制時のカメラの場所目標
+
+    //Aimの基本情報
     float mouseSensitivity_;        //マウス感度
     float distanceHeight_;          //Aimの高さ
     float distanceHorizontal_;      //左右にずらす距離
@@ -54,16 +68,10 @@ class Aim : public GameObject
     float distanceTargetHorizontal_;//左右目標距離
     float distanceTargetBehind_;    //距離目標距離
     float distanceIncreaseAmount_;  //高さ/左右/距離３つの増加量
-
-    int compulsionTime_;            //強制から戻るのに掛かる時間
-    float compulsionComplement_;    //強制移動の補完具合
-    XMFLOAT3 compulsionTarget_;     //強制時のカメラの焦点目標
-    XMFLOAT3 compulsionPosisiton_;  //強制時のカメラの場所目標
-
+    XMFLOAT3 cameraOffset_;         //カメラの移動量
     XMFLOAT3 cameraTarget_;         //カメラの焦点目標
     XMFLOAT3 cameraPosition_;       //カメラの場所目標
     XMFLOAT3 aimDirection_;         //現在の視点に基づいた進行方向ベクトル
-    XMFLOAT3 cameraOffset_;         //カメラの移動量
 
     Player* pPlayer_;
 
