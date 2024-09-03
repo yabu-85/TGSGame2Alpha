@@ -66,6 +66,9 @@ void SniperGun::Update()
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
+    //Input関係はUpとDown使わずに作ったほうがいいかも
+    //Pauseをやめた時にキャンセルされない
+    
     //アニメーションセット
     if (currentReloadTime_ <= 0) {
         if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
@@ -177,6 +180,10 @@ void SniperGun::Update()
 
 void SniperGun::Draw()
 {
+    //アニメーション
+    if (IsEntered()) Model::AnimStart(hModel_);
+    else Model::AnimStop(hModel_);
+
     //Shadoの場合Return
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     if (type == Direct3D::SHADER_SHADOWMAP) return;
@@ -188,10 +195,12 @@ void SniperGun::Draw()
         //ピーク中は画像の表示
         if (isPeeking_) {
             if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
+#if 0
                 Transform t;
                 Image::SetTransform(hPict_, t);
                 Image::Draw(hPict_);
-            
+#endif
+
                 Model::SetTransform(hModel_, transform_);
                 Model::Draw(hModel_);
             }

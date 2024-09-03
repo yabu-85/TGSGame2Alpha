@@ -305,6 +305,16 @@ namespace Input
 		return GetAnalogValue(controllerState_[padID].Gamepad.bRightTrigger, 255, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 	}
 
+	float GetPrePadTrrigerL(int padID)
+	{
+		return GetAnalogValue(prevControllerState_[padID].Gamepad.bLeftTrigger, 255, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
+	}
+
+	float GetPrePadTrrigerR(int padID)
+	{
+		return GetAnalogValue(prevControllerState_[padID].Gamepad.bRightTrigger, 255, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
+	}
+
 	//êUìÆÇ≥ÇπÇÈ
 	void SetPadVibration(int l, int r, int padID)
 	{

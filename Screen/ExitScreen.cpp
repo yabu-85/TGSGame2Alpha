@@ -18,14 +18,13 @@ ExitScreen::ExitScreen() : Screen(), hPict_{ -1, -1 }
 	t.scale_ = XMFLOAT3(0.5f, 0.5f, 0.0f);
 	Image::SetTransform(hPict_[0], t);
 	Image::SetFullScreenTransform(hPict_[1]);
-	Image::SetAlpha(hPict_[0], 150);
-	Image::SetAlpha(hPict_[1], 150);
+	Image::SetAlpha(hPict_[1], 100);
 
 	//ƒ{ƒ^ƒ““o˜^
 	UIBase* ui = nullptr;
 	
 	//Ok
-	ui = ui->UIInstantiate<ButtonUI>("Ok", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.2f, 0.2f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("Ok", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
 			PostQuitMessage(0);
 		});
@@ -33,7 +32,7 @@ ExitScreen::ExitScreen() : Screen(), hPict_{ -1, -1 }
 	ui->SetSelect(true);
 
 	//–ß‚è
-	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.2f, 0.2f), [this]()
+	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
 			state_ = ENDDRAW;
 		}));

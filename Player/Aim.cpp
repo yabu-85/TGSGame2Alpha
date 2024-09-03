@@ -316,19 +316,25 @@ void Aim::CalcMouseMove()
     XMFLOAT3 mouseMove = XMFLOAT3();
     int playerId = pPlayer_->GetPlayerId();
 
-#if PC_CTRL
-    if (playerId == 0) mouseMove = Input::GetMouseMove();
+    if (GameManager::IsPCCtrl()) {
+        //マウス
+        if (playerId == GameManager::GetPCCtrlNumber()) {
+            mouseMove = Input::GetMouseMove();
+        }
+        //コントローラー
+        else {
+            static const float STICK_SPEED = 20.0f;
+            XMFLOAT3 rStickMove = Input::GetPadStickR(0);
+            mouseMove = XMFLOAT3(rStickMove.x * STICK_SPEED, -(rStickMove.y * STICK_SPEED), 0.0f);
+        }
+    }
+    //コントローラー
     else {
         static const float STICK_SPEED = 20.0f;
-        XMFLOAT3 rStickMove = Input::GetPadStickR(0);
+        XMFLOAT3 rStickMove = Input::GetPadStickR(playerId);
         mouseMove = XMFLOAT3(rStickMove.x * STICK_SPEED, -(rStickMove.y * STICK_SPEED), 0.0f);
     }
-#else
-    static const float STICK_SPEED = 20.0f;
-    XMFLOAT3 rStickMove = Input::GetPadStickR(playerId);
-    mouseMove = XMFLOAT3(rStickMove.x * STICK_SPEED, -(rStickMove.y * STICK_SPEED), 0.0f);
-#endif
-
+   
     XMFLOAT2 move = XMFLOAT2(mouseMove.x * mouseSensitivity_, mouseMove.y * mouseSensitivity_);
     transform_.rotate_.y += move.x; //横方向の回転
     transform_.rotate_.x -= move.y; //縦方向の回転

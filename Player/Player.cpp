@@ -217,6 +217,16 @@ void Player::Update()
 
 void Player::Draw()
 {
+    //アニメーション
+    if (IsEntered()) {
+        Model::AnimStart(hModel_);
+        Model::AnimStart(hFPSModel_);
+    }
+    else {
+        Model::AnimStop(hModel_);
+        Model::AnimStop(hFPSModel_);
+    }
+
     //Shadowシェーダーの時
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_SHADOWMAP) {
         return;
@@ -286,30 +296,54 @@ XMFLOAT3 Player::GetInputMove()
         aimDirection.y = 0.0f;
         aimDirection = Float3Normalize(aimDirection);
 
-#if PC_CTRL
-        if (playerId_ == 0) {
-            if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
-                fMove.x += aimDirection.x;
-                if (isCreative_) fMove.y += aimDirection.y;
-                fMove.z += aimDirection.z;
+        //キーボード
+        if (GameManager::IsPCCtrl()) {
+            if (playerId_ == GameManager::GetPCCtrlNumber()) {
+                if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
+                    fMove.x += aimDirection.x;
+                    if (isCreative_) fMove.y += aimDirection.y;
+                    fMove.z += aimDirection.z;
+                }
+                if (InputManager::IsCmd(InputManager::MOVE_LEFT, playerId_)) {
+                    fMove.x -= aimDirection.z;
+                    fMove.z += aimDirection.x;
+                }
+                if (InputManager::IsCmd(InputManager::MOVE_DOWN, playerId_)) {
+                    fMove.x -= aimDirection.x;
+                    if (isCreative_) fMove.y -= aimDirection.y;
+                    fMove.z -= aimDirection.z;
+                }
+                if (InputManager::IsCmd(InputManager::MOVE_RIGHT, playerId_)) {
+                    fMove.x += aimDirection.z;
+                    fMove.z -= aimDirection.x;
+                }
             }
-            if (InputManager::IsCmd(InputManager::MOVE_LEFT, playerId_)) {
-                fMove.x -= aimDirection.z;
-                fMove.z += aimDirection.x;
-            }
-            if (InputManager::IsCmd(InputManager::MOVE_DOWN, playerId_)) {
-                fMove.x -= aimDirection.x;
-                if (isCreative_) fMove.y -= aimDirection.y;
-                fMove.z -= aimDirection.z;
-            }
-            if (InputManager::IsCmd(InputManager::MOVE_RIGHT, playerId_)) {
-                fMove.x += aimDirection.z;
-                fMove.z -= aimDirection.x;
+            //コントローラー
+            else {
+                static const float DEAD_ZONE = 0.1f;
+                XMFLOAT3 lMove = Input::GetPadStickL(0);
+                if (lMove.y > DEAD_ZONE) {  //前
+                    fMove.x += (aimDirection.x * abs(lMove.y));
+                    fMove.z += (aimDirection.z * abs(lMove.y));
+                }
+                if (lMove.x < -DEAD_ZONE) { //左
+                    fMove.x -= (aimDirection.z * abs(lMove.x));
+                    fMove.z += (aimDirection.x * abs(lMove.x));
+                }
+                if (lMove.y < -DEAD_ZONE) { //下
+                    fMove.x -= (aimDirection.x * abs(lMove.y));
+                    fMove.z -= (aimDirection.z * abs(lMove.y));
+                }
+                if (lMove.x > DEAD_ZONE) {  //右
+                    fMove.x += (aimDirection.z * abs(lMove.x));
+                    fMove.z -= (aimDirection.x * abs(lMove.x));
+                }
             }
         }
+        //コントローラー
         else {
             static const float DEAD_ZONE = 0.1f;
-            XMFLOAT3 lMove = Input::GetPadStickL(0);
+            XMFLOAT3 lMove = Input::GetPadStickL(playerId_);
             if (lMove.y > DEAD_ZONE) {  //前
                 fMove.x += (aimDirection.x * abs(lMove.y));
                 fMove.z += (aimDirection.z * abs(lMove.y));
@@ -327,26 +361,7 @@ XMFLOAT3 Player::GetInputMove()
                 fMove.z -= (aimDirection.x * abs(lMove.x));
             }
         }
-#else
-        static const float DEAD_ZONE = 0.1f;
-        XMFLOAT3 lMove = Input::GetPadStickL(playerId_);
-        if (lMove.y > DEAD_ZONE) {  //前
-            fMove.x += (aimDirection.x * abs(lMove.y));
-            fMove.z += (aimDirection.z * abs(lMove.y));
-        }
-        if (lMove.x < -DEAD_ZONE) { //左
-            fMove.x -= (aimDirection.z * abs(lMove.x));
-            fMove.z += (aimDirection.x * abs(lMove.x));
-        }
-        if (lMove.y < -DEAD_ZONE) { //下
-            fMove.x -= (aimDirection.x * abs(lMove.y));
-            fMove.z -= (aimDirection.z * abs(lMove.y));
-        }
-        if (lMove.x > DEAD_ZONE) {  //右
-            fMove.x += (aimDirection.z * abs(lMove.x));
-            fMove.z -= (aimDirection.x * abs(lMove.x));
-        }
-#endif
+
     }
 
     XMVECTOR vMove = XMLoadFloat3(&fMove);

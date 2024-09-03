@@ -1,10 +1,14 @@
 #include "InputManager.h"
+#include "GameManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
 #include "../Engine/Direct3D.h"
 #include <array>
 
 namespace InputManager {
+	static const float STICK_DEAD_ZONE = 0.01f;	//コントローラーデッドゾーン
+	static const float TRRIGERR_DEAD_ZONE = 0.2f;	//コントローラーデッドゾーン
+
 	std::array<std::pair<TYPE, int>, CMD_MAX> commandList;
 	std::array<std::pair<TYPE, int>, CMD_MAX> debugCommandList;
 
@@ -38,9 +42,9 @@ namespace InputManager {
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//ACTION
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),	//JUMP
 	
-		std::make_pair(MOUSE, 0),		//SELECT
-		std::make_pair(MOUSE, 1),		//RETURN
-		std::make_pair(KEY, DIK_TAB),	//PAUSE
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_A),		//SELECT
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),		//RETURN
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_START),	//PAUSE
 	};
 
 }
@@ -82,92 +86,109 @@ void InputManager::ChangeCmd(COMMAND cmd, TYPE type, int num)
 
 bool InputManager::IsCmd(COMMAND cmd, int id)
 {
-#if PC_CTRL
-	if (id == 0) {
-		if (debugCommandList[cmd].first == KEY && Input::IsKey(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButton(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == SCROLL_UP && Input::IsUpScroll()) return true;
-		else if (debugCommandList[cmd].first == SCROLL_DOWN && Input::IsDownScroll()) return true;
-		return false;
+	if (GameManager::IsPCCtrl()) {
+		if(id == GameManager::GetPCCtrlNumber()) {
+			if (debugCommandList[cmd].first == KEY && Input::IsKey(debugCommandList[cmd].second)) return true;
+			else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButton(debugCommandList[cmd].second)) return true;
+			return false;
+		}
+		else {
+			//コントローラーのため
+			id = 0;
+		}
 	}
 
-	static const float DEAD_ZONE = 0.01f;
-	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButton(commandList[cmd].second, 0);
-	else if (commandList[cmd].first == TRRIGERL) return (Input::GetPadTrrigerL(0) >= DEAD_ZONE);
-	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(0) >= DEAD_ZONE);
-	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(0)) >= DEAD_ZONE);
-	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(0)) >= DEAD_ZONE);
-	return false;
-#else
-	static const float DEAD_ZONE = 0.01f;
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButton(commandList[cmd].second, id);
-	else if (commandList[cmd].first == TRRIGERL) return (Input::GetPadTrrigerL(id) >= DEAD_ZONE);
-	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(id) >= DEAD_ZONE);
-	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(id)) >= DEAD_ZONE);
-	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(id)) >= DEAD_ZONE);
+	else if (commandList[cmd].first == TRRIGERL) return (Input::GetPadTrrigerL(id) >= TRRIGERR_DEAD_ZONE);
+	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(id) >= TRRIGERR_DEAD_ZONE);
+	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(id)) >= STICK_DEAD_ZONE);
+	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(id)) >= STICK_DEAD_ZONE);
 	return false;
-#endif
 }
 
 bool InputManager::IsCmdUp(COMMAND cmd, int id)
 {
-#if PC_CTRL
-	if (id == 0) {
-		if (debugCommandList[cmd].first == KEY && Input::IsKeyUp(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonUp(debugCommandList[cmd].second)) return true;
-		return false;
+	if (GameManager::IsPCCtrl()) {
+		if (id == GameManager::GetPCCtrlNumber()) {
+			//PC判定
+			if (debugCommandList[cmd].first == KEY && Input::IsKeyUp(debugCommandList[cmd].second)) return true;
+			else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonUp(debugCommandList[cmd].second)) return true;
+			return false;
+		}
+		else {
+			//コントローラーのため
+			id = 0;
+		}
 	}
 
-	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonUp(commandList[cmd].second, 0);
-	return false;
-#else
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonUp(commandList[cmd].second, id);
+	else if (commandList[cmd].first == TRRIGERL) {
+		if (Input::GetPadTrrigerL(id) <= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerL(id) >= TRRIGERR_DEAD_ZONE) return true;
+		else return false;
+	}
+	else if (commandList[cmd].first == TRRIGERR) {
+		if (Input::GetPadTrrigerR(id) <= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerR(id) >= TRRIGERR_DEAD_ZONE) return true;
+		else return false;
+	}
+	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(id)) <= STICK_DEAD_ZONE);
+	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(id)) <= STICK_DEAD_ZONE);
 	return false;
-#endif
 }
 
 bool InputManager::IsCmdDown(COMMAND cmd, int id)
 {
-#if PC_CTRL
-	if (id == 0) {
-		if (debugCommandList[cmd].first == KEY && Input::IsKeyDown(debugCommandList[cmd].second)) return true;
-		else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonDown(debugCommandList[cmd].second)) return true;
-		return false;
+	if (GameManager::IsPCCtrl()) {
+		if (id == GameManager::GetPCCtrlNumber()) {
+			if (debugCommandList[cmd].first == KEY && Input::IsKeyDown(debugCommandList[cmd].second)) return true;
+			else if (debugCommandList[cmd].first == MOUSE && Input::IsMouseButtonDown(debugCommandList[cmd].second)) return true;
+			return false;
+		}
+		else {
+			//コントローラーのため
+			id = 0;
+		}
 	}
 
-	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonDown(commandList[cmd].second, 0);
-	return false;
-#else
+	//Inputの方にTrrigerのUPDown作ったほうがいいかもね
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonDown(commandList[cmd].second, id);
+	else if (commandList[cmd].first == TRRIGERL) {
+		if (Input::GetPadTrrigerL(id) >= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerL(id) <= TRRIGERR_DEAD_ZONE) return true;
+		else return false;
+	}
+	else if (commandList[cmd].first == TRRIGERR) {
+		if (Input::GetPadTrrigerR(id) >= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerR(id) <= TRRIGERR_DEAD_ZONE) return true;
+		else return false;
+	}
+	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(id)) >= STICK_DEAD_ZONE);
+	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(id)) >= STICK_DEAD_ZONE);
 	return false;
-#endif
 }
 
 bool InputManager::CmdWalk(int id) {
-#if PC_CTRL
-	if (id == 0) {
-		bool up, down, right, left;
-		up = IsCmd(MOVE_UP, id);
-		down = IsCmd(MOVE_DOWN, id);
-		right = IsCmd(MOVE_RIGHT, id);
-		left = IsCmd(MOVE_LEFT, id);
+	if (GameManager::IsPCCtrl()) {
+		if (id == GameManager::GetPCCtrlNumber()) {
+			bool up, down, right, left;
+			up = IsCmd(MOVE_UP, id);
+			down = IsCmd(MOVE_DOWN, id);
+			right = IsCmd(MOVE_RIGHT, id);
+			left = IsCmd(MOVE_LEFT, id);
 
-		bool walk = up || down || right || left;
-		if (!walk) return false;
+			bool walk = up || down || right || left;
+			if (!walk) return false;
 
-		//複数押している場合の処理
-		if (up && down && !left && !right) return false;
-		else if (left && right && !up && !down) return false;
-		else if (up && down && left && right) return false;
-		return true;
+			//複数押している場合の処理
+			if (up && down && !left && !right) return false;
+			else if (left && right && !up && !down) return false;
+			else if (up && down && left && right) return false;
+			return true;
+		}
+		else {
+			id = 0;
+		}
 	}
 
-	XMFLOAT3 rStick = Input::GetPadStickL(0);
-	if (CalculationDistance(rStick) >= 0.01f) return true;
-#else
 	XMFLOAT3 rStick = Input::GetPadStickL(id);
 	if (CalculationDistance(rStick) >= 0.01f) return true;
-#endif
-
+	
 	return false;
 }

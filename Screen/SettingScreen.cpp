@@ -10,6 +10,7 @@ SettingScreen::SettingScreen() : Screen()
 	UIBase* ui = nullptr;
 
 	//Stage1
+	/*
 	ui = ui->UIInstantiate<ButtonUI>("Play", XMFLOAT2(0.0f, 0.5f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.1f, 0.1f), [this]()
 		{
 		});
@@ -26,6 +27,15 @@ SettingScreen::SettingScreen() : Screen()
 		{
 			state_ = ENDDRAW;
 		}));
+		*/
+
+	//–ß‚è
+	ui = ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
+		{
+			state_ = ENDDRAW;
+		});
+	AddUI(ui);
+	ui->SetSelect(true);
 
 }
 

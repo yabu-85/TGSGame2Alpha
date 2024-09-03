@@ -1,4 +1,5 @@
 #include "ButtonUI.h"
+#include "../Other/InputManager.h"
 #include "../Engine/Image.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/Input.h"
@@ -21,13 +22,18 @@ void ButtonUI::Update()
 		//if (!isBound_) AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN);
 
 		//ó£ÇµÇΩÇÁä÷êîåƒÇ—èoÇµ
-		if (Input::IsMouseButtonUp(0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_B, 0)) OnClick();
+		if (Input::IsMouseButtonUp(0)) OnClick();
 
 		isBound_ = true;
 	}
 	else {
 		isBound_ = false;
-	
+
+		//Ctrl
+		if (isSelect_) {
+			if (InputManager::IsCmdDown(InputManager::SELECT, 0)) OnClick();
+		}
+
 	}
 }
 

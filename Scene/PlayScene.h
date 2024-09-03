@@ -15,6 +15,7 @@ class PlayScene : public SceneBase
 	bool isPause_;					//Pause中かどうか
 	bool preStageDraw_;				//戦闘が始まる前のステージ描画中か
 	int time_;						//経過時間
+	int endTime_;					//終了待ち時間
 
 	Player* pPlayer_[2];
 	AimCursor* pAimCursor_[2];

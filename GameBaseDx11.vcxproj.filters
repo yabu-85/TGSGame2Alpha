@@ -353,6 +353,9 @@
     <ClCompile Include="Screen\ExitScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
+    <ClCompile Include="Stage\SkyBox.cpp">
+      <Filter>Stage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -628,6 +631,9 @@
     <ClInclude Include="Screen\ExitScreen.h">
       <Filter>Screen</Filter>
     </ClInclude>
+    <ClInclude Include="Stage\SkyBox.h">
+      <Filter>Stage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">
@@ -643,6 +649,9 @@
       <Filter>02Shader</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shader\ShadowMap.hlsl">
+      <Filter>02Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shader\SkyBox.hlsl">
       <Filter>02Shader</Filter>
     </FxCompile>
   </ItemGroup>

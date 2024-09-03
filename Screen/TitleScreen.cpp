@@ -25,8 +25,8 @@ TitleScreen::TitleScreen() : Screen(), hPict_{ -1, -1 }
 			GameManager::GetScene()->AddScreen(new SettingScreen);
 		}));
 
-	//–ß‚è
-	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
+	//I—¹
+	AddUI(ui->UIInstantiate<ButtonUI>("Exit", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
 			GameManager::GetScene()->AddScreen(new ExitScreen);
 		}));

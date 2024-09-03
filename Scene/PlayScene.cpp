@@ -23,9 +23,14 @@
 
 STAGE_TYPE PlayScene::stageType_ = STAGE_PLANE;
 
+namespace {
+	const int END_TIME_DEFAULT = 60;
+
+}
+
 //コンストラクタ
 PlayScene::PlayScene(GameObject * parent)
-	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), pPlayer_{ nullptr, nullptr }, preStageDraw_(true)
+	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), endTime_(0), pPlayer_{ nullptr, nullptr }, preStageDraw_(true)
 {
 }
 
@@ -35,6 +40,8 @@ void PlayScene::Initialize()
 	//画面分割無しに
 	GameManager::SetOnePlayer();
 	Camera::SetOneProjectionMatrix();
+
+	endTime_ = END_TIME_DEFAULT;
 
 	Stage* pStage = Instantiate<Stage>(this);
 	pPlayer_[0] = Instantiate<Player>(this);
@@ -120,8 +127,11 @@ void PlayScene::Update()
 
 	//ゲーム勝利判定
 	if (GameManager::GetPlayer(0)->IsDead() || GameManager::GetPlayer(1)->IsDead()) {
-		SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
-		pSceneManager->ChangeScene(SCENE_ID_TITLE);
+		endTime_--;
+		if (endTime_ <= 0) {
+			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
+			pSceneManager->ChangeScene(SCENE_ID_TITLE);
+		}
 		return;
 	}
 

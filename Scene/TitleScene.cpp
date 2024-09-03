@@ -9,6 +9,7 @@
 #include "../Engine/Light.h"
 #include "../Screen/TitleScreen.h"
 #include "../Stage/CollisionMap.h"
+#include "../Stage/SkyBox.h"
 
 //コンストラクタ
 TitleScene::TitleScene(GameObject * parent)
@@ -30,6 +31,7 @@ void TitleScene::Initialize()
 	Camera::Update(0);
 
 	//最初はStage１に設定
+	Instantiate<SkyBox>(this);
 	CollisionMap* pCollisionMap = Instantiate<CollisionMap>(this);
 	pCollisionMap->SetStageModelList("Json/Stage1.json");
 	stageModel_ = 1;
@@ -65,7 +67,7 @@ void TitleScene::Update()
 	value += valueZ;
 	float CamX = CameraCenter + cameraPosX * std::cosf(value);
 	float CamZ = CameraCenter + cameraPosX * std::sinf(value);
-	Camera::SetPosition(XMFLOAT3(CamX, 15.0f, CamZ), 0);
+	Camera::SetPosition(XMFLOAT3(CamX, 17.0f, CamZ), 0);
 
 }
 

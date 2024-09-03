@@ -65,8 +65,6 @@ namespace Model
 			return (int)_datas.size() - 1;
 	}
 
-
-
 	//描画
 	void Draw(int handle)
 	{
@@ -75,12 +73,14 @@ namespace Model
 			return;
 		}
 
-		//アニメーションを進める
-		_datas[handle]->nowFrame += _datas[handle]->animSpeed;
+		if (!_datas[handle]->isAnimStop) {
+			//アニメーションを進める
+			_datas[handle]->nowFrame += _datas[handle]->animSpeed;
 
-		//最後までアニメーションしたら戻す
-		if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
-			_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
+			//最後までアニメーションしたら戻す
+			if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
+				_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
+		}
 
 		if (_datas[handle]->pFbx)
 		{
@@ -147,6 +147,16 @@ namespace Model
 		return (int)_datas[handle]->nowFrame;
 	}
 
+	void AnimStart(int handle)
+	{
+		_datas[handle]->isAnimStop = false;	
+	}
+
+	void AnimStop(int handle)
+	{
+		_datas[handle]->isAnimStop = true;
+	}
+	
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex)
 	{
 		return _datas[handle]->pFbx->GetPartBoneIndex(boneName, partIndex, boneIndex);

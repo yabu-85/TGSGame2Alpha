@@ -2,17 +2,15 @@
 
 namespace InputManager {
 
-	//判定するタイプ
+	//判定するタイプ(マウススクロールも一応作ってある）
 	enum TYPE {
-		KEY = 0,
-		MOUSE,
-		SCROLL_UP,
-		SCROLL_DOWN,
-		CONTROLLER,
-		TRRIGERL,
-		TRRIGERR,
-		STICKL,
-		STICKR,
+		KEY = 0,		//キーボード
+		MOUSE,			//マウス
+		CONTROLLER,		//コントローラーのボタン
+		TRRIGERL,		//左トリガー
+		TRRIGERR,		//右トリガー
+		STICKL,			//左スティック
+		STICKR,			//右スティック
 		TYPE_MAX,
 	};
 

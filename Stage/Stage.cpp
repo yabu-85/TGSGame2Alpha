@@ -1,5 +1,6 @@
 #include "Stage.h"
 #include "CollisionMap.h"
+#include "SkyBox.h"
 #include "../Engine/Model.h"
 #include "../Engine/Direct3D.h"
 #include "../AI/RouteSearch.h"
@@ -22,6 +23,7 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
+	Instantiate<SkyBox>(this);
 	CollisionMap* pCollisionMap = Instantiate<CollisionMap>(this);
 
 	if (PlayScene::GetStageType() == STAGE_TYPE::STAGE_PLANE) {

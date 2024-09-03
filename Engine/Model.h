@@ -36,10 +36,11 @@ namespace Model
 
 		std::vector<OrientRotateInfo> orientRotateDatas_;
 		
+		bool isAnimStop;
 		bool isShadow;
 
 		//初期化
-		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isShadow(true)
+		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isAnimStop(false), isShadow(true)
 		{
 		}
 
@@ -88,6 +89,14 @@ namespace Model
 
 	//現在のアニメーションのフレームを取得
 	int GetAnimFrame(int handle);
+
+	//アニメーションを再生
+	//引数：handle	開放したいモデルの番号
+	void AnimStart(int handle);
+
+	//アニメーションを止める
+	//引数：handle	開放したいモデルの番号
+	void AnimStop(int handle);
 
 	//パーツとボーンのインデックス取得
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex);

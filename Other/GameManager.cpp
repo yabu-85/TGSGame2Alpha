@@ -19,6 +19,7 @@ namespace GameManager {
 
 	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = true;
+	int pcCtrlNumber_ = 0;
 	int drawIndex_ = 0;
 
 	GameObject* pRootObject_ = nullptr;
@@ -29,6 +30,9 @@ namespace GameManager {
 	void Initialize()
 	{
 		InputManager::Initialize();
+
+		isPCCtrl_ = true;
+		pcCtrlNumber_ = 0;
 
 		if (isOnePlayer_) {
 			Direct3D::SetViewOne();
@@ -63,12 +67,18 @@ namespace GameManager {
 		DamageUI::SceneChange();
 	}
 
+	int GetDrawIndex() { return drawIndex_; }
+	
 	//人数関係
 	void SetOnePlayer() { isOnePlayer_ = true; }
 	void SetTwoPlayer() { isOnePlayer_ = false; }
 	bool IsOnePlayer() { return isOnePlayer_; }
 
-	int GetDrawIndex() { return drawIndex_; }
+	//PCCtrl関係
+	void SetPCCtrlON() { isPCCtrl_ = true; }
+	void SetPCCtrlOFF() { isPCCtrl_ = false; }
+	bool IsPCCtrl() { return isPCCtrl_; }
+	int GetPCCtrlNumber() { return pcCtrlNumber_; }
 
 	//アクセサ
 	GameObject* GetRootObject() { return pRootObject_; }

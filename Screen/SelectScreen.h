@@ -3,7 +3,7 @@
 
 class SelectScreen : public Screen
 {
-	int hPict_[2];
+	int hPict_;
 
 public:
 	SelectScreen();

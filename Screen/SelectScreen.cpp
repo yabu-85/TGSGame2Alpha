@@ -6,9 +6,20 @@
 #include "../Other/GameManager.h"
 #include "../UI/ButtonUI.h"
 #include "../Scene/PlayScene.h"
+#include "../Engine/Image.h"
 
-SelectScreen::SelectScreen() : Screen(), hPict_{ -1, -1 }
+SelectScreen::SelectScreen() : Screen(), hPict_( -1)
 {
+	//Image‚Ì‰ŠúÝ’è
+	const char* fileName = { "Image/StageSelect.png" };
+	hPict_ = Image::Load(fileName);
+	assert(hPict_ >= 0);
+
+	Transform t;
+	t.position_ = XMFLOAT3(0.0f, 0.5f, 0.0f);
+	t.scale_ = XMFLOAT3(0.5f, 0.5f, 0.0f);
+	Image::SetTransform(hPict_, t);
+
 	UIBase* ui = nullptr;
 
 	//Stage1
@@ -53,6 +64,8 @@ void SelectScreen::Update()
 
 void SelectScreen::Draw()
 {
+	Image::Draw(hPict_);
+
 	Screen::Draw();
 
 }

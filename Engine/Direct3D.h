@@ -10,7 +10,6 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 using namespace DirectX;
-#define PC_CTRL 0
 
 //-----------------------------------------------------------
 //画面の描画に関する処理
@@ -31,7 +30,7 @@ namespace Direct3D
 	extern XMMATRIX clipToUVMatrix;
 
 	//■シェーダー関連で必要なセット
-	enum SHADER_TYPE{SHADER_3D, SHADER_2D, SHADER_UNLIT, SHADER_BILLBOARD, SHADER_SHADOWMAP, SHADER_MAX};	//3タイプ（3D用、2D用、当たり判定枠表示用）
+	enum SHADER_TYPE{SHADER_3D, SHADER_2D, SHADER_UNLIT, SHADER_BILLBOARD, SHADER_SHADOWMAP, SHADER_SKYBOX, SHADER_MAX};	//3タイプ（3D用、2D用、当たり判定枠表示用）
 	struct SHADER_BUNDLE
 	{
 		//【頂点入力レイアウト情報】

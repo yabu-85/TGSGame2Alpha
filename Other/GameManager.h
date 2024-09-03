@@ -12,11 +12,16 @@ namespace GameManager
 	void Draw();
 	void SceneChange();
 
+	int GetDrawIndex();
+
 	void SetOnePlayer();
 	void SetTwoPlayer();
 	bool IsOnePlayer();
 
-	int GetDrawIndex();
+	void SetPCCtrlON();
+	void SetPCCtrlOFF();
+	bool IsPCCtrl();
+	int GetPCCtrlNumber();
 
 	//アクセサ
 	GameObject* GetRootObject();
@@ -31,7 +36,7 @@ namespace GameManager
 	SceneBase* GetScene();
 	void SetScene(SceneBase* stage);
 
-	//GameManager内でのみ使う関数
+	//GameManager内でのみ使う関数ーーーーーーーーーーーーーーー
 	void CommonDraw();				//共通の描画
 	void IndividualDraw(int index);	//個別の描画
 	void ImGuiDraw();				//Imguiの描画
