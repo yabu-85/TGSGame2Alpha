@@ -31,7 +31,7 @@ void ButtonUI::Update()
 
 		//Ctrl
 		if (isSelect_) {
-			if (InputManager::IsCmdDown(InputManager::SELECT, 0)) OnClick();
+			if (Input::IsPadButtonDown(XINPUT_GAMEPAD_A, 0)) OnClick();
 		}
 
 	}

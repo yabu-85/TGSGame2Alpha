@@ -10,33 +10,48 @@ SettingScreen::SettingScreen() : Screen()
 {
 	UIBase* ui = nullptr;
 
-	//Stage1
-	/*
-	ui = ui->UIInstantiate<ButtonUI>("Play", XMFLOAT2(0.0f, 0.5f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.1f, 0.1f), [this]()
-		{
-		});
-	AddUI(ui);
-	ui->SetSelect(true);
-
-	//Stage2
-	AddUI(ui->UIInstantiate<SliderUI>("Setting", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.3f, 0.3f), XMFLOAT2(0.1f, 0.1f), [this]()
-		{
-		}));
-
 	//–ß‚è
-	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.2f, 0.2f), [this]()
-		{
-			state_ = ENDDRAW;
-		}));
-		*/
-
-	//–ß‚è
-	ui = ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.7f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
 			state_ = ENDDRAW;
 		});
 	AddUI(ui);
 	ui->SetSelect(true);
+
+	//PCCtrlON1-------------------------------------------
+	AddUI(ui->UIInstantiate<ButtonUI>("OK", XMFLOAT2(-0.75f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+		{
+			SetPCCtrlOn(0);
+		}));
+
+	//PCCtrlOFF1
+	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(-0.3f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+		{
+			SetPCCtrlOff(0);
+		}));
+
+	//PCCtrlON2
+	AddUI(ui->UIInstantiate<ButtonUI>("OK", XMFLOAT2(0.25f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+		{
+			SetPCCtrlOn(1);
+		}));
+
+	//PCCtrlOFF2
+	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.7f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+		{
+			SetPCCtrlOff(1);
+		}));
+	//------------------------------------------------
+
+	//MouseSence1
+	AddUI(ui->UIInstantiate<SliderUI>("Setting", XMFLOAT2(-0.525f, -0.3f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
+		{
+		}));
+
+	//MouseSence2
+	AddUI(ui->UIInstantiate<SliderUI>("Setting", XMFLOAT2(0.525f, -0.3f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
+		{
+		}));
 
 }
 
@@ -66,6 +81,6 @@ void SettingScreen::SetPCCtrlOn(int index)
 {
 }
 
-void SettingScreen::SetPCCtrlOff()
+void SettingScreen::SetPCCtrlOff(int index)
 {
 }
