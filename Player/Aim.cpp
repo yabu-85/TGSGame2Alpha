@@ -142,6 +142,11 @@ void Aim::SetCameraRotateShake(const CameraRotateShakeInfo& info)
     rotateShakeTimeCalc_ = info.time;
 }
 
+void Aim::SetAimSensitivity(float parcent)
+{
+    mouseSensitivity_ = MOUSE_SPEED_DEFAULT * parcent;
+}
+
 void Aim::SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar)
 {
     compulsionPosisiton_ = pos;

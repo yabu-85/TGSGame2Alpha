@@ -44,7 +44,7 @@ namespace InputManager {
 	
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_A),		//SELECT
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),		//RETURN
-		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_START),	//PAUSE
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_BACK),	//PAUSE
 	};
 
 }

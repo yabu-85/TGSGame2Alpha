@@ -78,6 +78,7 @@ namespace GameManager {
 	void SetPCCtrlON() { isPCCtrl_ = true; }
 	void SetPCCtrlOFF() { isPCCtrl_ = false; }
 	bool IsPCCtrl() { return isPCCtrl_; }
+	void SetPCCtrlNumber(int number) { pcCtrlNumber_ = number; }
 	int GetPCCtrlNumber() { return pcCtrlNumber_; }
 
 	//アクセサ

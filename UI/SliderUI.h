@@ -20,5 +20,8 @@ public:
 	bool IsWithinBound() override;
 	void SelectUpdate() override;
 
+	//‚O`‚P‚ÌŠÔ‚Åæ“¾
+	float GetGaugeParcent() { return gaugePercent_; }
+
 };
 

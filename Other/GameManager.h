@@ -21,6 +21,7 @@ namespace GameManager
 	void SetPCCtrlON();
 	void SetPCCtrlOFF();
 	bool IsPCCtrl();
+	void SetPCCtrlNumber(int number);
 	int GetPCCtrlNumber();
 
 	//アクセサ
