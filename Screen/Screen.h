@@ -33,4 +33,5 @@ public:
 	bool DeleteUI(UIBase* ui);
 
 	SCREEN_STATE GetUIState() { return state_; };
+	void SetUIState(SCREEN_STATE state) { state_ = state; }
 };

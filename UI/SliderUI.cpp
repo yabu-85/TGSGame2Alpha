@@ -149,6 +149,16 @@ void SliderUI::SelectUpdate()
 	}
 }
 
+void SliderUI::SetGaugeParcent(float f)
+{
+	gaugePercent_ = f;
+
+	//場所計算
+	float sizeX = frameSize_.x / (float)Direct3D::screenWidth_;
+	imageTransform_.position_.x = frameTransform_.position_.x + (sizeX * 2.0f * gaugePercent_) - sizeX;
+	buttonPosX_ = imageTransform_.position_.x;
+}
+
 void SliderUI::Dragging()
 {
 	float scrX = (float)Direct3D::screenWidth_;
@@ -179,7 +189,6 @@ void SliderUI::Dragging()
 		OnClick();
 		return;
 	}
-
 
 	//ウィンドウ外の対処
 	XMFLOAT3 mouse = Input::GetMousePosition();

@@ -78,7 +78,7 @@ void PlayScene::Initialize()
 void PlayScene::Update()
 {
 	//Pause‰æ–ÊŒÄ‚Ño‚µ
-	if (!isPause_ && InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
+	if (!isPause_ && IsPauseButtonDown()) {
 		AddScreen(new PauseScreen());
 		
 		//Ž©•ª‚æ‚è‰º‚ÌUpdate‚ð‹‘”Û
@@ -93,11 +93,19 @@ void PlayScene::Update()
 	if (isPause_) {
 		SceneBase::Update();
 
+		//PauseButton‰Ÿ‚µ‚½
+		if (IsPauseButtonDown()) {
+			pScreenList_.front()->SetUIState(SCREEN_STATE::ENDDRAW);
+			SceneBase::Update(); 
+			isPause_ = false;
+			if (!preStageDraw_) AllChildEnter();
+			return;
+		}
+
 		//PauseI—¹‚Ìˆ—
 		if (pScreenList_.empty()) {
 			isPause_ = false;
 			if(!preStageDraw_) AllChildEnter();
-		
 		}
 		//Pause’†
 		else {
@@ -184,4 +192,9 @@ void PlayScene::IndividualUIDraw(int index)
 	
 	//AimCursor
 	if (pAimCursor_[index]) pAimCursor_[index]->Draw();
+}
+
+bool PlayScene::IsPauseButtonDown()
+{
+	return (Input::IsKeyDown(DIK_TAB) || Input::IsPadButtonDown(XINPUT_GAMEPAD_START, 0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_BACK, 0));
 }

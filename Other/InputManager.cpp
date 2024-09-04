@@ -27,7 +27,6 @@ namespace InputManager {
 
 		std::make_pair(MOUSE, 0),		//SELECT
 		std::make_pair(MOUSE, 1),		//RETURN
-		std::make_pair(KEY, DIK_TAB),	//PAUSE
 	};
 
 	const std::array<std::pair<TYPE, int>, CMD_MAX> DEFAULT_COMMAND {
@@ -44,7 +43,6 @@ namespace InputManager {
 	
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_A),		//SELECT
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),		//RETURN
-		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_BACK),	//PAUSE
 	};
 
 }
@@ -145,7 +143,9 @@ bool InputManager::IsCmdDown(COMMAND cmd, int id)
 		}
 		else {
 			//コントローラーのため
+			
 			id = 0;
+
 		}
 	}
 

@@ -29,7 +29,7 @@
 const char* WIN_CLASS_NAME = "SampleGame";	//ウィンドウクラス名
 
 //マウス
-bool isCursorLimited = TRUE;	// マウスポインターの制限
+bool isCursorLimited = FALSE;	// マウスポインターの制限
 bool isCursorVisible = TRUE;  // カーソルが表示されているかどうかを示すフラグ
 
 //フルスクリーンようにグローバル
@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");			//スクリーンの幅
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
-#if 0 //_DEBUG
+#if 1 //_DEBUG
 	screenWidth = 700;
 	screenHeight = 500;
 #endif

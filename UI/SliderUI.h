@@ -23,5 +23,7 @@ public:
 	//‚O`‚P‚ÌŠÔ‚Åæ“¾
 	float GetGaugeParcent() { return gaugePercent_; }
 
+	void SetGaugeParcent(float f);
+
 };
 

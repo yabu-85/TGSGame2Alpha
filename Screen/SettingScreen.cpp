@@ -79,6 +79,16 @@ SettingScreen::SettingScreen() : Screen(), hPict_{-1, -1, -1}, aimSliderUI_{null
 	AddUI(ui);
 	aimSliderUI_[1] = static_cast<SliderUI*>(ui);
 
+	JsonReader::Load("Json/Bullet.json");
+	auto& Bullet_Sniper = JsonReader::GetSection("Bullet_Sniper");
+
+	//PlayerSetting“Ç‚Ýž‚Ý
+	JsonReader::Load("Json/PlayerSetting.json");
+	auto& gunSection1 = JsonReader::GetSection("Player1");
+	aimSliderUI_[0]->SetGaugeParcent(gunSection1["aimSensitivtiy"]);
+	auto& gunSection2 = JsonReader::GetSection("Player2");
+	aimSliderUI_[1]->SetGaugeParcent(gunSection2["aimSensitivtiy"]);
+
 }
 
 SettingScreen::~SettingScreen()
@@ -140,41 +150,24 @@ void SettingScreen::SetAimSensitivity()
 	float aimS1 = aimSliderUI_[0]->GetGaugeParcent();
 	float aimS2 = aimSliderUI_[1]->GetGaugeParcent();
 
-	OutputDebugStringA(std::to_string(aimS1).c_str());
-	OutputDebugString(" , ");
-	OutputDebugStringA(std::to_string(aimS2).c_str());
-	OutputDebugString("\n");
-
 	//¡PlayScene‚ÅA‚Ql‚Æ‚à¶‚«‚Ä‚¢‚éê‡
 	if (GameManager::GetPlayer(0) && GameManager::GetPlayer(1)) {
 		GameManager::GetPlayer(0)->GetAim()->SetAimSensitivity(aimS1);
 		GameManager::GetPlayer(1)->GetAim()->SetAimSensitivity(aimS2);
 	}
 
-	//JsonSave
 	nlohmann::json j;
-
-	/*
-	for (const auto& obj : stage)
-	{
-		nlohmann::json objJson;
-		objJson["fileName"] = obj.fileName;
-		objJson["rayFileName"] = obj.rayFileName;
-		objJson["position"] = { {"x", obj.transform.position_.x}, {"y", obj.transform.position_.y}, {"z", obj.transform.position_.z} };
-		objJson["scale"] = { {"x", obj.transform.scale_.x}, {"y", obj.transform.scale_.y}, {"z", obj.transform.scale_.z} };
-		objJson["rotate"] = { {"x", obj.transform.rotate_.x}, {"y", obj.transform.rotate_.y}, {"z", obj.transform.rotate_.z} };
-		j["objects"].push_back(objJson);
-	}
-	*/
-
-	//Environment
 	nlohmann::json environmentJson;
-	environmentJson["gravity"] = 
-	environmentJson["startRotateY1"] = aimS1;
-	environmentJson["startRotateY2"] = aimS2;
-	j["environment"] = environmentJson;
 
-	std::ofstream ofs("fileName");
+	//Player1
+	environmentJson["aimSensitivtiy"] = aimS1;
+	j["Player1"] = environmentJson;
+
+	//Player2
+	environmentJson["aimSensitivtiy"] = aimS2;
+	j["Player2"] = environmentJson;
+
+	std::ofstream ofs("Json/PlayerSetting.json");
 	if (!ofs.is_open())
 	{
 		assert(false);
@@ -182,9 +175,5 @@ void SettingScreen::SetAimSensitivity()
 	}
 
 	ofs << j.dump(4);
-
 }
 
-void SettingScreen::SaveFilePlayerSetting()
-{
-}

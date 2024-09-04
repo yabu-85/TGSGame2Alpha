@@ -15,8 +15,6 @@ class SettingScreen : public Screen
 	//AimSensitivity
 	void SetAimSensitivity();
 
-	void SaveFilePlayerSetting();
-
 public:
 	SettingScreen();
 	~SettingScreen() override;

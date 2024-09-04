@@ -22,6 +22,8 @@ class PlayScene : public SceneBase
 
 	static STAGE_TYPE stageType_;	//今のステージのタイプ（これから出すステージのタイプ）
 
+	bool IsPauseButtonDown();
+
 public:
 	PlayScene(GameObject* parent);
 	void Initialize() override;
