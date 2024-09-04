@@ -2,6 +2,7 @@
 #include "../Engine/SceneManager.h"
 #include "../Engine/Camera.h"
 #include "../Other/GameManager.h"
+#include "../Player/Player.h"
 #include "../UI/SliderUI.h"
 #include "../UI/ButtonUI.h"
 
@@ -59,4 +60,12 @@ void SettingScreen::Draw()
 		Direct3D::SetViewPort(0);
 	}
 
+}
+
+void SettingScreen::SetPCCtrlOn(int index)
+{
+}
+
+void SettingScreen::SetPCCtrlOff()
+{
 }
