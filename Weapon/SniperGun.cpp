@@ -1,5 +1,5 @@
 #include "SniperGun.h"
-#include "Bullet_Sniper.h"
+#include "Bullet_Normal.h"
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
 #include "../Engine/Image.h"
@@ -15,9 +15,6 @@
 #include "../UI/AimCursor.h"
 #include "../Scene/PlayScene.h"
 #include "../Engine/EffekseeLib/EffekseerVFX.h"
-
-//スナイパー画像URL
-//https://www.ac-illust.com/main/detail.php?id=23464746&word=%E7%85%A7%E6%BA%96%E3%83%9E%E3%83%BC%E3%82%AF%E9%BB%92
 
 namespace {
     static const int PEEK_TIME = 15;                            //覗き込みにかかる時間
@@ -55,7 +52,6 @@ void SniperGun::Initialize()
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
     LoadGunJson("SniperGun");
-    isFirstPerson_ = true;
 }
 
 void SniperGun::Update()
@@ -233,7 +229,7 @@ void SniperGun::PressedShot()
     if (currentMagazineCount_ <= 0) return;
     currentMagazineCount_--;
 
-    ShotBullet<Bullet_Sniper>();
+    ShotBullet<Bullet_Normal>("Bullet_Sniper");
     pAimCursor_->Shot();
 
     CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 3.0f), 3);

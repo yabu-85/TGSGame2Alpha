@@ -129,7 +129,8 @@ void Player::Initialize()
     moveSpeed_ = 0.07f;
 
     pAim_ = Instantiate<Aim>(this);
-    pGunBase_ = Instantiate<SniperGun>(this);
+    pGunBase_ = Instantiate<Gun>(this);
+    //pGunBase_ = Instantiate<SniperGun>(this);
     
     pStateManager_ = new StateManager(this);
     pStateManager_->AddState(new PlayerWait(pStateManager_));

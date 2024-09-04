@@ -14,11 +14,11 @@
 #include "../UI/DamageUI.h"
 #include "../Scene/SceneBase.h"
 #include "../Json/JsonReader.h"
-#include <fstream>
 
 namespace GameManager {
 	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
 
+	bool isImGuiDraw_ = false;
 	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = false;
 	int pcCtrlNumber_ = 0;
@@ -187,7 +187,9 @@ namespace GameManager {
 		GameManager::IndividualDraw(0);
 		GameManager::CommonDraw();
 
-		ImGuiDraw();
+		//ImGui
+		if (isImGuiDraw_) ImGuiDraw();
+
 		Direct3D::EndDraw();
 	}
 
@@ -213,7 +215,9 @@ namespace GameManager {
 		Camera::SetOneProjectionMatrix();
 		GameManager::CommonDraw();
 
-		ImGuiDraw();
+		//ImGui
+		if (isImGuiDraw_) ImGuiDraw();
+	
 		Direct3D::EndDraw();
 	}
 

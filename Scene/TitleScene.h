@@ -3,8 +3,9 @@
 
 class TitleScene : public SceneBase
 {
-	int stageModel_;	//表示するStageの番号
-	int time_;			//経過時間
+	int time_;				//経過時間
+	int stageModel_;		//表示するStageの番号
+	XMFLOAT3 lightPos_[2];	//ライトのポジション
 
 public:
 	TitleScene(GameObject* parent);

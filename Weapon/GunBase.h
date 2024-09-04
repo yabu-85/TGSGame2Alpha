@@ -10,7 +10,6 @@ class GunBase : public GameObject
 {
 protected:
     bool rayHit_;           //Collision判定で保存用
-    bool isFirstPerson_;    //一人称視点かどうか(false＝三人称
     bool isPeeking_;        //完全にのぞき込みしている状態か
 
     int hModel_;            //モデル番号
@@ -54,16 +53,17 @@ public:
     virtual void Release() override {};
     virtual void OnCollision(GameObject* pTarget) override;
 
-    bool IsFirstPerson() { return isFirstPerson_; }
     bool IsPeeking() { return isPeeking_; }
     AimCursor* GetAimCursor() { return pAimCursor_; }
 
     //銃弾を生成する
     template<class T>
-    inline void ShotBullet()
+    inline BulletBase* ShotBullet(std::string jsonName)
     {
         BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
+        pNewBullet->LoadBulletParameter(jsonName);
         ShotBullet(pNewBullet);
+        return pNewBullet;
     }
 
 };

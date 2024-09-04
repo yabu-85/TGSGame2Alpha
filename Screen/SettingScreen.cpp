@@ -10,11 +10,18 @@
 #include "../UI/ButtonUI.h"
 #include <fstream>
 
+namespace {
+	const XMFLOAT3 CTRL_SIZE = XMFLOAT3(0.5f, 0.5f, 0.0f);		//CTRL画像のサイズ
+	const XMFLOAT3 CTRL_POS1 = XMFLOAT3(-0.5f, 0.47f, 0.0f);	//CTRL画像の座標１
+	const XMFLOAT3 CTRL_POS2 = XMFLOAT3(0.5f, 0.47f, 0.0f);		//CTRL画像の座標２
+
+}
+
 SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}
 {
 	//Imageの初期設定
-	const char* fileName[] = { "Image/Stage1.png", "Image/Stage2.png", "Image/StageSelect.png", "Image/AimSpeed.png" , "Image/BlackFade.png" };
-	for (int i = 0; i < 5; i++) {
+	const char* fileName[] = { "Image/PCCtrl.png", "Image/GamePad.png", "Image/AimSpeed.png" , "Image/BlackFade.png", "Image/Player1.png", "Image/Player2.png" };
+	for (int i = 0; i < PICT_MAX; i++) {
 		hPict_[i] = -1;
 		hPict_[i] = Image::Load(fileName[i]);
 		assert(hPict_[i] >= 0);
@@ -22,15 +29,19 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}
 
 	//ImageのTransform設定
 	Transform t;
-	t.position_ = XMFLOAT3(0.0f, 0.5f, 0.0f);
 	t.scale_ = XMFLOAT3(0.5f, 0.5f, 0.0f);
-	for(int i = 0;i < 3;i++) Image::SetTransform(hPict_[i], t);
 
-	t.position_ = XMFLOAT3(0.0f, -0.2f, 0.0f);
-	Image::SetTransform(hPict_[3], t);
+	t.position_ = XMFLOAT3(-0.5f, 0.7f, 0.0f);
+	Image::SetTransform(hPict_[PLAYER1], t);
 
-	Image::SetAlpha(hPict_[4], 100);
-	Image::SetFullScreenTransform(hPict_[4]);
+	t.position_ = XMFLOAT3(0.5f, 0.7f, 0.0f);
+	Image::SetTransform(hPict_[PLAYER2], t);
+
+	t.position_ = XMFLOAT3(0.0f, -0.15f, 0.0f);
+	Image::SetTransform(hPict_[AIM_SPEED], t);
+
+	Image::SetFullScreenTransform(hPict_[BACK]);
+	Image::SetAlpha(hPict_[BACK], 100);
 
 	UIBase* ui = nullptr;
 
@@ -104,16 +115,53 @@ void SettingScreen::Draw()
 	Direct3D::SetViewPort(0);
 
 	//Back
-	Image::Draw(hPict_[4]);
+	Image::Draw(hPict_[BACK]);
+
+	//PlayerNumber
+	Image::Draw(hPict_[PLAYER1]);
+	Image::Draw(hPict_[PLAYER2]);
 
 	//デバッグPCCTRLNumberの描画
 	if (GameManager::IsPCCtrl()) {
-		if(GameManager::GetPCCtrlNumber() == 0) Image::Draw(hPict_[0]);
-		else Image::Draw(hPict_[1]);
-	}else Image::Draw(hPict_[2]);
+		//Player1がPCCtrlの時
+		if (GameManager::GetPCCtrlNumber() == 0) {
+			Transform t;
+			t.scale_ = CTRL_SIZE;
+			t.position_ = CTRL_POS1;
+			Image::SetTransform(hPict_[PC_CTRL], t);
+			Image::Draw(hPict_[PC_CTRL]);
+
+			t.position_ = CTRL_POS2;
+			Image::SetTransform(hPict_[GAMEPAD], t);
+			Image::Draw(hPict_[GAMEPAD]);
+		}
+		//Player2がPCCtrlの時
+		else {
+			Transform t;
+			t.scale_ = CTRL_SIZE;
+			t.position_ = CTRL_POS1;
+			Image::SetTransform(hPict_[GAMEPAD], t);
+			Image::Draw(hPict_[GAMEPAD]);
+
+			t.position_ = CTRL_POS2;
+			Image::SetTransform(hPict_[PC_CTRL], t);
+			Image::Draw(hPict_[PC_CTRL]);
+		}
+	}
+	else {
+		Transform t;
+		t.scale_ = CTRL_SIZE;
+		t.position_ = CTRL_POS1;
+		Image::SetTransform(hPict_[GAMEPAD], t);
+		Image::Draw(hPict_[GAMEPAD]);
+
+		t.position_ = CTRL_POS2;
+		Image::SetTransform(hPict_[GAMEPAD], t);
+		Image::Draw(hPict_[GAMEPAD]);
+	}
 
 	//Aim
-	Image::Draw(hPict_[3]);
+	Image::Draw(hPict_[AIM_SPEED]);
 
 	Screen::Draw();
 	

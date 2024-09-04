@@ -28,6 +28,7 @@ public:
 
     //e’e‚Ìƒpƒ‰ƒ[ƒ^‚ğæ“¾
     BulletParameter GetBulletParameter() { return parameter_; }
+    void LoadBulletParameter(std::string name);
 
     void SetMove(const XMFLOAT3& move) { move_ = move; }
     void SetPlayerId(int id) { playerId_ = id; }

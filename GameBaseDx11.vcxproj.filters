@@ -93,6 +93,9 @@
     <Filter Include="03Scene\Base">
       <UniqueIdentifier>{bacfa9a0-b375-4681-850f-85408448a95c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Weapon\Base">
+      <UniqueIdentifier>{69a3b57b-74a7-49ae-a6bf-8b82b45fee9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\BoxCollider.cpp">
@@ -224,9 +227,6 @@
     <ClCompile Include="AI\RouteSearch.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="Weapon\Bullet_Normal.cpp">
-      <Filter>Weapon</Filter>
-    </ClCompile>
     <ClCompile Include="Weapon\Gun.cpp">
       <Filter>Weapon</Filter>
     </ClCompile>
@@ -278,9 +278,6 @@
     <ClCompile Include="Stage\StageEditor.cpp">
       <Filter>Stage</Filter>
     </ClCompile>
-    <ClCompile Include="Weapon\BulletBase.cpp">
-      <Filter>Weapon</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\EffekseeLib\EffekseerVFX.cpp">
       <Filter>01Engine\Effekseer</Filter>
     </ClCompile>
@@ -329,12 +326,6 @@
     <ClCompile Include="Weapon\SniperGun.cpp">
       <Filter>Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Weapon\GunBase.cpp">
-      <Filter>Weapon</Filter>
-    </ClCompile>
-    <ClCompile Include="Weapon\Bullet_Sniper.cpp">
-      <Filter>Weapon</Filter>
-    </ClCompile>
     <ClCompile Include="Scene\TitleScene.cpp">
       <Filter>03Scene</Filter>
     </ClCompile>
@@ -358,6 +349,15 @@
     </ClCompile>
     <ClCompile Include="Scene\SceneBase.cpp">
       <Filter>03Scene\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon\BulletBase.cpp">
+      <Filter>Weapon\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon\GunBase.cpp">
+      <Filter>Weapon\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon\Bullet_Normal.cpp">
+      <Filter>Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -499,12 +499,6 @@
     <ClInclude Include="AI\RouteSearch.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="Weapon\Bullet_Normal.h">
-      <Filter>Weapon</Filter>
-    </ClInclude>
-    <ClInclude Include="Weapon\BulletBase.h">
-      <Filter>Weapon</Filter>
-    </ClInclude>
     <ClInclude Include="Weapon\Gun.h">
       <Filter>Weapon</Filter>
     </ClInclude>
@@ -607,12 +601,6 @@
     <ClInclude Include="Weapon\SniperGun.h">
       <Filter>Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Weapon\GunBase.h">
-      <Filter>Weapon</Filter>
-    </ClInclude>
-    <ClInclude Include="Weapon\Bullet_Sniper.h">
-      <Filter>Weapon</Filter>
-    </ClInclude>
     <ClInclude Include="Scene\TitleScene.h">
       <Filter>03Scene</Filter>
     </ClInclude>
@@ -636,6 +624,15 @@
     </ClInclude>
     <ClInclude Include="Scene\SceneBase.h">
       <Filter>03Scene\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\BulletBase.h">
+      <Filter>Weapon\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\GunBase.h">
+      <Filter>Weapon\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\Bullet_Normal.h">
+      <Filter>Weapon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

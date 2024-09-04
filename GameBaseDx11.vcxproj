@@ -211,7 +211,6 @@
     <ClCompile Include="UI\UIBase.cpp" />
     <ClCompile Include="Weapon\BulletBase.cpp" />
     <ClCompile Include="Weapon\Bullet_Normal.cpp" />
-    <ClCompile Include="Weapon\Bullet_Sniper.cpp" />
     <ClCompile Include="Weapon\Gun.cpp" />
     <ClCompile Include="Weapon\GunBase.cpp" />
     <ClCompile Include="Weapon\SniperGun.cpp" />
@@ -305,7 +304,6 @@
     <ClInclude Include="UI\UIBase.h" />
     <ClInclude Include="Weapon\BulletBase.h" />
     <ClInclude Include="Weapon\Bullet_Normal.h" />
-    <ClInclude Include="Weapon\Bullet_Sniper.h" />
     <ClInclude Include="Weapon\Gun.h" />
     <ClInclude Include="Weapon\GunBase.h" />
     <ClInclude Include="Weapon\SniperGun.h" />

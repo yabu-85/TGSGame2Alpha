@@ -10,10 +10,11 @@
 #include "../Screen/TitleScreen.h"
 #include "../Stage/CollisionMap.h"
 #include "../Stage/SkyBox.h"
+#include "../Json/JsonReader.h"
 
 //コンストラクタ
 TitleScene::TitleScene(GameObject * parent)
-	: SceneBase(parent, "TitleScene"), time_(0), stageModel_(0)
+	: SceneBase(parent, "TitleScene"), time_(0), stageModel_(0), lightPos_{ XMFLOAT3(), XMFLOAT3() }
 {
 }
 
@@ -25,7 +26,6 @@ void TitleScene::Initialize()
 	AllDeleteScreen();
 	AddScreen(new TitleScreen());
 
-	Light::SetPosition(0, XMFLOAT4(50.0f, 20.0f, 55.0f, 1.0f));
 	Camera::SetPosition(XMFLOAT3(60.0f, 15.0f, 40.0f), 0);
 	Camera::SetTarget(XMFLOAT3(50.0f, 0.0f, 50.0f), 0);
 	Camera::Update(0);
@@ -35,6 +35,18 @@ void TitleScene::Initialize()
 	CollisionMap* pCollisionMap = Instantiate<CollisionMap>(this);
 	pCollisionMap->SetStageModelList("Json/Stage1.json");
 	stageModel_ = 1;
+
+	//JSONファイル読み込み
+	JsonReader::Load("Json/Stage1.json");
+	auto& stage1 = JsonReader::GetSection("environment");
+	lightPos_[0] = { stage1["lightPosition"]["x"], stage1["lightPosition"]["y"], stage1["lightPosition"]["z"] };
+
+	JsonReader::Load("Json/Stage2.json");
+	auto& stage2 = JsonReader::GetSection("environment");
+	lightPos_[1] = { stage2["lightPosition"]["x"], stage2["lightPosition"]["y"], stage2["lightPosition"]["z"] };
+
+	//LightSet
+	Light::SetPosition(0, XMFLOAT4(lightPos_[0].x, lightPos_[0].y, lightPos_[0].z, 1.0f));
 
 }
 
@@ -50,10 +62,12 @@ void TitleScene::Update()
 	if (time_ % 200 == 0) {
 		if (stageModel_ == 1) {
 			GameManager::GetCollisionMap()->SetStageModelList("Json/Stage2.json");
+			Light::SetPosition(0, XMFLOAT4(lightPos_[1].x, lightPos_[1].y, lightPos_[1].z, 1.0f));
 			stageModel_ = 2;
 		}
 		else if (stageModel_ == 2) {
 			GameManager::GetCollisionMap()->SetStageModelList("Json/Stage1.json");
+			Light::SetPosition(0, XMFLOAT4(lightPos_[0].x, lightPos_[0].y, lightPos_[0].z, 1.0f));
 			stageModel_ = 1;
 		}
 	}

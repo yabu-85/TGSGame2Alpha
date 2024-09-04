@@ -10,7 +10,6 @@
 #include "../Engine/Input.h"
 #include "../Engine/Light.h"
 #include "../Engine/SceneManager.h"
-#include "../Engine/Light.h"
 
 #include "../AI/RouteSearch.h"
 #include "../Enemy/EnemyBase.h"
@@ -94,8 +93,7 @@ void PlayScene::Update()
 
 		//PauseButton‰Ÿ‚µ‚½
 		if (IsPauseButtonDown()) {
-			pScreenList_.front()->SetUIState(SCREEN_STATE::ENDDRAW);
-			SceneBase::Update(); 
+			AllDeleteScreen();
 			isPause_ = false;
 			if (!preStageDraw_) AllChildEnter();
 			return;
