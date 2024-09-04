@@ -41,3 +41,14 @@ public:
 	const char* GetName() const override { return "Climb"; }
 	void Update() override;
 };
+
+class PlayerDead : public StateBase
+{
+	int time_;
+	Player* pPlayer_;
+public:
+	PlayerDead(StateManager* owner);
+	const char* GetName() const override { return "Dead"; }
+	void Update() override;
+	void OnEnter() override;
+};

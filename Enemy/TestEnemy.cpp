@@ -83,6 +83,8 @@ void TestEnemy::Initialize()
 
 void TestEnemy::Update()
 {
+    //Dead”»’è
+    if (IsHealthZero()) KillMe();
 
     //OrientƒeƒXƒg
 #if 1
@@ -159,7 +161,7 @@ void TestEnemy::Update()
             }
             addPos = 0.0f;
         }
-        }
+    }
 
     return;
 

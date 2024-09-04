@@ -7,7 +7,7 @@
 ExitScreen::ExitScreen() : Screen(), hPict_{ -1, -1 }
 {
 	//Image‚Ì‰Šúİ’è
-	const char* fileName[] = { "Image/ExitGame.png", "Image/WhiteFade.png" };
+	const char* fileName[] = { "Image/ExitGame.png", "Image/BlackFade.png" };
 	for (int i = 0; i < 2; i++) {
 		hPict_[i] = Image::Load(fileName[i]);
 		assert(hPict_[i] >= 0);

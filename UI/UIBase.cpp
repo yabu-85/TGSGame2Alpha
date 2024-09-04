@@ -4,7 +4,7 @@
 #include "../Engine/Input.h"
 
 namespace {
-	static const float SELECT_ANIM_FLUCTUATION = 0.02f;			//選択アニメーション中の変動値
+	static const float SELECT_ANIM_FLUCTUATION = 0.03f;		//選択アニメーション中の変動値
 	static const float NOT_SELECT_ANIM_FLUCTUATION = 0.03f;		//選択してないアニメーション中の変動値
 
 }

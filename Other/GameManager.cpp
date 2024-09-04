@@ -13,12 +13,14 @@
 #include "../Other/InputManager.h"
 #include "../UI/DamageUI.h"
 #include "../Scene/SceneBase.h"
+#include "../Json/JsonReader.h"
+#include <fstream>
 
 namespace GameManager {
 	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
 
 	bool isOnePlayer_ = true;
-	bool isPCCtrl_ = true;
+	bool isPCCtrl_ = false;
 	int pcCtrlNumber_ = 0;
 	int drawIndex_ = 0;
 
@@ -31,8 +33,18 @@ namespace GameManager {
 	{
 		InputManager::Initialize();
 
-		isPCCtrl_ = true;
-		pcCtrlNumber_ = 0;
+		//PlayerSettingì«Ç›çûÇ›
+		JsonReader::Load("Json/PlayerSetting.json");
+		auto& player1Section = JsonReader::GetSection("Player1");
+		auto& player2Section = JsonReader::GetSection("Player2");
+		int pcCtrl1 = (player1Section["pcCtrl"]);
+		int pcCtrl2 = (player2Section["pcCtrl"]);
+
+		if (pcCtrl1 || pcCtrl2) {
+			isPCCtrl_ = true;
+			if (pcCtrl1 == 1) pcCtrlNumber_ = 0;
+			else if (pcCtrl2 == 1) pcCtrlNumber_ = 1;
+		}
 
 		if (isOnePlayer_) {
 			Direct3D::SetViewOne();

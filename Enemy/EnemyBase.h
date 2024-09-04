@@ -1,6 +1,11 @@
 #pragma once
 #include "../Character/Character.h"
 
+/*
+テスト用の敵
+f1/f2で出現させることができる
+*/
+
 enum ENEMY_TYPE;
 
 class EnemyBase : public Character

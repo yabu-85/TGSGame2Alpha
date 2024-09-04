@@ -102,3 +102,23 @@ void PlayerClimb::Update()
 
 	if(!pPlayer_->IsClimb()) owner_->ChangeState("Wait");
 }
+
+//------------------------------------------------------------------
+
+PlayerDead::PlayerDead(StateManager* owner) : StateBase(owner), time_(0)
+{
+	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
+}
+
+void PlayerDead::Update()
+{
+	time_++;
+
+}
+
+void PlayerDead::OnEnter()
+{
+	time_ = 0;
+}
+
+//------------------------------------------------------------------

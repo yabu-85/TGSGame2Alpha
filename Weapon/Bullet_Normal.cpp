@@ -70,7 +70,6 @@ void Bullet_Normal::Update()
         //É_ÉÅÅ[ÉWó^Ç¶ÇÈÅiHPÇOà»â∫Ç»ÇÁì|Ç∑ÇÃÇ±Ç±Ç≈Ç‚Ç¡Ç∆Ç≠
         DamageInfo info = DamageInfo(parameter_.damage_);
         pHitChara_->ApplyDamageDirectly(info);
-        if (pHitChara_->IsHealthZero()) pHitChara_->KillMe();
 
         //DamageUI
         DamageUI::AddDamage(transform_.position_, parameter_.damage_, playerId_);
@@ -187,7 +186,7 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
 void Bullet_Normal::HitEffect()
 {
     EFFEKSEERLIB::EFKTransform t;
-    transform_.scale_ = XMFLOAT3(0.2f, 0.2f, 0.2f);
+    transform_.scale_ = XMFLOAT3(0.02f, 0.02f, 0.02f);
     DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
     t.isLoop = false;   //åJÇËï‘Çµ
     t.maxFrame = 80;    //80ÉtÉåÅ[ÉÄ

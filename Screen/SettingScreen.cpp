@@ -9,14 +9,13 @@
 #include "../UI/SliderUI.h"
 #include "../UI/ButtonUI.h"
 #include <fstream>
-#include <cstring> 
-#include <string>
 
-SettingScreen::SettingScreen() : Screen(), hPict_{-1, -1, -1}, aimSliderUI_{nullptr, nullptr}
+SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}
 {
 	//Imageの初期設定
-	const char* fileName[] = { "Image/Stage1.png", "Image/Stage2.png", "Image/StageSelect.png" };
-	for (int i = 0; i < 3; i++) {
+	const char* fileName[] = { "Image/Stage1.png", "Image/Stage2.png", "Image/StageSelect.png", "Image/AimSpeed.png" , "Image/BlackFade.png" };
+	for (int i = 0; i < 5; i++) {
+		hPict_[i] = -1;
 		hPict_[i] = Image::Load(fileName[i]);
 		assert(hPict_[i] >= 0);
 	}
@@ -27,6 +26,11 @@ SettingScreen::SettingScreen() : Screen(), hPict_{-1, -1, -1}, aimSliderUI_{null
 	t.scale_ = XMFLOAT3(0.5f, 0.5f, 0.0f);
 	for(int i = 0;i < 3;i++) Image::SetTransform(hPict_[i], t);
 
+	t.position_ = XMFLOAT3(0.0f, -0.2f, 0.0f);
+	Image::SetTransform(hPict_[3], t);
+
+	Image::SetAlpha(hPict_[4], 100);
+	Image::SetFullScreenTransform(hPict_[4]);
 
 	UIBase* ui = nullptr;
 
@@ -66,7 +70,7 @@ SettingScreen::SettingScreen() : Screen(), hPict_{-1, -1, -1}, aimSliderUI_{null
 	//MouseSence1
 	ui = ui->UIInstantiate<SliderUI>("Setting", XMFLOAT2(-0.525f, -0.3f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
 		{
-			SetAimSensitivity();
+			SetPlayerSetting();
 		});
 	AddUI(ui);
 	aimSliderUI_[0] = static_cast<SliderUI*>(ui);
@@ -74,20 +78,17 @@ SettingScreen::SettingScreen() : Screen(), hPict_{-1, -1, -1}, aimSliderUI_{null
 	//MouseSence2
 	ui = ui->UIInstantiate<SliderUI>("Setting", XMFLOAT2(0.525f, -0.3f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
 		{
-			SetAimSensitivity();
+			SetPlayerSetting();
 		});
 	AddUI(ui);
 	aimSliderUI_[1] = static_cast<SliderUI*>(ui);
 
-	JsonReader::Load("Json/Bullet.json");
-	auto& Bullet_Sniper = JsonReader::GetSection("Bullet_Sniper");
-
 	//PlayerSetting読み込み
 	JsonReader::Load("Json/PlayerSetting.json");
-	auto& gunSection1 = JsonReader::GetSection("Player1");
-	aimSliderUI_[0]->SetGaugeParcent(gunSection1["aimSensitivtiy"]);
-	auto& gunSection2 = JsonReader::GetSection("Player2");
-	aimSliderUI_[1]->SetGaugeParcent(gunSection2["aimSensitivtiy"]);
+	auto& player1Section = JsonReader::GetSection("Player1");
+	aimSliderUI_[0]->SetGaugeParcent(player1Section["aimSensitivtiy"]);
+	auto& player2Section = JsonReader::GetSection("Player2");
+	aimSliderUI_[1]->SetGaugeParcent(player2Section["aimSensitivtiy"]);
 
 }
 
@@ -102,11 +103,17 @@ void SettingScreen::Draw()
 	Direct3D::SetViewOne();
 	Direct3D::SetViewPort(0);
 
+	//Back
+	Image::Draw(hPict_[4]);
+
 	//デバッグPCCTRLNumberの描画
 	if (GameManager::IsPCCtrl()) {
 		if(GameManager::GetPCCtrlNumber() == 0) Image::Draw(hPict_[0]);
 		else Image::Draw(hPict_[1]);
 	}else Image::Draw(hPict_[2]);
+
+	//Aim
+	Image::Draw(hPict_[3]);
 
 	Screen::Draw();
 	
@@ -123,7 +130,7 @@ void SettingScreen::SetPCCtrlOn(int index)
 {
 	GameManager::SetPCCtrlON();
 	GameManager::SetPCCtrlNumber(index);
-
+	SetPlayerSetting();
 }
 
 void SettingScreen::SetPCCtrlOff(int index)
@@ -143,9 +150,11 @@ void SettingScreen::SetPCCtrlOff(int index)
 		//処理終了
 	}
 
+	SetPlayerSetting();
+
 }
 
-void SettingScreen::SetAimSensitivity()
+void SettingScreen::SetPlayerSetting()
 {
 	float aimS1 = aimSliderUI_[0]->GetGaugeParcent();
 	float aimS2 = aimSliderUI_[1]->GetGaugeParcent();
@@ -161,10 +170,14 @@ void SettingScreen::SetAimSensitivity()
 
 	//Player1
 	environmentJson["aimSensitivtiy"] = aimS1;
+	if(GameManager::IsPCCtrl() && GameManager::GetPCCtrlNumber() == 0) environmentJson["pcCtrl"] = 1;
+	else environmentJson["pcCtrl"] = 0;
 	j["Player1"] = environmentJson;
 
 	//Player2
 	environmentJson["aimSensitivtiy"] = aimS2;
+	if (GameManager::IsPCCtrl() && GameManager::GetPCCtrlNumber() == 1) environmentJson["pcCtrl"] = 1;
+	else environmentJson["pcCtrl"] = 0;
 	j["Player2"] = environmentJson;
 
 	std::ofstream ofs("Json/PlayerSetting.json");

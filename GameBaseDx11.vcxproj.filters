@@ -90,6 +90,9 @@
     <Filter Include="Screen\Base">
       <UniqueIdentifier>{9c659a01-fc88-4b16-86d2-b9d6778d5323}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03Scene\Base">
+      <UniqueIdentifier>{bacfa9a0-b375-4681-850f-85408448a95c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\BoxCollider.cpp">
@@ -281,9 +284,6 @@
     <ClCompile Include="Engine\EffekseeLib\EffekseerVFX.cpp">
       <Filter>01Engine\Effekseer</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\SceneBase.cpp">
-      <Filter>03Scene</Filter>
-    </ClCompile>
     <ClCompile Include="Screen\PauseScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
@@ -355,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="Stage\SkyBox.cpp">
       <Filter>Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SceneBase.cpp">
+      <Filter>03Scene\Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -556,9 +559,6 @@
     <ClInclude Include="Engine\EffekseeLib\EffekseerVFX.h">
       <Filter>01Engine\Effekseer</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\SceneBase.h">
-      <Filter>03Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Screen\PauseScreen.h">
       <Filter>Screen</Filter>
     </ClInclude>
@@ -633,6 +633,9 @@
     </ClInclude>
     <ClInclude Include="Stage\SkyBox.h">
       <Filter>Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SceneBase.h">
+      <Filter>03Scene\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

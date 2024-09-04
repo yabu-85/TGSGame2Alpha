@@ -38,9 +38,6 @@ void AudioManager::SetAudioData()
         {"Sound/ButtonPush.wav", false, 3},
         {"Sound/PauseOpen.wav", false, 2},
         {"Sound/PauseClose.wav", false, 2},
-        {"Sound/SwordWield1.wav", false, 3},
-        {"Sound/SwordWield2.wav", false, 3},
-        {"Sound/SwordWield3.wav", false, 3},
         {"Sound/BulletHit.wav", false, 3},
     };
 

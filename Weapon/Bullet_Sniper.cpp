@@ -75,7 +75,6 @@ void Bullet_Sniper::Update()
         info.owner = GetParent();
         info.name = "P_Bullet";
         pHitChara_->ApplyDamageDirectly(info);
-        if (pHitChara_->IsHealthZero()) pHitChara_->KillMe();
 
         //ダメージ与えた通知出す
         pPlayer->OnDamageDealt(info);
@@ -198,7 +197,7 @@ void Bullet_Sniper::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
 void Bullet_Sniper::HitEffect()
 {
     EFFEKSEERLIB::EFKTransform t;
-    transform_.scale_ = XMFLOAT3(0.2f, 0.2f, 0.2f);
+    transform_.scale_ = XMFLOAT3(0.1f, 0.1f, 0.1f);
     DirectX::XMStoreFloat4x4(&(t.matrix), transform_.GetWorldMatrix());
     t.isLoop = false;   //繰り返し
     t.maxFrame = 80;    //80フレーム

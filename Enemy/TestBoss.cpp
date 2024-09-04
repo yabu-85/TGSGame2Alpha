@@ -94,6 +94,9 @@ void TestBoss::Initialize()
 
 void TestBoss::Update()
 {
+    //Dead”»’è
+    if (IsHealthZero()) KillMe();
+    
     pAnimationController_->Update();
 
     if (Input::IsKey(DIK_T)) transform_.position_.x -= 0.5f;

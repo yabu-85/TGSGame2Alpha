@@ -13,10 +13,13 @@ class Player : public Character
     bool isClimb_;              //登り状態かどうか
     bool isCreative_;           //クリエイティブモード
 
-    int playerId_;              //プレイヤー番号
     int hModel_;                //モデル番号
     int hFPSModel_;             //FPS表示用のモデル
+    int hPict_;                 //ダメージエフェクト
+    int playerId_;              //プレイヤー番号
+
     int healthGaugeDrawTime_;   //そのままー
+    int damageDrawTime_;        //ダメージエフェクト表示時間
 
     int waistPart_;             //テストPartのインデックス
     int waistListIndex_[15];    //テストBoneのインデックス
@@ -49,6 +52,10 @@ public:
 
     //ダメージを与えた時
     void OnDamageDealt(const DamageInfo& damageInfo) override;
+
+    //ダメージを与えられた時
+    void OnDamageReceived(const DamageInfo& damageInfo) override;
+
     //HealthGauge表示時間セット
     void SetHealthGaugeDrawTime(int i) { healthGaugeDrawTime_ = i; }
 

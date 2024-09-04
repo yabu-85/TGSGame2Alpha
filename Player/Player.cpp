@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Aim.h"
 #include "../Engine/Model.h"
+#include "../Engine/Image.h"
 #include "../Engine/Global.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
@@ -22,11 +23,12 @@ namespace {
     const float moveGradually = 0.09f;      //移動スピードの加減の値移動時
     const float maxmoveSpeed_ = 0.7f;        //最大移動スピード
     const float rotateRatio = 0.1f;         //通常時のRotateRatio
+    const float JumpPower = 0.12f;          //ジャンプの強さ
+    const float WorldGravity = 0.005f;      //世界の重力
+    const float PlayerHeight = 1.3f;        //プレイヤーの頭の位置（Stageとの判定で使う
+    const float PlayerWaist = 0.4f;         //プレイヤーの上れる高さ
 
-    const float JumpPower = 0.12f;
-    const float WorldGravity = 0.005f;
-    const float PlayerHeight = 1.3f;
-    const float PlayerWaist = 0.4f;
+    const int DAMAGE_DRAW_TIME = 30;      //ダメージエフェクト表示時間
 
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
@@ -38,10 +40,10 @@ namespace {
 Player::Player(GameObject* parent)
     : Character(parent, "Player"), hModel_(-1), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
     playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f),
-    playerId_(0), waistPart_(-1), waistRotateY_(0.0f), hFPSModel_(-1)
+    playerId_(0), waistPart_(-1), waistRotateY_(0.0f), hFPSModel_(-1), healthGaugeDrawTime_(0), damageDrawTime_(0), hPict_(-1)
 {
-    for (int i = 0; i < 8; i++) waistListIndex_[i] = -1;
-
+    for (int i = 0; i < 15; i++) waistListIndex_[i] = -1;
+    for (int i = 0; i < 8; i++) downListIndex_[i] = -1;
 }
 
 Player::~Player()
@@ -55,6 +57,10 @@ void Player::Initialize()
 
     hFPSModel_ = Model::Load("Model/gunFiterFPS.fbx");
     assert(hFPSModel_ >= 0);
+
+    hPict_ = Image::Load("Image/damage.png");
+    assert(hPict_ >= 0);
+    Image::SetFullScreenTransform(hPict_);
 
     //Orient登録
 #if 1
@@ -130,6 +136,7 @@ void Player::Initialize()
     pStateManager_->AddState(new PlayerMove(pStateManager_));
     pStateManager_->AddState(new PlayerJump(pStateManager_));
     pStateManager_->AddState(new PlayerClimb(pStateManager_));
+    pStateManager_->AddState(new PlayerDead(pStateManager_));
     pStateManager_->ChangeState("Wait");
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
@@ -171,6 +178,15 @@ void Player::Update()
     //腰下
     for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
 #endif
+
+    //ダメージエフェクト
+    if (damageDrawTime_ > 0) {
+        damageDrawTime_--;
+        Image::SetAlpha(hPict_, (int)(255.0f * ((float)damageDrawTime_ / (float)DAMAGE_DRAW_TIME) ));
+    }
+
+    //Dead判定
+    if (IsHealthZero() && pStateManager_->GetName() != "Dead") pStateManager_->ChangeState("Dead");
 
     //ステート
     pStateManager_->Update();
@@ -236,6 +252,11 @@ void Player::Draw()
     if (GameManager::GetDrawIndex() == playerId_) {
         Model::SetTransform(hFPSModel_, transform_);
         Model::Draw(hFPSModel_);
+
+        //ダメージエフェクト
+        if (damageDrawTime_ > 0) {
+            Image::Draw(hPict_);
+        }
     }
     //相手の表示
     else {
@@ -263,6 +284,11 @@ void Player::OnDamageDealt(const DamageInfo& damageInfo)
         if (playerId_ == 0) GameManager::GetPlayer(1)->SetHealthGaugeDrawTime(30);
         else GameManager::GetPlayer(0)->SetHealthGaugeDrawTime(30);
     }
+}
+
+void Player::OnDamageReceived(const DamageInfo& damageInfo)
+{
+    damageDrawTime_ = DAMAGE_DRAW_TIME;
 
 }
 

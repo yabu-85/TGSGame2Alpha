@@ -80,7 +80,7 @@ void SliderUI::Draw()
 	//ƒ{ƒ^ƒ“
 	Transform button = imageTransform_;
 	if (isBound_) button.scale_ = Float3Multiply(button.scale_, BOUND_SIZE);
-	Image::SetAlpha(hImagePict_, 100);
+	Image::SetAlpha(hImagePict_, 200);
 	Image::SetTransform(hImagePict_, button);
 	Image::Draw(hImagePict_);
 }

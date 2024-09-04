@@ -91,7 +91,6 @@ void PlayScene::Update()
 	
 	//Pause’†‚Ìˆ—
 	if (isPause_) {
-		SceneBase::Update();
 
 		//PauseButton‰Ÿ‚µ‚½
 		if (IsPauseButtonDown()) {
@@ -102,6 +101,8 @@ void PlayScene::Update()
 			return;
 		}
 
+		SceneBase::Update();
+		
 		//PauseI—¹‚Ìˆ—
 		if (pScreenList_.empty()) {
 			isPause_ = false;
@@ -134,7 +135,7 @@ void PlayScene::Update()
 	}
 
 	//ƒQ[ƒ€Ÿ—˜”»’è
-	if (GameManager::GetPlayer(0)->IsDead() || GameManager::GetPlayer(1)->IsDead()) {
+	if (GameManager::GetPlayer(0)->IsHealthZero() || GameManager::GetPlayer(1)->IsHealthZero()) {
 		endTime_--;
 		if (endTime_ <= 0) {
 			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");

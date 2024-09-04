@@ -5,7 +5,7 @@ class SliderUI;
 
 class SettingScreen : public Screen
 {
-	int hPict_[3];
+	int hPict_[5];
 	SliderUI* aimSliderUI_[2];
 
 	//PCCtrl
@@ -13,7 +13,7 @@ class SettingScreen : public Screen
 	void SetPCCtrlOff(int index);
 	
 	//AimSensitivity
-	void SetAimSensitivity();
+	void SetPlayerSetting();
 
 public:
 	SettingScreen();
