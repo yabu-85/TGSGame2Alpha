@@ -6,6 +6,7 @@ class Aim;
 class GunBase;
 class StateManager;
 class CapsuleCollider;
+class FixedHealthGauge;
 
 class Player : public Character
 {
@@ -38,6 +39,7 @@ class Player : public Character
     GunBase* pGunBase_;
     StateManager* pStateManager_;
     CapsuleCollider* pCapsuleCollider_;
+    FixedHealthGauge* pFixedHealthGauge_;
 
     //ä÷êî
     void CalcRotate(XMFLOAT3 pos, float ratio);
@@ -95,6 +97,7 @@ public:
     int GetPlayerId() { return playerId_; }
     Aim* GetAim() { return pAim_; }
     GunBase* GetGun() { return pGunBase_; }
+    FixedHealthGauge* GetFixedHealthGauge() { return pFixedHealthGauge_; }
 
 };
 

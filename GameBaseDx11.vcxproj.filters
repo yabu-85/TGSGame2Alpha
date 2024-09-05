@@ -302,9 +302,6 @@
     <ClCompile Include="Enemy\TestBoss.cpp">
       <Filter>Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="UI\BossHealthGauge.cpp">
-      <Filter>UI\Gauge</Filter>
-    </ClCompile>
     <ClCompile Include="UI\HealthGauge.cpp">
       <Filter>UI\Gauge</Filter>
     </ClCompile>
@@ -358,6 +355,12 @@
     </ClCompile>
     <ClCompile Include="Weapon\Bullet_Normal.cpp">
       <Filter>Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\FixedHealthGauge.cpp">
+      <Filter>UI\Gauge</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\BulletInfoDisplay.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -577,9 +580,6 @@
     <ClInclude Include="Engine\SceneManager.h">
       <Filter>01Engine</Filter>
     </ClInclude>
-    <ClInclude Include="UI\BossHealthGauge.h">
-      <Filter>UI\Gauge</Filter>
-    </ClInclude>
     <ClInclude Include="UI\HealthGauge.h">
       <Filter>UI\Gauge</Filter>
     </ClInclude>
@@ -633,6 +633,12 @@
     </ClInclude>
     <ClInclude Include="Weapon\Bullet_Normal.h">
       <Filter>Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\FixedHealthGauge.h">
+      <Filter>UI\Gauge</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\BulletInfoDisplay.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

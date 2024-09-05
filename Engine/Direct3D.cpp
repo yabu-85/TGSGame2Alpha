@@ -528,7 +528,7 @@ namespace Direct3D
 	{
 		//描画先を設定
 		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
-
+		
 		//画面をクリアと深度バッファクリア
 		float clearColor[4] = { 0.1f, 0.2f, 0.2f, 1.0f };//R,G,B,A
 		pContext_->ClearRenderTargetView(pRenderTargetView_, clearColor);

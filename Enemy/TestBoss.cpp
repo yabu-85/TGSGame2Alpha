@@ -8,7 +8,7 @@
 #include "../Character/DamageSystem.h"
 #include "../Animation/AnimationController.h"
 #include "../Animation/TestBossNotify.h"
-#include "../UI/BossHealthGauge.h"
+#include "../UI/FixedHealthGauge.h"
 #include "../Other/GameManager.h"
 #include "../Other/VFXManager.h"
 
@@ -41,9 +41,8 @@ void TestBoss::Initialize()
     SetMaxHP(1000);
     SetHP(1000);
 
-    pHealthGauge_ = new BossHealthGauge(this);
+    pHealthGauge_ = new FixedHealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.2f, 0.8f));
-
 
     XMVECTOR vec = { 0.0f, 0.0f, 0.0f, 0.0f };
     XMFLOAT3 center = XMFLOAT3();

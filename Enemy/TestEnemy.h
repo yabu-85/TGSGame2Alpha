@@ -2,7 +2,6 @@
 #include "EnemyBase.h"
 #include <vector>
 
-class HealthGauge;
 class DamageSystem;
 class MoveAction;
 class AstarMoveAction;

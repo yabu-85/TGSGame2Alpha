@@ -30,7 +30,8 @@ void HealthGauge::SetGaugeAlpha(int value, int index)
 	Image::SetAlpha(hPict_[1], gaugeAlpha_[index]);
 }
 
-HealthGauge::HealthGauge(Character* parent) : parcent_(1.0f), gaugeAlpha_{ 0, 0 }, isDraw_(true), pParent_(parent), visuallyTime_{0, 0}, offsetPosition_{0.0f, 0.0f}
+HealthGauge::HealthGauge(Character* parent, XMFLOAT2 size) 
+	: parcent_(1.0f), gaugeAlpha_{ 0, 0 }, isDraw_(true), pParent_(parent), visuallyTime_{0, 0}, offsetPosition_{0.0f, 0.0f}
 {
 	std::string fileName[] = { "Gauge", "GaugeFrame" };
 	for (int i = 0; i < 2; i++) {
@@ -39,8 +40,8 @@ HealthGauge::HealthGauge(Character* parent) : parcent_(1.0f), gaugeAlpha_{ 0, 0 
 	}
 
 	halfSize = PngSizeX / (float)Direct3D::screenWidth_ * (DEFAULT_SIZE_X / 2.0f);
-	transform_.scale_.x = DEFAULT_SIZE_X;
-	transform_.scale_.y = DEFAULT_SIZE_Y;
+	transform_.scale_.x = DEFAULT_SIZE_X * size.x;
+	transform_.scale_.y = DEFAULT_SIZE_Y * size.y;
 }
 
 HealthGauge::~HealthGauge()

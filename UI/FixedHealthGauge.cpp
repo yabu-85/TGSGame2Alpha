@@ -1,4 +1,4 @@
-#include "BossHealthGauge.h"
+#include "FixedHealthGauge.h"
 #include "../Engine/Image.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/Camera.h"
@@ -9,15 +9,15 @@ namespace {
 	static const int ALPHA_VALUE = 30;
 }
 
-BossHealthGauge::BossHealthGauge(Character* parent) : HealthGauge(parent)
+FixedHealthGauge::FixedHealthGauge(Character* parent, XMFLOAT2 size) : HealthGauge(parent, size)
 {
 }
 
-BossHealthGauge::~BossHealthGauge()
+FixedHealthGauge::~FixedHealthGauge()
 {
 }
 
-void BossHealthGauge::Draw(int index)
+void FixedHealthGauge::Draw(int index)
 {
 	transform_.position_.x = offsetPosition_.x;
 	transform_.position_.y = offsetPosition_.y;

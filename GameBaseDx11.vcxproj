@@ -203,9 +203,10 @@
     <ClCompile Include="State\PlayerState.cpp" />
     <ClCompile Include="State\StateManager.cpp" />
     <ClCompile Include="UI\AimCursor.cpp" />
-    <ClCompile Include="UI\BossHealthGauge.cpp" />
+    <ClCompile Include="UI\BulletInfoDisplay.cpp" />
     <ClCompile Include="UI\ButtonUI.cpp" />
     <ClCompile Include="UI\DamageUI.cpp" />
+    <ClCompile Include="UI\FixedHealthGauge.cpp" />
     <ClCompile Include="UI\HealthGauge.cpp" />
     <ClCompile Include="UI\SliderUI.cpp" />
     <ClCompile Include="UI\UIBase.cpp" />
@@ -296,9 +297,10 @@
     <ClInclude Include="State\StateBase.h" />
     <ClInclude Include="State\StateManager.h" />
     <ClInclude Include="UI\AimCursor.h" />
-    <ClInclude Include="UI\BossHealthGauge.h" />
+    <ClInclude Include="UI\BulletInfoDisplay.h" />
     <ClInclude Include="UI\ButtonUI.h" />
     <ClInclude Include="UI\DamageUI.h" />
+    <ClInclude Include="UI\FixedHealthGauge.h" />
     <ClInclude Include="UI\HealthGauge.h" />
     <ClInclude Include="UI\SliderUI.h" />
     <ClInclude Include="UI\UIBase.h" />

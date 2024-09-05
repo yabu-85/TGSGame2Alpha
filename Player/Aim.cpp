@@ -13,7 +13,7 @@
 #include <vector>
 
 namespace {
-    bool FPSAimMode = true;
+    bool FPSAimMode = false;
 
     const float UP_MOUSE_LIMIT = -80.0f;                     //‰ñ“]ŒÀŠE’l
     const float DOWN_MOUSE_LIMIT = 60.0f;                    //‰ñ“]ŒÀŠE’l

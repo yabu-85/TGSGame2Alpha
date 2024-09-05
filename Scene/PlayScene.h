@@ -17,6 +17,9 @@ class PlayScene : public SceneBase
 	int time_;						//経過時間
 	int endTime_;					//終了待ち時間
 
+	XMFLOAT3 preDrawCameraPos_;		//始まる前描画のカメラPosition
+	XMFLOAT3 preDrawCameraTar_;		//始まる前描画のカメラTarget
+
 	Player* pPlayer_[2];
 	AimCursor* pAimCursor_[2];
 

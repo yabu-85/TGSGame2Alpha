@@ -14,6 +14,7 @@
 #include "../Stage/StageEditor.h"
 #include "../Other/GameManager.h"
 #include "../UI/HealthGauge.h"
+#include "../UI/FixedHealthGauge.h"
 #include "../Character/DamageSystem.h"
 #include "../Weapon/Gun.h"
 #include "../Weapon/SniperGun.h"
@@ -63,7 +64,6 @@ void Player::Initialize()
     Image::SetFullScreenTransform(hPict_);
 
     //Orient登録
-#if 1
     waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
     std::pair<std::string, std::string> boneNameList[] = {
         { "upper_arm.R",    "" },
@@ -95,10 +95,8 @@ void Player::Initialize()
         { "foot.L",     "thigh.L" },
         { "toe.L",      "thigh.L" },
     };
-
     orientBoneSize = (int)sizeof(boneNameList) / sizeof(boneNameList[0]);
     downOrientBoneSize = (int)sizeof(boneDownNameList) / sizeof(boneDownNameList[0]);
-
     for (int i = 0; i < orientBoneSize;i++) {
         waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneNameList[i].first, boneNameList[i].second);
         Model::AddOrientRotateBone(hFPSModel_, boneNameList[i].first, boneNameList[i].second);
@@ -106,7 +104,6 @@ void Player::Initialize()
     for (int i = 0; i < downOrientBoneSize; i++) {
         downListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneDownNameList[i].first, boneDownNameList[i].second);
     }
-#endif
 
     //PlayerIDセット
     if (GameManager::GetPlayer(0)) playerId_ = 1;
@@ -123,14 +120,19 @@ void Player::Initialize()
     
     SetMaxHP(100);
     SetHP(100);
-    
+    moveSpeed_ = 0.07f;
+    Direct3D::playerSpeed = moveSpeed_;
+
+    //HealthGauge
+    pFixedHealthGauge_ = new FixedHealthGauge(this, XMFLOAT2(3.0f, 2.0f));
+    pFixedHealthGauge_->SetOffSetPosition(XMFLOAT2(-0.8f, -0.9f));
+
     pHealthGauge_ = new HealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
-    moveSpeed_ = 0.07f;
 
     pAim_ = Instantiate<Aim>(this);
-    pGunBase_ = Instantiate<Gun>(this);
-    //pGunBase_ = Instantiate<SniperGun>(this);
+    if (playerId_ == 0 ) pGunBase_ = Instantiate<Gun>(this);
+    if (playerId_ == 1 ) pGunBase_ = Instantiate<SniperGun>(this);
     
     pStateManager_ = new StateManager(this);
     pStateManager_->AddState(new PlayerWait(pStateManager_));
@@ -145,7 +147,6 @@ void Player::Initialize()
     pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(pCapsuleCollider_);
 
-    Direct3D::playerSpeed = moveSpeed_;
 }
 
 void Player::Update()
@@ -170,15 +171,12 @@ void Player::Update()
         return;
     }
 
-    //Orientテスト
-#if 1
-    //上下視点
+    //Orient上下視点
     waistRotateX_ = -pAim_->GetRotate().x;
     for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
     for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    //腰下
+    //Orient腰下
     for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
-#endif
 
     //ダメージエフェクト
     if (damageDrawTime_ > 0) {

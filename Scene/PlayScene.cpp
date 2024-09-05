@@ -17,8 +17,11 @@
 #include "../Enemy/TestEnemy.h"
 #include "../UI/DamageUI.h"
 #include "../UI/AimCursor.h"
+#include "../UI/FixedHealthGauge.h"
+#include "../UI/BulletInfoDisplay.h"
 #include "../Other/GameManager.h"
 #include "../Other/InputManager.h"
+#include "../UI/BulletInfoDisplay.h"
 
 STAGE_TYPE PlayScene::stageType_ = STAGE_PLANE;
 
@@ -29,7 +32,8 @@ namespace {
 
 //コンストラクタ
 PlayScene::PlayScene(GameObject * parent)
-	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), endTime_(0), pPlayer_{ nullptr, nullptr }, preStageDraw_(true)
+	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), endTime_(0), pPlayer_{ nullptr, nullptr }, preStageDraw_(true),
+	preDrawCameraPos_(XMFLOAT3()), preDrawCameraTar_(XMFLOAT3()), isPause_(false)
 {
 }
 
@@ -45,6 +49,9 @@ void PlayScene::Initialize()
 	Stage* pStage = Instantiate<Stage>(this);
 	pPlayer_[0] = Instantiate<Player>(this);
 	pPlayer_[1] = Instantiate<Player>(this);
+
+	BulletInfoDisplay* bulletInfo = Instantiate< BulletInfoDisplay>(this);
+
 
 	//Stage情報読み込み
 	if (pStage) {
@@ -142,30 +149,6 @@ void PlayScene::Update()
 		return;
 	}
 
-	//デバッグ用
-	{
-		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
-		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_TEST);
-		if (Input::IsKeyDown(DIK_F3)) {
-			EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
-			EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestBossEnemy")));
-		}
-		if (Input::IsKeyDown(DIK_F4)) {
-			OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
-			OutputDebugString("\n");
-		}
-
-		static const float speed = 0.3f;
-		XMFLOAT4 pos = Light::GetPosition(0);
-		if (Input::IsKey(DIK_LEFTARROW)) pos.x += speed;
-		if (Input::IsKey(DIK_RIGHTARROW)) pos.x -= speed;
-		if (Input::IsKey(DIK_UPARROW)) pos.z += speed;
-		if (Input::IsKey(DIK_DOWNARROW)) pos.z -= speed;
-		if (Input::IsKey(DIK_E)) pos.y += speed;
-		if (Input::IsKey(DIK_Q)) pos.y -= speed;
-		Light::SetPosition(0, pos);
-	}
-
 }
 
 //描画
@@ -190,7 +173,15 @@ void PlayScene::IndividualUIDraw(int index)
 	SceneBase::IndividualUIDraw(index);
 	
 	//AimCursor
-	if (pAimCursor_[index]) pAimCursor_[index]->Draw();
+	if (!preStageDraw_ && !isPause_ && pAimCursor_[index]) pAimCursor_[index]->Draw();
+
+	//HealthGauge
+	if (!preStageDraw_ && pPlayer_[index]) {
+		float r = (float)pPlayer_[index]->GetHP() / (float)pPlayer_[index]->GetMaxHP();
+		pPlayer_[index]->GetFixedHealthGauge()->SetParcent(r);
+		pPlayer_[index]->GetFixedHealthGauge()->Draw(GameManager::GetDrawIndex());
+	}
+
 }
 
 bool PlayScene::IsPauseButtonDown()

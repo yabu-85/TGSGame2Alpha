@@ -41,7 +41,7 @@ namespace GameManager
 	void CommonDraw();				//‹¤’Ê‚Ì•`‰æ
 	void IndividualDraw(int index);	//ŒÂ•Ê‚Ì•`‰æ
 	void ImGuiDraw();				//Imgui‚Ì•`‰æ
-	void ShadoDraw();				//‰e‚Ì•`‰æ
+	void ShadowDraw();				//‰e‚Ì•`‰æ
 	void OnePlayerDraw();			//ˆêl—p•`‰æ
 	void TwoPlayerDraw();			//“ñl—p•`‰æ	
 

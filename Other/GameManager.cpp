@@ -156,7 +156,7 @@ namespace GameManager {
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void ShadoDraw()
+	void ShadowDraw()
 	{	
 		XMFLOAT3 pos = Camera::GetPosition(0);
 		XMFLOAT3 tar = Camera::GetTarget(0);
@@ -167,7 +167,7 @@ namespace GameManager {
 		Direct3D::lightViewMatrix = Camera::GetViewMatrix();
 
 		Direct3D::BeginDraw();
-		pRootObject_->DrawSub();
+		//pRootObject_->DrawSub();
 		Direct3D::EndDraw();
 		Camera::SetPosition(pos, 0);
 		Camera::SetTarget(tar, 0);
@@ -177,11 +177,15 @@ namespace GameManager {
 	void OnePlayerDraw()
 	{
 		drawIndex_ = 0;
-		ShadoDraw();
+
+		Direct3D::SetViewPort(0);
+		Direct3D::SetViewOne();
+		Camera::SetOneProjectionMatrix();
+
+		//ShadowDraw();
 		
 		Direct3D::BeginDraw2();
 		Camera::Update(0);
-		Camera::SetOneProjectionMatrix();
 		pRootObject_->DrawSub();
 		EFFEKSEERLIB::gEfk->Draw();
 		GameManager::IndividualDraw(0);
@@ -196,7 +200,9 @@ namespace GameManager {
 	void TwoPlayerDraw()
 	{
 		Camera::SetTwoProjectionMatrix();
-		ShadoDraw();
+		Direct3D::SetViewTwo();
+
+		//ShadowDraw();
 
 		Direct3D::BeginDraw2();
 		Direct3D::SetViewTwo();

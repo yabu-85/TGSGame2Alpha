@@ -19,7 +19,7 @@ protected:
 	void SetGaugeAlpha(int value, int index);
 
 public:
-	HealthGauge(Character* parent);
+	HealthGauge(Character* parent, XMFLOAT2 size = XMFLOAT2(1.0f, 1.0f));
 	virtual ~HealthGauge();
 	virtual void Draw(int index);
 
