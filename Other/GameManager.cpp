@@ -182,7 +182,7 @@ namespace GameManager {
 		Direct3D::SetViewOne();
 		Camera::SetOneProjectionMatrix();
 
-		//ShadowDraw();
+		ShadowDraw();
 		
 		Direct3D::BeginDraw2();
 		Camera::Update(0);
@@ -202,7 +202,7 @@ namespace GameManager {
 		Camera::SetTwoProjectionMatrix();
 		Direct3D::SetViewTwo();
 
-		//ShadowDraw();
+		ShadowDraw();
 
 		Direct3D::BeginDraw2();
 		Direct3D::SetViewTwo();

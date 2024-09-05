@@ -149,6 +149,29 @@ void PlayScene::Update()
 		return;
 	}
 
+	//デバッグ用
+	{
+		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
+		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_TEST);
+		if (Input::IsKeyDown(DIK_F3)) {
+			EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
+			EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestBossEnemy")));
+		}
+		if (Input::IsKeyDown(DIK_F4)) {
+			OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
+			OutputDebugString("\n");
+		}
+
+		static const float speed = 0.3f;
+		XMFLOAT4 pos = Light::GetPosition(0);
+		if (Input::IsKey(DIK_LEFTARROW)) pos.x += speed;
+		if (Input::IsKey(DIK_RIGHTARROW)) pos.x -= speed;
+		if (Input::IsKey(DIK_UPARROW)) pos.z += speed;
+		if (Input::IsKey(DIK_DOWNARROW)) pos.z -= speed;
+		if (Input::IsKey(DIK_E)) pos.y += speed;
+		if (Input::IsKey(DIK_Q)) pos.y -= speed;
+		Light::SetPosition(0, pos);
+	}
 }
 
 //描画
