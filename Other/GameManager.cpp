@@ -176,16 +176,15 @@ namespace GameManager {
 
 	void OnePlayerDraw()
 	{
-		drawIndex_ = 0;
-
 		Direct3D::SetViewPort(0);
 		Direct3D::SetViewOne();
 		Camera::SetOneProjectionMatrix();
-
+		drawIndex_ = 0;
 		ShadowDraw();
 		
 		Direct3D::BeginDraw2();
 		Camera::Update(0);
+		Camera::SetOneProjectionMatrix(); 
 		pRootObject_->DrawSub();
 		EFFEKSEERLIB::gEfk->Draw();
 		GameManager::IndividualDraw(0);
@@ -199,13 +198,11 @@ namespace GameManager {
 
 	void TwoPlayerDraw()
 	{
-		Camera::SetTwoProjectionMatrix();
 		Direct3D::SetViewTwo();
-
+		Camera::SetTwoProjectionMatrix();
 		ShadowDraw();
 
 		Direct3D::BeginDraw2();
-		Direct3D::SetViewTwo();
 		for (int i = 0; i < 2; i++) {
 			drawIndex_ = i;
 			Direct3D::SetViewPort(i);

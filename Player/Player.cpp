@@ -125,7 +125,7 @@ void Player::Initialize()
 
     //HealthGauge
     pFixedHealthGauge_ = new FixedHealthGauge(this, XMFLOAT2(3.0f, 2.0f));
-    pFixedHealthGauge_->SetOffSetPosition(XMFLOAT2(-0.8f, -0.9f));
+    pFixedHealthGauge_->SetOffSetPosition(XMFLOAT2(-0.8f, -0.8f));
 
     pHealthGauge_ = new HealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));

@@ -26,6 +26,7 @@
 STAGE_TYPE PlayScene::stageType_ = STAGE_PLANE;
 
 namespace {
+	const int PRE_STAGE_DRAW_TIME = 30;
 	const int END_TIME_DEFAULT = 60;
 
 }
@@ -50,8 +51,8 @@ void PlayScene::Initialize()
 	pPlayer_[0] = Instantiate<Player>(this);
 	pPlayer_[1] = Instantiate<Player>(this);
 
-	BulletInfoDisplay* bulletInfo = Instantiate< BulletInfoDisplay>(this);
-
+	pBulletInfoDisplay_[0] = Instantiate< BulletInfoDisplay>(this);
+	pBulletInfoDisplay_[1] = Instantiate< BulletInfoDisplay>(this);
 
 	//Stageî•ñ“Ç‚Ýž‚Ý
 	if (pStage) {
@@ -123,7 +124,7 @@ void PlayScene::Update()
 	//ƒQ[ƒ€ŠJŽn‘O‚ÌStage•`‰æ
 	time_++;
 	if (preStageDraw_) {
-		if (time_ == 300) {
+		if (time_ == PRE_STAGE_DRAW_TIME) {
 			//Update‚Ì‹–‰Â
 			AllChildEnter();
 
@@ -203,6 +204,10 @@ void PlayScene::IndividualUIDraw(int index)
 		float r = (float)pPlayer_[index]->GetHP() / (float)pPlayer_[index]->GetMaxHP();
 		pPlayer_[index]->GetFixedHealthGauge()->SetParcent(r);
 		pPlayer_[index]->GetFixedHealthGauge()->Draw(GameManager::GetDrawIndex());
+	
+		pBulletInfoDisplay_[index]->SetCurrentMagazine(pPlayer_[index]->GetGun()->GetCurrentMagazineCount());
+		pBulletInfoDisplay_[index]->SetMaxMagazine(pPlayer_[index]->GetGun()->GetMaxMagazineCount());
+		pBulletInfoDisplay_[index]->DrawBullet();
 	}
 
 }

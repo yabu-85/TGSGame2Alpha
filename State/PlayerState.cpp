@@ -118,14 +118,17 @@ void PlayerDead::Update()
 
 void PlayerDead::OnEnter()
 {
-	time_ = 0
-		;
+	time_ = 0;
+
+	Transform pTrans;
+	pTrans.position_ = pPlayer_->GetPosition();
+
 	EFFEKSEERLIB::EFKTransform t;
-	DirectX::XMStoreFloat4x4(&(t.matrix), pPlayer_->GetWorldMatrix());
+	DirectX::XMStoreFloat4x4(&(t.matrix), pTrans.GetWorldMatrix());
 	t.isLoop = false;   //繰り返し
 	t.maxFrame = 80;    //80フレーム
 	t.speed = 1.0;      //スピード
-	EFFEKSEERLIB::gEfk->Play("HIT", t);
+	EFFEKSEERLIB::gEfk->Play("FEATHER", t);
 
 }
 

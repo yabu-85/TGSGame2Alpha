@@ -1,10 +1,19 @@
 #include "BulletInfoDisplay.h"
 #include "../Engine/Image.h"
 
+namespace {
+    XMFLOAT3 MAGAZINE_DRAW_POS = XMFLOAT3(0.4f, -0.8f, 0.0f);    //左端の座標
+    float MAGAZINE_ADD_POS = 0.08f;                             //文字間のサイズ
+
+    XMFLOAT3 MAGAZINE_SIZE = XMFLOAT3(1.0f, 1.0f, 1.0f);        //マガジン画像のサイズ
+    XMFLOAT3 MAGAZINE_CENTER_SIZE = XMFLOAT3(0.6f, 0.25f, 1.0f); //マガジン中心画像のサイズ
+
+}
+
 BulletInfoDisplay::BulletInfoDisplay(GameObject* parent)
-    :GameObject(parent, "BulletInfoDisplay"), drawX_(10), drawY_(20)
+    : GameObject(parent, "BulletInfoDisplay"), currentMagazine_(0), maxMagazine_(0)
 {
-    for (int i = 0; i < pictSize; i++) { hPict_[i] = -1; };
+    for (int i = 0; i < 10 + MAX; i++) { hPict_[i] = -1; };
 }
 
 BulletInfoDisplay::~BulletInfoDisplay()
@@ -13,6 +22,7 @@ BulletInfoDisplay::~BulletInfoDisplay()
 
 void BulletInfoDisplay::Initialize()
 {
+    //Imageの初期設定
     for (int i = 0; i < 10; i++) {
         std::string fileName = "Image/Time/Time";
         fileName = fileName + std::to_string(i);
@@ -20,6 +30,13 @@ void BulletInfoDisplay::Initialize()
         hPict_[i] = Image::Load(fileName);
         assert(hPict_[i] >= 0);
     }
+
+    const char* fileName[MAX] = { "Image/MagazineCenter.png" };
+    for (int i = 0; i < MAX; i++) {
+        hPict_[9 + i + 1] = Image::Load(fileName[i]);
+        assert(hPict_[9 + i + 1] >= 0);
+    }
+
 }
 
 void BulletInfoDisplay::Update()
@@ -29,35 +46,47 @@ void BulletInfoDisplay::Update()
 //描画
 void BulletInfoDisplay::Draw()
 {
-    int sec = 123;
-    int firstDigit = sec % 10;                          //一の位
-    int secondDigit = (sec / 10) % 10;                  //十の位の数字を取得
-    int third = (sec / 100);
-
-    //左の一の位
-    Transform pic1 = transform_;
-    pic1.scale_.x += 1.2f;
-    pic1.scale_.y += 1.2f;
-    pic1.position_ = { 0.0f, 0.8f, 0.0f };
-    Image::SetTransform(hPict_[firstDigit], pic1);
-    Image::Draw(hPict_[firstDigit]);
-
-    //左の十の位
-    Transform pic2 = pic1;
-    pic2.position_.x -= 0.09f;
-    Image::SetTransform(hPict_[secondDigit], pic2);
-    Image::Draw(hPict_[secondDigit]);
-
-    //左の百の位
-    Transform pic3 = pic1;
-    pic3 = pic1;
-    pic3.position_.x -= 0.18f;
-    Image::SetTransform(hPict_[third], pic3);
-    Image::Draw(hPict_[third]);
-
 }
 
 //開放
 void BulletInfoDisplay::Release()
 {
+}
+
+void BulletInfoDisplay::DrawBullet()
+{
+    //十の位
+    Transform picTrans = transform_;
+    picTrans.position_ = MAGAZINE_DRAW_POS;
+    picTrans.scale_ = MAGAZINE_SIZE;
+    int secondDigit = (currentMagazine_ / 10) % 10;
+    Image::SetTransform(hPict_[secondDigit], picTrans);
+    Image::Draw(hPict_[secondDigit]);
+
+    //一の位
+    picTrans.position_.x += MAGAZINE_ADD_POS;
+    int firstDigit = currentMagazine_ % 10;
+    Image::SetTransform(hPict_[firstDigit], picTrans);
+    Image::Draw(hPict_[firstDigit]);
+
+    //中心の画像------------------------------
+    picTrans.position_.x += MAGAZINE_ADD_POS;
+    picTrans.scale_ = MAGAZINE_CENTER_SIZE;
+    Image::SetTransform(hPict_[9 + CENTER + 1], picTrans);
+    Image::Draw(hPict_[9 + CENTER + 1]);
+
+    //最大マガジンサイズ----------------------
+    //十の位
+    picTrans.position_.x += MAGAZINE_ADD_POS;
+    picTrans.scale_ = MAGAZINE_SIZE;
+    secondDigit = (maxMagazine_ / 10) % 10;
+    Image::SetTransform(hPict_[secondDigit], picTrans);
+    Image::Draw(hPict_[secondDigit]);
+
+    //一の位
+    firstDigit = maxMagazine_ % 10;
+    picTrans.position_.x += MAGAZINE_ADD_POS;
+    Image::SetTransform(hPict_[firstDigit], picTrans);
+    Image::Draw(hPict_[firstDigit]);
+
 }

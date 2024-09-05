@@ -56,6 +56,9 @@ public:
     bool IsPeeking() { return isPeeking_; }
     AimCursor* GetAimCursor() { return pAimCursor_; }
 
+    int GetCurrentMagazineCount() { return currentMagazineCount_; }
+    int GetMaxMagazineCount() { return magazineCount_; }
+
     //e’e‚ğ¶¬‚·‚é
     template<class T>
     inline BulletBase* ShotBullet(std::string jsonName)

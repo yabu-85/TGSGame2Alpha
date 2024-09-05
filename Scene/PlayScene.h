@@ -3,6 +3,7 @@
 
 class AimCursor;
 class Player;
+class BulletInfoDisplay;
 
 enum STAGE_TYPE {
 	STAGE_PLANE = 0,
@@ -22,6 +23,7 @@ class PlayScene : public SceneBase
 
 	Player* pPlayer_[2];
 	AimCursor* pAimCursor_[2];
+	BulletInfoDisplay* pBulletInfoDisplay_[2];
 
 	static STAGE_TYPE stageType_;	//今のステージのタイプ（これから出すステージのタイプ）
 
