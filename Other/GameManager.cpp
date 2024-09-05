@@ -167,7 +167,7 @@ namespace GameManager {
 		Direct3D::lightViewMatrix = Camera::GetViewMatrix();
 
 		Direct3D::BeginDraw();
-		//pRootObject_->DrawSub();
+		pRootObject_->DrawSub();
 		Direct3D::EndDraw();
 		Camera::SetPosition(pos, 0);
 		Camera::SetTarget(tar, 0);

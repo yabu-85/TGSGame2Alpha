@@ -7,6 +7,7 @@ namespace VFXManager {
         EFFEKSEERLIB::gEfk->AddEffect("HIT", "Particle/hit.efk");
         EFFEKSEERLIB::gEfk->AddEffect("TAMA", "Particle/blurParticle.efk");
         EFFEKSEERLIB::gEfk->AddEffect("GUNSHOT", "Particle/gunShot.efk");
+        EFFEKSEERLIB::gEfk->AddEffect("FEATHER", "Particle/featherBomb.efk");
 
     }
 

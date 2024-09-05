@@ -30,7 +30,6 @@ void BulletInfoDisplay::Update()
 void BulletInfoDisplay::Draw()
 {
     int sec = 123;
-
     int firstDigit = sec % 10;                          //ˆê‚ÌˆÊ
     int secondDigit = (sec / 10) % 10;                  //\‚ÌˆÊ‚Ì”š‚ğæ“¾
     int third = (sec / 100);

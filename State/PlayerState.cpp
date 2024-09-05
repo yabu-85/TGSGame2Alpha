@@ -118,7 +118,15 @@ void PlayerDead::Update()
 
 void PlayerDead::OnEnter()
 {
-	time_ = 0;
+	time_ = 0
+		;
+	EFFEKSEERLIB::EFKTransform t;
+	DirectX::XMStoreFloat4x4(&(t.matrix), pPlayer_->GetWorldMatrix());
+	t.isLoop = false;   //繰り返し
+	t.maxFrame = 80;    //80フレーム
+	t.speed = 1.0;      //スピード
+	EFFEKSEERLIB::gEfk->Play("HIT", t);
+
 }
 
 //------------------------------------------------------------------
