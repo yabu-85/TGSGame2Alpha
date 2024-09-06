@@ -3,21 +3,26 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/Camera.h"
 #include "../Engine/Text.h"
+#include "../Engine/Image.h"
+#include "../Engine/Global.h"
 #include "../Other/GameManager.h"
 #include <vector>
 
 namespace {
+	const int	ALPHA_REDUCE = 25;			//透明度下げる値
+	const float TIME_REDUCE = 0.03f;		//Time下げる値
+	const float KILL_THRESHOLD = 0.2f;		//消える時間のしきい値
+
+	//DamageText
+	const float RIZE_VALUE = 0.02f;			//上昇値
+	const float RANDOM_POS_MAX = 0.3f;		//0～Xのランダムな値の最大値
+
 	const XMFLOAT3 ONE_TEXT_SCALE = XMFLOAT3(0.7f, 0.7f, 1.0f);	//分割無し文字サイズ
 	const XMFLOAT3 TWO_TEXT_SCALE = XMFLOAT3(1.0f, 0.7f, 1.0f);	//分割あり文字サイズ
 	const float TEXT_POSITION_Y = 0.4f;							//文字ポジション
 
-	const int	ALPHA_REDUCE = 25;							//透明度下げる値
-	const float TIME_REDUCE = 0.03f;						//Time下げる値
-	const float RANDOM_POS_MAX = 0.3f;						//0～Xのランダムな値の最大値
-
-	//消える時のアニメーション
-	const float KILL_THRESHOLD = 0.2f;	//消える時間のしきい値
-	const float RIZE_VALUE = 0.02f;		//上昇値
+	//DirectionDamage
+	const XMFLOAT3 DIRECTION_SCALE = XMFLOAT3(0.3f, 0.3f, 1.0f);
 
 }
 
@@ -28,9 +33,18 @@ struct DamageUIInfo {
 	XMFLOAT3 wPos;
 };
 
+struct DirectionDamageUIInfo {
+	XMFLOAT3 pos1, pos2;
+	int alpha;
+	float time;
+};
+
 namespace DamageUI {
-	std::vector<DamageUIInfo> damageList_[2];
+	std::vector<DamageUIInfo> damageList_[2];				//プレイヤーの数分リスト持つ
+	std::vector<DirectionDamageUIInfo> directionDamage_[2];	//プレイヤーの数分リスト持つ
+
 	Text* pText_ = nullptr;
+	int hPict_;
 
 	void Initialize()
 	{
@@ -38,6 +52,11 @@ namespace DamageUI {
 		pText_->Initialize();
 		if(GameManager::IsOnePlayer()) pText_->SetScale(ONE_TEXT_SCALE);
 		else pText_->SetScale(TWO_TEXT_SCALE);
+
+		const char* fileName[] = { "Image/directionDamage.png" };
+		hPict_ = Image::Load(fileName[0]);
+		assert(hPict_ >= 0);
+
 	}
 
 	void SceneChange()
@@ -47,12 +66,25 @@ namespace DamageUI {
 		if (GameManager::IsOnePlayer()) pText_->SetScale(ONE_TEXT_SCALE);
 		else pText_->SetScale(TWO_TEXT_SCALE);
 
+		const char* fileName[] = { "Image/directionDamage.png" };
+		hPict_ = Image::Load(fileName[0]);
+		assert(hPict_ >= 0);
+
 		ResetDamageList();
 	}
 
 	void Release()
 	{
+	}
 
+	void AddDirectionDamage(XMFLOAT3 pos, XMFLOAT3 pos2, int index)
+	{
+		DirectionDamageUIInfo info;
+		info.alpha = 255;
+		info.time = 1.0f;
+		info.pos1 = pos;
+		info.pos2 = pos2;
+		directionDamage_[index].push_back(info);
 	}
 
 	void AddDamage(XMFLOAT3 _pos, int _damage, int index)
@@ -95,6 +127,22 @@ namespace DamageUI {
 				}
 				++it;
 			}
+
+			for (auto it = directionDamage_[i].begin(); it != directionDamage_[i].end();) {
+				(*it).time -= TIME_REDUCE;
+
+				//消えるアニメーション
+				if ((*it).time <= KILL_THRESHOLD) {
+					(*it).alpha -= ALPHA_REDUCE;
+				}
+
+				//削除
+				if ((*it).time <= 0.0f) {
+					it = directionDamage_[i].erase(it);
+					continue;
+				}
+				++it;
+			}
 		}
 
 	}
@@ -116,6 +164,25 @@ namespace DamageUI {
 			pText_->SetAlpha(ui.alpha);
 			pText_->Draw((int)pos.x, (int)pos.y, ui.damage);
 		}
+
+		for (DirectionDamageUIInfo ui : directionDamage_[index]) {
+			//座標変換して表示
+			XMFLOAT2 radius = XMFLOAT2(0.5f, 0.6f);
+			XMFLOAT3 rotate = CalculationRotateXYZ(Float3Sub(ui.pos1, ui.pos2));
+			float angleRadians = XMConvertToRadians((rotate.y + 90.0f) * -1.0f);
+
+			//楕円周上の座標を計算
+			Transform t;
+			t.position_.x = radius.x * cosf(angleRadians);
+			t.position_.y = radius.y * sinf(angleRadians);
+			t.rotate_.z = rotate.y * -1.0f + 180.0f;
+			t.scale_ = DIRECTION_SCALE;
+
+			Image::SetAlpha(hPict_, ui.alpha);
+			Image::SetTransform(hPict_, t);
+			Image::Draw(hPict_);
+		}
+
 	}
 
 }

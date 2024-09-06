@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "Model.h"
+#include "../Other/GameManager.h"
 
 //コンストラクタ
 FbxParts::FbxParts():
@@ -391,7 +392,7 @@ XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
 		rot.y = atan2f(-(float)mat.Get(2, 0), (float)mat.Get(2, 2));
 		rot.z = atan2f(-(float)mat.Get(0, 1), (float)mat.Get(1, 1));
 	}
-	return rot;
+	return rot;	
 }
 
 //描画
@@ -429,6 +430,9 @@ void FbxParts::Draw(Transform& transform, bool isShadow)
 		cb.mWLP = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix());
 		cb.mWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
 		cb.isShadow = isShadow;
+
+		int id = GameManager::GetDrawIndex();
+		cb.zoom = Camera::GetPeekFOVZoom(id);
 
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める

@@ -18,7 +18,7 @@
 namespace GameManager {
 	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
 
-	bool isImGuiDraw_ = false;
+	bool isImGuiDraw_ = true;
 	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = false;
 	int pcCtrlNumber_ = 0;

@@ -5,6 +5,7 @@
 
 #include "../Stage/Stage.h"
 #include "../Screen/PauseScreen.h"
+#include "../Screen/ResultScreen.h"
 
 #include "../Engine/Model.h"
 #include "../Engine/Input.h"
@@ -12,18 +13,14 @@
 #include "../Engine/SceneManager.h"
 
 #include "../AI/RouteSearch.h"
-#include "../Enemy/EnemyBase.h"
 #include "../Enemy/EnemyManager.h"
-#include "../Enemy/TestEnemy.h"
 #include "../UI/DamageUI.h"
 #include "../UI/AimCursor.h"
 #include "../UI/FixedHealthGauge.h"
 #include "../UI/BulletInfoDisplay.h"
 #include "../Other/GameManager.h"
-#include "../Other/InputManager.h"
-#include "../UI/BulletInfoDisplay.h"
 
-STAGE_TYPE PlayScene::stageType_ = STAGE_PLANE;
+STAGE_TYPE PlayScene::stageType_ = STAGE_1;
 
 namespace {
 	const int PRE_STAGE_DRAW_TIME = 30;
@@ -34,7 +31,7 @@ namespace {
 //コンストラクタ
 PlayScene::PlayScene(GameObject * parent)
 	: SceneBase(parent, "PlayScene"), pAimCursor_{ nullptr, nullptr }, time_(0), endTime_(0), pPlayer_{ nullptr, nullptr }, preStageDraw_(true),
-	preDrawCameraPos_(XMFLOAT3()), preDrawCameraTar_(XMFLOAT3()), isPause_(false)
+	preDrawCameraPos_(XMFLOAT3()), preDrawCameraTar_(XMFLOAT3()), isPause_(false), pBulletInfoDisplay_{ nullptr, nullptr }
 {
 }
 
@@ -84,6 +81,33 @@ void PlayScene::Initialize()
 //更新
 void PlayScene::Update()
 {
+	//ゲーム勝利判定
+	if (GameManager::GetPlayer(0)->IsHealthZero() || GameManager::GetPlayer(1)->IsHealthZero()) {
+		//勝負ついた瞬間のやつ
+		if (endTime_ >= END_TIME_DEFAULT) {
+			AllDeleteScreen();
+			
+			//ResultScreen作成と値のセット
+			ResultScreen* screen = new ResultScreen();
+			if (GameManager::GetPlayer(0)->IsHealthZero()) screen->SetWinPlayer(1);
+			else if (GameManager::GetPlayer(1)->IsHealthZero()) screen->SetWinPlayer(0);
+			AddScreen(screen);
+
+			//自分より下のUpdateを拒否
+			AllChildLeave();
+			Enter();
+		}
+
+		SceneBase::Update();
+
+		endTime_--;
+		if (pScreenList_.empty() && endTime_ <= 0) {
+			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
+			pSceneManager->ChangeScene(SCENE_ID_TITLE);
+		}
+		return;
+	}
+
 	//Pause画面呼び出し
 	if (!isPause_ && IsPauseButtonDown()) {
 		AddScreen(new PauseScreen());
@@ -140,24 +164,11 @@ void PlayScene::Update()
 		}
 	}
 
-	//ゲーム勝利判定
-	if (GameManager::GetPlayer(0)->IsHealthZero() || GameManager::GetPlayer(1)->IsHealthZero()) {
-		endTime_--;
-		if (endTime_ <= 0) {
-			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
-			pSceneManager->ChangeScene(SCENE_ID_TITLE);
-		}
-		return;
-	}
-
 	//デバッグ用
 	{
 		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
 		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_TEST);
-		if (Input::IsKeyDown(DIK_F3)) {
-			EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestEnemy")));
-			EnemyManager::KillEnemy(static_cast<TestEnemy*>(FindObject("TestBossEnemy")));
-		}
+		if (Input::IsKeyDown(DIK_F3)) EnemyManager::AllKillEnemy();
 		if (Input::IsKeyDown(DIK_F4)) {
 			OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());
 			OutputDebugString("\n");

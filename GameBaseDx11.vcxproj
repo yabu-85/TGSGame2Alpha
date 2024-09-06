@@ -189,7 +189,7 @@
     <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="Screen\ExitScreen.cpp" />
     <ClCompile Include="Screen\PauseScreen.cpp" />
-    <ClCompile Include="Screen\PlayScreen.cpp" />
+    <ClCompile Include="Screen\ResultScreen.cpp" />
     <ClCompile Include="Screen\Screen.cpp" />
     <ClCompile Include="Screen\SelectScreen.cpp" />
     <ClCompile Include="Screen\SettingScreen.cpp" />
@@ -282,7 +282,7 @@
     <ClInclude Include="Scene\TitleScene.h" />
     <ClInclude Include="Screen\ExitScreen.h" />
     <ClInclude Include="Screen\PauseScreen.h" />
-    <ClInclude Include="Screen\PlayScreen.h" />
+    <ClInclude Include="Screen\ResultScreen.h" />
     <ClInclude Include="Screen\Screen.h" />
     <ClInclude Include="Screen\SelectScreen.h" />
     <ClInclude Include="Screen\SettingScreen.h" />

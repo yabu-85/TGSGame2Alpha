@@ -287,9 +287,6 @@
     <ClCompile Include="Screen\SelectScreen.cpp">
       <Filter>Screen</Filter>
     </ClCompile>
-    <ClCompile Include="Screen\PlayScreen.cpp">
-      <Filter>Screen</Filter>
-    </ClCompile>
     <ClCompile Include="UI\AimCursor.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -361,6 +358,9 @@
     </ClCompile>
     <ClCompile Include="UI\BulletInfoDisplay.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen\ResultScreen.cpp">
+      <Filter>Screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -562,9 +562,6 @@
     <ClInclude Include="Screen\SelectScreen.h">
       <Filter>Screen</Filter>
     </ClInclude>
-    <ClInclude Include="Screen\PlayScreen.h">
-      <Filter>Screen</Filter>
-    </ClInclude>
     <ClInclude Include="UI\AimCursor.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -639,6 +636,9 @@
     </ClInclude>
     <ClInclude Include="UI\BulletInfoDisplay.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen\ResultScreen.h">
+      <Filter>Screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

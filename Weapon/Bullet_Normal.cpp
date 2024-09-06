@@ -58,7 +58,7 @@ void Bullet_Normal::Update()
         transform_.position_ = pCapsuleCollider_->targetPos_;
         HitEffect();
 
-        //ダメージ与える（HP０以下なら倒すのここでやっとく
+        //ダメージ与える
         DamageInfo info = DamageInfo(parameter_.damage_);
         info.owner = GetParent();
         info.name = "P_Bullet";
@@ -67,8 +67,12 @@ void Bullet_Normal::Update()
         //ダメージ与えた通知出す
         pPlayer->OnDamageDealt(info);
 
-        //DamageUI
+        //DamageTextUI
         DamageUI::AddDamage(transform_.position_, parameter_.damage_, playerId_);
+
+        //DamageUI
+        if(playerId_ == 0) DamageUI::AddDirectionDamage(pHitChara_->GetPosition(), pPlayer->GetPosition(), 1);
+        else DamageUI::AddDirectionDamage(pHitChara_->GetPosition(), pPlayer->GetPosition(), 0);
 
         //HitCursor
         pPlayer->GetGun()->GetAimCursor()->Hit();

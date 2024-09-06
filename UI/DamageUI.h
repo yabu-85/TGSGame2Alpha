@@ -13,20 +13,30 @@ using namespace DirectX;
 
 namespace DamageUI
 {
+	//初期化
 	void Initialize();
+
+	//シーンチェンジ
 	void SceneChange();
+
+	//解放処理
 	void Release();
 
-	//Screen追加
+	//与えられた側のプレイヤーID
+	void AddDirectionDamage(XMFLOAT3 pos, XMFLOAT3 pos2, int index);
+
+	//ダメージUI追加
+	//場所・ダメージ量・与えられた側のプレイヤーID
 	void AddDamage(XMFLOAT3 _pos, int _damage, int index);
 	
-	//Screen初期化
+	//ダメージUIリストリセット
 	void ResetDamageList();
 
-	//Screenリストの更新
+	//ダメージUIのUpdate
 	void Update();
 
-	//Screenリストの描画
+	//ダメージUIの描画
+	//引数index ：プレイヤーのID
 	void Draw(int index);
 
 };
