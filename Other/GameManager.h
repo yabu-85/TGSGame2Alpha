@@ -7,17 +7,26 @@ class SceneBase;
 
 namespace GameManager
 {
+	extern float	playerSpeed;
+	extern bool		playerClimb;
+	extern bool		playerFaly;
+
 	void Initialize();
 	void Update();
 	void Draw();
 	void SceneChange();
-
 	int GetDrawIndex();
 
+	//メニュー表示中か（違うならプレイシーンでPause画面ではない
+	bool IsCursorMode();
+	void SetCursorMode(bool b);
+
+	//画面分割
 	void SetOnePlayer();
 	void SetTwoPlayer();
 	bool IsOnePlayer();
 
+	//コントローラー
 	void SetPCCtrlON();
 	void SetPCCtrlOFF();
 	bool IsPCCtrl();

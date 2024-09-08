@@ -22,6 +22,7 @@ TitleScene::TitleScene(GameObject * parent)
 void TitleScene::Initialize()
 {
 	GameManager::SetOnePlayer();
+	GameManager::SetCursorMode(true);
 
 	AllDeleteScreen();
 	AddScreen(new TitleScreen());

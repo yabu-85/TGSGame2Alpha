@@ -22,7 +22,7 @@ namespace {
 }
 
 SniperGun::SniperGun(GameObject* parent)
-    : GunBase(parent, "SniperGun"), hPict_(-1), animTime_(0)
+    : GunBase(parent, "SniperGun"), hPict_(-1)
 {
 }
 
@@ -64,7 +64,7 @@ void SniperGun::Update()
 
     //Input関係はUpとDown使わずに作ったほうがいいかも
     //Pauseをやめた時にキャンセルされない
-    
+
     //アニメーションセット
     if (currentReloadTime_ <= 0) {
         if (InputManager::IsCmd(InputManager::AIM, playerId_)) {

@@ -7,6 +7,28 @@ class GunBase;
 class StateManager;
 class CapsuleCollider;
 class FixedHealthGauge;
+class AnimationController;
+
+enum class PLAYER_ANIMATION {
+    IDLE = 0,
+    PEEK_START,
+    PEEK,
+    PEEK_END,
+    RUN,
+    RELOAD,
+    DEAD,
+    MAX,
+};
+
+const int PLAYER_ANIMATION_DATA[(int)PLAYER_ANIMATION::MAX][2]{
+    {0, 120},     //Idle
+    {120, 140},   //PeekStart
+    {140, 260},   //Peek
+    {260, 280},   //PeekEnd
+    {290, 325},   //Run
+    {340, 390},   //Reload
+    {400, 630},   //Dead
+};
 
 class Player : public Character
 {
@@ -40,6 +62,7 @@ class Player : public Character
     StateManager* pStateManager_;
     CapsuleCollider* pCapsuleCollider_;
     FixedHealthGauge* pFixedHealthGauge_;
+    AnimationController* pAnimationController_;
 
     //ä÷êî
     void CalcRotate(XMFLOAT3 pos, float ratio);

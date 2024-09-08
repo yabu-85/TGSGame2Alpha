@@ -26,7 +26,7 @@ class Player;
 class Aim : public GameObject
 {
     //フラグ
-    bool isValid_;                  //全ての挙動を止める
+    bool isFps_;                    //全ての挙動を止める
     bool isMove_;                   //エイムを動かすかどうか
     bool isCompulsion_;             //強制的に移動させる状態か
     bool isRotateShakeReturn_;      //RotateShakeの戻り処理する
@@ -97,8 +97,6 @@ public:
     void SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar);
     //強制から戻る時間と、補完の強さ指定するバージョン
     void SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar, int returnTime, float complement);
-    //今補完中かどうか
-    bool IsCompulsion() { return isCompulsion_; }
     
     /// <summary>
     /// カメラの位置ごと動かす
@@ -116,21 +114,17 @@ public:
     void SetCameraRotateShake(const CameraRotateShakeInfo& info);
     void SetCameraRotateReturn(bool b) { isRotateShakeReturn_ = b; }
 
-    void SetDistanceHeight(float height) { distanceHeight_ = height; distanceTargetHeight_ = height; }
-    void SetDistanceBehind(float behind) { distanceBehind_ = behind; distanceTargetBehind_ = behind; }
-        
-    void SetValid(bool b) { isValid_ = b; }
-    bool IsValid() { return isValid_; };
+    //----------------------------------------------------------------------------
+
+    void SetAimFps(bool b) { isFps_ = b; }
+    bool IsAimFps() { return isFps_; }
     void SetAimMove(bool b) { isMove_ = b; };
     bool IsAimMove() { return isMove_; }
 
-    //Distance系変数の変化量
     void SetDistanceIncreaseAmount(float f) { distanceIncreaseAmount_ = f; }
-
-    //進行方向ベクトルのAim情報を取得
-    XMFLOAT3 GetAimDirection() { return aimDirection_; }
-
-    //DEFAULT * parcentで感度を計算する
     void SetAimSensitivity(float parcent);
+    
+    XMFLOAT3 GetAimDirection() { return aimDirection_; }
+    bool IsCompulsion() { return isCompulsion_; }
 
 };

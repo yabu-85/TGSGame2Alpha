@@ -70,9 +70,13 @@ void Bullet_Normal::Update()
         //DamageTextUI
         DamageUI::AddDamage(transform_.position_, parameter_.damage_, playerId_);
 
-        //DamageUI
-        if(playerId_ == 0) DamageUI::AddDirectionDamage(pHitChara_->GetPosition(), pPlayer->GetPosition(), 1);
-        else DamageUI::AddDirectionDamage(pHitChara_->GetPosition(), pPlayer->GetPosition(), 0);
+        //Player‚É“–‚½‚Á‚½
+        if (pHitChara_->GetObjectType() == OBJECT_TYPE::Player) {
+
+            //DamageUI
+            if (playerId_ == 0) DamageUI::AddDirectionDamage(pHitChara_->GetPosition(), pPlayer->GetPosition(), 1);
+            else DamageUI::AddDirectionDamage(pHitChara_->GetPosition(), pPlayer->GetPosition(), 0);
+        }
 
         //HitCursor
         pPlayer->GetGun()->GetAimCursor()->Hit();
@@ -104,7 +108,8 @@ void Bullet_Normal::Update()
 
     //ˆÚ“®
     transform_.position_ = Float3Add(transform_.position_, move_);
-    pPolyLine_->AddPosition(transform_.position_);
+    drawPos_ = Float3Add(drawPos_, drawMove_);
+    pPolyLine_->AddPosition(drawPos_);
 }
 
 void Bullet_Normal::OnCollision(GameObject* pTarget)
@@ -112,6 +117,12 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
     if (pTarget->GetObjectName().find("Enemy") != std::string::npos ||
         pTarget->GetObjectName().find("Player") != std::string::npos )
     {
+        //Œ‚‚Á‚½–{l‚¾‚Á‚½ê‡
+        if (pTarget->GetObjectType() == OBJECT_TYPE::Player) {
+            Player* pPlayer = (Player*)pTarget;
+            if (pPlayer->GetPlayerId() == playerId_) return;
+        }
+
         float dist = CalculationDistance(startPos_, pCapsuleCollider_->targetPos_);
         float wallDist = CalculationDistance(startPos_, hitPos_);
         if (pHitChara_) {
@@ -156,19 +167,19 @@ void Bullet_Normal::Shot(Character* chara, XMFLOAT3 wallHitPos, XMFLOAT3 charaHi
     //PolyLine’Ç‰Á
     XMFLOAT3 targetPos = wallHitPos;
     if (chara) targetPos = charaHitPos;
+    float hitDist = CalculationDistance(drawPos_, targetPos);
 
-    float hitDist = CalculationDistance(transform_.position_, targetPos);
     if (hitDist < parameter_.speed_) {
         XMFLOAT3 move = Float3Multiply(move_, (hitDist / parameter_.speed_));
         for (int i = 0; i < POLY_LENG - 1; i++) {
             XMFLOAT3 addPos = Float3Multiply(move, (float)i / (float)POLY_LENG);
-            pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
+            pPolyLine_->AddPosition(Float3Add(drawPos_, addPos));
         }
     }
     else {
         for (int i = 0; i < POLY_LENG - 1; i++) {
             XMFLOAT3 addPos = Float3Multiply(move_, (float)i / (float)POLY_LENG);
-            pPolyLine_->AddPosition(Float3Add(transform_.position_, addPos));
+            pPolyLine_->AddPosition(Float3Add(drawPos_, addPos));
         }
     }
 

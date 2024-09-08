@@ -15,12 +15,29 @@
 #include "../Scene/SceneBase.h"
 #include "../Json/JsonReader.h"
 
+#include "../Enemy/EnemyManager.h"
+#include "../Enemy/EnemyBase.h"
+#include <vector>
+#include <string>
+
 namespace GameManager {
 	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
 
+	//ImGui関連
+	float playerSpeed = 0.0f;
+	bool playerClimb = false;
+	bool playerFaly = false;
+	std::vector<EnemyBase*> enemies;
+	//ImGui選択
+	int selectedIndex = -1;
+	enum class SelectedType { None, Player1, Player2, Enemy };
+	SelectedType selectedType = SelectedType::None;
+
+	//GameManager
 	bool isImGuiDraw_ = true;
 	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = false;
+	bool cursorMode_ = false;
 	int pcCtrlNumber_ = 0;
 	int drawIndex_ = 0;
 
@@ -61,6 +78,7 @@ namespace GameManager {
 	void Update()
 	{
 		DamageUI::Update();
+		enemies = EnemyManager::GetAllEnemy();
 
 	}
 
@@ -79,7 +97,12 @@ namespace GameManager {
 		DamageUI::SceneChange();
 	}
 
+	//今描画中の番号
 	int GetDrawIndex() { return drawIndex_; }
+
+	//メニュ状態か
+	bool IsCursorMode() { return cursorMode_; }
+	void SetCursorMode(bool b) { cursorMode_ = b; }
 	
 	//人数関係
 	void SetOnePlayer() { isOnePlayer_ = true; }
@@ -120,6 +143,8 @@ namespace GameManager {
 		DamageUI::Draw(index);
 	}
 
+
+
 	void ImGuiDraw()
 	{
 		//ImGuiの更新処理
@@ -127,31 +152,89 @@ namespace GameManager {
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		StageEditor::DrawStageEditor();
-		StageEditor::DrawNodeEditor();
+		ImGui::Begin("Hello");
 
-		ImGui::Begin("Hello");//ImGuiの処理を開始
+		//プレイヤーと敵のリストを表示するウィジェット
+		ImGui::Text("Select an Entity:");
+		ImGui::Separator();
+
+		static int selectedPlayer = -1;
+		static int selectedEnemy = -1;
+
+		//プレイヤーのリスト
+		const char* playerNames[] = { "Player 1", "Player 2" };
+		if (ImGui::ListBox("Players", &selectedPlayer, playerNames, IM_ARRAYSIZE(playerNames)))
 		{
-			XMFLOAT3 position = Camera::GetPosition(0);
-			XMFLOAT3 target = Camera::GetTarget(0);
-
-			ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
-			ImGui::Text("Target: (%.2f, %.2f, %.2f)", target.x, target.y, target.z);
-			ImGui::Text("PlayerCamX: (%.2f)", Direct3D::playerCamX);
-			ImGui::Text("PlayerCamX: (%.2f)", Direct3D::playerCamY);
-			ImGui::Separator();
-			ImGui::Text("Player: (%.2f, %.2f, %.2f)", Direct3D::PlayerPosition.x, Direct3D::PlayerPosition.y, Direct3D::PlayerPosition.z);
-			ImGui::Text("Enemy : (%.2f, %.2f, %.2f)", Direct3D::EnemyPosition.x, Direct3D::EnemyPosition.y, Direct3D::EnemyPosition.z);
-			ImGui::Separator();
-			ImGui::SliderFloat("Player Speed", &Direct3D::playerSpeed, 0.0f, 1.0f);
-
-			if (Direct3D::playerFaly) ImGui::Text("Player Faly   : true");
-			else ImGui::Text("Player Faly  : false");
-
-			if (Direct3D::playerClimb) ImGui::Text("Player Climb : true");
-			else ImGui::Text("Player Climb : false");
+			selectedType = (selectedPlayer == 0) ? SelectedType::Player1 : SelectedType::Player2;
+			selectedIndex = -1;
+			selectedEnemy = -1;
 		}
-		ImGui::End();//ImGuiの処理を終了
+
+		//敵のリスト
+		std::vector<std::string> enemyNames;
+		for (const auto& enemy : enemies)
+		{
+			enemyNames.push_back(enemy->GetObjectName());
+		}
+
+		std::vector<const char*> enemyNamesCStr;
+		for (const auto& name : enemyNames)
+		{
+			enemyNamesCStr.push_back(name.c_str());
+		}
+
+		if (ImGui::ListBox("Enemies", &selectedEnemy, enemyNamesCStr.data(), (int)enemyNamesCStr.size()))
+		{
+			selectedType = SelectedType::Enemy;
+			selectedIndex = -1;
+			selectedPlayer = -1;
+		}
+
+		ImGui::Separator();
+
+		//選択されたObjのステータスを表示
+		switch (selectedType)
+		{
+		case SelectedType::Player1:
+		{
+			XMFLOAT3 position = XMFLOAT3();
+			if (GameManager::GetPlayer(0)) position = GameManager::GetPlayer(0)->GetPosition();
+
+			ImGui::Text("Player 1 Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
+			ImGui::Text("Player 1 Speed: %.2f", playerSpeed);
+			ImGui::Text("Player 1 Faly: %s", playerFaly ? "true" : "false");
+			ImGui::Text("Player 1 Climb: %s", playerClimb ? "true" : "false");
+		}
+		break;
+
+		case SelectedType::Player2:
+		{
+			XMFLOAT3 position = XMFLOAT3();
+			if (GameManager::GetPlayer(1)) position = GameManager::GetPlayer(1)->GetPosition();
+
+			ImGui::Text("Player 1 Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
+			ImGui::Text("Player 1 Speed: %.2f", playerSpeed);
+			ImGui::Text("Player 1 Faly: %s", playerFaly ? "true" : "false");
+			ImGui::Text("Player 1 Climb: %s", playerClimb ? "true" : "false");
+		}
+		break;
+
+		case SelectedType::Enemy:
+		{
+			for (size_t i = 0; i < enemies.size(); ++i)
+			{
+				const auto& enemy = enemies[i];
+				ImGui::Text("Enemy %zu Position: (%.2f, %.2f, %.2f)", i + 1, enemy->GetPosition().x, enemy->GetPosition().y, enemy->GetPosition().z);
+			}
+		}
+		break;
+
+		case SelectedType::None:
+			ImGui::Text("No selection.");
+			break;
+		}
+
+		ImGui::End(); //ImGuiの処理を終了
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
@@ -207,7 +290,9 @@ namespace GameManager {
 			drawIndex_ = i;
 			Direct3D::SetViewPort(i);
 			Camera::Update(i);
-			Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
+
+			Camera::SetTwoProjectionMatrix();
+			//Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
 
 			pRootObject_->DrawSub();
 			EFFEKSEERLIB::gEfk->Draw();

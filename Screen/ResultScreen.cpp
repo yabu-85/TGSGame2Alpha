@@ -7,7 +7,9 @@
 #include "../UI/ButtonUI.h"
 
 namespace {
-	const char* fileName[] = { "Image/Player1.png", "Image/Player2.png", "Image/Ok.png", "Image/Clear.png" };
+	const char* fileName[] = { "Image/Player1.png", "Image/Player2.png", "Image/Win.png", "Image/Win.png" };
+	const XMFLOAT3 WIN_IMAGE_POS = XMFLOAT3(0.0f, 0.25f, 0.0f);
+	const XMFLOAT3 PLAYER_IMAGE_POS = XMFLOAT3(0.0f, 0.5f, 0.0f);
 
 }
 
@@ -15,30 +17,23 @@ ResultScreen::ResultScreen() : Screen(), winPlayerID_(-1)
 {
 	//âÊëúèâä˙âª
 	for (int i = 0; i < MAX; i++) { hPict_[i] = -1; }
-	hPict_[BACK] = Image::Load(fileName[3]);
-	assert(hPict_[BACK] >= 0);
+	hPict_[WIN] = Image::Load(fileName[3]);
+	assert(hPict_[WIN] >= 0);
 
 	Transform t;
-	t.position_ = XMFLOAT3(0.0f, 0.5f, 0.0f);
-	t.scale_ = XMFLOAT3(0.5f, 0.5f, 0.0f);
-	Image::SetTransform(hPict_[BACK], t);
+	t.position_ = WIN_IMAGE_POS;
+	Image::SetTransform(hPict_[WIN], t);
 
 	//É{É^Éììoò^
 	UIBase* ui = nullptr;
 	
-	//Ok
-	ui = ui->UIInstantiate<ButtonUI>("Ok", XMFLOAT2(0.0f, 0.0f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
+	//ñﬂÇË
+	ui = ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
 		{
-
+			state_ = ENDDRAW;
 		});
 	AddUI(ui);
 	ui->SetSelect(true);
-
-	//ñﬂÇË
-	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.0f, -0.5f), XMFLOAT2(0.4f, 0.35f), XMFLOAT2(0.4f, 0.4f), [this]()
-		{
-			state_ = ENDDRAW;
-		}));
 
 }
 
@@ -53,7 +48,7 @@ void ResultScreen::Draw()
 	Direct3D::SetViewOne();
 	Direct3D::SetViewPort(0);
 
-	Image::Draw(hPict_[BACK]);
+	Image::Draw(hPict_[WIN]);
 	Image::Draw(hPict_[PLAYER]);
 
 	Screen::Draw();
@@ -80,8 +75,7 @@ void ResultScreen::SetWinPlayer(int i)
 	}
 
 	Transform t;
-	t.position_ = XMFLOAT3(0.0f, 0.5f, 0.0f);
-	t.scale_ = XMFLOAT3(0.5f, 0.5f, 0.0f);
+	t.position_ = PLAYER_IMAGE_POS;
 	Image::SetTransform(hPict_[PLAYER], t);
 
 }

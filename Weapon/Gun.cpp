@@ -7,6 +7,7 @@
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
+#include "../Other/AudioManager.h"
 #include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
 #include "../Character/Character.h"
@@ -23,7 +24,7 @@ namespace {
 }
 
 Gun::Gun(GameObject* parent)
-    : GunBase(parent, "Gun"), animTime_(0)
+    : GunBase(parent, "Gun")
 {
 }
 
@@ -60,109 +61,37 @@ void Gun::Update()
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
-    //覗き込みのInput関係はUpとDown使わずに作ったほうがいいかも
-    //Pauseをやめた時にキャンセルされない
-
-    //アニメーションセット
-    if (currentReloadTime_ <= 0) {
-        if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-            //覗き込みへの推移
-            if (animTime_ <= 0) {
-                Model::SetAnimFrame(hPlayerModel_, 120, 140, 1.0f);
-                Model::SetAnimFrame(hPlayerFPSModel_, 120, 140, 1.0f);
-                animTime_ = 0;
-            }
-
-            //覗き込み中
-            if (animTime_ == 20) {
-                Model::SetAnimFrame(hPlayerModel_, 140, 260, 1.0f);
-                Model::SetAnimFrame(hPlayerFPSModel_, 140, 260, 1.0f);
-            }
-
-            animTime_++;
-        }
-        else {
-            //覗き込み終了の推移
-            if (InputManager::IsCmdUp(InputManager::AIM, playerId_)) {
-                Model::SetAnimFrame(hPlayerModel_, 260, 280, 1.0f);
-                Model::SetAnimFrame(hPlayerFPSModel_, 260, 280, 1.0f);
-                animTime_ = 0;
-            }
-
-            //通常状態
-            if (animTime_ == -20) {
-                Model::SetAnimFrame(hPlayerModel_, 0, 120, 1.0f);
-                Model::SetAnimFrame(hPlayerFPSModel_, 0, 120, 1.0f);
-            }
-
-            animTime_--;
-        }
-    }
-
     //リロード中の処理
     if (currentReloadTime_ > 0) {
         Reload();
 
-        animTime_--;
-        //覗き込み中
-        if (animTime_ == 0) {
-            Model::SetAnimFrame(hPlayerModel_, 0, 0, 1.0f);
-            Model::SetAnimFrame(hPlayerFPSModel_, 0, 0, 1.0f);
-        }
-
         //リロード終了
         if (currentMagazineCount_ == magazineCount_) {
             Model::SetAnimFrame(hModel_, 0, 0, 1.0f);
-            Model::SetAnimFrame(hPlayerModel_, 0, 0, 1.0f);
-            Model::SetAnimFrame(hPlayerFPSModel_, 0, 0, 1.0f);
-            animTime_ = 0;
         }
 
         return;
     }
 
-    //撃った後の自動リロード
+    //リロードボタン押した
     if (InputManager::IsCmdDown(InputManager::RELOAD, playerId_)) {
         PressedReload();
-
-        //アニメーション
-        if (isPeeking_) {
-            //覗き込み終了
-            Model::SetAnimFrame(hPlayerModel_, 260, 280, 1.0f);
-            Model::SetAnimFrame(hPlayerFPSModel_, 260, 280, 1.0f);
-        }
-        else {
-            //通常状態
-            Model::SetAnimFrame(hPlayerModel_, 0, 0, 1.0f);
-            Model::SetAnimFrame(hPlayerFPSModel_, 0, 00, 1.0f);
-        }
-        animTime_ = 20;
 
         //Peeking
         isPeeking_ = false;
         peekTime_ = PEEK_TIME;
-
         return;
     }
 
+    //銃弾空だけど撃つボタン押した、リロード
+    if (currentMagazineCount_ <= 0 && InputManager::IsCmdDown(InputManager::ATTACK, playerId_))
+    {
+        //リロードできるなら終わり
+        if (PressedReload()) return;
+    }
+
     //のぞき込み処理
-    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        peekTime_--;
-
-        float zoom = (float)peekTime_ / (float)PEEK_TIME;
-        zoom = std::clamp(zoom, 0.7f, 1.0f);
-        Camera::SetPeekFOVZoom(zoom, playerId_);
-
-        //覗き込み完了
-        if (peekTime_ <= 0) {
-            isPeeking_ = true;
-        }
-    }
-    else {
-        peekTime_ = PEEK_TIME;
-        isPeeking_ = false;
-        Camera::SetPeekFOVZoom(1.0f, playerId_);
-    }
+    Peeking();
 
     //通常射撃
     if (InputManager::IsCmd(InputManager::ATTACK, playerId_))
@@ -222,12 +151,15 @@ void Gun::PressedShot()
     currentMagazineCount_--;
 
     //弾丸Init
-    ShotBullet<Bullet_Normal>("Bullet_Normal");
-    pAimCursor_->Shot();
+    if (pPlayer_->GetAim()->IsAimFps()) ShotFpsBullet<Bullet_Normal>("Bullet_Normal");
+    else ShotBullet<Bullet_Normal>("Bullet_Normal");
 
     CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
     pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
     pPlayer_->GetAim()->SetCameraRotateReturn(false);
+    pAimCursor_->Shot();
+
+    AudioManager::Play(AUDIO_TYPE::SMALL_SHOT, 0.5f);
 
     //ヒットエフェクト
     EFFEKSEERLIB::EFKTransform t;

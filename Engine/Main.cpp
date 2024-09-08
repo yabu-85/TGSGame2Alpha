@@ -156,6 +156,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//エフェクト更新
 				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0);
 				
+				if (GameManager::IsCursorMode()) {
+					//カーソルを表示
+					while (ShowCursor(TRUE) < 0);
+					isCursorVisible = true;
+
+					//リミット制限無し
+					isCursorLimited = false;
+					ReleaseMousePointer();
+				}
+				else {
+					//カーソルを非表示
+					while (ShowCursor(FALSE) >= 0);
+					isCursorVisible = false;
+
+					//リミット制限あり
+					LimitMousePointer(hWnd);
+					isCursorLimited = true;
+				}
+
 				GameManager::Update();
 
 				GameManager::Draw();

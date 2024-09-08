@@ -23,7 +23,7 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-	Instantiate<SkyBox>(this);
+	//Instantiate<SkyBox>(this);
 	CollisionMap* pCollisionMap = Instantiate<CollisionMap>(this);
 
 	if (PlayScene::GetStageType() == STAGE_TYPE::STAGE_PLANE) {

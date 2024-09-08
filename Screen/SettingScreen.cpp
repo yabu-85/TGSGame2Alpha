@@ -97,9 +97,9 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}
 	//PlayerSetting読み込み
 	JsonReader::Load("Json/PlayerSetting.json");
 	auto& player1Section = JsonReader::GetSection("Player1");
-	aimSliderUI_[0]->SetGaugeParcent(player1Section["aimSensitivtiy"]);
+	aimSliderUI_[0]->SetGaugeParcent(player1Section["aimSensitivity"]);
 	auto& player2Section = JsonReader::GetSection("Player2");
-	aimSliderUI_[1]->SetGaugeParcent(player2Section["aimSensitivtiy"]);
+	aimSliderUI_[1]->SetGaugeParcent(player2Section["aimSensitivity"]);
 
 }
 
@@ -183,19 +183,9 @@ void SettingScreen::SetPCCtrlOn(int index)
 
 void SettingScreen::SetPCCtrlOff(int index)
 {
-	if (GameManager::IsPCCtrl()) {
-		//PCCtrlなしに
-		if (index == GameManager::GetPCCtrlNumber()) {
-			GameManager::SetPCCtrlOFF();
-		}
-		//すでにOffの人が押した
-		else {
-			//処理終了
-		}
-
-	}
-	else {
-		//処理終了
+	//PCCtrlなしに
+	if (GameManager::IsPCCtrl() && index == GameManager::GetPCCtrlNumber()) {
+		GameManager::SetPCCtrlOFF();
 	}
 
 	SetPlayerSetting();
@@ -204,29 +194,43 @@ void SettingScreen::SetPCCtrlOff(int index)
 
 void SettingScreen::SetPlayerSetting()
 {
-	float aimS1 = aimSliderUI_[0]->GetGaugeParcent();
-	float aimS2 = aimSliderUI_[1]->GetGaugeParcent();
+	float aimParcent[2] = { 0.0f };
+	aimParcent[0] = aimSliderUI_[0]->GetGaugeParcent();
+	aimParcent[1] = aimSliderUI_[1]->GetGaugeParcent();
 
 	//今PlaySceneで、２人とも生きている場合
 	if (GameManager::GetPlayer(0) && GameManager::GetPlayer(1)) {
-		GameManager::GetPlayer(0)->GetAim()->SetAimSensitivity(aimS1);
-		GameManager::GetPlayer(1)->GetAim()->SetAimSensitivity(aimS2);
+		GameManager::GetPlayer(0)->GetAim()->SetAimSensitivity(aimParcent[0]);
+		GameManager::GetPlayer(1)->GetAim()->SetAimSensitivity(aimParcent[1]);
 	}
 
 	nlohmann::json j;
 	nlohmann::json environmentJson;
 
-	//Player1
-	environmentJson["aimSensitivtiy"] = aimS1;
-	if(GameManager::IsPCCtrl() && GameManager::GetPCCtrlNumber() == 0) environmentJson["pcCtrl"] = 1;
-	else environmentJson["pcCtrl"] = 0;
-	j["Player1"] = environmentJson;
+	//PlayerSetting読み込み
+	JsonReader::Load("Json/PlayerSetting.json");
+	auto& section1 = JsonReader::GetSection("Player1");
+	auto& section2 = JsonReader::GetSection("Player2");
 
-	//Player2
-	environmentJson["aimSensitivtiy"] = aimS2;
-	if (GameManager::IsPCCtrl() && GameManager::GetPCCtrlNumber() == 1) environmentJson["pcCtrl"] = 1;
-	else environmentJson["pcCtrl"] = 0;
-	j["Player2"] = environmentJson;
+	std::string jsonName[2] = { "Player1", "Player2" };
+	for (int i = 0; i < 2; i++) {
+		//Player
+		if (i == 0) {
+			environmentJson["hp"] = (int)section1["hp"];
+		}
+		else {
+			environmentJson["hp"] = (int)section2["hp"];
+		}
+
+		//Aim
+		environmentJson["aimSensitivity"] = aimParcent[i];
+
+		//Othre
+		if (GameManager::IsPCCtrl() && GameManager::GetPCCtrlNumber() == i) environmentJson["pcCtrl"] = 1;
+		else environmentJson["pcCtrl"] = 0;
+	
+		j[jsonName[i]] = environmentJson;
+	}
 
 	std::ofstream ofs("Json/PlayerSetting.json");
 	if (!ofs.is_open())
@@ -235,6 +239,6 @@ void SettingScreen::SetPlayerSetting()
 		return;
 	}
 
-	ofs << j.dump(4);
+	ofs << j.dump(4);	
 }
 

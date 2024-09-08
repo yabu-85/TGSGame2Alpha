@@ -18,13 +18,15 @@
 #include "../Character/DamageSystem.h"
 #include "../Weapon/Gun.h"
 #include "../Weapon/SniperGun.h"
+#include "../Animation/AnimationController.h"
+#include "../Json/JsonReader.h"
 
 namespace {
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
     const float moveGradually = 0.09f;      //移動スピードの加減の値移動時
-    const float maxmoveSpeed_ = 0.7f;        //最大移動スピード
+    const float maxmoveSpeed_ = 0.7f;       //最大移動スピード
     const float rotateRatio = 0.1f;         //通常時のRotateRatio
-    const float JumpPower = 0.12f;          //ジャンプの強さ
+    const float JumpPower = 0.10f;          //ジャンプの強さ
     const float WorldGravity = 0.005f;      //世界の重力
     const float PlayerHeight = 1.3f;        //プレイヤーの頭の位置（Stageとの判定で使う
     const float PlayerWaist = 0.4f;         //プレイヤーの上れる高さ
@@ -82,7 +84,7 @@ void Player::Initialize()
         { "spine.004",  ""},
         { "spine.005",  "spine.004" },
         { "eye",        "spine.004" },
-        { "eye.001",    "spine.004" },  //15
+        { "eye.001",    "spine.004" },
     };
     std::pair<std::string, std::string> boneDownNameList[] = {
         { "thigh.R",    ""},
@@ -105,6 +107,10 @@ void Player::Initialize()
         downListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneDownNameList[i].first, boneDownNameList[i].second);
     }
 
+    //アニメーションデータのセットフレームはヘッダに書いてる
+    pAnimationController_ = new AnimationController(hModel_, this);
+    for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
+
     //PlayerIDセット
     if (GameManager::GetPlayer(0)) playerId_ = 1;
     GameManager::SetPlayer(this, playerId_);
@@ -118,10 +124,22 @@ void Player::Initialize()
     SetBodyWeight(1.0f);
     SetBodyHeightHalf(1.0f);
     
-    SetMaxHP(100);
-    SetHP(100);
+    //PlayerSetting読み込み
+    JsonReader::Load("Json/PlayerSetting.json");
+    int hp = 0;
+    if (playerId_ == 0) {
+        auto& section = JsonReader::GetSection("Player1");
+        hp = (int)section["hp"];
+    }
+    else {
+        auto& section = JsonReader::GetSection("Player2");
+        hp = (int)section["hp"];
+    }
+
+    SetMaxHP(hp);
+    SetHP(hp);
     moveSpeed_ = 0.07f;
-    Direct3D::playerSpeed = moveSpeed_;
+    GameManager::playerSpeed = moveSpeed_;
 
     //HealthGauge
     pFixedHealthGauge_ = new FixedHealthGauge(this, XMFLOAT2(3.0f, 2.0f));
@@ -151,7 +169,17 @@ void Player::Initialize()
 
 void Player::Update()
 {
+    //AnimCtrl
+    pAnimationController_->Update();
+    
+    //Orient上下視点/腰下
+    waistRotateX_ = -pAim_->GetRotate().x;
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
+
     //デバッグ用
+#if 1
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = START_POS;
     if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
     if (isCreative_) {
@@ -164,19 +192,12 @@ void Player::Update()
         XMFLOAT3 targetRot = Float3Add(transform_.position_, pAim_->GetAimDirection());
         TargetRotate(targetRot, 1.0f);
 
-        moveSpeed_ = Direct3D::playerSpeed;
-        Direct3D::PlayerPosition = transform_.position_;
-        Direct3D::playerClimb = isClimb_;
-        Direct3D::playerFaly = isFly_;
+        moveSpeed_ = GameManager::playerSpeed;
+        GameManager::playerClimb = isClimb_;
+        GameManager::playerFaly = isFly_;
         return;
     }
-
-    //Orient上下視点
-    waistRotateX_ = -pAim_->GetRotate().x;
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    //Orient腰下
-    for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
+#endif
 
     //ダメージエフェクト
     if (damageDrawTime_ > 0) {
@@ -218,16 +239,17 @@ void Player::Update()
     }
     
     ReflectCharacter();
-
     TargetRotate(Float3Add(transform_.position_, pAim_->GetAimDirection()), 1.0f);
-    moveSpeed_ = Direct3D::playerSpeed;
-    Direct3D::PlayerPosition = transform_.position_;
-    Direct3D::playerClimb = isClimb_;
-    Direct3D::playerFaly = isFly_;
-
+    
     //Weapon用にここでSet
     Model::SetTransform(hModel_, transform_);
     Model::SetTransform(hFPSModel_, transform_);
+
+    //GameManager情報
+    moveSpeed_ = GameManager::playerSpeed;
+    GameManager::playerClimb = isClimb_;
+    GameManager::playerFaly = isFly_;
+
 }
 
 void Player::Draw()

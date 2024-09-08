@@ -6,7 +6,7 @@ class ResultScreen : public Screen
 	enum ResulT_IMAGE
 	{
 		PLAYER = 0,
-		BACK,
+		WIN,
 		MAX,
 	};
 

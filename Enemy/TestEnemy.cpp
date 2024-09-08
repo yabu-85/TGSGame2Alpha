@@ -237,7 +237,6 @@ void TestEnemy::Update()
 
 void TestEnemy::Draw()
 {
-    Direct3D::EnemyPosition = transform_.position_;
     Model::SetShadow(hModel_, false);
 
     Model::SetTransform(hModel_, transform_);

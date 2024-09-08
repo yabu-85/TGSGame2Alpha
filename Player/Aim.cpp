@@ -13,8 +13,6 @@
 #include <vector>
 
 namespace {
-    bool FPSAimMode = true;
-
     const float UP_MOUSE_LIMIT = -80.0f;                     //回転限界値
     const float DOWN_MOUSE_LIMIT = 60.0f;                    //回転限界値
     
@@ -24,7 +22,7 @@ namespace {
     const float MOUSE_SPEED_DEFAULT = 0.1f;                  //感度
     const float DISTANCE_HORIZONTAL_DEFAULT = 0.30f;         //どのくらい左右にずらすか
     const float DISTANCE_BEHIND_DEFAULT = 3.0f;              //どのくらい後ろから移すかのデフォルト値
-    const float DISTANCE_HEIGHT_DEFAULT = 1.3f;              //Aimの高さ
+    const float DISTANCE_HEIGHT_DEFAULT = 1.1f;              //Aimの高さ
     const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
 
     const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
@@ -35,7 +33,7 @@ Aim::Aim(GameObject* parent)
     : GameObject(parent, "Aim"), cameraPosition_{ 0,0,0 }, cameraTarget_{ 0,0,0 }, aimDirection_{ 0,0,0 }, cameraOffset_{ 0,0,0 },
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
-    shakeDirection_{ 1,0,0,0 }, isValid_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
+    shakeDirection_{ 1,0,0,0 }, isFps_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
     rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false), rotateShakeDirKeepSub_(XMFLOAT2())
 {
 }
@@ -47,20 +45,14 @@ Aim::~Aim()
 void Aim::Initialize()
 {
     pPlayer_ = static_cast<Player*>(GetParent());
- 
+    isFps_ = true;
+
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
     distanceTargetHorizontal_ = DISTANCE_HORIZONTAL_DEFAULT;
     distanceBehind_ = DISTANCE_BEHIND_DEFAULT;
     distanceTargetBehind_ = DISTANCE_BEHIND_DEFAULT;
-
-    static const float TARGET_BEHIND = 3.11f;
-    static const float TARGET_HORIZONTAL = 0.0f;
-    static const float TARGET_HEIGHT = 1.1f;
-    distanceTargetBehind_ = TARGET_BEHIND;
-    distanceTargetHorizontal_ = TARGET_HORIZONTAL;
-    distanceTargetHeight_ = TARGET_HEIGHT;
 
     mouseSensitivity_ = MOUSE_SPEED_DEFAULT;
     compulsionComplement_ = COMPULSION_COMPLEMENT_DEFAULT;
@@ -69,25 +61,24 @@ void Aim::Initialize()
     JsonReader::Load("Json/PlayerSetting.json");
     auto& gunSection1 = JsonReader::GetSection("Player1");
     auto& gunSection2 = JsonReader::GetSection("Player2");
-    if (pPlayer_->GetPlayerId() == 0) mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection1["aimSensitivtiy"];
-    else mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection2["aimSensitivtiy"];
+    if (pPlayer_->GetPlayerId() == 0) mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection1["aimSensitivity"];
+    else mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection2["aimSensitivity"];
 
-    if (FPSAimMode) FPSAim();
+    if (isFps_) FPSAim();
     else DefaultAim();
 
 }
 
 void Aim::Update()
 {
-    if (!IsValid()) return;
-    
     //デバッグ用
+#if 0
     if (Input::IsKeyDown(DIK_5)) isMove_ = !isMove_;
-    
     if (Input::IsKey(DIK_1)) distanceTargetHeight_ += 0.1f;
     if (Input::IsKey(DIK_2)) distanceTargetHeight_ -= 0.1f;
     if (Input::IsKey(DIK_3)) distanceTargetBehind_ += 0.1f;
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
+#endif
 
     if (compulsionTime_ > 0) {
         //強制移動
@@ -100,15 +91,12 @@ void Aim::Update()
 
     if (isMove_) CalcMouseMove();
    
-    if (FPSAimMode) {
+    if (isFps_) {
         FPSAim();
-        return;
     }
-
-    DefaultAim();
-
-    Direct3D::playerCamX = transform_.rotate_.x;
-    Direct3D::playerCamY = transform_.rotate_.y;
+    else {
+        DefaultAim();
+    }
 
 }
 
@@ -186,8 +174,6 @@ void Aim::FPSAim()
     XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
     XMStoreFloat3(&aimDirection_, -caDire);
 
-    Direct3D::playerCamX = transform_.rotate_.x;
-    Direct3D::playerCamY = transform_.rotate_.y;
 }
 
 void Aim::DefaultAim()

@@ -24,6 +24,7 @@ protected:
     int handPartIndex_;     //プレイヤーの手のパーツ
 
     int playerId_;                  //プレイヤーID
+    int animTime_;                  //アニメーション時間計算
     int coolTime_;                  //撃つクールダウン
     int peekTime_;                  //覗き込み時間計算用
     
@@ -38,11 +39,14 @@ protected:
     void LoadGunJson(std::string fileName);         //銃の情報読み込み
     void SetGunHandPosition();                      //手の位置に銃のポジションを合わせる
     void Reload();                                  //リロード中の処理
+    void Peeking();                                 //覗き込み処理（アニメーションはしない）
 
-    virtual void ShotBullet(BulletBase* pBullet);   //銃弾発射の処理
-    virtual void PressedShot() {};                  //発射のボタン押した
-    virtual bool PressedReload() { return false; }; //リロードのボタン押した
-    virtual void ResetReload() {};                  //リロードのキャンセル
+    virtual void ShotBullet(BulletBase* pBullet);       //銃弾発射の処理
+    virtual void ShotFPSBullet(BulletBase* pBullet);    //銃弾発射の処理
+
+    virtual void PressedShot() {};                      //発射のボタン押した
+    virtual bool PressedReload() { return false; };     //リロードのボタン押した
+    virtual void ResetReload() {};                      //リロードのキャンセル
 
 public:
     GunBase(GameObject* parent, const std::string& name);
@@ -66,6 +70,16 @@ public:
         BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
         pNewBullet->LoadBulletParameter(jsonName);
         ShotBullet(pNewBullet);
+        return pNewBullet;
+    }
+
+    //銃弾を生成する
+    template<class T>
+    inline BulletBase* ShotFpsBullet(std::string jsonName)
+    {
+        BulletBase* pNewBullet = Instantiate<T>(GetParent()->GetParent());
+        pNewBullet->LoadBulletParameter(jsonName);
+        ShotFPSBullet(pNewBullet);
         return pNewBullet;
     }
 

@@ -6,6 +6,7 @@
 #include "../Engine/Image.h"
 #include "../Engine/Global.h"
 #include "../Other/GameManager.h"
+#include "../Player/Player.h"
 #include <vector>
 
 namespace {
@@ -57,6 +58,9 @@ namespace DamageUI {
 		hPict_ = Image::Load(fileName[0]);
 		assert(hPict_ >= 0);
 
+		DirectionDamageUIInfo info;
+		directionDamage_[0].push_back(info);
+		directionDamage_[1].push_back(info);
 	}
 
 	void SceneChange()
@@ -84,7 +88,7 @@ namespace DamageUI {
 		info.time = 1.0f;
 		info.pos1 = pos;
 		info.pos2 = pos2;
-		directionDamage_[index].push_back(info);
+		directionDamage_[index].at(0) = (info);
 	}
 
 	void AddDamage(XMFLOAT3 _pos, int _damage, int index)
@@ -126,7 +130,7 @@ namespace DamageUI {
 					continue;
 				}
 				++it;
-			}
+			};
 
 			for (auto it = directionDamage_[i].begin(); it != directionDamage_[i].end();) {
 				(*it).time -= TIME_REDUCE;
@@ -138,8 +142,8 @@ namespace DamageUI {
 
 				//çÌèú
 				if ((*it).time <= 0.0f) {
-					it = directionDamage_[i].erase(it);
-					continue;
+				//	it = directionDamage_[i].erase(it);
+				//	continue;
 				}
 				++it;
 			}
@@ -165,18 +169,25 @@ namespace DamageUI {
 			pText_->Draw((int)pos.x, (int)pos.y, ui.damage);
 		}
 
+		if (!GameManager::GetPlayer(index)) return;
+
 		for (DirectionDamageUIInfo ui : directionDamage_[index]) {
 			//ç¿ïWïœä∑ÇµÇƒï\é¶
+			float playerRotateY = GameManager::GetPlayer(index)->GetRotate().y;
 			XMFLOAT2 radius = XMFLOAT2(0.5f, 0.6f);
-			XMFLOAT3 rotate = CalculationRotateXYZ(Float3Sub(ui.pos1, ui.pos2));
+			XMFLOAT3 vec = Float3Normalize(Float3Sub(ui.pos1, ui.pos2));
+			XMFLOAT3 rotate = CalculationRotateXY(vec);
+			rotate.y -= playerRotateY;
 			float angleRadians = XMConvertToRadians((rotate.y + 90.0f) * -1.0f);
 
 			//ë»â~é¸è„ÇÃç¿ïWÇåvéZ
 			Transform t;
 			t.position_.x = radius.x * cosf(angleRadians);
 			t.position_.y = radius.y * sinf(angleRadians);
-			t.rotate_.z = rotate.y * -1.0f + 180.0f;
 			t.scale_ = DIRECTION_SCALE;
+			t.rotate_.z = (rotate.y + 180.0f) * -1.0f;
+			if (rotate.x > 0) t.rotate_.x = (-rotate.x) + 60.0f;
+			else t.rotate_.x = (rotate.x) + 50.0f;
 
 			Image::SetAlpha(hPict_, ui.alpha);
 			Image::SetTransform(hPict_, t);

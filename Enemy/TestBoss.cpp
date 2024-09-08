@@ -120,8 +120,6 @@ void TestBoss::Update()
 
 void TestBoss::Draw()
 {
-    Direct3D::EnemyPosition = transform_.position_;
-
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
 

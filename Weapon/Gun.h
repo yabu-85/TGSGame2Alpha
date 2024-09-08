@@ -7,8 +7,6 @@ class AimCursor;
 //e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class Gun : public GunBase
 {
-    int animTime_;
-  
     void PressedShot() override;
     bool PressedReload() override;
 public:

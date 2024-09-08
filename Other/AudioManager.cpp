@@ -6,7 +6,7 @@
 
 namespace AudioManager
 {
-	std::vector<int> hSound_;
+	int hSound_[AUDIO_MAX];
 	struct AudioData {
 		std::string name;
 		bool isLoop;
@@ -14,14 +14,14 @@ namespace AudioManager
 	};
 	std::vector<AudioData> sceneTable;
 
-    float gameVolue_;
+    float gameVolume_;          //ゲーム音量
 
 }
 
 void AudioManager::Initialize()
 {
     SetAudioData();
-    gameVolue_ = 0.2f;
+    SetVolume(1.0f);
 
 }
 
@@ -34,23 +34,43 @@ void AudioManager::SetAudioData()
 {
     //enumの順番に
     sceneTable = {
-        {"Sound/ButtonWithin.wav", false, 5},
-        {"Sound/ButtonPush.wav", false, 3},
-        {"Sound/PauseOpen.wav", false, 2},
-        {"Sound/PauseClose.wav", false, 2},
-        {"Sound/BulletHit.wav", false, 3},
+        {"Sound/Menu/ButtonWithin.wav", false, 5},
+        {"Sound/Menu/ButtonPush.wav", false, 3},
+        {"Sound/Menu/PauseOpen.wav", false, 2},
+        {"Sound/Menu/PauseClose.wav", false, 2},
+
+        {"Sound/Gun/BigReload.wav", false, 3},
+        {"Sound/Gun/BitShot.wav", false, 3},
+        {"Sound/Gun/BoltAction.wav", false, 3},
+        {"Sound/Gun/BulletHit.wav", false, 3},
+        {"Sound/Gun/EmptyMagazine.wav", false, 3},
+        {"Sound/Gun/SmallReload.wav", false, 3},
+        {"Sound/Gun/SmallShot.wav", false, 10},
     };
 
-    //hSound_ベクターのサイズを設定
-    hSound_.resize(sceneTable.size());
+    //データロード
     for (int i = 0; i < sceneTable.size(); i++) {
         hSound_[i] = Audio::Load(sceneTable[i].name, sceneTable[i].isLoop, sceneTable[i].max);
         assert(hSound_[i] >= 0);
     }
+
+}
+
+void AudioManager::SetVolume(float volume)
+{
+    //0.0f ～ 1.0fの範囲に制限
+    if (volume < 0.0f)      volume = 0.0f;
+    else if (volume >= 1.0f) volume = 1.0f;
+
+    gameVolume_ = volume;
 }
 
 void AudioManager::Play(AUDIO_TYPE id, float volume)
 {
-    Audio::Play(hSound_[(int)id]);// , volume* gameVolue_);
+    Audio::Play(hSound_[(int)id], volume* gameVolume_);
+}
 
+void AudioManager::Stop(AUDIO_TYPE id)
+{
+    Audio::Stop(hSound_[id]);
 }

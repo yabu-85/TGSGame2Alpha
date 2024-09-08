@@ -19,8 +19,9 @@
 #include "../UI/FixedHealthGauge.h"
 #include "../UI/BulletInfoDisplay.h"
 #include "../Other/GameManager.h"
+#include "../Other/AudioManager.h"
 
-STAGE_TYPE PlayScene::stageType_ = STAGE_1;
+STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
 namespace {
 	const int PRE_STAGE_DRAW_TIME = 30;
@@ -42,6 +43,8 @@ void PlayScene::Initialize()
 	GameManager::SetOnePlayer();
 	Camera::SetOneProjectionMatrix();
 
+	GameManager::SetCursorMode(false);
+	AudioManager::Initialize();
 	endTime_ = END_TIME_DEFAULT;
 
 	Stage* pStage = Instantiate<Stage>(this);
@@ -86,22 +89,24 @@ void PlayScene::Update()
 		//勝負ついた瞬間のやつ
 		if (endTime_ >= END_TIME_DEFAULT) {
 			AllDeleteScreen();
-			
+
 			//ResultScreen作成と値のセット
 			ResultScreen* screen = new ResultScreen();
 			if (GameManager::GetPlayer(0)->IsHealthZero()) screen->SetWinPlayer(1);
 			else if (GameManager::GetPlayer(1)->IsHealthZero()) screen->SetWinPlayer(0);
 			AddScreen(screen);
-
+			
 			//自分より下のUpdateを拒否
 			AllChildLeave();
 			Enter();
+	
+			GameManager::SetCursorMode(true);
 		}
 
 		SceneBase::Update();
 
 		endTime_--;
-		if (pScreenList_.empty() && endTime_ <= 0) {
+		if (pScreenList_.empty()) {
 			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
 			pSceneManager->ChangeScene(SCENE_ID_TITLE);
 		}
@@ -111,11 +116,12 @@ void PlayScene::Update()
 	//Pause画面呼び出し
 	if (!isPause_ && IsPauseButtonDown()) {
 		AddScreen(new PauseScreen());
-		
+
 		//自分より下のUpdateを拒否
 		AllChildLeave();
 		Enter();
 
+		GameManager::SetCursorMode(true);
 		isPause_ = true;
 		return;
 	}
@@ -126,6 +132,7 @@ void PlayScene::Update()
 		//PauseButton押した
 		if (IsPauseButtonDown()) {
 			AllDeleteScreen();
+			GameManager::SetCursorMode(false);
 			isPause_ = false;
 			if (!preStageDraw_) AllChildEnter();
 			return;
@@ -135,6 +142,7 @@ void PlayScene::Update()
 		
 		//Pause終了の処理
 		if (pScreenList_.empty()) {
+			GameManager::SetCursorMode(false);
 			isPause_ = false;
 			if(!preStageDraw_) AllChildEnter();
 		}
@@ -164,6 +172,7 @@ void PlayScene::Update()
 		}
 	}
 
+#if 1
 	//デバッグ用
 	{
 		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
@@ -184,6 +193,8 @@ void PlayScene::Update()
 		if (Input::IsKey(DIK_Q)) pos.y -= speed;
 		Light::SetPosition(0, pos);
 	}
+#endif
+
 }
 
 //描画

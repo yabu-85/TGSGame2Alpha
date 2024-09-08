@@ -55,15 +55,6 @@ namespace Direct3D
 	XMMATRIX lightViewMatrix;
 	XMMATRIX clipToUVMatrix;
 
-	//‚¿‚å‚¢‚Æ‚±‚±‚É’u‚¢‚Æ‚­
-	XMFLOAT3	PlayerPosition;
-	XMFLOAT3	EnemyPosition;
-	float playerSpeed = 0.0f;
-	float playerCamX = 0.0f;
-	float playerCamY = 0.0f;
-	bool		playerClimb;
-	bool		playerFaly;
-
 	//-------------------------------------------------------
 
 	//‰Šú‰»ˆ—

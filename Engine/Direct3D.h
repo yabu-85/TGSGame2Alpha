@@ -62,16 +62,6 @@ namespace Direct3D
 	extern int		screenHeight_;			//スクリーンの高さ
 	extern bool		isDrawCollision_;		//コリジョンを表示するかフラグ
 
-	extern XMFLOAT3	PlayerPosition;
-	extern XMFLOAT3	EnemyPosition;
-	extern float	playerSpeed;
-
-	extern float	playerCamX;
-	extern float	playerCamY;
-
-	extern bool		playerClimb;
-	extern bool		playerFaly;
-
 	////////////////////////ここからは関数///////////////////////////////
 
 	//初期化処理

@@ -12,6 +12,12 @@
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
 #include "../UI/AimCursor.h"
+#include "../Other/InputManager.h"
+
+namespace {
+    static const int PEEK_TIME = 15;                            //覗き込みにかかる時間
+
+}
 
 GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
@@ -71,7 +77,7 @@ void GunBase::ShotBullet(BulletBase* pBullet)
     data.dir = shotVec;
     XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist + cameraDist));
     GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
-    XMFLOAT3 GunBaseTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+    XMFLOAT3 stageHitPos = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
 
     //ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
     //対象にあたったか最短距離を計算
@@ -112,7 +118,7 @@ void GunBase::ShotBullet(BulletBase* pBullet)
     //Aimで当たらなかったから、本来の軌跡で判定を行う
     if (minIndex < 0) {
         //コリジョンマップとの判定
-        XMFLOAT3 GunBaseVec = Float3Normalize(Float3Sub(GunBaseTar, GunBaseTop));
+        XMFLOAT3 GunBaseVec = Float3Normalize(Float3Sub(stageHitPos, GunBaseTop));
         data = RayCastData();
         data.start = GunBaseTop;
 
@@ -122,11 +128,11 @@ void GunBase::ShotBullet(BulletBase* pBullet)
         data.dir = shotVec;
         calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist));
         GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
-        GunBaseTar = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+        stageHitPos = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
     }
     ClearCollider();
 
-    XMFLOAT3 endTarget = GunBaseTar;
+    XMFLOAT3 endTarget = stageHitPos;
 
     //敵を目標にしていた場合
     Character* chara = nullptr;
@@ -142,7 +148,59 @@ void GunBase::ShotBullet(BulletBase* pBullet)
 
     pBullet->SetMove(move);
     pBullet->SetPosition(GunBaseTop);
-    pBullet->Shot(chara, GunBaseTar, minHitPos);
+    pBullet->Shot(chara, stageHitPos, minHitPos);
+}
+
+void GunBase::ShotFPSBullet(BulletBase* pBullet)
+{
+    float bulletSpeed = pBullet->GetBulletParameter().speed_;
+    float calcDist = bulletSpeed * pBullet->GetBulletParameter().killTimer_;
+    coolTime_ = pBullet->GetBulletParameter().shotCoolTime_;
+    pBullet->SetPlayerId(playerId_);
+
+    //カメラ情報計算
+    XMFLOAT3 cameraPos = Camera::GetPosition(playerId_);
+    XMFLOAT3 cameraTar = Camera::GetTarget(playerId_);
+    XMFLOAT3 cameraVec = Float3Sub(cameraTar, cameraPos);
+    cameraVec = Float3Normalize(cameraVec);
+    
+    //ブレの方向計算をする
+    static const float BURE_POWER = 0.3f;
+    float bure = pAimCursor_->GetBurePower();
+    XMFLOAT3 bureMove = XMFLOAT3();
+    bureMove.x = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.y = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.z = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    XMMATRIX matRotX = XMMatrixRotationX(bureMove.x);
+    XMMATRIX matRotY = XMMatrixRotationY(bureMove.y);
+    XMMATRIX matRotZ = XMMatrixRotationZ(bureMove.z);
+    XMVECTOR vecDir = XMVector3TransformCoord(XMLoadFloat3(&cameraVec), matRotX * matRotY * matRotZ);
+    XMFLOAT3 shotVec = XMFLOAT3();
+    XMStoreFloat3(&shotVec, vecDir);
+
+    //コリジョンマップで着弾地点計算
+    RayCastData data;
+    data.start = cameraPos;
+    data.dir = shotVec;
+    XMFLOAT3 calcTar = Float3Add(data.start, Float3Multiply(data.dir, calcDist));
+    GameManager::GetCollisionMap()->RaySelectCellVsSegment(calcTar, &data);
+    XMFLOAT3 stageHitPos = Float3Add(data.start, Float3Multiply(data.dir, data.dist));
+
+    //表示用の情報セット
+    XMFLOAT3 GunBaseTop = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
+    XMFLOAT3 drawMove = Float3Sub(stageHitPos, GunBaseTop);
+    drawMove = Float3Multiply(Float3Normalize(drawMove), bulletSpeed);
+    pBullet->SetDrawPosition(GunBaseTop);
+    pBullet->SetDrawMove(drawMove);
+
+    //計算用の情報セット
+    XMFLOAT3 move = Float3Sub(stageHitPos, cameraPos);
+    move = Float3Multiply(Float3Normalize(move), bulletSpeed);
+    pBullet->SetPosition(cameraPos);
+    pBullet->SetMove(move);
+
+    pBullet->Shot(nullptr, stageHitPos, XMFLOAT3());
+
 }
 
 void GunBase::LoadGunJson(std::string fileName)
@@ -170,8 +228,55 @@ void GunBase::Reload()
 {
     currentReloadTime_--;
 
-    //リロード官僚
+    //リロード完了
     if (currentReloadTime_ <= 0) {
         currentMagazineCount_ = magazineCount_;
     }
+}
+
+void GunBase::Peeking()
+{
+    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
+        //覗き込みへの推移
+        if (animTime_ <= 0) {
+            animTime_ = 0;
+        }
+
+        //覗き込み中
+        if (animTime_ == 20) {
+        }
+
+        animTime_++;
+    }
+    else {
+        //覗き込み終了の推移
+        if (InputManager::IsCmdUp(InputManager::AIM, playerId_)) {
+            animTime_ = 0;
+        }
+
+        //通常状態
+        if (animTime_ == -20) {
+        }
+
+        animTime_--;
+    }
+
+    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
+        peekTime_--;
+
+        float zoom = (float)peekTime_ / (float)PEEK_TIME;
+        zoom = std::clamp(zoom, 0.7f, 1.0f);
+        Camera::SetPeekFOVZoom(zoom, playerId_);
+
+        //覗き込み完了
+        if (peekTime_ <= 0) {
+            isPeeking_ = true;
+        }
+    }
+    else {
+        peekTime_ = PEEK_TIME;
+        isPeeking_ = false;
+        Camera::SetPeekFOVZoom(1.0f, playerId_);
+    }
+
 }
