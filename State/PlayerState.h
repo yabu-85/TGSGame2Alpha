@@ -5,13 +5,14 @@ using namespace DirectX;
 
 class Player;
 
-class PlayerWait : public StateBase
+class PlayerIdle : public StateBase
 {
 	Player* pPlayer_;
 public:
-	PlayerWait(StateManager* owner);
-	const char* GetName() const override { return "Wait"; }
+	PlayerIdle(StateManager* owner);
+	const char* GetName() const override { return "Idle"; }
 	void Update() override;
+	void OnEnter() override;
 };
 
 class PlayerMove : public StateBase
@@ -21,6 +22,7 @@ public:
 	PlayerMove(StateManager* owner);
 	const char* GetName() const override { return "Move"; }
 	void Update() override;
+	void OnEnter() override;
 };
 
 class PlayerJump : public StateBase
@@ -40,6 +42,16 @@ public:
 	PlayerClimb(StateManager* owner);
 	const char* GetName() const override { return "Climb"; }
 	void Update() override;
+};
+
+class PlayerReload : public StateBase
+{
+	int time_;
+	Player* pPlayer_;
+public:
+	PlayerReload(StateManager* owner);
+	const char* GetName() const override { return "Reload"; }
+	void OnEnter() override;
 };
 
 class PlayerDead : public StateBase

@@ -3,11 +3,6 @@
 #include "../Engine/SceneManager.h"
 #include "../Engine/RootObject.h"
 #include "../Engine/Light.h"
-#include "../Engine/ImGui/imgui.h"
-#include "../Engine/ImGui/imgui_impl_dx11.h"
-#include "../Engine/ImGui/imgui_impl_win32.h"
-
-#include "../Stage/StageEditor.h"
 #include "../Stage/CollisionMap.h"
 #include "../Player/Player.h"
 #include "../Other/InputManager.h"
@@ -15,8 +10,14 @@
 #include "../Scene/SceneBase.h"
 #include "../Json/JsonReader.h"
 
+//ImGui
+#include "../Engine/ImGui/imgui.h"
+#include "../Engine/ImGui/imgui_impl_dx11.h"
+#include "../Engine/ImGui/imgui_impl_win32.h"
+#include "../Engine/Model.h"
 #include "../Enemy/EnemyManager.h"
 #include "../Enemy/EnemyBase.h"
+#include "../State/StateManager.h"
 #include <vector>
 #include <string>
 
@@ -204,6 +205,16 @@ namespace GameManager {
 			ImGui::Text("Player 1 Speed: %.2f", playerSpeed);
 			ImGui::Text("Player 1 Faly: %s", playerFaly ? "true" : "false");
 			ImGui::Text("Player 1 Climb: %s", playerClimb ? "true" : "false");
+
+			if (GameManager::GetPlayer(0))
+			{
+				std::string strName = GameManager::GetPlayer(0)->GetStateManager()->GetName();
+				const char* stateName = strName.c_str();
+				int animFrame = Model::GetAnimFrame(pPlayer_[0]->GetFPSModelHandle());
+				ImGui::Text("Player 1 State: %s", stateName);
+				ImGui::Text("Player 1 AnimFrame: %i", animFrame);
+			}
+
 		}
 		break;
 
@@ -212,10 +223,16 @@ namespace GameManager {
 			XMFLOAT3 position = XMFLOAT3();
 			if (GameManager::GetPlayer(1)) position = GameManager::GetPlayer(1)->GetPosition();
 
-			ImGui::Text("Player 1 Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
-			ImGui::Text("Player 1 Speed: %.2f", playerSpeed);
-			ImGui::Text("Player 1 Faly: %s", playerFaly ? "true" : "false");
-			ImGui::Text("Player 1 Climb: %s", playerClimb ? "true" : "false");
+			ImGui::Text("Player 2 Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
+			ImGui::Text("Player 2 Speed: %.2f", playerSpeed);
+			ImGui::Text("Player 2 Faly: %s", playerFaly ? "true" : "false");
+			ImGui::Text("Player 2 Climb: %s", playerClimb ? "true" : "false");
+
+			if (GameManager::GetPlayer(1))
+			{
+				const char* stateName = GameManager::GetPlayer(1)->GetStateManager()->GetName().c_str();
+				ImGui::Text("Player 2 State: %s", stateName);
+			}
 		}
 		break;
 
@@ -308,15 +325,6 @@ namespace GameManager {
 		if (isImGuiDraw_) ImGuiDraw();
 	
 		Direct3D::EndDraw();
-	}
-
-	void TwoPlayerDraw()
-	{
-		Direct3D::SetViewTwo();
-		Camera::SetTwoProjectionMatrix();
-		ShadowDraw();
-
-
 	}
 
 }

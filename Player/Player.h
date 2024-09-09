@@ -63,6 +63,7 @@ class Player : public Character
     CapsuleCollider* pCapsuleCollider_;
     FixedHealthGauge* pFixedHealthGauge_;
     AnimationController* pAnimationController_;
+    AnimationController* pFpsAnimationController_;
 
     //ä÷êî
     void CalcRotate(XMFLOAT3 pos, float ratio);
@@ -116,11 +117,14 @@ public:
 
     int GetModelHandle() { return hModel_; }
     int GetFPSModelHandle() { return hFPSModel_; }
-
     int GetPlayerId() { return playerId_; }
+
     Aim* GetAim() { return pAim_; }
     GunBase* GetGun() { return pGunBase_; }
+    StateManager* GetStateManager() { return pStateManager_; }
     FixedHealthGauge* GetFixedHealthGauge() { return pFixedHealthGauge_; }
+    AnimationController* GetAnimationController() { return pAnimationController_; }
+    AnimationController* GetFpsAnimationController() { return pFpsAnimationController_; }
 
 };
 

@@ -2,34 +2,18 @@
 #include "StateManager.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
+#include "../Weapon/GunBase.h"
 #include "../Other/InputManager.h"
+#include "../Animation/AnimationController.h"
 
-//移動していない場合Orientは0にしておく
-//移動している場合はその方向に向ける、上半身はAim方向へ
-
-//Wait/Move
-//のぞき込み	
-//撃つ
-//リロード
-
-//Jump
-//撃つ
-//リロード
-
-//Climd
-
-PlayerWait::PlayerWait(StateManager* owner) : StateBase(owner)
+PlayerIdle::PlayerIdle(StateManager* owner) : StateBase(owner)
 {
 	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
 }
 
-void PlayerWait::Update()
+void PlayerIdle::Update()
 {
 	int playerId = pPlayer_->GetPlayerId();
-
-	//のぞき込み
-	//リロード
-	//撃つ
 
 	//入力
 	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
@@ -40,6 +24,16 @@ void PlayerWait::Update()
 		pPlayer_->CalcNoMove();
 		pPlayer_->Move();
 	}
+}
+
+void PlayerIdle::OnEnter()
+{
+	//リロード以外ならIDLEアニメーションに
+	if (pPlayer_->GetAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::RELOAD) {
+		pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+		pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+	}
+
 }
 
 //------------------------------------------------------------------
@@ -55,7 +49,7 @@ void PlayerMove::Update()
 	
 	//入力
 	if (InputManager::IsCmdDown(InputManager::JUMP, playerId) && pPlayer_->IsReadyJump()) owner_->ChangeState("Jump");
-	else if (!InputManager::CmdWalk(playerId)) owner_->ChangeState("Wait");
+	else if (!InputManager::CmdWalk(playerId)) owner_->ChangeState("Idle");
 
 	//処理
 	else {
@@ -63,6 +57,13 @@ void PlayerMove::Update()
 		pPlayer_->Move();
 		pPlayer_->Rotate();
 	}
+}
+
+void PlayerMove::OnEnter()
+{
+	//pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+	//pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+
 }
 
 //------------------------------------------------------------------
@@ -78,7 +79,7 @@ void PlayerJump::OnEnter()
 	pPlayer_->Jump();
 
 	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
-	else owner_->ChangeState("Wait");
+	else owner_->ChangeState("Idle");
 }
 
 //------------------------------------------------------------------
@@ -96,11 +97,35 @@ void PlayerClimb::Update()
 	time_++;
 	if (time_ >= 60) {
 		pPlayer_->SetClimb(false);
-		owner_->ChangeState("Wait");
+		owner_->ChangeState("Idle");
 		return;
 	}
 
-	if(!pPlayer_->IsClimb()) owner_->ChangeState("Wait");
+	if(!pPlayer_->IsClimb()) owner_->ChangeState("Idle");
+}
+
+//------------------------------------------------------------------
+
+PlayerReload::PlayerReload(StateManager* owner) : StateBase(owner), time_(0)
+{
+	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
+}
+
+void PlayerReload::OnEnter()
+{
+	//ここ計算する
+	int gunReloadTime = pPlayer_->GetGun()->GetReloadTime();
+	int reloadS = pPlayer_->GetAnimationController()->GetAnim((int)PLAYER_ANIMATION::RELOAD).startFrame;
+	int reloadE = pPlayer_->GetAnimationController()->GetAnim((int)PLAYER_ANIMATION::RELOAD).endFrame;
+	int reloadAnimTime = (reloadE - reloadS);
+	float animSpeed = (float)reloadAnimTime / (float)gunReloadTime;
+	pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
+	pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
+
+	//State変更
+	int playerId = pPlayer_->GetPlayerId();
+	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
+	else owner_->ChangeState("Idle");
 }
 
 //------------------------------------------------------------------
@@ -120,6 +145,11 @@ void PlayerDead::OnEnter()
 {
 	time_ = 0;
 
+	//アニメーション
+	pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
+	pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
+
+	//Effekseer
 	Transform pTrans;
 	pTrans.position_ = pPlayer_->GetPosition();
 
@@ -131,5 +161,3 @@ void PlayerDead::OnEnter()
 	EFFEKSEERLIB::gEfk->Play("FEATHER", t);
 
 }
-
-//------------------------------------------------------------------

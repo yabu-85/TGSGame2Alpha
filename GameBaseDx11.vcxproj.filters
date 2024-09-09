@@ -308,9 +308,6 @@
     <ClCompile Include="Animation\AnimationNotify.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Animation\TestBossNotify.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
     <ClCompile Include="Other\AudioManager.cpp">
       <Filter>Other</Filter>
     </ClCompile>
@@ -361,6 +358,9 @@
     </ClCompile>
     <ClCompile Include="Screen\ResultScreen.cpp">
       <Filter>Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\TestBossNotify.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -586,9 +586,6 @@
     <ClInclude Include="Animation\AnimationNotify.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Animation\TestBossNotify.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
     <ClInclude Include="Other\AudioManager.h">
       <Filter>Other</Filter>
     </ClInclude>
@@ -639,6 +636,9 @@
     </ClInclude>
     <ClInclude Include="Screen\ResultScreen.h">
       <Filter>Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\TestBossNotify.h">
+      <Filter>Animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

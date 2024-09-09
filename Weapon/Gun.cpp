@@ -2,29 +2,18 @@
 #include "Bullet_Normal.h"
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
-#include "../Engine/Camera.h"
-#include "../Engine/SegmentCollider.h"
+#include "../Engine/EffekseeLib/EffekseerVFX.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
+#include "../Animation/AnimationController.h"
+#include "../State/StateManager.h"
 #include "../Other/InputManager.h"
 #include "../Other/AudioManager.h"
 #include "../Other/GameManager.h"
-#include "../Stage/CollisionMap.h"
-#include "../Character/Character.h"
-#include "../Character/CharacterManager.h"
-#include "../UI/AimCursor.h"
-#include "../Engine/EffekseeLib/EffekseerVFX.h"
-
-#include "../Engine/Input.h"
 #include "../Scene/PlayScene.h"
+#include "../UI/AimCursor.h"
 
-namespace {
-    static const int PEEK_TIME = 15;                            //覗き込みにかかる時間
-
-}
-
-Gun::Gun(GameObject* parent)
-    : GunBase(parent, "Gun")
+Gun::Gun(GameObject* parent) : GunBase(parent, "Gun")
 {
 }
 
@@ -68,19 +57,31 @@ void Gun::Update()
         //リロード終了
         if (currentMagazineCount_ == magazineCount_) {
             Model::SetAnimFrame(hModel_, 0, 0, 1.0f);
+            
+            //プレイヤーのStateがIdleかJumpだったら
+            std::string stateName = pPlayer_->GetStateManager()->GetName();
+            if (stateName == "Idle") {
+                pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
+                pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
+            }
         }
-
         return;
     }
 
     //リロードボタン押した
     if (InputManager::IsCmdDown(InputManager::RELOAD, playerId_)) {
-        PressedReload();
+        //成功したら
+        if (PressedReload()) {
+            //Peeking
+            isPeeking_ = false;
+            currentPeekTime_ = peekTime_;
+        
+            //PlayerState
+            pPlayer_->GetStateManager()->ChangeState("Reload");
 
-        //Peeking
-        isPeeking_ = false;
-        peekTime_ = PEEK_TIME;
-        return;
+            //終わり
+            return;
+        }
     }
 
     //銃弾空だけど撃つボタン押した、リロード
@@ -178,6 +179,9 @@ void Gun::PressedShot()
 
 bool Gun::PressedReload()
 {
+    //Playerの状態がどうか
+    if (pPlayer_->IsClimb()) return false;
+
     //すでに満タン
     if (currentMagazineCount_ >= magazineCount_) return false;
     //すでにリロード中

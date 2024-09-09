@@ -14,21 +14,26 @@
 #include "../UI/AimCursor.h"
 #include "../Other/InputManager.h"
 
-namespace {
-    static const int PEEK_TIME = 15;                            //覗き込みにかかる時間
-
-}
-
 GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
     rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isPeeking_(false), peekTime_(0), reloadTime_(0), 
-    currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hPlayerModel_(-1), handBoneIndex_(-1), handPartIndex_(-1), hPlayerFPSModel_(-1)
+    currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hPlayerModel_(-1), handBoneIndex_(-1), handPartIndex_(-1),
+    hPlayerFPSModel_(-1), animTime_(0), currentPeekTime_(0)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
     hPlayerModel_ = pPlayer_->GetModelHandle();
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
     Model::GetPartBoneIndex(hPlayerModel_, "Weapon", &handPartIndex_, &handBoneIndex_);
+
+    //とりまあここで(修正箇所
+    peekTime_ = 50;
+}
+
+GunBase::~GunBase()
+{
+    SAFE_DELETE(pAimCursor_);
+
 }
 
 void GunBase::OnCollision(GameObject* pTarget)
@@ -39,6 +44,83 @@ void GunBase::OnCollision(GameObject* pTarget)
     {
         rayHit_ = true;
     }
+}
+
+void GunBase::LoadGunJson(std::string fileName)
+{
+    //銃弾ごとの設定を読み込む
+    JsonReader::Load("Json/Weapon.json");
+    auto& gunSection = JsonReader::GetSection(fileName);
+
+    //マガジン数の初期化
+    magazineCount_ = gunSection["magazineCount"];
+    currentMagazineCount_ = magazineCount_;
+
+    //リロード時間の初期化
+    reloadTime_ = gunSection["reloadTime"];
+    currentReloadTime_ = 0;
+}
+
+void GunBase::SetGunHandPosition()
+{
+    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
+    transform_.rotate_.y = pPlayer_->GetRotate().y;
+}
+
+bool GunBase::Reload()
+{
+    currentReloadTime_--;
+
+    //リロード完了
+    if (currentReloadTime_ <= 0) {
+        currentMagazineCount_ = magazineCount_;
+        return true;
+    }
+
+    return false;
+}
+
+//プレイヤーのアニメーションのかかる時間と武器に持たせたかかる時間で計算してAnimationSpeedを計算してやる
+//ただし、Animation開始とかのコードはPlayerStateに置くこと
+//IsCmdDownとIsCmdUpはなるべく使うな
+//ジャンプ中のアニメーションやけど、カメラを遅れてついてくるようにするだけでいいけど
+//再生するアニメーションはジャンプにする、他のAnimは止めていいかな、それとジャンプ中は覗き込みできないようにする
+void GunBase::Peeking()
+{
+    bool playerClimb = pPlayer_->IsClimb();
+
+    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
+        currentPeekTime_--;
+
+        float zoom = (float)currentPeekTime_ / (float)peekTime_;
+        zoom = std::clamp(zoom, 0.7f, 1.0f);
+        Camera::SetPeekFOVZoom(zoom, playerId_);
+
+        //覗き込み完了
+        if (currentPeekTime_ <= 0) {
+            currentPeekTime_ = 0;
+            isPeeking_ = true;
+        }
+    }
+    else {
+        //Peekやめた時
+        if (isPeeking_ ) {
+            int a = 0;
+        }
+
+        isPeeking_ = false;
+        currentPeekTime_++;
+
+        //完全にPeek終わった
+        if (currentPeekTime_ >= peekTime_) {
+            currentPeekTime_ = peekTime_;
+        }
+
+        float zoom = (float)currentPeekTime_ / (float)peekTime_;
+        zoom = std::clamp(zoom, 0.7f, 1.0f);
+        Camera::SetPeekFOVZoom(zoom, playerId_);
+    }
+
 }
 
 void GunBase::ShotBullet(BulletBase* pBullet)
@@ -163,7 +245,7 @@ void GunBase::ShotFPSBullet(BulletBase* pBullet)
     XMFLOAT3 cameraTar = Camera::GetTarget(playerId_);
     XMFLOAT3 cameraVec = Float3Sub(cameraTar, cameraPos);
     cameraVec = Float3Normalize(cameraVec);
-    
+
     //ブレの方向計算をする
     static const float BURE_POWER = 0.3f;
     float bure = pAimCursor_->GetBurePower();
@@ -200,83 +282,5 @@ void GunBase::ShotFPSBullet(BulletBase* pBullet)
     pBullet->SetMove(move);
 
     pBullet->Shot(nullptr, stageHitPos, XMFLOAT3());
-
-}
-
-void GunBase::LoadGunJson(std::string fileName)
-{
-    //銃弾ごとの設定を読み込む
-    JsonReader::Load("Json/Weapon.json");
-    auto& gunSection = JsonReader::GetSection(fileName);
-
-    //マガジン数の初期化
-    magazineCount_ = gunSection["magazineCount"];
-    currentMagazineCount_ = magazineCount_;
-
-    //リロード時間の初期化
-    reloadTime_ = gunSection["reloadTime"];
-    currentReloadTime_ = 0;
-}
-
-void GunBase::SetGunHandPosition()
-{
-    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
-    transform_.rotate_.y = pPlayer_->GetRotate().y;
-}
-
-void GunBase::Reload()
-{
-    currentReloadTime_--;
-
-    //リロード完了
-    if (currentReloadTime_ <= 0) {
-        currentMagazineCount_ = magazineCount_;
-    }
-}
-
-void GunBase::Peeking()
-{
-    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        //覗き込みへの推移
-        if (animTime_ <= 0) {
-            animTime_ = 0;
-        }
-
-        //覗き込み中
-        if (animTime_ == 20) {
-        }
-
-        animTime_++;
-    }
-    else {
-        //覗き込み終了の推移
-        if (InputManager::IsCmdUp(InputManager::AIM, playerId_)) {
-            animTime_ = 0;
-        }
-
-        //通常状態
-        if (animTime_ == -20) {
-        }
-
-        animTime_--;
-    }
-
-    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        peekTime_--;
-
-        float zoom = (float)peekTime_ / (float)PEEK_TIME;
-        zoom = std::clamp(zoom, 0.7f, 1.0f);
-        Camera::SetPeekFOVZoom(zoom, playerId_);
-
-        //覗き込み完了
-        if (peekTime_ <= 0) {
-            isPeeking_ = true;
-        }
-    }
-    else {
-        peekTime_ = PEEK_TIME;
-        isPeeking_ = false;
-        Camera::SetPeekFOVZoom(1.0f, playerId_);
-    }
 
 }

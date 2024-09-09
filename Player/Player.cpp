@@ -43,7 +43,8 @@ namespace {
 Player::Player(GameObject* parent)
     : Character(parent, "Player"), hModel_(-1), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
     playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f),
-    playerId_(0), waistPart_(-1), waistRotateY_(0.0f), hFPSModel_(-1), healthGaugeDrawTime_(0), damageDrawTime_(0), hPict_(-1)
+    playerId_(0), waistPart_(-1), waistRotateY_(0.0f), hFPSModel_(-1), healthGaugeDrawTime_(0), damageDrawTime_(0), hPict_(-1),
+    pAnimationController_(nullptr), pFpsAnimationController_(nullptr)
 {
     for (int i = 0; i < 15; i++) waistListIndex_[i] = -1;
     for (int i = 0; i < 8; i++) downListIndex_[i] = -1;
@@ -109,7 +110,9 @@ void Player::Initialize()
 
     //アニメーションデータのセットフレームはヘッダに書いてる
     pAnimationController_ = new AnimationController(hModel_, this);
+    pFpsAnimationController_ = new AnimationController(hFPSModel_, this);
     for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
+    for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pFpsAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
 
     //PlayerIDセット
     if (GameManager::GetPlayer(0)) playerId_ = 1;
@@ -153,12 +156,13 @@ void Player::Initialize()
     if (playerId_ == 1 ) pGunBase_ = Instantiate<SniperGun>(this);
     
     pStateManager_ = new StateManager(this);
-    pStateManager_->AddState(new PlayerWait(pStateManager_));
+    pStateManager_->AddState(new PlayerIdle(pStateManager_));
     pStateManager_->AddState(new PlayerMove(pStateManager_));
     pStateManager_->AddState(new PlayerJump(pStateManager_));
     pStateManager_->AddState(new PlayerClimb(pStateManager_));
+    pStateManager_->AddState(new PlayerReload(pStateManager_));
     pStateManager_->AddState(new PlayerDead(pStateManager_));
-    pStateManager_->ChangeState("Wait");
+    pStateManager_->ChangeState("Idle");
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
     pCapsuleCollider_ = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.3f, 0.65f, vec);
@@ -171,6 +175,7 @@ void Player::Update()
 {
     //AnimCtrl
     pAnimationController_->Update();
+    pFpsAnimationController_->Update();
     
     //Orient上下視点/腰下
     waistRotateX_ = -pAim_->GetRotate().x;
