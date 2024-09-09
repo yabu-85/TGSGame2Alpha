@@ -47,10 +47,11 @@ namespace Direct3D
 	D3D11_VIEWPORT vp1[2];
 	D3D11_VIEWPORT vp2;
 
-	ID3D11RenderTargetView* pDepthTargetView_;
-	ID3D11Texture2D* pRenderTexture;
-	ID3D11ShaderResourceView* pDepthSRV_;
-	ID3D11SamplerState* pDepthSampler_;
+	ID3D11RenderTargetView* pDepthTargetView_[2];
+	ID3D11Texture2D* pRenderTexture[2];
+
+	ID3D11ShaderResourceView* pDepthSRV_[2];
+	ID3D11SamplerState* pDepthSampler_[2];
 
 	XMMATRIX lightViewMatrix;
 	XMMATRIX clipToUVMatrix;
@@ -194,51 +195,52 @@ namespace Direct3D
 		pContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);	// データの入力種類を指定
 
 
+		//シャドウマップで追加ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー		
+		for (int i = 0; i < 2; i++) {
+			//新しいレンダーターゲット作成
+			D3D11_TEXTURE2D_DESC texdec;
+			texdec.Width = screenWidth;
+			texdec.Height = screenHeight;
+			texdec.MipLevels = 1;
+			texdec.ArraySize = 1;
+			texdec.MiscFlags = 0;
+			texdec.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			texdec.SampleDesc.Count = 1;
+			texdec.SampleDesc.Quality = 0;
+			texdec.Usage = D3D11_USAGE_DEFAULT;
+			texdec.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+			texdec.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			pDevice_->CreateTexture2D(&texdec, nullptr, &pRenderTexture[i]);
 
-		//シャドウマップで追加ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
-		//新しいレンダーターゲット作成
-		D3D11_TEXTURE2D_DESC texdec;
-		texdec.Width = screenWidth;
-		texdec.Height = screenHeight;
-		texdec.MipLevels = 1;
-		texdec.ArraySize = 1;
-		texdec.MiscFlags = 0;
-		texdec.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		texdec.SampleDesc.Count = 1;
-		texdec.SampleDesc.Quality = 0;
-		texdec.Usage = D3D11_USAGE_DEFAULT;
-		texdec.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		texdec.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		pDevice_->CreateTexture2D(&texdec, nullptr, &pRenderTexture);
+			//新しいレンダーターゲットビュー作成
+			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+			ZeroMemory(&renderTargetViewDesc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
+			renderTargetViewDesc.Format = texdec.Format;
+			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+			renderTargetViewDesc.Texture2D.MipSlice = 0;
+			hr = pDevice_->CreateRenderTargetView(pRenderTexture[i], &renderTargetViewDesc, &pDepthTargetView_[i]);
 
-		//新しいレンダーターゲットビュー作成
-		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-		ZeroMemory(&renderTargetViewDesc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
-		renderTargetViewDesc.Format = texdec.Format;
-		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		hr = pDevice_->CreateRenderTargetView(pRenderTexture, &renderTargetViewDesc, &pDepthTargetView_);
+			//シェーダーリソースビュー
+			D3D11_SHADER_RESOURCE_VIEW_DESC srv;
+			ZeroMemory(&srv, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+			srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			srv.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			srv.Texture2D.MipLevels = 1;
+			hr = pDevice_->CreateShaderResourceView(pRenderTexture[i], &srv, &pDepthSRV_[i]);
 
-		//シェーダーリソースビュー
-		D3D11_SHADER_RESOURCE_VIEW_DESC srv;
-		ZeroMemory(&srv, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-		srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		srv.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srv.Texture2D.MipLevels = 1;
-		hr = pDevice_->CreateShaderResourceView(pRenderTexture, &srv, &pDepthSRV_);
-
-		// テクスチャー用サンプラー作成
-		D3D11_SAMPLER_DESC  SamDesc;
-		ZeroMemory(&SamDesc, sizeof(D3D11_SAMPLER_DESC));
-		SamDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		SamDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-		SamDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-		SamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-		SamDesc.BorderColor[0] = 1.0f; //R
-		SamDesc.BorderColor[1] = 1.0f; //G
-		SamDesc.BorderColor[2] = 1.0f; //B
-		SamDesc.BorderColor[3] = 1.0f; //A
-		Direct3D::pDevice_->CreateSamplerState(&SamDesc, &pDepthSampler_);
+			//テクスチャー用サンプラー作成
+			D3D11_SAMPLER_DESC  SamDesc;
+			ZeroMemory(&SamDesc, sizeof(D3D11_SAMPLER_DESC));
+			SamDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			SamDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+			SamDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+			SamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+			SamDesc.BorderColor[0] = 1.0f; //R
+			SamDesc.BorderColor[1] = 1.0f; //G
+			SamDesc.BorderColor[2] = 1.0f; //B
+			SamDesc.BorderColor[3] = 1.0f; //A
+			Direct3D::pDevice_->CreateSamplerState(&SamDesc, &pDepthSampler_[i]);
+		}
 
 		//ビューポートの設定
 		//レンダリング結果を表示する範囲
@@ -495,27 +497,23 @@ namespace Direct3D
 	}
 
 	//描画開始
-	void BeginDraw()
+	void BeginShadowDraw(int index)
 	{
 		//ShadowMapで追加-------------------------------
-		pContext_->OMSetRenderTargets(1, &pDepthTargetView_, pDepthStencilView);            // 描画先を設定
+		pContext_->OMSetRenderTargets(1, &pDepthTargetView_[index], pDepthStencilView);            // 描画先を設定
 
 		pContext_->RSSetViewports(1, &vp2);
 		//---------------------------------------
 
-		//背景の色
+		//画面をクリアと深度バッファクリア
 		float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };//R,G,B,A
-
-		//画面をクリア
-		pContext_->ClearRenderTargetView(pDepthTargetView_, clearColor);
-
-		//深度バッファクリア
-		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);	
+		pContext_->ClearRenderTargetView(pDepthTargetView_[index], clearColor);
+		pContext_->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 		SetShader(SHADER_SHADOWMAP);
 	}
 
-	void BeginDraw2()
+	void BeginDraw()
 	{
 		//描画先を設定
 		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
@@ -586,7 +584,8 @@ namespace Direct3D
 		SAFE_RELEASE(pDepthStencil);
 		SAFE_RELEASE(pDepthStencilView);
 		SAFE_RELEASE(pRenderTargetView_);
-		SAFE_RELEASE(pDepthTargetView_);
+		SAFE_RELEASE(pDepthTargetView_[0]);
+		SAFE_RELEASE(pDepthTargetView_[1]);
 		SAFE_RELEASE(pSwapChain_);
 
 		for (int i = 0; i < BLEND_MAX; i++)
@@ -603,13 +602,20 @@ namespace Direct3D
 			SAFE_RELEASE(shaderBundle[i].pPixelShader);
 		}
 
+		for (int i = 0; i < 2; i++) {
+			SAFE_RELEASE(pRenderTexture[i]);
+			SAFE_RELEASE(pDepthSRV_[i]);
+			SAFE_RELEASE(pDepthSampler_[i]);
+		}
+
 		if (pContext_)
 		{
 			pContext_->ClearState();
 		}
 
 		SAFE_RELEASE(pRenderTargetView_);
-		SAFE_RELEASE(pDepthTargetView_);
+		SAFE_RELEASE(pDepthTargetView_[0]);
+		SAFE_RELEASE(pDepthTargetView_[1]);
 		SAFE_RELEASE(pSwapChain_);
 		SAFE_RELEASE(pContext_);
 		SAFE_RELEASE(pDevice_);

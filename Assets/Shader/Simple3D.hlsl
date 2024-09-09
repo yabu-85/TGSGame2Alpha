@@ -120,9 +120,6 @@ float4 PS(VS_OUT inData) : SV_Target
     if (isShadow && TexValue + 0.003 < LightLength)
     {
         color = ambient * diffuse;
-
-        //ƒ‰ƒCƒg‚ÉÆ‚ç‚³‚ê‚È‚¢êŠ‚Í‰e‚ÌŒø‰Ê‚ð’á‚­
-       // color -= color * shade * 0.5f;
     }
     else
     {

@@ -43,7 +43,6 @@ class FbxParts
 		FLOAT		shininess;
 		BOOL		isTexture;
 		BOOL		isShadow;
-		FLOAT		zoom;
 	};
 
 	// マテリアル情報（質感の情報）

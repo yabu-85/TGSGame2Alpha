@@ -431,9 +431,6 @@ void FbxParts::Draw(Transform& transform, bool isShadow)
 		cb.mWLPT = XMMatrixTranspose(transform.GetWorldMatrix() * Direct3D::lightViewMatrix * Camera::GetProjectionMatrix() * Direct3D::clipToUVMatrix);
 		cb.isShadow = isShadow;
 
-		int id = GameManager::GetDrawIndex();
-		cb.zoom = Camera::GetPeekFOVZoom(id);
-
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
 		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
@@ -448,8 +445,9 @@ void FbxParts::Draw(Transform& transform, bool isShadow)
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 		}
 
-		Direct3D::pContext_->PSSetSamplers(1, 1, &Direct3D::pDepthSampler_);
-		Direct3D::pContext_->PSSetShaderResources(2, 1, &Direct3D::pDepthSRV_);
+		int id = GameManager::GetDrawIndex();
+		Direct3D::pContext_->PSSetSamplers(1, 1, &Direct3D::pDepthSampler_[id]);
+		Direct3D::pContext_->PSSetShaderResources(2, 1, &Direct3D::pDepthSRV_[id]);
 		
 		//GPUからのリソースアクセスを再開
 		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);

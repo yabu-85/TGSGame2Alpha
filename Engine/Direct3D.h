@@ -24,8 +24,8 @@ namespace Direct3D
 	extern ID3D11DeviceContext*    pContext_;
 	
 	//シャドウマップ用
-	extern ID3D11ShaderResourceView* pDepthSRV_;
-	extern ID3D11SamplerState* pDepthSampler_;
+	extern ID3D11ShaderResourceView* pDepthSRV_[2];
+	extern ID3D11SamplerState* pDepthSampler_[2];
 	extern XMMATRIX lightViewMatrix;
 	extern XMMATRIX clipToUVMatrix;
 
@@ -74,7 +74,6 @@ namespace Direct3D
 	void InitShaderBundle();
 
 	//今から描画するShaderBundleを設定
-	//引数：type	SHADER_3D, SHADER_2D, SHADER_UNLITのどれか
 	void SetShader(SHADER_TYPE type);
 	SHADER_TYPE GetCurrentShader();
 
@@ -83,9 +82,11 @@ namespace Direct3D
 	//					BLEND_ADD		加算合成（パーティクル用）
 	void SetBlendMode(BLEND_MODE blendMode);
 
+	//影描画開始（画面分割時は0左、右1）
+	void BeginShadowDraw(int index = 0);
+
 	//描画開始
 	void BeginDraw();
-	void BeginDraw2();
 
 	void SetViewPort(int i);
 	void SetViewOne();	//一人用の設定

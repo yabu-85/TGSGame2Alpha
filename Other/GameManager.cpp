@@ -249,7 +249,7 @@ namespace GameManager {
 		Camera::Update(0);
 		Direct3D::lightViewMatrix = Camera::GetViewMatrix();
 
-		Direct3D::BeginDraw();
+		Direct3D::BeginShadowDraw(drawIndex_);
 		pRootObject_->DrawSub();
 		Direct3D::EndDraw();
 		Camera::SetPosition(pos, 0);
@@ -259,15 +259,14 @@ namespace GameManager {
 
 	void OnePlayerDraw()
 	{
+		drawIndex_ = 0;
 		Direct3D::SetViewPort(0);
 		Direct3D::SetViewOne();
-		Camera::SetOneProjectionMatrix();
-		drawIndex_ = 0;
+		Camera::SetOneProjectionMatrix(Camera::GetPeekFOVZoom(0));
 		ShadowDraw();
 		
-		Direct3D::BeginDraw2();
+		Direct3D::BeginDraw();
 		Camera::Update(0);
-		Camera::SetOneProjectionMatrix(); 
 		pRootObject_->DrawSub();
 		EFFEKSEERLIB::gEfk->Draw();
 		GameManager::IndividualDraw(0);
@@ -282,17 +281,19 @@ namespace GameManager {
 	void TwoPlayerDraw()
 	{
 		Direct3D::SetViewTwo();
-		Camera::SetTwoProjectionMatrix();
-		ShadowDraw();
 
-		Direct3D::BeginDraw2();
+		for (int i = 0; i < 2; i++) {
+			drawIndex_ = i;
+			Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
+			ShadowDraw();
+		}
+
+		Direct3D::BeginDraw();
 		for (int i = 0; i < 2; i++) {
 			drawIndex_ = i;
 			Direct3D::SetViewPort(i);
 			Camera::Update(i);
-
-			Camera::SetTwoProjectionMatrix();
-			//Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
+			Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
 
 			pRootObject_->DrawSub();
 			EFFEKSEERLIB::gEfk->Draw();
@@ -307,6 +308,15 @@ namespace GameManager {
 		if (isImGuiDraw_) ImGuiDraw();
 	
 		Direct3D::EndDraw();
+	}
+
+	void TwoPlayerDraw()
+	{
+		Direct3D::SetViewTwo();
+		Camera::SetTwoProjectionMatrix();
+		ShadowDraw();
+
+
 	}
 
 }
