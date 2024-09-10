@@ -275,9 +275,13 @@ void Player::Draw()
     }
 
     //自分自身の表示（アニメーション進めるために映らない場所でDraw
-    if (GameManager::GetDrawIndex() == playerId_) {
+    if (pAim_->IsAimFps() && GameManager::GetDrawIndex() == playerId_) {
+
+        //常に手前に表示するように
+        Direct3D::SetDepthBafferWriteEnable(false);
         Model::SetTransform(hFPSModel_, transform_);
         Model::Draw(hFPSModel_);
+        Direct3D::SetDepthBafferWriteEnable(true);
 
         //ダメージエフェクト
         if (damageDrawTime_ > 0) {

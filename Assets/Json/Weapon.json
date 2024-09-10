@@ -4,7 +4,7 @@
     "magazineCount": 40
   },
   "SniperGun": {
-    "reloadTime": 30,
+    "reloadTime": 50,
     "magazineCount": 1
   }
 }

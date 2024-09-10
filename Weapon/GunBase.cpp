@@ -18,7 +18,7 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
     rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isPeeking_(false), peekTime_(0), reloadTime_(0), 
     currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hPlayerModel_(-1), handBoneIndex_(-1), handPartIndex_(-1),
-    hPlayerFPSModel_(-1), animTime_(0), currentPeekTime_(0)
+    hPlayerFPSModel_(-1), animTime_(0), currentPeekTime_(0), peekZoom_(0.0f)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
@@ -27,7 +27,9 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
     Model::GetPartBoneIndex(hPlayerModel_, "Weapon", &handPartIndex_, &handBoneIndex_);
 
     //‚Æ‚è‚Ü‚ ‚±‚±‚Å(C³‰ÓŠ
-    peekTime_ = 50;
+    peekTime_ = 20;
+    currentPeekTime_ = peekTime_;
+    peekZoom_ = 0.7f;
 }
 
 GunBase::~GunBase()
@@ -88,12 +90,23 @@ bool GunBase::Reload()
 void GunBase::Peeking()
 {
     bool playerClimb = pPlayer_->IsClimb();
+    if (playerClimb || currentReloadTime_ > 0) {
+        isPeeking_ = false;
+        currentPeekTime_++;
+
+        if (currentPeekTime_ >= peekTime_) {
+            currentPeekTime_ = peekTime_;
+        }
+
+        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
+        Camera::SetPeekFOVZoom(zoom, playerId_);
+        return;
+    }
 
     if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
         currentPeekTime_--;
 
-        float zoom = (float)currentPeekTime_ / (float)peekTime_;
-        zoom = std::clamp(zoom, 0.7f, 1.0f);
+        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
         Camera::SetPeekFOVZoom(zoom, playerId_);
 
         //”`‚«ž‚ÝŠ®—¹
@@ -103,21 +116,14 @@ void GunBase::Peeking()
         }
     }
     else {
-        //Peek‚â‚ß‚½Žž
-        if (isPeeking_ ) {
-            int a = 0;
-        }
-
         isPeeking_ = false;
         currentPeekTime_++;
 
-        //Š®‘S‚ÉPeekI‚í‚Á‚½
         if (currentPeekTime_ >= peekTime_) {
             currentPeekTime_ = peekTime_;
         }
 
-        float zoom = (float)currentPeekTime_ / (float)peekTime_;
-        zoom = std::clamp(zoom, 0.7f, 1.0f);
+        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
         Camera::SetPeekFOVZoom(zoom, playerId_);
     }
 

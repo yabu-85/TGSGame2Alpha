@@ -2,6 +2,7 @@
 #include "../Player/Player.h"
 #include "../Stage/Stage.h"
 #include "../Other/GameManager.h"
+#include "../Other/AudioManager.h"
 #include "../Engine/Input.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/SceneManager.h"
@@ -23,6 +24,7 @@ void TitleScene::Initialize()
 {
 	GameManager::SetOnePlayer();
 	GameManager::SetCursorMode(true);
+	AudioManager::Initialize();
 
 	AllDeleteScreen();
 	AddScreen(new TitleScreen());
@@ -76,13 +78,13 @@ void TitleScene::Update()
 	//ÉJÉÅÉâÇÃâÒì]
 	static const float valueZ = 0.005f;
 	static const float CameraCenter = 50.0f;
-	static const float cameraPosX = 20.0f;
+	static const float cameraPosX = 15.0f;
 	static float value = 0.0f;
 	
 	value += valueZ;
 	float CamX = CameraCenter + cameraPosX * std::cosf(value);
 	float CamZ = CameraCenter + cameraPosX * std::sinf(value);
-	Camera::SetPosition(XMFLOAT3(CamX, 17.0f, CamZ), 0);
+	Camera::SetPosition(XMFLOAT3(CamX, 15.0f, CamZ), 0);
 
 }
 

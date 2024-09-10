@@ -9,7 +9,8 @@ class SettingScreen : public Screen
 		PC_CTRL = 0,
 		GAMEPAD,
 		AIM_SPEED,
-		BACK,
+		BACK_BLACK,
+		BACK_WHITE,
 		PLAYER1,
 		PLAYER2,
 		PICT_MAX,
@@ -17,13 +18,14 @@ class SettingScreen : public Screen
 
 	int hPict_[PICT_MAX];
 	SliderUI* aimSliderUI_[2];
+	SliderUI* volumeSliderUI_;
 
 	//PCCtrl
 	void SetPCCtrlOn(int index);
 	void SetPCCtrlOff(int index);
 	
 	//AimSensitivity
-	void SetPlayerSetting();
+	void SetJsonSetting();
 
 public:
 	SettingScreen();

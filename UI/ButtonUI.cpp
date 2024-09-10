@@ -1,5 +1,6 @@
 #include "ButtonUI.h"
 #include "../Other/InputManager.h"
+#include "../Other/AudioManager.h"
 #include "../Engine/Image.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/Input.h"
@@ -19,7 +20,7 @@ void ButtonUI::Update()
 
 	if (IsWithinBound()) {
 		//d‚È‚Á‚½‚Ì‰¹Ä¶
-		//if (!isBound_) AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN);
+		if (!isBound_) AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN, 0.4f);
 
 		//—£‚µ‚½‚çŠÖ”ŒÄ‚Ño‚µ
 		if (Input::IsMouseButtonUp(0)) OnClick();

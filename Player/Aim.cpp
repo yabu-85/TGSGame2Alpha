@@ -20,8 +20,8 @@ namespace {
     const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
     const float MOUSE_SPEED_DEFAULT = 0.1f;                  //感度
-    const float DISTANCE_HORIZONTAL_DEFAULT = 0.30f;         //どのくらい左右にずらすか
-    const float DISTANCE_BEHIND_DEFAULT = 3.0f;              //どのくらい後ろから移すかのデフォルト値
+    const float DISTANCE_HORIZONTAL_DEFAULT = 0.25f;         //どのくらい左右にずらすか
+    const float DISTANCE_BEHIND_DEFAULT = 0.8f;              //どのくらい後ろから移すかのデフォルト値
     const float DISTANCE_HEIGHT_DEFAULT = 1.1f;              //Aimの高さ
     const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
 

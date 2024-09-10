@@ -31,8 +31,10 @@ protected:
 
     int reloadTime_;                //リロード時間最大値
     int currentReloadTime_;         //リロード時間保存
+
     int peekTime_;                  //覗き込み時間最大値
     int currentPeekTime_;           //覗き込み時間計算用
+    float peekZoom_;                //ズームする度合い
 
     Player* pPlayer_;
     AimCursor* pAimCursor_;

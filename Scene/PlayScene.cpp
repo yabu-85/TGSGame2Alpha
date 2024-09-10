@@ -167,8 +167,8 @@ void PlayScene::Update()
 			//ÉJÉÅÉâÇÃà⁄ìÆ
 			static float CAMERA_X = 42.0f;
 			CAMERA_X += 0.05f;
-			Camera::SetPosition(XMFLOAT3(CAMERA_X, 15.0f, 55.0f), 0);
-			Camera::SetTarget(XMFLOAT3(50.0f, 5.0f, 50.0f), 0);
+			Camera::SetPosition(XMFLOAT3(CAMERA_X, 10.0f, 55.0f), 0);
+			Camera::SetTarget(XMFLOAT3(50.0f, 0.0f, 50.0f), 0);
 		}
 	}
 

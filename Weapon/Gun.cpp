@@ -50,6 +50,9 @@ void Gun::Update()
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
+    //のぞき込み処理
+    Peeking();
+
     //リロード中の処理
     if (currentReloadTime_ > 0) {
         Reload();
@@ -60,7 +63,7 @@ void Gun::Update()
             
             //プレイヤーのStateがIdleかJumpだったら
             std::string stateName = pPlayer_->GetStateManager()->GetName();
-            if (stateName == "Idle") {
+            if (stateName == "Idle" || /*修正箇所*/ stateName == "Move") {
                 pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
                 pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
             }
@@ -91,9 +94,6 @@ void Gun::Update()
         if (PressedReload()) return;
     }
 
-    //のぞき込み処理
-    Peeking();
-
     //通常射撃
     if (InputManager::IsCmd(InputManager::ATTACK, playerId_))
     {
@@ -117,19 +117,13 @@ void Gun::Draw()
 
     transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     int dI = GameManager::GetDrawIndex();
+    //自分の表示
     if (pPlayer_->GetPlayerId() == dI) {
-
-        //ピーク中は画像の表示
-        if (isPeeking_) {
-            if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
-                Model::SetTransform(hModel_, transform_);
-                Model::Draw(hModel_);
-            }
-        }
-        else {
-            Model::SetTransform(hModel_, transform_);
-            Model::Draw(hModel_);
-        }
+        //常に手前に表示するように
+        Direct3D::SetDepthBafferWriteEnable(false);
+        Model::SetTransform(hModel_, transform_);
+        Model::Draw(hModel_);
+        Direct3D::SetDepthBafferWriteEnable(true);
     }
     //相手の表示
     else {
@@ -162,7 +156,7 @@ void Gun::PressedShot()
 
     AudioManager::Play(AUDIO_TYPE::SMALL_SHOT, 0.5f);
 
-    //ヒットエフェクト
+    //ショットエフェクト
     EFFEKSEERLIB::EFKTransform t;
     Transform transform;
     transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);

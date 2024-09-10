@@ -45,7 +45,11 @@ public:
 	void SetBound(bool b) { isBound_ = b; }
 	void SetSelect(bool b) { isSelect_ = b; }
 
-	//UIを生成する
+	/// <summary>
+	/// UIの生成
+	/// Sliderの名前指定は現在実装してないから、何を入れてもいい
+	/// Buttonは読み込む文字画像の名前にすること
+	/// </summary>
 	template<class T>
 	inline T* UIInstantiate(std::string name, XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick)
 	{

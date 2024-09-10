@@ -4,6 +4,7 @@
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
 #include "../Engine/Easing.h"
+#include "../Other/AudioManager.h"
 
 namespace {
 	static const float BOUND_SIZE = 1.1f;		//通常サイズに掛けて表示
@@ -45,7 +46,7 @@ void SliderUI::Update()
 		//カーソルが重なってるとき一回再生
 		if (!isBound_)
 		{
-			//AudioManager::PlaySoundMa(AUDIO_POINTCURSOR);
+			AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN, 0.4f);
 			isBound_ = true;
 		}
 

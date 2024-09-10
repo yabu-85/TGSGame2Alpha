@@ -62,8 +62,7 @@ void SniperGun::Update()
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
-    //Input関係はUpとDown使わずに作ったほうがいいかも
-    //Pauseをやめた時にキャンセルされない
+    Peeking();
 
     //アニメーションセット
     if (currentReloadTime_ <= 0) {
@@ -196,15 +195,15 @@ void SniperGun::Draw()
                 Image::SetTransform(hPict_, t);
                 Image::Draw(hPict_);
 #endif
-
-                Model::SetTransform(hModel_, transform_);
-                Model::Draw(hModel_);
             }
         }
-        else {
-            Model::SetTransform(hModel_, transform_);
-            Model::Draw(hModel_);
-        }
+
+        //常に手前に表示するように
+        Direct3D::SetDepthBafferWriteEnable(false);
+        Model::SetTransform(hModel_, transform_);
+        Model::Draw(hModel_);
+        Direct3D::SetDepthBafferWriteEnable(true);
+
     }
     //相手の表示
     else {
@@ -221,20 +220,34 @@ void SniperGun::Release()
 void SniperGun::PressedShot()
 {
     //まだクールタイム中
-    if (coolTime_ > 0) {
-        return;
-    }
+    if (coolTime_ > 0) return;
 
     //マガジン計算
     if (currentMagazineCount_ <= 0) return;
     currentMagazineCount_--;
 
-    ShotBullet<Bullet_Normal>("Bullet_Sniper");
-    pAimCursor_->Shot();
+    //弾丸Init
+    if (pPlayer_->GetAim()->IsAimFps()) ShotFpsBullet<Bullet_Normal>("Bullet_Sniper");
+    else ShotBullet<Bullet_Normal>("Bullet_Sniper");
 
-    CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 3.0f), 3);
+    CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 8.0f), 7);
     pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
     pPlayer_->GetAim()->SetCameraRotateReturn(true);
+    pAimCursor_->Shot();
+
+    //ショットエフェクト
+    EFFEKSEERLIB::EFKTransform t;
+    Transform transform;
+    transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
+    transform.rotate_ = transform_.rotate_;
+    transform.rotate_.x = -transform.rotate_.x;
+    transform.rotate_.y += 180.0f;
+    transform.scale_ = transform_.scale_;
+    DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
+    t.isLoop = false;   //繰り返し
+    t.maxFrame = 20;    //80フレーム
+    t.speed = 1.0;      //スピード
+    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
 
 }
 

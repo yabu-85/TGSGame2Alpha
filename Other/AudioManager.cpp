@@ -3,6 +3,7 @@
 #include "../Engine/Global.h"
 #include <cassert>
 #include <vector>
+#include "../Json/JsonReader.h"
 
 namespace AudioManager
 {
@@ -21,7 +22,11 @@ namespace AudioManager
 void AudioManager::Initialize()
 {
     SetAudioData();
-    SetVolume(1.0f);
+
+    JsonReader::Load("Json/PlayerSetting.json");
+    auto& commonSection = JsonReader::GetSection("Common");
+    float value = commonSection["gameVolume"];
+    SetVolume(value);
 
 }
 

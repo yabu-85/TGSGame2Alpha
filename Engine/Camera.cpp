@@ -61,13 +61,13 @@ XMMATRIX Camera::GetProjectionMatrix() { return _proj; }
 //一人用プロジェクション行列計算
 void Camera::SetOneProjectionMatrix(float zoom)
 {
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4 * zoom, ((FLOAT)Direct3D::screenWidth_) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV2 * zoom, ((FLOAT)Direct3D::screenWidth_) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 }
 
 //二人用プロジェクション行列計算
 void Camera::SetTwoProjectionMatrix(float zoom)
 {
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV4 * zoom, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV2 * zoom, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 }
 
 //ビルボード用回転行列を取得
