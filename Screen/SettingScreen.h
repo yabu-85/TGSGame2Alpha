@@ -13,6 +13,7 @@ class SettingScreen : public Screen
 		BACK_WHITE,
 		PLAYER1,
 		PLAYER2,
+		GAME_VOLUME,
 		PICT_MAX,
 	};
 

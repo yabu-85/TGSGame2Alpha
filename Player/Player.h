@@ -35,20 +35,24 @@ class Player : public Character
     bool isFly_;                //空中かどうか
     bool isClimb_;              //登り状態かどうか
     bool isCreative_;           //クリエイティブモード
+    
+    int playerId_;              //プレイヤー番号
+    int hUpModel_;              //
+    int hDownModel_;            //
+    int hUpFPSModel_;           //
 
     int hModel_;                //モデル番号
     int hFPSModel_;             //FPS表示用のモデル
-    int hPict_;                 //ダメージエフェクト
-    int playerId_;              //プレイヤー番号
 
-    int healthGaugeDrawTime_;   //そのままー
+    int hPict_;                 //ダメージエフェクト
+    int healthGaugeDrawTime_;   //相手のHealthGauge描画時間
     int damageDrawTime_;        //ダメージエフェクト表示時間
 
-    int waistPart_;             //テストPartのインデックス
-    int waistListIndex_[15];    //テストBoneのインデックス
-    int downListIndex_[8];      //リストインデックス
-    float waistRotateX_;        //テスト腰を想定したボーンのRotateX
-    float waistRotateY_;        //テスト腰を想定したボーンのRotateY
+    int bonePart_;              //Partのインデックス
+    int upListIndex_[15];       //Boneのインデックス
+    int downListIndex_[8];      //Boneのインデックス
+    float waistRotateX_;        //ボーンのRotateX（上半身
+    float waistRotateY_;        //ボーンのRotateY（下半身
 
     float gradually_;           //移動スピードの加減の値
     float moveSpeed_;           //移動スピード
@@ -115,9 +119,15 @@ public:
     bool IsClimb() { return isClimb_; }
     void SetClimb(bool b) { isClimb_ = b; }
 
+    int GetPlayerId() { return playerId_; }
+
     int GetModelHandle() { return hModel_; }
     int GetFPSModelHandle() { return hFPSModel_; }
-    int GetPlayerId() { return playerId_; }
+    
+    int GetUpModelHandle() { return hModel_; }
+    int GetDownModelHandle() { return hModel_; }
+    int GetUpFPSModelHandle() { return hFPSModel_; }
+    int GetDownFPSModelHandle() { return hFPSModel_; }
 
     Aim* GetAim() { return pAim_; }
     GunBase* GetGun() { return pGunBase_; }

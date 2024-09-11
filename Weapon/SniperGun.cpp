@@ -16,11 +16,6 @@
 #include "../Scene/PlayScene.h"
 #include "../Engine/EffekseeLib/EffekseerVFX.h"
 
-namespace {
-    static const int PEEK_TIME = 15;                            //覗き込みにかかる時間
-        
-}
-
 SniperGun::SniperGun(GameObject* parent)
     : GunBase(parent, "SniperGun"), hPict_(-1)
 {
@@ -61,8 +56,6 @@ void SniperGun::Update()
 
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
-
-    Peeking();
 
     //アニメーションセット
     if (currentReloadTime_ <= 0) {
@@ -139,30 +132,24 @@ void SniperGun::Update()
         }
         animTime_ = 20;
 
-        //Peeking
-        isPeeking_ = false;
-        peekTime_ = PEEK_TIME;
-
         return;
     }
 
     //のぞき込み処理
     if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        peekTime_--;
+        currentPeekTime_--;
 
-        float zoom = (float)peekTime_ / (float)PEEK_TIME;
-        zoom = std::clamp(zoom, 0.7f, 1.0f);
+        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
         Camera::SetPeekFOVZoom(zoom, playerId_);
         
         //覗き込み完了
-        if (peekTime_ <= 0) {
+        if (currentPeekTime_ <= 0) {
             isPeeking_ = true;
         }
     }
     else {
-        peekTime_ = PEEK_TIME;
-        isPeeking_ = false;
-        Camera::SetPeekFOVZoom(1.0f, playerId_);
+        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
+        Camera::SetPeekFOVZoom(zoom, playerId_);
     }
 
     //通常射撃

@@ -19,7 +19,10 @@ namespace {
 	const XMFLOAT3 CTRL_BACK_POS = XMFLOAT3(0.0f, 0.38f, 0.0f);			//
 	const XMFLOAT3 CTRL_BACK_SIZE = XMFLOAT3(18.0f, 2.2f, 0.0f);		//
 	const XMFLOAT3 AIM_SENSITIVITY_POS = XMFLOAT3(0.0f, -0.05f, 0.0f);	//
-	const XMFLOAT3 AIM_SENSITIVITY_SIZE = XMFLOAT3(16.0f, 2.0f, 0.0f);	//
+	const XMFLOAT3 AIM_SENSITIVITY_SIZE = XMFLOAT3(18.0f, 2.0f, 0.0f);	//
+
+	const XMFLOAT3 GAME_VOLUME_POS = XMFLOAT3(0.0f, -0.48f, 0.0f);	//
+	const XMFLOAT3 GAME_VOLUME_SIZE = XMFLOAT3(8.0f, 1.7f, 0.0f);	//
 
 }
 
@@ -27,7 +30,7 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 {
 	//ImageÇÃèâä˙ê›íË
 	const char* fileName[] = { "Image/PCCtrl.png", "Image/GamePad.png", "Image/AimSpeed.png" , "Image/BlackFade.png", "Image/WhiteFade.png",
-		"Image/Player1.png", "Image/Player2.png" };
+		"Image/Player1.png", "Image/Player2.png", "Image/GameVolume.png" };
 	for (int i = 0; i < PICT_MAX; i++) {
 		hPict_[i] = -1;
 		hPict_[i] = Image::Load(fileName[i]);
@@ -46,9 +49,12 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 	t.position_ = XMFLOAT3(0.0f, -0.0f, 0.0f);
 	Image::SetTransform(hPict_[AIM_SPEED], t);
 
+	t.position_ = XMFLOAT3(0.0f, -0.45f, 0.0f);
+	Image::SetTransform(hPict_[GAME_VOLUME], t);
+
 	Image::SetFullScreenTransform(hPict_[BACK_BLACK]);
-	Image::SetAlpha(hPict_[BACK_BLACK], 100);
-	Image::SetAlpha(hPict_[BACK_WHITE], 100);
+	Image::SetAlpha(hPict_[BACK_BLACK], 150);
+	Image::SetAlpha(hPict_[BACK_WHITE], 50);
 
 	UIBase* ui = nullptr;
 
@@ -102,7 +108,7 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 	aimSliderUI_[1] = static_cast<SliderUI*>(ui);
 
 	//------------------------SoundValue------------------------
-	ui = ui->UIInstantiate<SliderUI>("", XMFLOAT2(0.0f, -0.6f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
+	ui = ui->UIInstantiate<SliderUI>("", XMFLOAT2(0.0f, -0.55f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
 		{
 			SetJsonSetting();
 		});
@@ -143,9 +149,13 @@ void SettingScreen::Draw()
 	Image::SetTransform(hPict_[BACK_WHITE], t);
 	Image::Draw(hPict_[BACK_WHITE]);
 
-	//Back_White
 	t.position_ = AIM_SENSITIVITY_POS;
 	t.scale_ = AIM_SENSITIVITY_SIZE;
+	Image::SetTransform(hPict_[BACK_WHITE], t);
+	Image::Draw(hPict_[BACK_WHITE]);
+
+	t.position_ = GAME_VOLUME_POS;
+	t.scale_ = GAME_VOLUME_SIZE;
 	Image::SetTransform(hPict_[BACK_WHITE], t);
 	Image::Draw(hPict_[BACK_WHITE]);
 
@@ -194,6 +204,9 @@ void SettingScreen::Draw()
 
 	//Aim
 	Image::Draw(hPict_[AIM_SPEED]);
+
+	//GameVolume
+	Image::Draw(hPict_[GAME_VOLUME]);
 
 	Screen::Draw();
 	

@@ -1,10 +1,14 @@
 {
   "Gun": {
     "reloadTime": 80,
-    "magazineCount": 40
+    "magazineCount": 40,
+    "peekTime": 20,
+    "peekValue": 0.6
   },
   "SniperGun": {
     "reloadTime": 50,
-    "magazineCount": 1
+    "magazineCount": 1,
+    "peekTime": 50,
+    "peekValue": 0.4
   }
 }

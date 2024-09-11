@@ -43,10 +43,10 @@ namespace {
 Player::Player(GameObject* parent)
     : Character(parent, "Player"), hModel_(-1), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
     playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f),
-    playerId_(0), waistPart_(-1), waistRotateY_(0.0f), hFPSModel_(-1), healthGaugeDrawTime_(0), damageDrawTime_(0), hPict_(-1),
+    playerId_(0), bonePart_(-1), waistRotateY_(0.0f), hFPSModel_(-1), healthGaugeDrawTime_(0), damageDrawTime_(0), hPict_(-1),
     pAnimationController_(nullptr), pFpsAnimationController_(nullptr)
 {
-    for (int i = 0; i < 15; i++) waistListIndex_[i] = -1;
+    for (int i = 0; i < 15; i++) upListIndex_[i] = -1;
     for (int i = 0; i < 8; i++) downListIndex_[i] = -1;
 }
 
@@ -67,7 +67,7 @@ void Player::Initialize()
     Image::SetFullScreenTransform(hPict_);
 
     //Orient登録
-    waistPart_ = Model::GetPartIndex(hModel_, "thigh.L");
+    bonePart_ = Model::GetPartIndex(hModel_, "thigh.L");
     std::pair<std::string, std::string> boneNameList[] = {
         { "upper_arm.R",    "" },
         { "forearm.R",      "upper_arm.R" },
@@ -101,7 +101,7 @@ void Player::Initialize()
     orientBoneSize = (int)sizeof(boneNameList) / sizeof(boneNameList[0]);
     downOrientBoneSize = (int)sizeof(boneDownNameList) / sizeof(boneDownNameList[0]);
     for (int i = 0; i < orientBoneSize;i++) {
-        waistListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneNameList[i].first, boneNameList[i].second);
+        upListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneNameList[i].first, boneNameList[i].second);
         Model::AddOrientRotateBone(hFPSModel_, boneNameList[i].first, boneNameList[i].second);
     }
     for (int i = 0; i < downOrientBoneSize; i++) {
@@ -179,8 +179,8 @@ void Player::Update()
     
     //Orient上下視点/腰下
     waistRotateX_ = -pAim_->GetRotate().x;
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, waistListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
     for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
 
     //デバッグ用

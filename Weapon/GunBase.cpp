@@ -25,11 +25,6 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
     hPlayerModel_ = pPlayer_->GetModelHandle();
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
     Model::GetPartBoneIndex(hPlayerModel_, "Weapon", &handPartIndex_, &handBoneIndex_);
-
-    //とりまあここで(修正箇所
-    peekTime_ = 20;
-    currentPeekTime_ = peekTime_;
-    peekZoom_ = 0.7f;
 }
 
 GunBase::~GunBase()
@@ -61,6 +56,15 @@ void GunBase::LoadGunJson(std::string fileName)
     //リロード時間の初期化
     reloadTime_ = gunSection["reloadTime"];
     currentReloadTime_ = 0;
+
+    //のぞき込み時間
+    peekTime_ = gunSection["reloadTime"];
+    currentPeekTime_ = peekTime_;
+
+    //ズーム
+    peekZoom_ = gunSection["peekValue"];
+    peekTime_ = gunSection["peekTime"];
+
 }
 
 void GunBase::SetGunHandPosition()
