@@ -106,30 +106,6 @@ void PlayerClimb::Update()
 
 //------------------------------------------------------------------
 
-PlayerReload::PlayerReload(StateManager* owner) : StateBase(owner), time_(0)
-{
-	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());
-}
-
-void PlayerReload::OnEnter()
-{
-	//‚±‚±ŒvŽZ‚·‚é
-	int gunReloadTime = pPlayer_->GetGun()->GetReloadTime();
-	int reloadS = pPlayer_->GetAnimationController()->GetAnim((int)PLAYER_ANIMATION::RELOAD).startFrame;
-	int reloadE = pPlayer_->GetAnimationController()->GetAnim((int)PLAYER_ANIMATION::RELOAD).endFrame;
-	int reloadAnimTime = (reloadE - reloadS);
-	float animSpeed = (float)reloadAnimTime / (float)gunReloadTime;
-	pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
-	pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
-
-	//State•ÏX
-	int playerId = pPlayer_->GetPlayerId();
-	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
-	else owner_->ChangeState("Idle");
-}
-
-//------------------------------------------------------------------
-
 PlayerDead::PlayerDead(StateManager* owner) : StateBase(owner), time_(0)
 {
 	pPlayer_ = static_cast<Player*>(owner_->GetGameObject());

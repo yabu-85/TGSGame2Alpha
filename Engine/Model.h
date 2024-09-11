@@ -67,6 +67,10 @@ namespace Model
 	//戻値：そのモデルデータに割り当てられた番号
 	int Load(std::string fileName);
 
+	//モデルのUpdate
+	//今はアニメーションの時間を進めるのに使う
+	void Update(int handle);
+
 	//描画
 	//引数：handle	描画したいモデルの番号
 	//引数：matrix	ワールド行列

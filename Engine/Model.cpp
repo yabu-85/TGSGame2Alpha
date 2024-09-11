@@ -65,8 +65,7 @@ namespace Model
 			return (int)_datas.size() - 1;
 	}
 
-	//•`‰æ
-	void Draw(int handle)
+	void Update(int handle)
 	{
 		if (handle < 0 || handle >= _datas.size() || _datas[handle] == nullptr)
 		{
@@ -80,6 +79,15 @@ namespace Model
 			//ÅŒã‚Ü‚ÅƒAƒjƒ[ƒVƒ‡ƒ“‚µ‚½‚ç–ß‚·
 			if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
 				_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
+		}
+	}
+
+	//•`‰æ
+	void Draw(int handle)
+	{
+		if (handle < 0 || handle >= _datas.size() || _datas[handle] == nullptr)
+		{
+			return;
 		}
 
 		if (_datas[handle]->pFbx)

@@ -57,8 +57,8 @@ void Aim::Initialize()
     mouseSensitivity_ = MOUSE_SPEED_DEFAULT;
     compulsionComplement_ = COMPULSION_COMPLEMENT_DEFAULT;
 
-    //PlayerSetting“Ç‚Ýž‚Ý
-    JsonReader::Load("Json/PlayerSetting.json");
+    //GameSetting“Ç‚Ýž‚Ý
+    JsonReader::Load("Json/GameSetting.json");
     auto& gunSection1 = JsonReader::GetSection("Player1");
     auto& gunSection2 = JsonReader::GetSection("Player2");
     if (pPlayer_->GetPlayerId() == 0) mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection1["aimSensitivity"];

@@ -22,8 +22,6 @@
 #include <string>
 
 namespace GameManager {
-	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
-
 	//ImGuiŠÖ˜A
 	float playerSpeed = 0.0f;
 	bool playerClimb = false;
@@ -41,6 +39,10 @@ namespace GameManager {
 	bool cursorMode_ = false;
 	int pcCtrlNumber_ = 0;
 	int drawIndex_ = 0;
+	
+	//‰eŠÖŒW‚Ìî•ñ
+	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
+	bool isShadowDraw_ = false;
 
 	GameObject* pRootObject_ = nullptr;
 	CollisionMap* pCollisionMap_ = nullptr;
@@ -51,8 +53,8 @@ namespace GameManager {
 	{
 		InputManager::Initialize();
 
-		//PlayerSetting“Ç‚Ýž‚Ý
-		JsonReader::Load("Json/PlayerSetting.json");
+		//GameSetting“Ç‚Ýž‚Ý
+		JsonReader::Load("Json/GameSetting.json");
 		auto& player1Section = JsonReader::GetSection("Player1");
 		auto& player2Section = JsonReader::GetSection("Player2");
 		int pcCtrl1 = (player1Section["pcCtrl"]);
@@ -116,6 +118,10 @@ namespace GameManager {
 	bool IsPCCtrl() { return isPCCtrl_; }
 	void SetPCCtrlNumber(int number) { pcCtrlNumber_ = number; }
 	int GetPCCtrlNumber() { return pcCtrlNumber_; }
+
+	//‰e‚ÌÝ’è
+	void SetShadowDraw(bool b) { isShadowDraw_ = b; }
+	bool IsShadowDraw() { return isShadowDraw_; }
 
 	//ƒAƒNƒZƒT
 	GameObject* GetRootObject() { return pRootObject_; }
@@ -210,9 +216,11 @@ namespace GameManager {
 			{
 				std::string strName = GameManager::GetPlayer(0)->GetStateManager()->GetName();
 				const char* stateName = strName.c_str();
-				int animFrame = Model::GetAnimFrame(pPlayer_[0]->GetFPSModelHandle());
+				int animFrameUp = Model::GetAnimFrame(pPlayer_[0]->GetUpModelHandle());
+				int animFrameDown = Model::GetAnimFrame(pPlayer_[0]->GetDownModelHandle());
 				ImGui::Text("Player 1 State: %s", stateName);
-				ImGui::Text("Player 1 AnimFrame: %i", animFrame);
+				ImGui::Text("Player 1 AnimFrameUp: %i", animFrameUp);
+				ImGui::Text("Player 1 AnimFrameDo: %i", animFrameDown);
 			}
 
 		}
@@ -280,7 +288,8 @@ namespace GameManager {
 		Direct3D::SetViewPort(0);
 		Direct3D::SetViewOne();
 		Camera::SetOneProjectionMatrix(Camera::GetPeekFOVZoom(0));
-		ShadowDraw();
+		
+		if (isShadowDraw_) ShadowDraw();
 		
 		Direct3D::BeginDraw();
 		Camera::Update(0);
@@ -299,10 +308,13 @@ namespace GameManager {
 	{
 		Direct3D::SetViewTwo();
 
-		for (int i = 0; i < 2; i++) {
-			drawIndex_ = i;
-			Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
-			ShadowDraw();
+		//‰e•`‰æ
+		if (isShadowDraw_) {
+			for (int i = 0; i < 2; i++) {
+				drawIndex_ = i;
+				Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
+				ShadowDraw();
+			}
 		}
 
 		Direct3D::BeginDraw();

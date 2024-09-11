@@ -2,11 +2,8 @@
 #include "Bullet_Normal.h"
 #include "../Engine/Global.h"
 #include "../Engine/Model.h"
-#include "../Engine/EffekseeLib/EffekseerVFX.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
-#include "../Animation/AnimationController.h"
-#include "../State/StateManager.h"
 #include "../Other/InputManager.h"
 #include "../Other/AudioManager.h"
 #include "../Other/GameManager.h"
@@ -32,7 +29,7 @@ void Gun::Initialize()
     assert(rootBoneIndex_ >= 0);
 
     transform_.pParent_ = nullptr;
-    transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     pAimCursor_ = new AimCursor();
@@ -44,10 +41,13 @@ void Gun::Initialize()
 
 void Gun::Update()
 {
+    //アニメーション
+    Model::Update(hModel_);
+
     coolTime_--;
     pAimCursor_->Update();
 
-    transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     //のぞき込み処理
@@ -56,18 +56,6 @@ void Gun::Update()
     //リロード中の処理
     if (currentReloadTime_ > 0) {
         Reload();
-
-        //リロード終了
-        if (currentMagazineCount_ == magazineCount_) {
-            Model::SetAnimFrame(hModel_, 0, 0, 1.0f);
-            
-            //プレイヤーのStateがIdleかJumpだったら
-            std::string stateName = pPlayer_->GetStateManager()->GetName();
-            if (stateName == "Idle" || /*修正箇所*/ stateName == "Move") {
-                pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
-                pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
-            }
-        }
         return;
     }
 
@@ -75,12 +63,7 @@ void Gun::Update()
     if (InputManager::IsCmdDown(InputManager::RELOAD, playerId_)) {
         //成功したら
         if (PressedReload()) {
-            //Peeking
-            isPeeking_ = false;
-            currentPeekTime_ = peekTime_;
-        
-            //PlayerState
-            pPlayer_->GetStateManager()->ChangeState("Reload");
+            EnterReload();
 
             //終わり
             return;
@@ -91,7 +74,10 @@ void Gun::Update()
     if (currentMagazineCount_ <= 0 && InputManager::IsCmdDown(InputManager::ATTACK, playerId_))
     {
         //リロードできるなら終わり
-        if (PressedReload()) return;
+        if (PressedReload()) {
+            EnterReload();
+            return;
+        }
     }
 
     //通常射撃
@@ -107,10 +93,6 @@ void Gun::Update()
 
 void Gun::Draw()
 {
-    //アニメーション
-    if (IsEntered()) Model::AnimStart(hModel_);
-    else Model::AnimStop(hModel_);
-
     //Shadoの場合Return
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     if (type == Direct3D::SHADER_SHADOWMAP) return;
@@ -152,23 +134,11 @@ void Gun::PressedShot()
     CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
     pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
     pPlayer_->GetAim()->SetCameraRotateReturn(false);
-    pAimCursor_->Shot();
 
     AudioManager::Play(AUDIO_TYPE::SMALL_SHOT, 0.5f);
+    pAimCursor_->Shot();
+    ShotVFX();
 
-    //ショットエフェクト
-    EFFEKSEERLIB::EFKTransform t;
-    Transform transform;
-    transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
-    transform.rotate_ = transform_.rotate_;
-    transform.rotate_.x = -transform.rotate_.x;
-    transform.rotate_.y += 180.0f;
-    transform.scale_ = transform_.scale_;
-    DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
-    t.isLoop = false;   //繰り返し
-    t.maxFrame = 20;    //80フレーム
-    t.speed = 1.0;      //スピード
-    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
 }
 
 bool Gun::PressedReload()

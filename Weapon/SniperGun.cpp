@@ -8,13 +8,13 @@
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
 #include "../Other/InputManager.h"
+#include "../Other/AudioManager.h"
 #include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
 #include "../UI/AimCursor.h"
 #include "../Scene/PlayScene.h"
-#include "../Engine/EffekseeLib/EffekseerVFX.h"
 
 SniperGun::SniperGun(GameObject* parent)
     : GunBase(parent, "SniperGun"), hPict_(-1)
@@ -39,7 +39,7 @@ void SniperGun::Initialize()
     assert(hPict_ >= 0);
 
     transform_.pParent_ = nullptr;
-    transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     pAimCursor_ = new AimCursor();
@@ -51,12 +51,18 @@ void SniperGun::Initialize()
 
 void SniperGun::Update()
 {
+    //アニメーション
+    Model::Update(hModel_); 
+    
     coolTime_--;
     pAimCursor_->Update();
 
-    transform_.position_ = Model::GetBoneAnimPosition(hPlayerFPSModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
+    Peeking();
+
+    /*
     //アニメーションセット
     if (currentReloadTime_ <= 0) {
         if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
@@ -92,26 +98,11 @@ void SniperGun::Update()
             animTime_--;
         }
     }
+    */
 
     //リロード中の処理
     if (currentReloadTime_ > 0) {
         Reload();
-
-        animTime_--;
-        //覗き込み中
-        if (animTime_ == 0) {
-            Model::SetAnimFrame(hPlayerModel_, 0, 0, 1.0f);
-            Model::SetAnimFrame(hPlayerFPSModel_, 0, 0, 1.0f);
-        }
-
-        //リロード終了
-        if (currentMagazineCount_ == magazineCount_) {
-            Model::SetAnimFrame(hModel_, 0, 0, 1.0f);
-            Model::SetAnimFrame(hPlayerModel_, 0, 0, 1.0f);
-            Model::SetAnimFrame(hPlayerFPSModel_, 0, 0, 1.0f);
-            animTime_ = 0;
-        }
-
         return;
     }
 
@@ -119,6 +110,7 @@ void SniperGun::Update()
     if (coolTime_ <= 0 && currentMagazineCount_ < magazineCount_) {
         PressedReload();
 
+        /*
         //アニメーション
         if (isPeeking_) {
             //覗き込み終了
@@ -131,25 +123,9 @@ void SniperGun::Update()
             Model::SetAnimFrame(hPlayerFPSModel_, 0, 00, 1.0f);
         }
         animTime_ = 20;
+        */
 
         return;
-    }
-
-    //のぞき込み処理
-    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        currentPeekTime_--;
-
-        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
-        Camera::SetPeekFOVZoom(zoom, playerId_);
-        
-        //覗き込み完了
-        if (currentPeekTime_ <= 0) {
-            isPeeking_ = true;
-        }
-    }
-    else {
-        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
-        Camera::SetPeekFOVZoom(zoom, playerId_);
     }
 
     //通常射撃
@@ -162,10 +138,6 @@ void SniperGun::Update()
 
 void SniperGun::Draw()
 {
-    //アニメーション
-    if (IsEntered()) Model::AnimStart(hModel_);
-    else Model::AnimStop(hModel_);
-
     //Shadoの場合Return
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     if (type == Direct3D::SHADER_SHADOWMAP) return;
@@ -220,21 +192,10 @@ void SniperGun::PressedShot()
     CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 8.0f), 7);
     pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
     pPlayer_->GetAim()->SetCameraRotateReturn(true);
-    pAimCursor_->Shot();
 
-    //ショットエフェクト
-    EFFEKSEERLIB::EFKTransform t;
-    Transform transform;
-    transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
-    transform.rotate_ = transform_.rotate_;
-    transform.rotate_.x = -transform.rotate_.x;
-    transform.rotate_.y += 180.0f;
-    transform.scale_ = transform_.scale_;
-    DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
-    t.isLoop = false;   //繰り返し
-    t.maxFrame = 20;    //80フレーム
-    t.speed = 1.0;      //スピード
-    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
+    AudioManager::Play(AUDIO_TYPE::SMALL_SHOT, 0.5f);
+    pAimCursor_->Shot();
+    ShotVFX();
 
 }
 

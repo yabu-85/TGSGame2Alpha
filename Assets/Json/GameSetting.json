@@ -5,11 +5,11 @@
     "Player1": {
         "aimSensitivity": 0.7031248807907104,
         "hp": 100,
-        "pcCtrl": 0
+        "pcCtrl": 1
     },
     "Player2": {
         "aimSensitivity": 1.0,
         "hp": 100,
-        "pcCtrl": 1
+        "pcCtrl": 0
     }
 }

@@ -44,16 +44,6 @@ public:
 	void Update() override;
 };
 
-class PlayerReload : public StateBase
-{
-	int time_;
-	Player* pPlayer_;
-public:
-	PlayerReload(StateManager* owner);
-	const char* GetName() const override { return "Reload"; }
-	void OnEnter() override;
-};
-
 class PlayerDead : public StateBase
 {
 	int time_;

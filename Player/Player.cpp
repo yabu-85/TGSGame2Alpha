@@ -35,16 +35,48 @@ namespace {
 
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 10.0f, 50.0f);
 
-    int orientBoneSize = 0;
+    //Orientのデータ
+    int upOrientBoneSize = 0;
     int downOrientBoneSize = 0;
+    const std::pair<std::string, std::string> boneNameList[] = {
+    { "upper_arm.R",    "" },
+    { "forearm.R",      "upper_arm.R" },
+    { "hand.R",         "upper_arm.R" },
+    { "palm.02.R",      "upper_arm.R" },
+    { "Weapon",         "upper_arm.R" },
+    { "f_middle.01.R",  "upper_arm.R" },
+
+    { "upper_arm.L",    "" },
+    { "forearm.L",      "upper_arm.L" },
+    { "hand.L",         "upper_arm.L" },
+    { "palm.02.L",      "upper_arm.L" },
+    { "f_middle.01.L",  "upper_arm.L" },
+
+    { "spine.004",  ""},
+    { "spine.005",  "spine.004" },
+    { "eye",        "spine.004" },
+    { "eye.001",    "spine.004" },
+    };
+    const std::pair<std::string, std::string> boneDownNameList[] = {
+        { "thigh.R",    ""},
+        { "shin.R",     "thigh.R" },
+        { "foot.R",     "thigh.R" },
+        { "toe.R",      "thigh.R" },
+
+        { "thigh.L",    ""},
+        { "shin.L",     "thigh.L" },
+        { "foot.L",     "thigh.L" },
+        { "toe.L",      "thigh.L" },
+    };
 
 }
 
 Player::Player(GameObject* parent)
-    : Character(parent, "Player"), hModel_(-1), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
-    playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), gravity_(0.0f), moveSpeed_(0.0f),
-    playerId_(0), bonePart_(-1), waistRotateY_(0.0f), hFPSModel_(-1), healthGaugeDrawTime_(0), damageDrawTime_(0), hPict_(-1),
-    pAnimationController_(nullptr), pFpsAnimationController_(nullptr)
+    : Character(parent, "Player"), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
+    playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), 
+    gravity_(0.0f), moveSpeed_(0.0f), playerId_(0), bonePart_(-1), waistRotateY_(0.0f), healthGaugeDrawTime_(0), damageDrawTime_(0),
+    pAnimationController_(nullptr), pFpsAnimationController_(nullptr),
+    hUpModel_(-1), hDownModel_(-1), hFPSModel_(-1), hPict_(-1)
 {
     for (int i = 0; i < 15; i++) upListIndex_[i] = -1;
     for (int i = 0; i < 8; i++) downListIndex_[i] = -1;
@@ -56,10 +88,12 @@ Player::~Player()
 
 void Player::Initialize()
 {
-    hModel_ = Model::Load("Model/desiFiter.fbx");
-    assert(hModel_ >= 0);
-
-    hFPSModel_ = Model::Load("Model/gunFiterFPS.fbx");
+    //モデル読み込みとAssert
+    hUpModel_ = Model::Load("Model/desiFiter.fbx");
+    hDownModel_ = Model::Load("Model/desiFiter.fbx");
+    hFPSModel_ = Model::Load("Model/desiFiter.fbx");
+    assert(hUpModel_ >= 0);
+    assert(hDownModel_ >= 0);
     assert(hFPSModel_ >= 0);
 
     hPict_ = Image::Load("Image/damage.png");
@@ -67,49 +101,19 @@ void Player::Initialize()
     Image::SetFullScreenTransform(hPict_);
 
     //Orient登録
-    bonePart_ = Model::GetPartIndex(hModel_, "thigh.L");
-    std::pair<std::string, std::string> boneNameList[] = {
-        { "upper_arm.R",    "" },
-        { "forearm.R",      "upper_arm.R" },
-        { "hand.R",         "upper_arm.R" },
-        { "palm.02.R",      "upper_arm.R" },
-        { "Weapon",         "upper_arm.R" },
-        { "f_middle.01.R",  "upper_arm.R" },
-
-        { "upper_arm.L",    "" },
-        { "forearm.L",      "upper_arm.L" },
-        { "hand.L",         "upper_arm.L" },
-        { "palm.02.L",      "upper_arm.L" },
-        { "f_middle.01.L",  "upper_arm.L" },
-
-        { "spine.004",  ""},
-        { "spine.005",  "spine.004" },
-        { "eye",        "spine.004" },
-        { "eye.001",    "spine.004" },
-    };
-    std::pair<std::string, std::string> boneDownNameList[] = {
-        { "thigh.R",    ""},
-        { "shin.R",     "thigh.R" },
-        { "foot.R",     "thigh.R" },
-        { "toe.R",      "thigh.R" },
-
-        { "thigh.L",    ""},
-        { "shin.L",     "thigh.L" },
-        { "foot.L",     "thigh.L" },
-        { "toe.L",      "thigh.L" },
-    };
-    orientBoneSize = (int)sizeof(boneNameList) / sizeof(boneNameList[0]);
+    bonePart_ = Model::GetPartIndex(hUpModel_, "thigh.L");
+    upOrientBoneSize = (int)sizeof(boneNameList) / sizeof(boneNameList[0]);
     downOrientBoneSize = (int)sizeof(boneDownNameList) / sizeof(boneDownNameList[0]);
-    for (int i = 0; i < orientBoneSize;i++) {
-        upListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneNameList[i].first, boneNameList[i].second);
+    for (int i = 0; i < upOrientBoneSize;i++) {
+        upListIndex_[i] = Model::AddOrientRotateBone(hUpModel_, boneNameList[i].first, boneNameList[i].second);
         Model::AddOrientRotateBone(hFPSModel_, boneNameList[i].first, boneNameList[i].second);
     }
     for (int i = 0; i < downOrientBoneSize; i++) {
-        downListIndex_[i] = Model::AddOrientRotateBone(hModel_, boneDownNameList[i].first, boneDownNameList[i].second);
+        downListIndex_[i] = Model::AddOrientRotateBone(hDownModel_, boneDownNameList[i].first, boneDownNameList[i].second);
     }
 
     //アニメーションデータのセットフレームはヘッダに書いてる
-    pAnimationController_ = new AnimationController(hModel_, this);
+    pAnimationController_ = new AnimationController(hUpModel_, this);
     pFpsAnimationController_ = new AnimationController(hFPSModel_, this);
     for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
     for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pFpsAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
@@ -118,9 +122,6 @@ void Player::Initialize()
     if (GameManager::GetPlayer(0)) playerId_ = 1;
     GameManager::SetPlayer(this, playerId_);
 
-    Model::SetTransform(hModel_, transform_);
-    Model::SetTransform(hFPSModel_, transform_);
-
     //パラメータセット
     objectType_ = OBJECT_TYPE::Player;
     SetBodyRange(0.2f);
@@ -128,7 +129,7 @@ void Player::Initialize()
     SetBodyHeightHalf(1.0f);
     
     //PlayerSetting読み込み
-    JsonReader::Load("Json/PlayerSetting.json");
+    JsonReader::Load("Json/GameSetting.json");
     int hp = 0;
     if (playerId_ == 0) {
         auto& section = JsonReader::GetSection("Player1");
@@ -143,6 +144,10 @@ void Player::Initialize()
     SetHP(hp);
     moveSpeed_ = 0.07f;
     GameManager::playerSpeed = moveSpeed_;
+
+    Model::SetTransform(hUpModel_, transform_);
+    Model::SetTransform(hFPSModel_, transform_);
+    Model::SetTransform(hDownModel_, transform_);
 
     //HealthGauge
     pFixedHealthGauge_ = new FixedHealthGauge(this, XMFLOAT2(3.0f, 2.0f));
@@ -160,7 +165,6 @@ void Player::Initialize()
     pStateManager_->AddState(new PlayerMove(pStateManager_));
     pStateManager_->AddState(new PlayerJump(pStateManager_));
     pStateManager_->AddState(new PlayerClimb(pStateManager_));
-    pStateManager_->AddState(new PlayerReload(pStateManager_));
     pStateManager_->AddState(new PlayerDead(pStateManager_));
     pStateManager_->ChangeState("Idle");
 
@@ -173,15 +177,20 @@ void Player::Initialize()
 
 void Player::Update()
 {
+    //アニメーション
+    Model::Update(hUpModel_);
+    Model::Update(hFPSModel_);
+    Model::Update(hDownModel_);
+
     //AnimCtrl
     pAnimationController_->Update();
     pFpsAnimationController_->Update();
     
     //Orient上下視点/腰下
     waistRotateX_ = -pAim_->GetRotate().x;
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    for (int i = 0; i < orientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
+    for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hUpModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hDownModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
 
     //デバッグ用
 #if 1
@@ -247,28 +256,18 @@ void Player::Update()
     TargetRotate(Float3Add(transform_.position_, pAim_->GetAimDirection()), 1.0f);
     
     //Weapon用にここでSet
-    Model::SetTransform(hModel_, transform_);
+    Model::SetTransform(hUpModel_, transform_);
     Model::SetTransform(hFPSModel_, transform_);
+    Model::SetTransform(hDownModel_, transform_);
 
     //GameManager情報
     moveSpeed_ = GameManager::playerSpeed;
     GameManager::playerClimb = isClimb_;
     GameManager::playerFaly = isFly_;
-
 }
 
 void Player::Draw()
 {
-    //アニメーション
-    if (IsEntered()) {
-        Model::AnimStart(hModel_);
-        Model::AnimStart(hFPSModel_);
-    }
-    else {
-        Model::AnimStop(hModel_);
-        Model::AnimStop(hFPSModel_);
-    }
-
     //Shadowシェーダーの時
     if (Direct3D::GetCurrentShader() == Direct3D::SHADER_SHADOWMAP) {
         return;
@@ -290,8 +289,10 @@ void Player::Draw()
     }
     //相手の表示
     else {
-        Model::SetTransform(hModel_, transform_);
-        Model::Draw(hModel_);
+        Model::SetTransform(hUpModel_, transform_);
+        Model::SetTransform(hDownModel_, transform_);
+        Model::Draw(hUpModel_);
+        Model::Draw(hDownModel_);
 
         //HealthGauge表示
         if (healthGaugeDrawTime_ > 0) {

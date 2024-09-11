@@ -117,7 +117,7 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 
 
 	//JsonSettingì«Ç›çûÇ›
-	JsonReader::Load("Json/PlayerSetting.json");
+	JsonReader::Load("Json/GameSetting.json");
 	auto& player1Section = JsonReader::GetSection("Player1");
 	aimSliderUI_[0]->SetGaugeParcent(player1Section["aimSensitivity"]);
 	auto& player2Section = JsonReader::GetSection("Player2");
@@ -252,8 +252,8 @@ void SettingScreen::SetJsonSetting()
 	nlohmann::json j;
 	nlohmann::json playerJson;
 
-	//PlayerSettingì«Ç›çûÇ›
-	JsonReader::Load("Json/PlayerSetting.json");
+	//GameSettingì«Ç›çûÇ›
+	JsonReader::Load("Json/GameSetting.json");
 	auto& section1 = JsonReader::GetSection("Player1");
 	auto& section2 = JsonReader::GetSection("Player2");
 
@@ -286,7 +286,7 @@ void SettingScreen::SetJsonSetting()
 	//SetÇ∑ÇÈ
 	AudioManager::SetVolume(gameVolume);
 
-	std::ofstream ofs("Json/PlayerSetting.json");
+	std::ofstream ofs("Json/GameSetting.json");
 	if (!ofs.is_open())
 	{
 		assert(false);

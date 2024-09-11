@@ -23,7 +23,8 @@ void AudioManager::Initialize()
 {
     SetAudioData();
 
-    JsonReader::Load("Json/PlayerSetting.json");
+    //âπó ì«Ç›çûÇ›
+    JsonReader::Load("Json/GameSetting.json");
     auto& commonSection = JsonReader::GetSection("Common");
     float value = commonSection["gameVolume"];
     SetVolume(value);

@@ -14,16 +14,19 @@
 #include "../UI/AimCursor.h"
 #include "../Other/InputManager.h"
 
+//プレイヤーのアニメーション（リロード
+#include "../Animation/AnimationController.h"
+#include "../State/StateManager.h"
+
 GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
     rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isPeeking_(false), peekTime_(0), reloadTime_(0), 
     currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hPlayerModel_(-1), handBoneIndex_(-1), handPartIndex_(-1),
-    hPlayerFPSModel_(-1), animTime_(0), currentPeekTime_(0), peekZoom_(0.0f)
+    animTime_(0), currentPeekTime_(0), peekZoom_(0.0f)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
-    hPlayerModel_ = pPlayer_->GetModelHandle();
-    hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
+    hPlayerModel_ = pPlayer_->GetUpModelHandle();
     Model::GetPartBoneIndex(hPlayerModel_, "Weapon", &handPartIndex_, &handBoneIndex_);
 }
 
@@ -73,6 +76,18 @@ void GunBase::SetGunHandPosition()
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 }
 
+void GunBase::EnterReload()
+{
+    //reloadTimeに合わせて、アニメーションの再生速度計算して再生
+    int reloadS = pPlayer_->GetAnimationController()->GetAnim((int)PLAYER_ANIMATION::RELOAD).startFrame;
+    int reloadE = pPlayer_->GetAnimationController()->GetAnim((int)PLAYER_ANIMATION::RELOAD).endFrame;
+    int reloadAnimTime = (reloadE - reloadS);
+    float animSpeed = (float)reloadAnimTime / (float)reloadTime_;
+    pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
+    pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
+
+}
+
 bool GunBase::Reload()
 {
     currentReloadTime_--;
@@ -80,10 +95,23 @@ bool GunBase::Reload()
     //リロード完了
     if (currentReloadTime_ <= 0) {
         currentMagazineCount_ = magazineCount_;
+        FinishedReload();
         return true;
     }
 
     return false;
+}
+
+void GunBase::FinishedReload()
+{
+    Model::SetAnimFrame(hModel_, 0, 0, 0.0f);
+
+    //プレイヤーのStateがIdleかJumpだったら
+    std::string stateName = pPlayer_->GetStateManager()->GetName();
+    if (stateName == "Idle" || /*修正箇所*/ stateName == "Move") {
+        pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
+        pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
+    }
 }
 
 //プレイヤーのアニメーションのかかる時間と武器に持たせたかかる時間で計算してAnimationSpeedを計算してやる
@@ -131,6 +159,23 @@ void GunBase::Peeking()
         Camera::SetPeekFOVZoom(zoom, playerId_);
     }
 
+}
+
+void GunBase::ShotVFX()
+{
+    //ショットエフェクト
+    EFFEKSEERLIB::EFKTransform t;
+    Transform transform;
+    transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
+    transform.rotate_ = transform_.rotate_;
+    transform.rotate_.x = -transform.rotate_.x;
+    transform.rotate_.y += 180.0f;
+    transform.scale_ = transform_.scale_;
+    DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
+    t.isLoop = false;   //繰り返し
+    t.maxFrame = 20;    //80フレーム
+    t.speed = 1.0;      //スピード
+    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
 }
 
 void GunBase::ShotBullet(BulletBase* pBullet)

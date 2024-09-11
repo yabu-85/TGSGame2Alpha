@@ -37,12 +37,9 @@ class Player : public Character
     bool isCreative_;           //クリエイティブモード
     
     int playerId_;              //プレイヤー番号
-    int hUpModel_;              //
-    int hDownModel_;            //
-    int hUpFPSModel_;           //
-
-    int hModel_;                //モデル番号
-    int hFPSModel_;             //FPS表示用のモデル
+    int hUpModel_;              //上半身モデル番号
+    int hDownModel_;            //下半身モデル番号
+    int hFPSModel_;             //上半身FPS用モデル
 
     int hPict_;                 //ダメージエフェクト
     int healthGaugeDrawTime_;   //相手のHealthGauge描画時間
@@ -120,14 +117,9 @@ public:
     void SetClimb(bool b) { isClimb_ = b; }
 
     int GetPlayerId() { return playerId_; }
-
-    int GetModelHandle() { return hModel_; }
+    int GetUpModelHandle() { return hUpModel_; }
+    int GetDownModelHandle() { return hDownModel_; }
     int GetFPSModelHandle() { return hFPSModel_; }
-    
-    int GetUpModelHandle() { return hModel_; }
-    int GetDownModelHandle() { return hModel_; }
-    int GetUpFPSModelHandle() { return hFPSModel_; }
-    int GetDownFPSModelHandle() { return hFPSModel_; }
 
     Aim* GetAim() { return pAim_; }
     GunBase* GetGun() { return pGunBase_; }
