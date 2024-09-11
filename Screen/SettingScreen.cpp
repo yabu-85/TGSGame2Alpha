@@ -12,23 +12,22 @@
 #include <fstream>
 
 namespace {
-	const XMFLOAT3 CTRL_SIZE = XMFLOAT3(0.5f, 0.5f, 0.0f);		//CTRL‰æ‘œ‚ÌƒTƒCƒY
-	const XMFLOAT3 CTRL_POS1 = XMFLOAT3(-0.5f, 0.47f, 0.0f);	//CTRL‰æ‘œ‚ÌÀ•W‚P
-	const XMFLOAT3 CTRL_POS2 = XMFLOAT3(0.5f, 0.47f, 0.0f);		//CTRL‰æ‘œ‚ÌÀ•W‚Q
+	const XMFLOAT2 PC_CTRL_BUTTON_SIZE = XMFLOAT2(0.35f, 0.35f);
+	const XMFLOAT2 GM_CTRL_BUTTON_SIZE = XMFLOAT2(0.22f, 0.22f);
 
-	const XMFLOAT3 CTRL_BACK_POS = XMFLOAT3(0.0f, 0.38f, 0.0f);			//
-	const XMFLOAT3 CTRL_BACK_SIZE = XMFLOAT3(18.0f, 2.2f, 0.0f);		//
-	const XMFLOAT3 AIM_SENSITIVITY_POS = XMFLOAT3(0.0f, -0.05f, 0.0f);	//
-	const XMFLOAT3 AIM_SENSITIVITY_SIZE = XMFLOAT3(18.0f, 2.0f, 0.0f);	//
+	const XMFLOAT3 CTRL_BACK_POS = XMFLOAT3(0.0f, 0.38f, 0.0f);		//
+	const XMFLOAT3 CTRL_BACK_SIZE = XMFLOAT3(18.0f, 2.2f, 0.0f);	//
+	const XMFLOAT3 AIM_BACK_POS = XMFLOAT3(0.0f, -0.05f, 0.0f);		//
+	const XMFLOAT3 AIM_BACK_SIZE = XMFLOAT3(18.0f, 2.0f, 0.0f);		//
 
-	const XMFLOAT3 GAME_VOLUME_POS = XMFLOAT3(-0.5f, -0.48f, 0.0f);	//
-	const XMFLOAT3 GAME_VOLUME_SIZE = XMFLOAT3(8.0f, 1.7f, 0.0f);	//
-	const XMFLOAT3 SHADOW_DRAW_POS = XMFLOAT3(0.5f, -0.48f, 0.0f);	//
-	const XMFLOAT3 SHADOW_DRAW_SIZE = XMFLOAT3(8.0f, 1.7f, 0.0f);	//
+	const XMFLOAT3 VOLUME_BACK_POS = XMFLOAT3(-0.5f, -0.48f, 0.0f);	//
+	const XMFLOAT3 VOLUME_BACK_SIZE = XMFLOAT3(8.0f, 1.7f, 0.0f);	//
+	const XMFLOAT3 SHADOW_BACK_POS = XMFLOAT3(0.5f, -0.48f, 0.0f);	//
+	const XMFLOAT3 SHADOW_BACK_SIZE = XMFLOAT3(8.0f, 1.7f, 0.0f);	//
 
 }
 
-SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volumeSliderUI_(nullptr)
+SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volumeSliderUI_(nullptr), animTime_(0.0f)
 {
 	//Image‚Ì‰ŠúÝ’è
 	const char* fileName[] = { "Image/PCCtrl.png", "Image/GamePad.png", "Image/PC_GAMEPAD.png", "Image/AimSpeed.png" ,
@@ -47,6 +46,9 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 
 	t.position_ = XMFLOAT3(0.5f, 0.7f, 0.0f);
 	Image::SetTransform(hPict_[PLAYER2], t);
+
+	t.position_ = XMFLOAT3(0.0f, 0.4f, 0.0f);
+	Image::SetTransform(hPict_[PC_GAMEPAD], t);
 
 	t.position_ = XMFLOAT3(0.0f, -0.0f, 0.0f);
 	Image::SetTransform(hPict_[AIM_SPEED], t);
@@ -72,28 +74,40 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 	ui->SetSelect(true);
 
 	//PCCtrlON1-------------------------------------------
-	AddUI(ui->UIInstantiate<ButtonUI>("On", XMFLOAT2(-0.65f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("PCCtrl", XMFLOAT2(-0.65f, 0.3f), XMFLOAT2(0.2f, 0.5f), PC_CTRL_BUTTON_SIZE, [this]()
 		{
 			SetPCCtrlOn(0);
-		}));
+		});
+	AddUI(ui);
+	ctrlButtonUI_[0] = static_cast<ButtonUI*>(ui);
+	ctrlButtonUI_[0]->SetFrameDraw(false);
 
 	//PCCtrlOFF1
-	AddUI(ui->UIInstantiate<ButtonUI>("Off", XMFLOAT2(-0.4f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("GamePad", XMFLOAT2(-0.35f, 0.3f), XMFLOAT2(0.2f, 0.5f), GM_CTRL_BUTTON_SIZE, [this]()
 		{
 			SetPCCtrlOff(0);
-		}));
+		});
+	AddUI(ui);
+	ctrlButtonUI_[1] = static_cast<ButtonUI*>(ui);
+	ctrlButtonUI_[1]->SetFrameDraw(false);
 
 	//PCCtrlON2
-	AddUI(ui->UIInstantiate<ButtonUI>("On", XMFLOAT2(0.35f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("PCCtrl", XMFLOAT2(0.35f, 0.3f), XMFLOAT2(0.2f, 0.5f), PC_CTRL_BUTTON_SIZE, [this]()
 		{
 			SetPCCtrlOn(1);
-		}));
+		});
+	AddUI(ui);
+	ctrlButtonUI_[2] = static_cast<ButtonUI*>(ui);
+	ctrlButtonUI_[2]->SetFrameDraw(false);
 
 	//PCCtrlOFF2
-	AddUI(ui->UIInstantiate<ButtonUI>("Off", XMFLOAT2(0.6f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	ui = ui->UIInstantiate<ButtonUI>("GamePad", XMFLOAT2(0.65f, 0.3f), XMFLOAT2(0.2f, 0.5f), GM_CTRL_BUTTON_SIZE, [this]()
 		{
 			SetPCCtrlOff(1);
-		}));
+		});
+	AddUI(ui);
+	ctrlButtonUI_[3] = static_cast<ButtonUI*>(ui);
+	ctrlButtonUI_[3]->SetFrameDraw(false);
 	//------------------------------------------------
 
 	//MouseSence1
@@ -131,12 +145,13 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 		}));
 
 	//JsonSetting“Ç‚Ýž‚Ý
+	//AimSensitivity
 	JsonReader::Load("Json/GameSetting.json");
 	auto& player1Section = JsonReader::GetSection("Player1");
 	aimSliderUI_[0]->SetGaugeParcent(player1Section["aimSensitivity"]);
 	auto& player2Section = JsonReader::GetSection("Player2");
 	aimSliderUI_[1]->SetGaugeParcent(player2Section["aimSensitivity"]);
-
+	//GameVolume
 	auto& commonSection = JsonReader::GetSection("Common");
 	volumeSliderUI_->SetGaugeParcent(commonSection["gameVolume"]);
 
@@ -157,24 +172,28 @@ void SettingScreen::Draw()
 	Image::Draw(hPict_[BACK_BLACK]);
 
 	//Back_White
+	//CTRL
 	Transform t;
 	t.position_ = CTRL_BACK_POS;
 	t.scale_ = CTRL_BACK_SIZE;
 	Image::SetTransform(hPict_[BACK_WHITE], t);
 	Image::Draw(hPict_[BACK_WHITE]);
 
-	t.position_ = AIM_SENSITIVITY_POS;
-	t.scale_ = AIM_SENSITIVITY_SIZE;
+	//AIMSenc
+	t.position_ = AIM_BACK_POS;
+	t.scale_ = AIM_BACK_SIZE;
 	Image::SetTransform(hPict_[BACK_WHITE], t);
 	Image::Draw(hPict_[BACK_WHITE]);
 
-	t.position_ = GAME_VOLUME_POS;
-	t.scale_ = GAME_VOLUME_SIZE;
+	//GameVol
+	t.position_ = VOLUME_BACK_POS;
+	t.scale_ = VOLUME_BACK_SIZE;
 	Image::SetTransform(hPict_[BACK_WHITE], t);
 	Image::Draw(hPict_[BACK_WHITE]);
 
-	t.position_ = SHADOW_DRAW_POS;
-	t.scale_ = SHADOW_DRAW_SIZE;
+	//Shadow
+	t.position_ = SHADOW_BACK_POS;
+	t.scale_ = SHADOW_BACK_SIZE;
 	Image::SetTransform(hPict_[BACK_WHITE], t);
 	Image::Draw(hPict_[BACK_WHITE]);
 
@@ -182,44 +201,36 @@ void SettingScreen::Draw()
 	Image::Draw(hPict_[PLAYER1]);
 	Image::Draw(hPict_[PLAYER2]);
 
-	//ƒfƒoƒbƒOPCCTRLNumber‚Ì•`‰æ
-	if (GameManager::IsPCCtrl()) {
-		//Player1‚ªPCCtrl‚ÌŽž
-		if (GameManager::GetPCCtrlNumber() == 0) {
-			Transform t;
-			t.scale_ = CTRL_SIZE;
-			t.position_ = CTRL_POS1;
-			Image::SetTransform(hPict_[PC_CTRL], t);
-			Image::Draw(hPict_[PC_CTRL]);
+	//Ctrl•`‰æ
+	const float addSelectSize = 0.025f;
+	const float selectAnimSpeed = 0.09f;
+	animTime_ += selectAnimSpeed;
+	for (int i = 0; i < 4; i++) {
+		int pcNum = GameManager::GetPCCtrlNumber();
+		bool pcCtrl = GameManager::IsPCCtrl();
 
-			t.position_ = CTRL_POS2;
-			Image::SetTransform(hPict_[GAMEPAD], t);
-			Image::Draw(hPict_[GAMEPAD]);
+		bool gmSelect = false;
+		bool pcSelect = pcCtrl && ((i == 0 && pcNum == 0) || i == 2 && pcNum == 1);
+		if (!pcCtrl && (i == 1 || i == 3)) gmSelect = true;
+		if(pcCtrl && i == 1 && pcNum == 1) gmSelect = true;
+		if(pcCtrl && i == 3 && pcNum == 0) gmSelect = true;
+
+		//‘I‚ñ‚Å‚¢‚é‚Ù‚¤‚Ì•`‰æ
+		if (pcSelect || gmSelect) {
+			float as = cosf(animTime_);
+			as *= addSelectSize;
+			if(i == 0 || i == 2) ctrlButtonUI_[i]->SetImageScale(XMFLOAT3(PC_CTRL_BUTTON_SIZE.x + as, PC_CTRL_BUTTON_SIZE.y + as, 0.0f));
+			else ctrlButtonUI_[i]->SetImageScale(XMFLOAT3(GM_CTRL_BUTTON_SIZE.x + as, GM_CTRL_BUTTON_SIZE.y + as, 0.0f));
 		}
-		//Player2‚ªPCCtrl‚ÌŽž
+		//‘I‘ð‚µ‚Ä‚È‚¢‚Ù‚¤‚Ì•`‰æ
 		else {
-			Transform t;
-			t.scale_ = CTRL_SIZE;
-			t.position_ = CTRL_POS1;
-			Image::SetTransform(hPict_[GAMEPAD], t);
-			Image::Draw(hPict_[GAMEPAD]);
-
-			t.position_ = CTRL_POS2;
-			Image::SetTransform(hPict_[PC_CTRL], t);
-			Image::Draw(hPict_[PC_CTRL]);
+			if (i == 0 || i == 2) ctrlButtonUI_[i]->SetImageScale(XMFLOAT3(PC_CTRL_BUTTON_SIZE.x, PC_CTRL_BUTTON_SIZE.y, 0.0f));
+			else ctrlButtonUI_[i]->SetImageScale(XMFLOAT3(GM_CTRL_BUTTON_SIZE.x, GM_CTRL_BUTTON_SIZE.y, 0.0f));
 		}
 	}
-	else {
-		Transform t;
-		t.scale_ = CTRL_SIZE;
-		t.position_ = CTRL_POS1;
-		Image::SetTransform(hPict_[GAMEPAD], t);
-		Image::Draw(hPict_[GAMEPAD]);
 
-		t.position_ = CTRL_POS2;
-		Image::SetTransform(hPict_[GAMEPAD], t);
-		Image::Draw(hPict_[GAMEPAD]);
-	}
+	//PC/GamePad‚Ì‰æ‘œ
+	Image::Draw(hPict_[PC_GAMEPAD]);
 
 	//Aim
 	Image::Draw(hPict_[AIM_SPEED]);

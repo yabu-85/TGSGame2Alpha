@@ -1,6 +1,7 @@
 #pragma once
 #include "Screen.h"
 
+class ButtonUI;
 class SliderUI;
 
 class SettingScreen : public Screen
@@ -20,6 +21,9 @@ class SettingScreen : public Screen
 	};
 
 	int hPict_[PICT_MAX];
+	float animTime_;
+
+	ButtonUI* ctrlButtonUI_[4];
 	SliderUI* aimSliderUI_[2];
 	SliderUI* volumeSliderUI_;
 

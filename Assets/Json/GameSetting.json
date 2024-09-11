@@ -1,7 +1,7 @@
 {
     "Common": {
         "gameVolume": 0.15234367549419403,
-        "shadowDraw": 1
+        "shadowDraw": 0
     },
     "Player1": {
         "aimSensitivity": 1.0,

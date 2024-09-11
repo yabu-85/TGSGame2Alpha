@@ -36,7 +36,11 @@ public:
 	virtual void SelectUpdate() = 0;
 	virtual void OnClick();
 
-	XMFLOAT3 GetPosition() { return frameTransform_.position_; }
+	Transform GetFrameTransform() { return frameTransform_; }
+	Transform GetImageTransform() { return imageTransform_; }
+	void SetFrameScale(XMFLOAT3 scale) { frameTransform_.scale_ = scale; }
+	void SetImageScale(XMFLOAT3 scale) { imageTransform_.scale_ = scale; }
+	XMFLOAT3 GetFramePosition() { return frameTransform_.position_; }
 
 	bool GetBound() { return isBound_; }
 	bool GetSelect() { return isSelect_; }

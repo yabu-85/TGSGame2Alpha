@@ -1,7 +1,7 @@
 #include "camera.h"
 #include "Direct3D.h"
 
-float _zoom[2];
+float _fovParcent[2];
 XMFLOAT3 _position[2];
 XMFLOAT3 _target[2];
 XMMATRIX _view;
@@ -12,7 +12,7 @@ XMMATRIX _billBoard;
 void Camera::Initialize()
 {
 	for (int i = 0; i < 2; i++) {
-		_zoom[i] = 1.0f;
+		_fovParcent[i] = 1.0f;
 		_position[i] = XMFLOAT3(40, 10, 60);	//カメラの位置
 		_target[i] = XMFLOAT3(50, 5, 50);	//カメラの焦点
 	}
@@ -39,9 +39,9 @@ void Camera::Update(int id)
 void Camera::SetTarget(XMFLOAT3 target, int id) { _target[id] = target; }
 
 //ズーム設定
-void Camera::SetPeekFOVZoom(float zoom, int id) { _zoom[id] = zoom; }
+void Camera::SetFovAngleParcent(float zoom, int id) { _fovParcent[id] = zoom; }
 
-float Camera::GetPeekFOVZoom(int id) {	return _zoom[id]; }
+float Camera::GetFovAngleParcent(int id) {	return _fovParcent[id]; }
 
 //位置を設定
 void Camera::SetPosition(XMFLOAT3 position, int id) { _position[id] = position; }
@@ -61,13 +61,13 @@ XMMATRIX Camera::GetProjectionMatrix() { return _proj; }
 //一人用プロジェクション行列計算
 void Camera::SetOneProjectionMatrix(float zoom)
 {
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV2 * zoom, ((FLOAT)Direct3D::screenWidth_) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(1.0f * zoom, ((FLOAT)Direct3D::screenWidth_) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 }
 
 //二人用プロジェクション行列計算
 void Camera::SetTwoProjectionMatrix(float zoom)
 {
-	_proj = XMMatrixPerspectiveFovLH(XM_PIDIV2 * zoom, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
+	_proj = XMMatrixPerspectiveFovLH(1.0f * zoom, ((FLOAT)Direct3D::screenWidth_ / 2.0f) / (FLOAT)Direct3D::screenHeight_, 0.1f, 1000.0f);
 }
 
 //ビルボード用回転行列を取得

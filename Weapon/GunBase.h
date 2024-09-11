@@ -35,6 +35,10 @@ protected:
     int currentPeekTime_;           //覗き込み時間計算用
     float peekZoom_;                //ズームする度合い
 
+    float hipFireAccuracy_;         //腰撃ち時の集弾率
+    float aimingAccuracy_;          //覗き込み時の集弾率
+    float accuracyDecrease_;        //集弾率を減らす値
+
     Player* pPlayer_;
     AimCursor* pAimCursor_;
 

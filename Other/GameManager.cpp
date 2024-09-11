@@ -294,7 +294,7 @@ namespace GameManager {
 		drawIndex_ = 0;
 		Direct3D::SetViewPort(0);
 		Direct3D::SetViewOne();
-		Camera::SetOneProjectionMatrix(Camera::GetPeekFOVZoom(0));
+		Camera::SetOneProjectionMatrix(Camera::GetFovAngleParcent(0));
 		
 		if (isShadowDraw_) ShadowDraw();
 		
@@ -319,7 +319,7 @@ namespace GameManager {
 		if (isShadowDraw_) {
 			for (int i = 0; i < 2; i++) {
 				drawIndex_ = i;
-				Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
+				Camera::SetTwoProjectionMatrix(Camera::GetFovAngleParcent(i));
 				ShadowDraw();
 			}
 		}
@@ -329,7 +329,7 @@ namespace GameManager {
 			drawIndex_ = i;
 			Direct3D::SetViewPort(i);
 			Camera::Update(i);
-			Camera::SetTwoProjectionMatrix(Camera::GetPeekFOVZoom(i));
+			Camera::SetTwoProjectionMatrix(Camera::GetFovAngleParcent(i));
 
 			pRootObject_->DrawSub();
 			EFFEKSEERLIB::gEfk->Draw();

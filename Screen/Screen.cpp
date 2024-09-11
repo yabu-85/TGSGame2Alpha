@@ -73,8 +73,8 @@ void Screen::Update()
 			//自分はスキップ
 			if (u == selectUI) continue;
 
-			XMFLOAT3 sUIPos = selectUI->GetPosition();
-			XMFLOAT3 tUIPos = u->GetPosition();
+			XMFLOAT3 sUIPos = selectUI->GetFramePosition();
+			XMFLOAT3 tUIPos = u->GetFramePosition();
 			XMFLOAT3 vecUI = Float3Sub(tUIPos, sUIPos);
 			
 			//入力方向あっているか確認

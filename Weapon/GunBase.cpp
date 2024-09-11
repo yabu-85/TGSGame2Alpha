@@ -131,7 +131,7 @@ void GunBase::Peeking()
         }
 
         float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
-        Camera::SetPeekFOVZoom(zoom, playerId_);
+        Camera::SetFovAngleParcent(zoom, playerId_);
         return;
     }
 
@@ -139,7 +139,7 @@ void GunBase::Peeking()
         currentPeekTime_--;
 
         float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
-        Camera::SetPeekFOVZoom(zoom, playerId_);
+        Camera::SetFovAngleParcent(zoom, playerId_);
 
         //î`Ç´çûÇ›äÆóπ
         if (currentPeekTime_ <= 0) {
@@ -154,9 +154,9 @@ void GunBase::Peeking()
         if (currentPeekTime_ >= peekTime_) {
             currentPeekTime_ = peekTime_;
         }
-
+        
         float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
-        Camera::SetPeekFOVZoom(zoom, playerId_);
+        Camera::SetFovAngleParcent(zoom, playerId_);
     }
 
 }

@@ -45,7 +45,7 @@ Aim::~Aim()
 void Aim::Initialize()
 {
     pPlayer_ = static_cast<Player*>(GetParent());
-    isFps_ = true;
+    isFps_ = false;
 
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;

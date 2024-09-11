@@ -3,6 +3,7 @@
 
 class ButtonUI : public UIBase
 {
+	bool isFrameDraw_;			//枠を描画するか
 	XMFLOAT2 widePos_;			//0～1980とかの座標
 	XMFLOAT2 frameHalfSize_;	//半分のサイズ
 
@@ -14,6 +15,8 @@ public:
 	void Initialize(std::string name) override;
 	bool IsWithinBound() override;
 	void SelectUpdate() override;
+
+	void SetFrameDraw(bool b) { isFrameDraw_ = b; }
 
 };
 

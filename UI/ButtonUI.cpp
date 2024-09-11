@@ -6,7 +6,7 @@
 #include "../Engine/Input.h"
 
 ButtonUI::ButtonUI(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
-	: UIBase(pos, size, onClick, tsize), widePos_(0.0f, 0.0f), frameHalfSize_(0.0f, 0.0f)
+	: UIBase(pos, size, onClick, tsize), widePos_(0.0f, 0.0f), frameHalfSize_(0.0f, 0.0f), isFrameDraw_(true)
 {
 }
 
@@ -40,12 +40,16 @@ void ButtonUI::Update()
 
 void ButtonUI::Draw()
 {
-	//通常
-	Image::Draw(hButtonPict_[0]);
+	if (isFrameDraw_) {
+		//通常
+		Image::SetTransform(hButtonPict_[0], frameTransform_);
+		Image::Draw(hButtonPict_[0]);
 
-	//セレクト
-	Image::SetAlpha(hButtonPict_[1], (int)(255.0f * selectAnim_));
-	Image::Draw(hButtonPict_[1]);
+		//セレクト
+		Image::SetTransform(hButtonPict_[1], frameTransform_);
+		Image::SetAlpha(hButtonPict_[1], (int)(255.0f * selectAnim_));
+		Image::Draw(hButtonPict_[1]);
+	}
 
 	//テキストの表示
 	Image::SetTransform(hImagePict_, imageTransform_);
