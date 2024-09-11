@@ -2,9 +2,9 @@
     "environment": {
         "gravity": 0.004999999888241291,
         "lightPosition": {
-            "x": 50.0,
-            "y": 20.0,
-            "z": 50.0
+            "x": 55.0,
+            "y": 40.0,
+            "z": 55.0
         },
         "startPosition1": {
             "x": 50.0,

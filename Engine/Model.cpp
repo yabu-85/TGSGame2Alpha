@@ -1,5 +1,6 @@
 #include "Global.h"
 #include "Model.h"
+#include "../Other/GameManager.h"
 #include <assert.h>
 #include <vector>
 
@@ -92,7 +93,10 @@ namespace Model
 
 		if (_datas[handle]->pFbx)
 		{
-			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, _datas[handle]->isShadow);
+			bool shadow = _datas[handle]->isShadow;
+			if (!GameManager::IsShadowDraw()) shadow = false;
+
+			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
 		}
 	}
 

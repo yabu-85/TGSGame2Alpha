@@ -86,6 +86,22 @@ void TitleScene::Update()
 	float CamZ = CameraCenter + cameraPosX * std::sinf(value);
 	Camera::SetPosition(XMFLOAT3(CamX, 15.0f, CamZ), 0);
 
+
+	//デバッグ用
+#if 1
+	{
+		static const float speed = 0.3f;
+		XMFLOAT4 pos = Light::GetPosition(0);
+		if (Input::IsKey(DIK_LEFTARROW)) pos.x += speed;
+		if (Input::IsKey(DIK_RIGHTARROW)) pos.x -= speed;
+		if (Input::IsKey(DIK_UPARROW)) pos.z += speed;
+		if (Input::IsKey(DIK_DOWNARROW)) pos.z -= speed;
+		if (Input::IsKey(DIK_E)) pos.y += speed;
+		if (Input::IsKey(DIK_Q)) pos.y -= speed;
+		Light::SetPosition(0, pos);
+	}
+#endif
+
 }
 
 //描画

@@ -55,17 +55,21 @@ namespace GameManager {
 
 		//GameSettingì«Ç›çûÇ›
 		JsonReader::Load("Json/GameSetting.json");
+		auto& commonSection = JsonReader::GetSection("Common");
 		auto& player1Section = JsonReader::GetSection("Player1");
 		auto& player2Section = JsonReader::GetSection("Player2");
-		int pcCtrl1 = (player1Section["pcCtrl"]);
-		int pcCtrl2 = (player2Section["pcCtrl"]);
+		int pcCtrl1 = player1Section["pcCtrl"];
+		int pcCtrl2 = player2Section["pcCtrl"];
+		int shadowDraw = commonSection["shadowDraw"];
 
+		//Ctrl
 		if (pcCtrl1 || pcCtrl2) {
 			isPCCtrl_ = true;
 			if (pcCtrl1 == 1) pcCtrlNumber_ = 0;
 			else if (pcCtrl2 == 1) pcCtrlNumber_ = 1;
 		}
 
+		//âÊñ ï™äÑ
 		if (isOnePlayer_) {
 			Direct3D::SetViewOne();
 			Direct3D::SetViewPort(0);
@@ -75,6 +79,9 @@ namespace GameManager {
 			Direct3D::SetViewTwo();
 			Camera::SetTwoProjectionMatrix();
 		}
+
+		//Shadow
+		isShadowDraw_ = shadowDraw;
 
 	}
 

@@ -8,12 +8,14 @@ class SettingScreen : public Screen
 	enum PICT_TYPE {
 		PC_CTRL = 0,
 		GAMEPAD,
+		PC_GAMEPAD,
 		AIM_SPEED,
 		BACK_BLACK,
 		BACK_WHITE,
 		PLAYER1,
 		PLAYER2,
 		GAME_VOLUME,
+		SHADOW_DRAW,
 		PICT_MAX,
 	};
 

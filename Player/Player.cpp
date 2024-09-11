@@ -30,8 +30,7 @@ namespace {
     const float WorldGravity = 0.005f;      //世界の重力
     const float PlayerHeight = 1.3f;        //プレイヤーの頭の位置（Stageとの判定で使う
     const float PlayerWaist = 0.4f;         //プレイヤーの上れる高さ
-
-    const int DAMAGE_DRAW_TIME = 30;      //ダメージエフェクト表示時間
+    const int DAMAGE_DRAW_TIME = 30;        //ダメージエフェクト表示時間
 
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 10.0f, 50.0f);
 

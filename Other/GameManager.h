@@ -33,6 +33,10 @@ namespace GameManager
 	void SetPCCtrlNumber(int number);
 	int GetPCCtrlNumber();
 
+	//影の設定
+	void SetShadowDraw(bool b);
+	bool IsShadowDraw();
+
 	//アクセサ
 	GameObject* GetRootObject();
 	void SetRootObject(GameObject* root);

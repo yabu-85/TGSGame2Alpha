@@ -21,16 +21,18 @@ namespace {
 	const XMFLOAT3 AIM_SENSITIVITY_POS = XMFLOAT3(0.0f, -0.05f, 0.0f);	//
 	const XMFLOAT3 AIM_SENSITIVITY_SIZE = XMFLOAT3(18.0f, 2.0f, 0.0f);	//
 
-	const XMFLOAT3 GAME_VOLUME_POS = XMFLOAT3(0.0f, -0.48f, 0.0f);	//
+	const XMFLOAT3 GAME_VOLUME_POS = XMFLOAT3(-0.5f, -0.48f, 0.0f);	//
 	const XMFLOAT3 GAME_VOLUME_SIZE = XMFLOAT3(8.0f, 1.7f, 0.0f);	//
+	const XMFLOAT3 SHADOW_DRAW_POS = XMFLOAT3(0.5f, -0.48f, 0.0f);	//
+	const XMFLOAT3 SHADOW_DRAW_SIZE = XMFLOAT3(8.0f, 1.7f, 0.0f);	//
 
 }
 
 SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volumeSliderUI_(nullptr)
 {
 	//ImageÇÃèâä˙ê›íË
-	const char* fileName[] = { "Image/PCCtrl.png", "Image/GamePad.png", "Image/AimSpeed.png" , "Image/BlackFade.png", "Image/WhiteFade.png",
-		"Image/Player1.png", "Image/Player2.png", "Image/GameVolume.png" };
+	const char* fileName[] = { "Image/PCCtrl.png", "Image/GamePad.png", "Image/PC_GAMEPAD.png", "Image/AimSpeed.png" ,
+		"Image/BlackFade.png", "Image/WhiteFade.png", "Image/Player1.png", "Image/Player2.png", "Image/GameVolume.png", "Image/ShadowDraw.png" };
 	for (int i = 0; i < PICT_MAX; i++) {
 		hPict_[i] = -1;
 		hPict_[i] = Image::Load(fileName[i]);
@@ -49,8 +51,11 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 	t.position_ = XMFLOAT3(0.0f, -0.0f, 0.0f);
 	Image::SetTransform(hPict_[AIM_SPEED], t);
 
-	t.position_ = XMFLOAT3(0.0f, -0.45f, 0.0f);
+	t.position_ = XMFLOAT3(-0.5f, -0.45f, 0.0f);
 	Image::SetTransform(hPict_[GAME_VOLUME], t);
+
+	t.position_ = XMFLOAT3(0.5f, -0.45f, 0.0f);
+	Image::SetTransform(hPict_[SHADOW_DRAW], t);
 
 	Image::SetFullScreenTransform(hPict_[BACK_BLACK]);
 	Image::SetAlpha(hPict_[BACK_BLACK], 150);
@@ -67,25 +72,25 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 	ui->SetSelect(true);
 
 	//PCCtrlON1-------------------------------------------
-	AddUI(ui->UIInstantiate<ButtonUI>("OK", XMFLOAT2(-0.65f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	AddUI(ui->UIInstantiate<ButtonUI>("On", XMFLOAT2(-0.65f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
 		{
 			SetPCCtrlOn(0);
 		}));
 
 	//PCCtrlOFF1
-	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(-0.4f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	AddUI(ui->UIInstantiate<ButtonUI>("Off", XMFLOAT2(-0.4f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
 		{
 			SetPCCtrlOff(0);
 		}));
 
 	//PCCtrlON2
-	AddUI(ui->UIInstantiate<ButtonUI>("OK", XMFLOAT2(0.35f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	AddUI(ui->UIInstantiate<ButtonUI>("On", XMFLOAT2(0.35f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
 		{
 			SetPCCtrlOn(1);
 		}));
 
 	//PCCtrlOFF2
-	AddUI(ui->UIInstantiate<ButtonUI>("Back", XMFLOAT2(0.6f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+	AddUI(ui->UIInstantiate<ButtonUI>("Off", XMFLOAT2(0.6f, 0.3f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
 		{
 			SetPCCtrlOff(1);
 		}));
@@ -108,13 +113,22 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 	aimSliderUI_[1] = static_cast<SliderUI*>(ui);
 
 	//------------------------SoundValue------------------------
-	ui = ui->UIInstantiate<SliderUI>("", XMFLOAT2(0.0f, -0.55f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
+	ui = ui->UIInstantiate<SliderUI>("", XMFLOAT2(-0.5f, -0.55f), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.3f, 0.3f), [this]()
 		{
 			SetJsonSetting();
 		});
 	AddUI(ui);
 	volumeSliderUI_ = static_cast<SliderUI*>(ui);
 
+	//-----------------------ShadowDraw-----------------------
+	AddUI(ui->UIInstantiate<ButtonUI>("On", XMFLOAT2(0.35f, -0.55f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+		{
+			GameManager::SetShadowDraw(true);
+		}));
+	AddUI(ui->UIInstantiate<ButtonUI>("Off", XMFLOAT2(0.65f, -0.55f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
+		{
+			GameManager::SetShadowDraw(false);
+		}));
 
 	//JsonSettingì«Ç›çûÇ›
 	JsonReader::Load("Json/GameSetting.json");
@@ -156,6 +170,11 @@ void SettingScreen::Draw()
 
 	t.position_ = GAME_VOLUME_POS;
 	t.scale_ = GAME_VOLUME_SIZE;
+	Image::SetTransform(hPict_[BACK_WHITE], t);
+	Image::Draw(hPict_[BACK_WHITE]);
+
+	t.position_ = SHADOW_DRAW_POS;
+	t.scale_ = SHADOW_DRAW_SIZE;
 	Image::SetTransform(hPict_[BACK_WHITE], t);
 	Image::Draw(hPict_[BACK_WHITE]);
 
@@ -207,6 +226,9 @@ void SettingScreen::Draw()
 
 	//GameVolume
 	Image::Draw(hPict_[GAME_VOLUME]);
+
+	//ShadowDraw
+	Image::Draw(hPict_[SHADOW_DRAW]);
 
 	Screen::Draw();
 	
@@ -282,8 +304,11 @@ void SettingScreen::SetJsonSetting()
 	float gameVolume = volumeSliderUI_->GetGaugeParcent();
 	nlohmann::json commonJson;
 	commonJson["gameVolume"] = gameVolume;
+	if(GameManager::IsShadowDraw()) commonJson["shadowDraw"] = 1;
+	else commonJson["shadowDraw"] = 0;
 	j[jsonName[2]] = commonJson;
-	//SetÇ∑ÇÈ
+	
+	//AudioÇÃâπó ÉZÉbÉg
 	AudioManager::SetVolume(gameVolume);
 
 	std::ofstream ofs("Json/GameSetting.json");

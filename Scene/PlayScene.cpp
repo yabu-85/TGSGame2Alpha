@@ -217,20 +217,28 @@ void PlayScene::CommonUIDraw()
 void PlayScene::IndividualUIDraw(int index)
 {
 	SceneBase::IndividualUIDraw(index);
-	
-	//AimCursor
-	if (!preStageDraw_ && !isPause_ && pAimCursor_[index]) pAimCursor_[index]->Draw();
 
-	//HealthGauge
-	if (!preStageDraw_ && pPlayer_[index]) {
+	//StageDraw’†‚È‚çI‚í‚è
+	if (preStageDraw_) return;
+
+	//AimCursor
+	if (!isPause_ && pAimCursor_[index]) pAimCursor_[index]->Draw();
+
+	//PlayerŠÖŒW
+	if (pPlayer_[index]) {
+		//HealthGauge
 		float r = (float)pPlayer_[index]->GetHP() / (float)pPlayer_[index]->GetMaxHP();
 		pPlayer_[index]->GetFixedHealthGauge()->SetParcent(r);
 		pPlayer_[index]->GetFixedHealthGauge()->Draw(GameManager::GetDrawIndex());
 	
-		pBulletInfoDisplay_[index]->SetCurrentMagazine(pPlayer_[index]->GetGun()->GetCurrentMagazineCount());
-		pBulletInfoDisplay_[index]->SetMaxMagazine(pPlayer_[index]->GetGun()->GetMaxMagazineCount());
-		pBulletInfoDisplay_[index]->DrawBullet();
+		//e‚Ìî•ñ
+		if (pPlayer_[index]->GetGun()) {
+			pBulletInfoDisplay_[index]->SetCurrentMagazine(pPlayer_[index]->GetGun()->GetCurrentMagazineCount());
+			pBulletInfoDisplay_[index]->SetMaxMagazine(pPlayer_[index]->GetGun()->GetMaxMagazineCount());
+		}
 	}
+	
+	pBulletInfoDisplay_[index]->DrawBullet();
 
 }
 
