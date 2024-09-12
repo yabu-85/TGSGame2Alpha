@@ -3,7 +3,6 @@
 #include "../Engine/GameObject.h"
 
 class Player;
-class AimCursor;
 
 //e‚ğŠÇ—‚·‚éƒNƒ‰ƒX
 class GunBase : public GameObject
@@ -38,9 +37,11 @@ protected:
     float hipFireAccuracy_;         //˜Œ‚‚¿‚ÌW’e—¦
     float aimingAccuracy_;          //”`‚«‚İ‚ÌW’e—¦
     float accuracyDecrease_;        //W’e—¦‚ğŒ¸‚ç‚·’l
+    float accuracyRecovery_;        //W’e—¦‚ğ‰ñ•œ‚³‚¹‚é’l
+    float currentAccuracy_;         //ŒvZ—pŒ»İ‚ÌW’e—¦
+    float maxAccuracy_;             //Å‘åW’e—¦
 
     Player* pPlayer_;
-    AimCursor* pAimCursor_;
 
     void LoadGunJson(std::string fileName);         //e‚Ìî•ñ“Ç‚İ‚İ
     void SetGunHandPosition();                      //è‚ÌˆÊ’u‚Ée‚Ìƒ|ƒWƒVƒ‡ƒ“‚ğ‡‚í‚¹‚é
@@ -68,14 +69,14 @@ public:
     virtual void Release() override {};
     virtual void OnCollision(GameObject* pTarget) override;
 
+    // ˜Œ‚ / ”`‚«Œ‚‚¿ + currentAcct
+    float GetAccuracy();
+
     bool IsPeeking() { return isPeeking_; }
-    
     int GetCurrentMagazineCount() { return currentMagazineCount_; }
     int GetMaxMagazineCount() { return magazineCount_; }
     int GetReloadTime() { return reloadTime_; }
-    
-    AimCursor* GetAimCursor() { return pAimCursor_; }
-    
+
     //e’e‚ğ¶¬‚·‚é
     template<class T>
     inline BulletBase* ShotBullet(std::string jsonName)

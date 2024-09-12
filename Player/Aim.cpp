@@ -13,8 +13,8 @@
 #include <vector>
 
 namespace {
-    const float UP_MOUSE_LIMIT = -80.0f;                     //回転限界値
-    const float DOWN_MOUSE_LIMIT = 60.0f;                    //回転限界値
+    const float UP_MOUSE_LIMIT = -85.0f;                     //回転限界値
+    const float DOWN_MOUSE_LIMIT = 85.0f;                    //回転限界値
     
     const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
     const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
@@ -34,7 +34,7 @@ Aim::Aim(GameObject* parent)
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
     shakeDirection_{ 1,0,0,0 }, isFps_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
-    rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false), rotateShakeDirKeepSub_(XMFLOAT2())
+    rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false), rotateShakeDirKeepSub_(XMFLOAT2()), hPlayerFPSModel_(-1)
 {
 }
 
@@ -45,7 +45,11 @@ Aim::~Aim()
 void Aim::Initialize()
 {
     pPlayer_ = static_cast<Player*>(GetParent());
-    isFps_ = false;
+    isFps_ = true;
+
+    hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
+    Model::GetPartBoneIndex(hPlayerFPSModel_, "eye", &eyePart, &eyeBone);         //Root
+    Model::GetPartBoneIndex(hPlayerFPSModel_, "eye.001", &eyePart1, &eyeBone1);   //Top
 
     distanceHeight_ = DISTANCE_HEIGHT_DEFAULT;
     distanceTargetHeight_ = DISTANCE_HEIGHT_DEFAULT;
@@ -158,11 +162,31 @@ void Aim::FPSAim()
     CameraRotateShake();
 
     //Eyeポジション設定
-    int hFPSModel_ = pPlayer_->GetFPSModelHandle();
-    Model::GetPartBoneIndex(hFPSModel_, "eye", &eyePart, &eyeBone);         //Root
-    Model::GetPartBoneIndex(hFPSModel_, "eye.001", &eyePart1, &eyeBone1);   //Top
-    XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hFPSModel_, eyePart, eyeBone);
-    XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hFPSModel_, eyePart1, eyeBone1);
+    XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart, eyeBone);     //Root
+    XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart1, eyeBone1);  //Top
+
+    /*
+    //プレイヤーの座標Rootが合わさるように計算
+    XMFLOAT3 eyeVec = Float3Sub(XMFLOAT3(eyePosTar.x, 0.0f, eyePosTar.z), XMFLOAT3(eyePos.x, 0.0f, eyePos.z));
+    //eyePos = Float3Add(eyePos, eyeVec);
+    //eyePos1 = Float3Add(eyePos1, eyeVec);
+
+    float eyeHeight = CalculationDistance(eyeVec) * (eyePos.y - eyePos1.y);
+    eyePos = XMFLOAT3(eyePosTar.x, (eyePos.y - eyeHeight), eyePosTar.z);
+    //eyePos1 = XMFLOAT3(eyePosTar.x, (eyePos1.y - eyeHeight), eyePosTar.z);
+    */
+
+    XMFLOAT3 playerPos = pPlayer_->GetPosition();
+    XMFLOAT3 x = XMFLOAT3(playerPos.x, eyePos.y, playerPos.z);
+    XMFLOAT3 sub = Float3Sub(x, eyePos);
+    XMFLOAT3 y = Float3Add(eyePos1, sub);
+    eyePos = x;
+    eyePos1 = y;
+
+    //紙に書いたp2をまず求める
+    XMFLOAT3 eyeVec = Float3Sub(eyePos, eyePos1);
+    float dist = CalculationDistance(XMFLOAT3(playerPos.x, 0.0f, playerPos.z), XMFLOAT3(eyePos.x, 0.0f, eyePos.z));
+    fpsSubY_ = Float3Add(eyeVec, Float3Multiply(eyeVec, dist)).y;
 
     int playerID = pPlayer_->GetPlayerId();
     Camera::SetPosition(eyePos, playerID);
@@ -173,7 +197,6 @@ void Aim::FPSAim()
     XMMATRIX mView = mRotX * mRotY;
     XMVECTOR caDire = XMVector3TransformNormal(forwardVector, mView);
     XMStoreFloat3(&aimDirection_, -caDire);
-
 }
 
 void Aim::DefaultAim()

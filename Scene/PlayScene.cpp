@@ -160,7 +160,7 @@ void PlayScene::Update()
 			//Updateの許可
 			AllChildEnter();
 
-			GameManager::SetTwoPlayer();
+			//GameManager::SetTwoPlayer();
 			preStageDraw_ = false;
 		}
 		else {
@@ -221,8 +221,11 @@ void PlayScene::IndividualUIDraw(int index)
 	//StageDraw中なら終わり
 	if (preStageDraw_) return;
 
-	//AimCursor
-	if (!isPause_ && pAimCursor_[index]) pAimCursor_[index]->Draw();
+	//ポーズ画面じゃない時
+	if (!isPause_) {
+		//AimCursor
+		if (pAimCursor_[index]) pAimCursor_[index]->Draw();
+	}
 
 	//Player関係
 	if (pPlayer_[index]) {

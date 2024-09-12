@@ -79,7 +79,7 @@ void Bullet_Normal::Update()
         }
 
         //HitCursor
-        pPlayer->GetGun()->GetAimCursor()->Hit();
+        pPlayer->GetAimCursor()->Hit();
 
         pPolyLine_->ClearFirstPosition();
         pPolyLine_->AddPosition(transform_.position_);

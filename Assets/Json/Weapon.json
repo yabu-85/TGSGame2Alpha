@@ -3,12 +3,22 @@
     "reloadTime": 80,
     "magazineCount": 40,
     "peekTime": 20,
-    "peekValue": 0.6
+    "peekValue": 0.6,
+    "hipFireAccuracy": 0.05,
+    "aimingAccuracy": 0.01,
+    "accuracyDecrease": 0.01,
+    "accuracyRecovery": 0.02,
+    "maxAccuracy": 0.2
   },
   "SniperGun": {
     "reloadTime": 50,
     "magazineCount": 1,
     "peekTime": 50,
-    "peekValue": 0.4
+    "peekValue": 0.4,
+    "hipFireAccuracy": 0.05,
+    "aimingAccuracy": 0.00,
+    "accuracyDecrease": 0.01,
+    "accuracyRecovery": 0.01,
+    "maxAccuracy": 0.3
   }
 }

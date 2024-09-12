@@ -7,8 +7,6 @@
 #include "../Other/InputManager.h"
 #include "../Other/AudioManager.h"
 #include "../Other/GameManager.h"
-#include "../Scene/PlayScene.h"
-#include "../UI/AimCursor.h"
 
 Gun::Gun(GameObject* parent) : GunBase(parent, "Gun")
 {
@@ -32,10 +30,6 @@ void Gun::Initialize()
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
-    pAimCursor_ = new AimCursor();
-    PlayScene* scene = static_cast<PlayScene*>(FindObject("PlayScene"));
-    if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
-
     LoadGunJson("Gun");
 }
 
@@ -44,9 +38,11 @@ void Gun::Update()
     //アニメーション
     Model::Update(hModel_);
 
-    coolTime_--;
-    pAimCursor_->Update();
+    //集弾率回復
+    if(coolTime_ <= 0) currentAccuracy_ -= accuracyRecovery_;
+    if (currentAccuracy_ < 0.0f) currentAccuracy_ = 0.0f;
 
+    coolTime_--;
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
@@ -101,11 +97,8 @@ void Gun::Draw()
     int dI = GameManager::GetDrawIndex();
     //自分の表示
     if (pPlayer_->GetPlayerId() == dI) {
-        //常に手前に表示するように
-        Direct3D::SetDepthBafferWriteEnable(false);
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
-        Direct3D::SetDepthBafferWriteEnable(true);
     }
     //相手の表示
     else {
@@ -131,12 +124,14 @@ void Gun::PressedShot()
     if (pPlayer_->GetAim()->IsAimFps()) ShotFpsBullet<Bullet_Normal>("Bullet_Normal");
     else ShotBullet<Bullet_Normal>("Bullet_Normal");
 
-    CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.0f, 0.3f), 1);
+    CameraRotateShakeInfo rotShakeInfo = CameraRotateShakeInfo(XMFLOAT2(0.02f, 0.3f), 1);
     pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
     pPlayer_->GetAim()->SetCameraRotateReturn(false);
 
+    currentAccuracy_ += accuracyDecrease_;
+    if (currentAccuracy_ > maxAccuracy_) currentAccuracy_ = maxAccuracy_;
+
     AudioManager::Play(AUDIO_TYPE::SMALL_SHOT, 0.5f);
-    pAimCursor_->Shot();
     ShotVFX();
 
 }

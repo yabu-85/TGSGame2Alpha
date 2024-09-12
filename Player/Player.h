@@ -4,10 +4,12 @@
 
 class Aim;
 class GunBase;
+class AimCursor;
 class StateManager;
 class CapsuleCollider;
 class FixedHealthGauge;
 class AnimationController;
+class SphereCollider;
 
 enum class PLAYER_ANIMATION {
     IDLE = 0,
@@ -48,8 +50,8 @@ class Player : public Character
     int bonePart_;              //Partのインデックス
     int upListIndex_[15];       //Boneのインデックス
     int downListIndex_[8];      //Boneのインデックス
-    float waistRotateX_;        //ボーンのRotateX（上半身
-    float waistRotateY_;        //ボーンのRotateY（下半身
+    float orientRotateX_;       //ボーンのRotateX（上半身
+    float lowerBodyRotate_;     //下半身の回転Y
 
     float gradually_;           //移動スピードの加減の値
     float moveSpeed_;           //移動スピード
@@ -60,11 +62,14 @@ class Player : public Character
 
     Aim* pAim_;
     GunBase* pGunBase_;
+    AimCursor* pAimCursor_;
     StateManager* pStateManager_;
     CapsuleCollider* pCapsuleCollider_;
     FixedHealthGauge* pFixedHealthGauge_;
     AnimationController* pAnimationController_;
     AnimationController* pFpsAnimationController_;
+
+    SphereCollider* pSphereCollider_[2];            //当たり判定で使用（カプセルの上下と想定して使う
 
     //関数
     void CalcRotate(XMFLOAT3 pos, float ratio);
@@ -123,6 +128,7 @@ public:
 
     Aim* GetAim() { return pAim_; }
     GunBase* GetGun() { return pGunBase_; }
+    AimCursor* GetAimCursor() { return pAimCursor_; }
     StateManager* GetStateManager() { return pStateManager_; }
     FixedHealthGauge* GetFixedHealthGauge() { return pFixedHealthGauge_; }
     AnimationController* GetAnimationController() { return pAnimationController_; }

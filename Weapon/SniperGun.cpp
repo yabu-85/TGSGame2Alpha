@@ -13,8 +13,6 @@
 #include "../Stage/CollisionMap.h"
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
-#include "../UI/AimCursor.h"
-#include "../Scene/PlayScene.h"
 
 SniperGun::SniperGun(GameObject* parent)
     : GunBase(parent, "SniperGun"), hPict_(-1)
@@ -42,10 +40,6 @@ void SniperGun::Initialize()
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
-    pAimCursor_ = new AimCursor();
-    PlayScene* scene = static_cast<PlayScene*>(FindObject("PlayScene"));
-    if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
-
     LoadGunJson("SniperGun");
 }
 
@@ -54,9 +48,11 @@ void SniperGun::Update()
     //アニメーション
     Model::Update(hModel_); 
     
-    coolTime_--;
-    pAimCursor_->Update();
+    //集弾率回復
+    currentAccuracy_ -= accuracyRecovery_;
+    if (currentAccuracy_ < 0.0f) currentAccuracy_ = 0.0f;
 
+    coolTime_--;
     transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
@@ -193,8 +189,10 @@ void SniperGun::PressedShot()
     pPlayer_->GetAim()->SetCameraRotateShake(rotShakeInfo);
     pPlayer_->GetAim()->SetCameraRotateReturn(true);
 
+    currentAccuracy_ += accuracyDecrease_;
+    if (currentAccuracy_ > maxAccuracy_) currentAccuracy_ = maxAccuracy_;
+
     AudioManager::Play(AUDIO_TYPE::SMALL_SHOT, 0.5f);
-    pAimCursor_->Shot();
     ShotVFX();
 
 }

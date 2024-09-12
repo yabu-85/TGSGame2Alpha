@@ -19,10 +19,10 @@
 #include "../State/StateManager.h"
 
 GunBase::GunBase(GameObject* parent, const std::string& name)
-    : GameObject(parent, name), hModel_(-1), pAimCursor_(nullptr), playerId_(0), coolTime_(0), rayHit_(false), 
-    rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1), isPeeking_(false), peekTime_(0), reloadTime_(0), 
-    currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hPlayerModel_(-1), handBoneIndex_(-1), handPartIndex_(-1),
-    animTime_(0), currentPeekTime_(0), peekZoom_(0.0f)
+    : GameObject(parent, name), hModel_(-1), playerId_(0), coolTime_(0), rayHit_(false), rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1),
+    isPeeking_(false), peekTime_(0), reloadTime_(0), currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hPlayerModel_(-1), handBoneIndex_(-1), 
+    handPartIndex_(-1), animTime_(0), currentPeekTime_(0), peekZoom_(0.0f), hipFireAccuracy_(0.0f), aimingAccuracy_(0.0f), accuracyDecrease_(0.0f), 
+    accuracyRecovery_(0.0f), currentAccuracy_(0.0f)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
@@ -32,8 +32,6 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
 
 GunBase::~GunBase()
 {
-    SAFE_DELETE(pAimCursor_);
-
 }
 
 void GunBase::OnCollision(GameObject* pTarget)
@@ -44,6 +42,12 @@ void GunBase::OnCollision(GameObject* pTarget)
     {
         rayHit_ = true;
     }
+}
+
+float GunBase::GetAccuracy()
+{
+    if (isPeeking_) return aimingAccuracy_;
+    return currentAccuracy_ + hipFireAccuracy_;
 }
 
 void GunBase::LoadGunJson(std::string fileName)
@@ -67,6 +71,13 @@ void GunBase::LoadGunJson(std::string fileName)
     //ズーム
     peekZoom_ = gunSection["peekValue"];
     peekTime_ = gunSection["peekTime"];
+
+    //集弾率
+    hipFireAccuracy_ = gunSection["hipFireAccuracy"];
+    aimingAccuracy_ = gunSection["aimingAccuracy"];
+    accuracyDecrease_ = gunSection["accuracyDecrease"];
+    accuracyRecovery_ = gunSection["accuracyRecovery"];
+    maxAccuracy_ = gunSection["maxAccuracy"];
 
 }
 
@@ -195,11 +206,11 @@ void GunBase::ShotBullet(BulletBase* pBullet)
 
     //ブレの方向計算をする
     static const float BURE_POWER = 0.3f;
-    float bure = pAimCursor_->GetBurePower();
     XMFLOAT3 bureMove = XMFLOAT3();
-    bureMove.x = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
-    bureMove.y = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
-    bureMove.z = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    float accuracy = GetAccuracy();
+    bureMove.x = accuracy * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.y = accuracy * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.z = accuracy * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
     XMMATRIX matRotX = XMMatrixRotationX(bureMove.x);
     XMMATRIX matRotY = XMMatrixRotationY(bureMove.y);
     XMMATRIX matRotZ = XMMatrixRotationZ(bureMove.z);
@@ -303,11 +314,11 @@ void GunBase::ShotFPSBullet(BulletBase* pBullet)
 
     //ブレの方向計算をする
     static const float BURE_POWER = 0.3f;
-    float bure = pAimCursor_->GetBurePower();
+    float accuracy = GetAccuracy();
     XMFLOAT3 bureMove = XMFLOAT3();
-    bureMove.x = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
-    bureMove.y = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
-    bureMove.z = bure * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.x = accuracy * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.y = accuracy * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
+    bureMove.z = accuracy * (BURE_POWER * (float)(rand() % 200 - 100) * 0.01f);
     XMMATRIX matRotX = XMMatrixRotationX(bureMove.x);
     XMMATRIX matRotY = XMMatrixRotationY(bureMove.y);
     XMMATRIX matRotZ = XMMatrixRotationZ(bureMove.z);

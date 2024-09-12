@@ -13,6 +13,7 @@
 #include "../Stage/CollisionMap.h"
 #include "../Stage/StageEditor.h"
 #include "../Other/GameManager.h"
+#include "../UI/AimCursor.h"
 #include "../UI/HealthGauge.h"
 #include "../UI/FixedHealthGauge.h"
 #include "../Character/DamageSystem.h"
@@ -20,6 +21,7 @@
 #include "../Weapon/SniperGun.h"
 #include "../Animation/AnimationController.h"
 #include "../Json/JsonReader.h"
+#include "../Scene/PlayScene.h"
 
 namespace {
     const float stopGradually = 0.21f;      //移動スピードの加減の値止まるとき
@@ -36,7 +38,6 @@ namespace {
 
     //Orientのデータ
     int upOrientBoneSize = 0;
-    int downOrientBoneSize = 0;
     const std::pair<std::string, std::string> boneNameList[] = {
     { "upper_arm.R",    "" },
     { "forearm.R",      "upper_arm.R" },
@@ -56,24 +57,13 @@ namespace {
     { "eye",        "spine.004" },
     { "eye.001",    "spine.004" },
     };
-    const std::pair<std::string, std::string> boneDownNameList[] = {
-        { "thigh.R",    ""},
-        { "shin.R",     "thigh.R" },
-        { "foot.R",     "thigh.R" },
-        { "toe.R",      "thigh.R" },
-
-        { "thigh.L",    ""},
-        { "shin.L",     "thigh.L" },
-        { "foot.L",     "thigh.L" },
-        { "toe.L",      "thigh.L" },
-    };
-
+    
 }
 
 Player::Player(GameObject* parent)
     : Character(parent, "Player"), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
     playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), 
-    gravity_(0.0f), moveSpeed_(0.0f), playerId_(0), bonePart_(-1), waistRotateY_(0.0f), healthGaugeDrawTime_(0), damageDrawTime_(0),
+    gravity_(0.0f), moveSpeed_(0.0f), playerId_(0), bonePart_(-1), lowerBodyRotate_(0.0f), healthGaugeDrawTime_(0), damageDrawTime_(0),
     pAnimationController_(nullptr), pFpsAnimationController_(nullptr),
     hUpModel_(-1), hDownModel_(-1), hFPSModel_(-1), hPict_(-1)
 {
@@ -88,9 +78,9 @@ Player::~Player()
 void Player::Initialize()
 {
     //モデル読み込みとAssert
-    hUpModel_ = Model::Load("Model/desiFiter.fbx");
-    hDownModel_ = Model::Load("Model/desiFiter.fbx");
-    hFPSModel_ = Model::Load("Model/desiFiter.fbx");
+    hUpModel_ = Model::Load("Model/gunFighterUp.fbx");
+    hDownModel_ = Model::Load("Model/gunFighterDown.fbx");
+    hFPSModel_ = Model::Load("Model/gunFighterFPS.fbx");
     assert(hUpModel_ >= 0);
     assert(hDownModel_ >= 0);
     assert(hFPSModel_ >= 0);
@@ -102,13 +92,9 @@ void Player::Initialize()
     //Orient登録
     bonePart_ = Model::GetPartIndex(hUpModel_, "thigh.L");
     upOrientBoneSize = (int)sizeof(boneNameList) / sizeof(boneNameList[0]);
-    downOrientBoneSize = (int)sizeof(boneDownNameList) / sizeof(boneDownNameList[0]);
     for (int i = 0; i < upOrientBoneSize;i++) {
         upListIndex_[i] = Model::AddOrientRotateBone(hUpModel_, boneNameList[i].first, boneNameList[i].second);
         Model::AddOrientRotateBone(hFPSModel_, boneNameList[i].first, boneNameList[i].second);
-    }
-    for (int i = 0; i < downOrientBoneSize; i++) {
-        downListIndex_[i] = Model::AddOrientRotateBone(hDownModel_, boneDownNameList[i].first, boneDownNameList[i].second);
     }
 
     //アニメーションデータのセットフレームはヘッダに書いてる
@@ -155,6 +141,12 @@ void Player::Initialize()
     pHealthGauge_ = new HealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
 
+    //AimCursor
+    pAimCursor_ = new AimCursor();
+    PlayScene* scene = static_cast<PlayScene*>(FindObject("PlayScene"));
+    if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
+
+    //Aim
     pAim_ = Instantiate<Aim>(this);
     if (playerId_ == 0 ) pGunBase_ = Instantiate<Gun>(this);
     if (playerId_ == 1 ) pGunBase_ = Instantiate<SniperGun>(this);
@@ -172,6 +164,14 @@ void Player::Initialize()
     pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(pCapsuleCollider_);
 
+    for (int i = 0; i < 2; i++) {
+        pSphereCollider_[i] = new SphereCollider(XMFLOAT3(), pCapsuleCollider_->size_.x);
+        pSphereCollider_[i]->pGameObject_ = this;
+    }
+    pSphereCollider_[0]->center_ = XMFLOAT3(pCapsuleCollider_->center_.x, pCapsuleCollider_->center_.y - (pCapsuleCollider_->height_ * 0.5f), pCapsuleCollider_->center_.z);
+    pSphereCollider_[1]->center_ = XMFLOAT3(pCapsuleCollider_->center_.x, pCapsuleCollider_->center_.y + (pCapsuleCollider_->height_ * 0.5f), pCapsuleCollider_->center_.z);
+
+
 }
 
 void Player::Update()
@@ -181,15 +181,18 @@ void Player::Update()
     Model::Update(hFPSModel_);
     Model::Update(hDownModel_);
 
+    //AimCursor
+    pAimCursor_->SetAccuracyParce(pGunBase_->GetAccuracy());
+    pAimCursor_->Update();
+
     //AnimCtrl
     pAnimationController_->Update();
     pFpsAnimationController_->Update();
     
     //Orient上下視点/腰下
-    waistRotateX_ = -pAim_->GetRotate().x;
-    for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hUpModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(waistRotateX_, 0.0f, 0.0f));
-    for (int i = 0; i < downOrientBoneSize; i++) Model::SetOrietnRotateBone(hDownModel_, downListIndex_[i], XMFLOAT3(0.0f, waistRotateY_, 0.0f));
+    orientRotateX_ = -pAim_->GetRotate().x;
+    for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hUpModel_, upListIndex_[i], XMFLOAT3(orientRotateX_, 0.0f, 0.0f));
+    for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(orientRotateX_, 0.0f, 0.0f));
 
     //デバッグ用
 #if 1
@@ -274,12 +277,11 @@ void Player::Draw()
 
     //自分自身の表示（アニメーション進めるために映らない場所でDraw
     if (pAim_->IsAimFps() && GameManager::GetDrawIndex() == playerId_) {
-
-        //常に手前に表示するように
-        Direct3D::SetDepthBafferWriteEnable(false);
-        Model::SetTransform(hFPSModel_, transform_);
+        Transform t = transform_;
+        float subAim = pAim_->GetFPSSubY();
+        t.position_.y -= subAim;
+        Model::SetTransform(hFPSModel_, t);
         Model::Draw(hFPSModel_);
-        Direct3D::SetDepthBafferWriteEnable(true);
 
         //ダメージエフェクト
         if (damageDrawTime_ > 0) {
@@ -490,20 +492,13 @@ bool Player::StageFloarBounce(float perDist, float calcHeight)
 bool Player::StageWallBounce()
 {
     //下
-    //修正箇所
-
     XMVECTOR push = XMVectorZero(); 
-    SphereCollider* collid = new SphereCollider(XMFLOAT3(), pCapsuleCollider_->size_.x);
-    collid->pGameObject_ = this;
-    collid->center_ = XMFLOAT3(pCapsuleCollider_->center_.x, pCapsuleCollider_->center_.y - (pCapsuleCollider_->height_ * 0.5f), pCapsuleCollider_->center_.z);
-    bool hit = GameManager::GetCollisionMap()->CellSphereVsTriangle(collid, push);
+    bool hit = GameManager::GetCollisionMap()->CellSphereVsTriangle(pSphereCollider_[0], push);
 
     //上
-    collid->center_ = XMFLOAT3(pCapsuleCollider_->center_.x, pCapsuleCollider_->center_.y + (pCapsuleCollider_->height_ * 0.5f), pCapsuleCollider_->center_.z);
     push = XMVectorZero();
-    if (GameManager::GetCollisionMap()->CellSphereVsTriangle(collid, push)) hit = true;
-
-    delete collid;   
+    if (GameManager::GetCollisionMap()->CellSphereVsTriangle(pSphereCollider_[1], push)) hit = true;
+    
     return hit;
 }
 

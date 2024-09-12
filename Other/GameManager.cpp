@@ -18,6 +18,7 @@
 #include "../Enemy/EnemyManager.h"
 #include "../Enemy/EnemyBase.h"
 #include "../State/StateManager.h"
+#include "../Weapon/GunBase.h"
 #include <vector>
 #include <string>
 
@@ -228,6 +229,7 @@ namespace GameManager {
 				ImGui::Text("Player 1 State: %s", stateName);
 				ImGui::Text("Player 1 AnimFrameUp: %i", animFrameUp);
 				ImGui::Text("Player 1 AnimFrameDo: %i", animFrameDown);
+				ImGui::Text("Player 1 Accuracy: %f", pPlayer_[0]->GetGun()->GetAccuracy());
 			}
 
 		}
@@ -245,9 +247,16 @@ namespace GameManager {
 
 			if (GameManager::GetPlayer(1))
 			{
-				const char* stateName = GameManager::GetPlayer(1)->GetStateManager()->GetName().c_str();
-				ImGui::Text("Player 2 State: %s", stateName);
+				std::string strName = GameManager::GetPlayer(1)->GetStateManager()->GetName();
+				const char* stateName = strName.c_str();
+				int animFrameUp = Model::GetAnimFrame(pPlayer_[1]->GetUpModelHandle());
+				int animFrameDown = Model::GetAnimFrame(pPlayer_[1]->GetDownModelHandle());
+				ImGui::Text("Player 1 State: %s", stateName);
+				ImGui::Text("Player 1 AnimFrameUp: %i", animFrameUp);
+				ImGui::Text("Player 1 AnimFrameDo: %i", animFrameDown);
+				ImGui::Text("Player 1 Accuracy: %f", pPlayer_[1]->GetGun()->GetAccuracy());
 			}
+
 		}
 		break;
 
