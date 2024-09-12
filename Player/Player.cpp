@@ -354,29 +354,25 @@ void Player::OnDamageReceived(const DamageInfo& damageInfo)
 
 void Player::CalcDownBodyRotate()
 {
-    static const float rotMaxY = 60.0f;     //
-    static const float rotMaxYD = 100.0f;   //
-    static const float rotRatio = 0.2f;     //
+    static const float rotMaxY = 60.0f;     //‰ñ“]§ŒÀ
+    static const float rotYBack = 100.0f;   //Œã‚ëŒü‚«”»’è
+    static const float rotRatio = 0.2f;     //‰ñ“]ƒXƒs[ƒh
     
-    //Normal
-    if (transform_.rotate_.y <= -180.0f) transform_.rotate_.y += 360.0f;
-    if (transform_.rotate_.y >= 180.0f) transform_.rotate_.y -= 360.0f;
-
+    //•à‚¢‚Ä‚é•‘«‚Â‚¢‚Ä‚é
     if (InputManager::CmdWalk(playerId_) && !isFly_) {
-        //ˆÚ“®’†‚È‚çˆÚ“®•ûŒü‚©‚çŒü‚­•ûŒüŒvZ
-        float rotYYY = 0.0f;
-        if (InputManager::CmdWalk(playerId_)) {
-            XMFLOAT3 input = GetInputMove();
-            rotYYY = XMConvertToDegrees(atan2f(input.x, input.z)) - transform_.rotate_.y;
-        }
-        else rotYYY = 0.0f;
+        //-180 ` 180‚ÌŠÔ‚É 
+        while (transform_.rotate_.y <= -180.0f) transform_.rotate_.y += 360.0f;
+        while (transform_.rotate_.y >= 180.0f) transform_.rotate_.y -= 360.0f;
 
-        //ŒvZŒ‹‰Ê‚ğg‚¦‚é’l‚É•ÏŠ·
+        //ˆÚ“®’†‚È‚çˆÚ“®•ûŒü‚©‚çŒü‚­•ûŒüŒvZ
+        float rotYYY = CalculationRotateXY(GetInputMove()).y - transform_.rotate_.y;
+
+        //-180 ` 180‚ÌŠÔ‚É 
         if (rotYYY >= 180.0f) rotYYY = -180.0f - (180.0f - rotYYY);
-        else if (rotYYY <= -180.0f) rotYYY = 180.0f + (180.0f + rotYYY);
+        if (rotYYY <= -180.0f) rotYYY = 180.0f + (180.0f + rotYYY);
 
         //Œã‚ëŒü‚«‚Ì‚ÍŒü‚«‚ğ”½“]‚³‚¹‚é
-        if (rotYYY >= rotMaxYD || rotYYY <= -rotMaxYD) {
+        if (rotYYY >= rotYBack || rotYYY <= -rotYBack) {
             if (rotYYY > 0) rotYYY -= 180.0f;
             else rotYYY += 180.0f;
         }
@@ -386,13 +382,12 @@ void Player::CalcDownBodyRotate()
         else if (rotYYY <= -rotMaxY) rotYYY = -rotMaxY;
 
         lowerBodyRotate_ = lowerBodyRotate_ + ((rotYYY - lowerBodyRotate_) * rotRatio);
-        OutputDebugStringA(std::to_string(lowerBodyRotate_).c_str());
-        OutputDebugString("\n");
+        return;
+    }
 
-    }
-    else {
-        lowerBodyRotate_ = lowerBodyRotate_ + ((0.0f - lowerBodyRotate_) * rotRatio);
-    }
+    //³–Ê‚ğŒü‚­‚æ‚¤‚É–ß‚·
+    lowerBodyRotate_ = lowerBodyRotate_ + ((0.0f - lowerBodyRotate_) * rotRatio);
+
 }
 
 //privateŠÖ”FRotate‚ÌŒvZ‚·‚é--------------------------------
