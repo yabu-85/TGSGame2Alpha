@@ -171,10 +171,14 @@ void GunBase::Peeking()
 
 void GunBase::ShotVFX()
 {
+    int selfId = playerId_;
+    int otheId = 0;
+    if (selfId == 0) otheId = 1;
+
     //ショットエフェクト
     EFFEKSEERLIB::EFKTransform t;
     Transform transform;
-    transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
+    transform.position_ = Model::GetBonePosition(hFpsPlayerModel_, topPartIndex_, topBoneIndex_);
     transform.rotate_ = transform_.rotate_;
     transform.rotate_.x = -transform.rotate_.x;
     transform.rotate_.y += 180.0f;
@@ -183,7 +187,12 @@ void GunBase::ShotVFX()
     t.isLoop = false;   //繰り返し
     t.maxFrame = 20;    //80フレーム
     t.speed = 1.0;      //スピード
-    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t);
+    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t, selfId);
+
+    transform.position_ = Model::GetBonePosition(hModel_, topPartIndex_, topBoneIndex_);
+    DirectX::XMStoreFloat4x4(&(t.matrix), transform.GetWorldMatrix());
+    EFFEKSEERLIB::gEfk->Play("GUNSHOT", t, otheId);
+
 }
 
 void GunBase::ShotBullet(BulletBase* pBullet)

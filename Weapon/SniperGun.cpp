@@ -14,8 +14,7 @@
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
 
-SniperGun::SniperGun(GameObject* parent)
-    : GunBase(parent, "SniperGun"), hPict_(-1)
+SniperGun::SniperGun(GameObject* parent) : GunBase(parent, "SniperGun"), hPict_(-1)
 {
 }
 

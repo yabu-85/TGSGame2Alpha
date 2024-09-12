@@ -150,8 +150,10 @@ void Player::Initialize()
 
     //Aim
     pAim_ = Instantiate<Aim>(this);
-    if (playerId_ == 0 ) pGunBase_ = Instantiate<Gun>(this);
-    if (playerId_ == 1 ) pGunBase_ = Instantiate<SniperGun>(this);
+    pGunBase_ = Instantiate<Gun>(this);
+
+    //if (playerId_ == 0 ) pGunBase_ = Instantiate<Gun>(this);
+    //if (playerId_ == 1 ) pGunBase_ = Instantiate<SniperGun>(this);
     
     pStateManager_ = new StateManager(this);
     pStateManager_->AddState(new PlayerIdle(pStateManager_));
@@ -200,7 +202,7 @@ void Player::Update()
     for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(orientRotateX_, 0.0f, 0.0f));
 
     //AimCursor
-    pAimCursor_->SetAccuracyParce(pGunBase_->GetAccuracy());
+    if(pGunBase_) pAimCursor_->SetAccuracyParce(pGunBase_->GetAccuracy());
     pAimCursor_->Update();
 
     //デバッグ用

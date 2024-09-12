@@ -187,9 +187,9 @@ namespace EFFEKSEERLIB {
             managerRef_ = gManager;
         }
 
-        void Update(double delta_time) {
+        void Update(double delta_time, int drawIndex = 0) {
 
-            for (auto iter = EffectInstances.begin(); iter != EffectInstances.end();) 
+            for (auto iter = EffectInstances[drawIndex].begin(); iter != EffectInstances[drawIndex].end();)
             {
                 auto& data = *iter->second;
                 auto& handle = iter->second->handle;
@@ -205,7 +205,7 @@ namespace EFFEKSEERLIB {
                         data.elapsedTime = 0;
                     }
                     else {
-                        iter = EffectInstances.erase(iter);
+                        iter = EffectInstances[drawIndex].erase(iter);
                     }
                 }
                 else {
@@ -256,9 +256,9 @@ namespace EFFEKSEERLIB {
             EffectList.emplace(effect_name, std::make_shared<EFKData>(managerRef_, file_path));
         }
 
-        std::shared_ptr<EFKTransform> Play(std::string_view effect_name, const EFKTransform& effect_transform, bool is_unique = false, GameObject* pParent = nullptr) {
+        std::shared_ptr<EFKTransform> Play(std::string_view effect_name, const EFKTransform& effect_transform, int drawIndex = 0, bool is_unique = false, GameObject* pParent = nullptr) {
             if (is_unique) {
-                if (auto iter = EffectInstances.find(effect_name.data()); iter != EffectInstances.end()) {
+                if (auto iter = EffectInstances[drawIndex].find(effect_name.data()); iter != EffectInstances[0].end()) {
                     return iter->second->effectTransform;
                 }
             }
@@ -267,31 +267,13 @@ namespace EFFEKSEERLIB {
                 effect_instance->effectTransform = std::make_shared<EFKTransform>(effect_transform);
                 effect_instance->pGameObject_ = pParent;
                 auto& sp_et = effect_instance->effectTransform;
-                EffectInstances.emplace(effect_name, std::move(effect_instance));
+                EffectInstances[drawIndex].emplace(effect_name, std::move(effect_instance));
                 return sp_et;
             }
             else {
                 MessageBox(NULL, "EffectData Not Found!", "エフェクトファイルの読み込みに失敗", MB_OK);
             }
             return nullptr;
-        }
-
-        void StopEffectByHandle(Effekseer::Handle handle) {
-            for (auto iter = EffectInstances.begin(); iter != EffectInstances.end();) {
-                if (iter->second->handle == handle) {
-                    managerRef_->StopEffect(handle);
-                    iter = EffectInstances.erase(iter);
-                }
-                else {
-                    ++iter;
-                }
-            }
-        }
-
-        void Trigger() {
-            for (auto iter = EffectInstances.begin(); iter != EffectInstances.end(); iter++) {
-                managerRef_->SendTrigger(iter->second->handle, 0);
-            }
         }
 
         void SetFPS(float fps) { fps_ = fps; }
@@ -307,7 +289,7 @@ namespace EFFEKSEERLIB {
         RendererRef                                                        rendererRef_;
         Effekseer::ManagerRef                                              managerRef_;
         std::unordered_map<std::string, std::shared_ptr<EFKData>>          EffectList;
-        std::unordered_multimap<std::string, std::unique_ptr<EFKInstance>> EffectInstances;
+        std::unordered_multimap<std::string, std::unique_ptr<EFKInstance>> EffectInstances[2];
 
     };
 }

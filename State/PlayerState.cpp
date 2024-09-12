@@ -1,8 +1,6 @@
 #include "PlayerState.h"
 #include "StateManager.h"
 #include "../Player/Player.h"
-#include "../Player/Aim.h"
-#include "../Weapon/GunBase.h"
 #include "../Other/InputManager.h"
 #include "../Animation/AnimationController.h"
 
