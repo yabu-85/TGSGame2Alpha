@@ -27,7 +27,7 @@ void Gun::Initialize()
     assert(rootBoneIndex_ >= 0);
 
     transform_.pParent_ = nullptr;
-    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     LoadGunJson("Gun");
@@ -42,11 +42,13 @@ void Gun::Update()
     if(coolTime_ <= 0) currentAccuracy_ -= accuracyRecovery_;
     if (currentAccuracy_ < 0.0f) currentAccuracy_ = 0.0f;
 
-    coolTime_--;
-    transform_.position_ = Model::GetBoneAnimPosition(hPlayerModel_, handPartIndex_, handBoneIndex_);
+    //è‚ÌˆÊ’u‚É‡‚í‚¹‚é•Aim‚Ì·•ª‚ğ‡‚í‚¹‚é
+    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
+    XMFLOAT3 subAim = pPlayer_->GetAim()->GetFPSSubY();
+    transform_.position_ = Float3Add(transform_.position_, subAim);
 
-    //‚Ì‚¼‚«‚İˆ—
+    coolTime_--;
     Peeking();
 
     //ƒŠƒ[ƒh’†‚Ìˆ—

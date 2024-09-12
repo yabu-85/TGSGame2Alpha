@@ -176,6 +176,11 @@ void Player::Initialize()
 
 void Player::Update()
 {
+    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
+        pAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
+        pFpsAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
+    }
+
     //アニメーション
     Model::Update(hUpModel_);
     Model::Update(hFPSModel_);
@@ -259,8 +264,8 @@ void Player::Update()
     
     //Weapon用にここでSet
     Model::SetTransform(hUpModel_, transform_);
-    Model::SetTransform(hFPSModel_, transform_);
     Model::SetTransform(hDownModel_, transform_);
+    Model::SetTransform(hFPSModel_, transform_);
 
     //GameManager情報
     moveSpeed_ = GameManager::playerSpeed;
@@ -278,8 +283,8 @@ void Player::Draw()
     //自分自身の表示（アニメーション進めるために映らない場所でDraw
     if (pAim_->IsAimFps() && GameManager::GetDrawIndex() == playerId_) {
         Transform t = transform_;
-        float subAim = pAim_->GetFPSSubY();
-        t.position_.y -= subAim;
+        XMFLOAT3 subAim = pAim_->GetFPSSubY();
+        t.position_ = Float3Add(t.position_, subAim);
         Model::SetTransform(hFPSModel_, t);
         Model::Draw(hFPSModel_);
 

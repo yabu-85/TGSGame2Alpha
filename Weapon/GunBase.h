@@ -12,7 +12,7 @@ protected:
     bool isPeeking_;        //完全にのぞき込みしている状態か
 
     int hModel_;            //モデル番号
-    int hPlayerModel_;      //プレイヤーのモデル番号
+    int hFpsPlayerModel_;   //プレイヤーのモデル番号
 
     int topBoneIndex_;      //トップボーンインデックス
     int topPartIndex_;      //トップパーツインデックス

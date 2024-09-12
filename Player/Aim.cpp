@@ -13,8 +13,8 @@
 #include <vector>
 
 namespace {
-    const float UP_MOUSE_LIMIT = -85.0f;                     //‰ñ“]ŒÀŠE’l
-    const float DOWN_MOUSE_LIMIT = 85.0f;                    //‰ñ“]ŒÀŠE’l
+    const float UP_MOUSE_LIMIT = -88.0f;                     //‰ñ“]ŒÀŠE’l
+    const float DOWN_MOUSE_LIMIT = 88.0f;                    //‰ñ“]ŒÀŠE’l
     
     const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //‹­§‚Ì•âŠ®‹ï‡ƒfƒtƒHƒ‹ƒg‚Ì
     const int COMPULSION_TIME_DEFAULT = 60;                  //‹­§‚©‚ç–ß‚éŽžŠÔ
@@ -164,29 +164,18 @@ void Aim::FPSAim()
     //Eyeƒ|ƒWƒVƒ‡ƒ“Ý’è
     XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart, eyeBone);     //Root
     XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart1, eyeBone1);  //Top
-
-    /*
-    //ƒvƒŒƒCƒ„[‚ÌÀ•WRoot‚ª‡‚í‚³‚é‚æ‚¤‚ÉŒvŽZ
-    XMFLOAT3 eyeVec = Float3Sub(XMFLOAT3(eyePosTar.x, 0.0f, eyePosTar.z), XMFLOAT3(eyePos.x, 0.0f, eyePos.z));
-    //eyePos = Float3Add(eyePos, eyeVec);
-    //eyePos1 = Float3Add(eyePos1, eyeVec);
-
-    float eyeHeight = CalculationDistance(eyeVec) * (eyePos.y - eyePos1.y);
-    eyePos = XMFLOAT3(eyePosTar.x, (eyePos.y - eyeHeight), eyePosTar.z);
-    //eyePos1 = XMFLOAT3(eyePosTar.x, (eyePos1.y - eyeHeight), eyePosTar.z);
-    */
-
     XMFLOAT3 playerPos = pPlayer_->GetPosition();
+    
     XMFLOAT3 x = XMFLOAT3(playerPos.x, eyePos.y, playerPos.z);
     XMFLOAT3 sub = Float3Sub(x, eyePos);
     XMFLOAT3 y = Float3Add(eyePos1, sub);
+
+    //Sub‹‚ß‚é
+    XMFLOAT3 eyeVec = Float3Sub(x, eyePos);
+    fpsSub_ = eyeVec;
+
     eyePos = x;
     eyePos1 = y;
-
-    //Ž†‚É‘‚¢‚½p2‚ð‚Ü‚¸‹‚ß‚é
-    XMFLOAT3 eyeVec = Float3Sub(eyePos, eyePos1);
-    float dist = CalculationDistance(XMFLOAT3(playerPos.x, 0.0f, playerPos.z), XMFLOAT3(eyePos.x, 0.0f, eyePos.z));
-    fpsSubY_ = Float3Add(eyeVec, Float3Multiply(eyeVec, dist)).y;
 
     int playerID = pPlayer_->GetPlayerId();
     Camera::SetPosition(eyePos, playerID);

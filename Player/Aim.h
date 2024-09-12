@@ -75,7 +75,7 @@ class Aim : public GameObject
 
     Player* pPlayer_;
     int hPlayerFPSModel_;
-    float fpsSubY_;
+    XMFLOAT3 fpsSub_;
 
     void FPSAim();          //FPS用
     void DefaultAim();      //三人称視点の計算
@@ -116,7 +116,7 @@ public:
     void SetCameraRotateShake(const CameraRotateShakeInfo& info);
     void SetCameraRotateReturn(bool b) { isRotateShakeReturn_ = b; }
 
-    float GetFPSSubY() { return fpsSubY_; }
+    XMFLOAT3 GetFPSSubY() { return fpsSub_; }
 
     //----------------------------------------------------------------------------
 

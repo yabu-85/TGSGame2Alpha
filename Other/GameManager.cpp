@@ -15,6 +15,7 @@
 #include "../Engine/ImGui/imgui_impl_dx11.h"
 #include "../Engine/ImGui/imgui_impl_win32.h"
 #include "../Engine/Model.h"
+#include "../Engine/Camera.h"
 #include "../Enemy/EnemyManager.h"
 #include "../Enemy/EnemyBase.h"
 #include "../State/StateManager.h"
@@ -215,8 +216,8 @@ namespace GameManager {
 			XMFLOAT3 position = XMFLOAT3();
 			if (GameManager::GetPlayer(0)) position = GameManager::GetPlayer(0)->GetPosition();
 
-			ImGui::Text("Player 1 Position: (%.2f, %.2f, %.2f)", position.x, position.y, position.z);
-			ImGui::Text("Player 1 Speed: %.2f", playerSpeed);
+			ImGui::Text("Player 1 Position: (%.3f, %.3f, %.3f)", position.x, position.y, position.z);
+			ImGui::Text("Player 1 Speed: %.3f", playerSpeed);
 			ImGui::Text("Player 1 Faly: %s", playerFaly ? "true" : "false");
 			ImGui::Text("Player 1 Climb: %s", playerClimb ? "true" : "false");
 
@@ -230,6 +231,11 @@ namespace GameManager {
 				ImGui::Text("Player 1 AnimFrameUp: %i", animFrameUp);
 				ImGui::Text("Player 1 AnimFrameDo: %i", animFrameDown);
 				ImGui::Text("Player 1 Accuracy: %f", pPlayer_[0]->GetGun()->GetAccuracy());
+
+				XMFLOAT3 cPos = Camera::GetPosition(0);
+				XMFLOAT3 cTar = Camera::GetTarget(0);
+				ImGui::Text("Player 1 CamPos: (%.3f, %.3f, %.3f)", cPos.x, cPos.y, cPos.z);
+				ImGui::Text("Player 1 CamTar: (%.3f, %.3f, %.3f)", cTar.x, cTar.y, cTar.z);
 			}
 
 		}
