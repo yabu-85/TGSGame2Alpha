@@ -105,6 +105,11 @@ void Player::Initialize()
     for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pDownAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
     for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pFpsAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
 
+    //Model::SetAnimFrame(hFPSModel_, 0, 119, 1.0f);
+    pUpAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::RUN, 1.0f);
+    pDownAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::RUN, 1.0f);
+    pFpsAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::RUN, 1.0f);
+
     //PlayerIDセット
     if (GameManager::GetPlayer(0)) playerId_ = 1;
     GameManager::SetPlayer(this, playerId_);
@@ -151,7 +156,6 @@ void Player::Initialize()
     //Aim
     pAim_ = Instantiate<Aim>(this);
     pGunBase_ = Instantiate<Gun>(this);
-
     //if (playerId_ == 0 ) pGunBase_ = Instantiate<Gun>(this);
     //if (playerId_ == 1 ) pGunBase_ = Instantiate<SniperGun>(this);
     
@@ -174,7 +178,6 @@ void Player::Initialize()
     }
     pSphereCollider_[0]->center_ = XMFLOAT3(pCapsuleCollider_->center_.x, pCapsuleCollider_->center_.y - (pCapsuleCollider_->height_ * 0.5f), pCapsuleCollider_->center_.z);
     pSphereCollider_[1]->center_ = XMFLOAT3(pCapsuleCollider_->center_.x, pCapsuleCollider_->center_.y + (pCapsuleCollider_->height_ * 0.5f), pCapsuleCollider_->center_.z);
-
 
 }
 
@@ -255,6 +258,16 @@ void Player::Update()
         StageFloarBounce(0.0f, -1.0f);
         StageFloarBounce();
         StageWallBounce();
+
+        //着地した
+        if (!isFly_) {
+            GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+            GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+            GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+
+            if (InputManager::CmdWalk(playerId_)) pStateManager_->ChangeState("Move");
+            else pStateManager_->ChangeState("Idle");
+        }
     }
     
     //地上・登り状態じゃないとき、地面に立っているか判定
@@ -302,10 +315,14 @@ void Player::Draw()
     //相手の表示
     else {
         Model::SetTransform(hUpModel_, transform_);
-        Model::SetTransform(hDownModel_, transform_);
         Model::Draw(hUpModel_);
-        Model::Draw(hDownModel_);
 
+        CalcDownBodyRotate();
+        Transform downT = transform_;
+        downT.rotate_.y += lowerBodyRotate_;
+        Model::SetTransform(hDownModel_, downT);
+        Model::Draw(hDownModel_);
+        
         //HealthGauge表示
         if (healthGaugeDrawTime_ > 0) {
             healthGaugeDrawTime_--;
@@ -333,6 +350,49 @@ void Player::OnDamageReceived(const DamageInfo& damageInfo)
 {
     damageDrawTime_ = DAMAGE_DRAW_TIME;
 
+}
+
+void Player::CalcDownBodyRotate()
+{
+    static const float rotMaxY = 60.0f;     //
+    static const float rotMaxYD = 100.0f;   //
+    static const float rotRatio = 0.2f;     //
+    
+    //Normal
+    if (transform_.rotate_.y <= -180.0f) transform_.rotate_.y += 360.0f;
+    if (transform_.rotate_.y >= 180.0f) transform_.rotate_.y -= 360.0f;
+
+    if (InputManager::CmdWalk(playerId_) && !isFly_) {
+        //移動中なら移動方向から向く方向計算
+        float rotYYY = 0.0f;
+        if (InputManager::CmdWalk(playerId_)) {
+            XMFLOAT3 input = GetInputMove();
+            rotYYY = XMConvertToDegrees(atan2f(input.x, input.z)) - transform_.rotate_.y;
+        }
+        else rotYYY = 0.0f;
+
+        //計算結果を使える値に変換
+        if (rotYYY >= 180.0f) rotYYY = -180.0f - (180.0f - rotYYY);
+        else if (rotYYY <= -180.0f) rotYYY = 180.0f + (180.0f + rotYYY);
+
+        //後ろ向きの時は向きを反転させる
+        if (rotYYY >= rotMaxYD || rotYYY <= -rotMaxYD) {
+            if (rotYYY > 0) rotYYY -= 180.0f;
+            else rotYYY += 180.0f;
+        }
+
+        //回転量制限
+        if (rotYYY >= rotMaxY) rotYYY = rotMaxY;
+        else if (rotYYY <= -rotMaxY) rotYYY = -rotMaxY;
+
+        lowerBodyRotate_ = lowerBodyRotate_ + ((rotYYY - lowerBodyRotate_) * rotRatio);
+        OutputDebugStringA(std::to_string(lowerBodyRotate_).c_str());
+        OutputDebugString("\n");
+
+    }
+    else {
+        lowerBodyRotate_ = lowerBodyRotate_ + ((0.0f - lowerBodyRotate_) * rotRatio);
+    }
 }
 
 //private関数：Rotateの計算する--------------------------------

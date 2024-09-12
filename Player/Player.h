@@ -14,22 +14,28 @@ class SphereCollider;
 enum class PLAYER_ANIMATION {
     IDLE = 0,
     PEEK_START,
-    PEEK,
     PEEK_END,
+    PEEK,
     RUN,
     RELOAD,
     DEAD,
+    JUMP,
+    JUMP_START,
+    JUMP_END,
     MAX,
 };
 
 const int PLAYER_ANIMATION_DATA[(int)PLAYER_ANIMATION::MAX][2]{
     {0, 120},     //Idle
     {120, 140},   //PeekStart
-    {140, 260},   //Peek
     {260, 280},   //PeekEnd
-    {290, 325},   //Run
+    {140, 260},   //Peek
+    {290, 326},   //Run
     {340, 390},   //Reload
     {400, 630},   //Dead
+    {651, 651},   //Jump
+    {640, 651},   //JumpStart
+    {659, 677},   //JumpEnd
 };
 
 class Player : public Character
@@ -73,6 +79,7 @@ class Player : public Character
     SphereCollider* pSphereCollider_[2];            //当たり判定で使用（カプセルの上下と想定して使う
 
     //関数
+    void CalcDownBodyRotate();
     void CalcRotate(XMFLOAT3 pos, float ratio);
 
 public:

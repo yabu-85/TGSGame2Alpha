@@ -26,8 +26,10 @@ void PlayerIdle::Update()
 
 void PlayerIdle::OnEnter()
 {
-	//リロード以外ならIDLEアニメーションに
-	if (pPlayer_->GetUpAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::RELOAD) {
+	//リロード/jump以外ならIDLEアニメーションに
+	int animId = pPlayer_->GetUpAnimationController()->GetCurrentAnim();
+	if (animId != (int)PLAYER_ANIMATION::RELOAD && animId != (int)PLAYER_ANIMATION::JUMP) {
+		pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
 		pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
 		pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
 	}
@@ -59,9 +61,12 @@ void PlayerMove::Update()
 
 void PlayerMove::OnEnter()
 {
-	pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
-	pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
-	//pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+	//ジャンプ以外ならIDLEアニメーションに
+	if (pPlayer_->GetUpAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::JUMP) {
+		pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+		pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+		pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+	}
 
 }
 
@@ -76,6 +81,10 @@ void PlayerJump::OnEnter()
 {
 	int playerId = pPlayer_->GetPlayerId();
 	pPlayer_->Jump();
+
+	pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::JUMP);
+	pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::JUMP);
+	pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::JUMP);
 
 	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
 	else owner_->ChangeState("Idle");
