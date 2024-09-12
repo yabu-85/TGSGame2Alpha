@@ -43,10 +43,10 @@ void Gun::Update()
     if (currentAccuracy_ < 0.0f) currentAccuracy_ = 0.0f;
 
     //Žè‚ÌˆÊ’u‚É‡‚í‚¹‚é•Aim‚Ì·•ª‚ð‡‚í‚¹‚é
-    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
-    transform_.rotate_.y = pPlayer_->GetRotate().y;
     XMFLOAT3 subAim = pPlayer_->GetAim()->GetFPSSubY();
+    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.position_ = Float3Add(transform_.position_, subAim);
+    transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     coolTime_--;
     Peeking();
@@ -105,7 +105,6 @@ void Gun::Draw()
     //‘ŠŽè‚Ì•\Ž¦
     else {
         Transform t = transform_;
-        XMFLOAT3 subAim = pPlayer_->GetAim()->GetFPSSubY();
         t.position_ = Model::GetBoneAnimPosition(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
 
         Model::SetTransform(hModel_, t);

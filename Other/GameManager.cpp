@@ -316,7 +316,7 @@ namespace GameManager {
 		Direct3D::BeginDraw();
 		Camera::Update(0);
 		pRootObject_->DrawSub();
-		EFFEKSEERLIB::gEfk->Draw();
+		EFFEKSEERLIB::gEfk->Draw(drawIndex_);
 		GameManager::IndividualDraw(0);
 		GameManager::CommonDraw();
 
@@ -347,7 +347,7 @@ namespace GameManager {
 			Camera::SetTwoProjectionMatrix(Camera::GetFovAngleParcent(i));
 
 			pRootObject_->DrawSub();
-			EFFEKSEERLIB::gEfk->Draw();
+			EFFEKSEERLIB::gEfk->Draw(i);
 			GameManager::IndividualDraw(i);
 		}
 

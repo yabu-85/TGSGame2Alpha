@@ -188,17 +188,18 @@ namespace EFFEKSEERLIB {
         }
 
         void Update(double delta_time, int drawIndex = 0) {
-
             for (auto iter = EffectInstances[drawIndex].begin(); iter != EffectInstances[drawIndex].end();)
             {
                 auto& data = *iter->second;
                 auto& handle = iter->second->handle;
                 auto& tranform = iter->second->effectTransform;
 
+                //‰ŠúÄ¶
                 if (data.elapsedTime == 0) {
                     handle = managerRef_->Play(data.GetEffectData()->GetEffectRef(), 0, 0, 0);
                 }
 
+                //•`‰æI‚í‚è
                 if (data.elapsedTime > (tranform->maxFrame / fps_)) {
                     managerRef_->StopEffect(handle);
                     if (tranform->isLoop) {
@@ -235,7 +236,7 @@ namespace EFFEKSEERLIB {
             managerRef_->Update(static_cast<float>(delta_time * fps_));
         }
 
-        void Draw() {
+        void Draw(int drawIndex = 0) {
             SetCamera();
             rendererRef_->BeginRendering();
             Effekseer::Manager::DrawParameter drawParameter;
@@ -243,7 +244,12 @@ namespace EFFEKSEERLIB {
             drawParameter.ZFar = 1;
             drawParameter.ViewProjectionMatrix = gRenderer->GetCameraProjectionMatrix();
 
-            managerRef_->Draw();
+            //drawIndex‚É‘Î‰ž‚·‚éEffectInstances‚¾‚¯•`‰æ
+            for (auto& [effectName, effectInstance] : EffectInstances[drawIndex]) {
+                auto& handle = effectInstance->handle;
+                managerRef_->DrawHandle(handle);
+            }
+
             rendererRef_->EndRendering();
         }
 

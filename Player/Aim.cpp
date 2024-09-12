@@ -173,7 +173,6 @@ void Aim::FPSAim()
     //SubãÅÇﬂÇÈ
     XMFLOAT3 eyeVec = Float3Sub(x, eyePos);
     fpsSub_ = eyeVec;
-
     eyePos = x;
     eyePos1 = y;
 
