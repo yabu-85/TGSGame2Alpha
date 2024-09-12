@@ -66,7 +66,8 @@ class Player : public Character
     StateManager* pStateManager_;
     CapsuleCollider* pCapsuleCollider_;
     FixedHealthGauge* pFixedHealthGauge_;
-    AnimationController* pAnimationController_;
+    AnimationController* pUpAnimationController_;
+    AnimationController* pDownAnimationController_;
     AnimationController* pFpsAnimationController_;
 
     SphereCollider* pSphereCollider_[2];            //当たり判定で使用（カプセルの上下と想定して使う
@@ -131,7 +132,8 @@ public:
     AimCursor* GetAimCursor() { return pAimCursor_; }
     StateManager* GetStateManager() { return pStateManager_; }
     FixedHealthGauge* GetFixedHealthGauge() { return pFixedHealthGauge_; }
-    AnimationController* GetAnimationController() { return pAnimationController_; }
+    AnimationController* GetUpAnimationController() { return pUpAnimationController_; }
+    AnimationController* GetDownAnimationController() { return pDownAnimationController_; }
     AnimationController* GetFpsAnimationController() { return pFpsAnimationController_; }
 
 };

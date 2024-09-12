@@ -29,8 +29,8 @@ void PlayerIdle::Update()
 void PlayerIdle::OnEnter()
 {
 	//リロード以外ならIDLEアニメーションに
-	if (pPlayer_->GetAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::RELOAD) {
-		pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+	if (pPlayer_->GetUpAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::RELOAD) {
+		pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
 		pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
 	}
 
@@ -61,7 +61,8 @@ void PlayerMove::Update()
 
 void PlayerMove::OnEnter()
 {
-	//pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+	pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+	pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
 	//pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
 
 }
@@ -122,7 +123,8 @@ void PlayerDead::OnEnter()
 	time_ = 0;
 
 	//アニメーション
-	pPlayer_->GetAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
+	pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
+	pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
 	pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
 
 	//Effekseer

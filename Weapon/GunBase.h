@@ -12,6 +12,7 @@ protected:
     bool isPeeking_;        //完全にのぞき込みしている状態か
 
     int hModel_;            //モデル番号
+    int hUpPlayerModel_;    //プレイヤーのモデル番号
     int hFpsPlayerModel_;   //プレイヤーのモデル番号
 
     int topBoneIndex_;      //トップボーンインデックス
@@ -44,8 +45,6 @@ protected:
     Player* pPlayer_;
 
     void LoadGunJson(std::string fileName);         //銃の情報読み込み
-    void SetGunHandPosition();                      //手の位置に銃のポジションを合わせる
-    
     void EnterReload();                             //リロードし始めた
     bool Reload();                                  //リロード中の処理（リロードできたらTrue）
     void FinishedReload();                          //リロード終わった時の処理

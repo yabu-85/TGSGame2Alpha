@@ -64,7 +64,7 @@ Player::Player(GameObject* parent)
     : Character(parent, "Player"), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
     playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), 
     gravity_(0.0f), moveSpeed_(0.0f), playerId_(0), bonePart_(-1), lowerBodyRotate_(0.0f), healthGaugeDrawTime_(0), damageDrawTime_(0),
-    pAnimationController_(nullptr), pFpsAnimationController_(nullptr),
+    pUpAnimationController_(nullptr), pDownAnimationController_(nullptr), pFpsAnimationController_(nullptr),
     hUpModel_(-1), hDownModel_(-1), hFPSModel_(-1), hPict_(-1)
 {
     for (int i = 0; i < 15; i++) upListIndex_[i] = -1;
@@ -98,9 +98,11 @@ void Player::Initialize()
     }
 
     //アニメーションデータのセットフレームはヘッダに書いてる
-    pAnimationController_ = new AnimationController(hUpModel_, this);
+    pUpAnimationController_ = new AnimationController(hUpModel_, this);
+    pDownAnimationController_ = new AnimationController(hDownModel_, this);
     pFpsAnimationController_ = new AnimationController(hFPSModel_, this);
-    for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
+    for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pUpAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
+    for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pDownAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
     for (int i = 0; i < (int)PLAYER_ANIMATION::MAX; i++) pFpsAnimationController_->AddAnim(PLAYER_ANIMATION_DATA[i][0], PLAYER_ANIMATION_DATA[i][1]);
 
     //PlayerIDセット
@@ -177,7 +179,8 @@ void Player::Initialize()
 void Player::Update()
 {
     if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        pAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
+        pUpAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
+        pDownAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
         pFpsAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
     }
 
@@ -186,18 +189,19 @@ void Player::Update()
     Model::Update(hFPSModel_);
     Model::Update(hDownModel_);
 
-    //AimCursor
-    pAimCursor_->SetAccuracyParce(pGunBase_->GetAccuracy());
-    pAimCursor_->Update();
-
     //AnimCtrl
-    pAnimationController_->Update();
+    pUpAnimationController_->Update();
+    pDownAnimationController_->Update();
     pFpsAnimationController_->Update();
     
     //Orient上下視点/腰下
     orientRotateX_ = -pAim_->GetRotate().x;
     for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hUpModel_, upListIndex_[i], XMFLOAT3(orientRotateX_, 0.0f, 0.0f));
     for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(orientRotateX_, 0.0f, 0.0f));
+
+    //AimCursor
+    pAimCursor_->SetAccuracyParce(pGunBase_->GetAccuracy());
+    pAimCursor_->Update();
 
     //デバッグ用
 #if 1

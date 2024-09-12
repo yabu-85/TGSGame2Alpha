@@ -160,7 +160,7 @@ void PlayScene::Update()
 			//Update‚Ì‹–‰Â
 			AllChildEnter();
 
-			//GameManager::SetTwoPlayer();
+			GameManager::SetTwoPlayer();
 			preStageDraw_ = false;
 		}
 		else {
