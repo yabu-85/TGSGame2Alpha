@@ -24,18 +24,19 @@
 #include <string>
 
 namespace GameManager {
-	//ImGuiŠÖ˜A
+	//ImGuiî•ñ
+	bool isImGuiDraw_ = false;
 	float playerSpeed = 0.0f;
 	bool playerClimb = false;
 	bool playerFaly = false;
 	std::vector<EnemyBase*> enemies;
+	
 	//ImGui‘I‘ğ
 	int selectedIndex = -1;
 	enum class SelectedType { None, Player1, Player2, Enemy };
 	SelectedType selectedType = SelectedType::None;
 
 	//GameManager
-	bool isImGuiDraw_ = true;
 	bool isOnePlayer_ = true;
 	bool isPCCtrl_ = false;
 	bool cursorMode_ = false;

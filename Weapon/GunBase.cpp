@@ -123,10 +123,7 @@ void GunBase::FinishedReload()
 }
 
 //プレイヤーのアニメーションのかかる時間と武器に持たせたかかる時間で計算してAnimationSpeedを計算してやる
-//ただし、Animation開始とかのコードはPlayerStateに置くこと
 //IsCmdDownとIsCmdUpはなるべく使うな
-//ジャンプ中のアニメーションやけど、カメラを遅れてついてくるようにするだけでいいけど
-//再生するアニメーションはジャンプにする、他のAnimは止めていいかな、それとジャンプ中は覗き込みできないようにする
 void GunBase::Peeking()
 {
     bool playerClimb = pPlayer_->IsClimb();
@@ -301,6 +298,9 @@ void GunBase::ShotBullet(BulletBase* pBullet)
     float bulletSpeed = pBullet->GetBulletParameter().speed_;
     XMFLOAT3 move = Float3Sub(endTarget, GunBaseTop);
     move = Float3Multiply(Float3Normalize(move), bulletSpeed);
+
+    pBullet->SetDrawPosition(GunBaseTop);
+    pBullet->SetDrawMove(move);
 
     pBullet->SetMove(move);
     pBullet->SetPosition(GunBaseTop);

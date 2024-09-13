@@ -147,16 +147,15 @@ void Player::Initialize()
     pHealthGauge_ = new HealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.0f, 1.7f));
 
-    //AimCursor
+    //Aim / AimCursor
+    pAim_ = Instantiate<Aim>(this);
     pAimCursor_ = new AimCursor();
     PlayScene* scene = static_cast<PlayScene*>(FindObject("PlayScene"));
     if (scene) scene->SetAimCursor(playerId_, pAimCursor_);
 
-    //Aim
-    pAim_ = Instantiate<Aim>(this);
+    //Gun
     pGunBase_ = Instantiate<Gun>(this);
-    //if (playerId_ == 0 ) pGunBase_ = Instantiate<Gun>(this);
-    //if (playerId_ == 1 ) pGunBase_ = Instantiate<SniperGun>(this);
+    //pGunBase_ = Instantiate<SniperGun>(this);
     
     pStateManager_ = new StateManager(this);
     pStateManager_->AddState(new PlayerIdle(pStateManager_));
@@ -216,7 +215,7 @@ void Player::Update()
     pAimCursor_->Update();
 
     //デバッグ用
-#if 1
+#if 0
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = START_POS;
     if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
     if (isCreative_) {
@@ -251,11 +250,13 @@ void Player::Update()
     //空中にいる
     if (isFly_) {
 
-        //登り処理
+        //登り処理いったんなし
+        /*
         if (InputManager::IsCmd(InputManager::JUMP, playerId_) && !IsClimb()) {
             CheckWallClimb();
             if(IsClimb()) pStateManager_->ChangeState("Climb");
         }
+        */
 
         //重力処理
         gravity_ += WorldGravity;

@@ -86,9 +86,8 @@ void TitleScene::Update()
 	float CamZ = CameraCenter + cameraPosX * std::sinf(value);
 	Camera::SetPosition(XMFLOAT3(CamX, 15.0f, CamZ), 0);
 
-
 	//デバッグ用
-#if 1
+#if 0
 	{
 		static const float speed = 0.3f;
 		XMFLOAT4 pos = Light::GetPosition(0);

@@ -44,8 +44,8 @@ Aim::~Aim()
 
 void Aim::Initialize()
 {
-    pPlayer_ = static_cast<Player*>(GetParent());
     isFps_ = true;
+    pPlayer_ = static_cast<Player*>(GetParent());
 
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
     Model::GetPartBoneIndex(hPlayerFPSModel_, "eye", &eyePart, &eyeBone);         //Root

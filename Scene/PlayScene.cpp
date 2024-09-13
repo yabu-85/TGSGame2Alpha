@@ -173,7 +173,7 @@ void PlayScene::Update()
 	}
 
 	//デバッグ用
-#if 1
+#if 0
 	{
 		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
 		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_TEST);
