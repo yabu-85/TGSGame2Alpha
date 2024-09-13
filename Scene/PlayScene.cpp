@@ -24,8 +24,12 @@
 STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
 namespace {
-	const int PRE_STAGE_DRAW_TIME = 30;
+	const int PRE_STAGE_DRAW_TIME = 300;
 	const int END_TIME_DEFAULT = 60;
+
+	const XMFLOAT3 PRE_CAMERA_POSITION = XMFLOAT3(42.0f, 15.0f, 55.0f);
+	const XMFLOAT3 PRE_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
+	const float PRE_CAMERA_POS_MOVE_X = 0.05f;
 
 }
 
@@ -68,6 +72,9 @@ void PlayScene::Initialize()
 		XMFLOAT4 lightPos = XMFLOAT4(stageEnvironment.lightPosition.x, stageEnvironment.lightPosition.y, stageEnvironment.lightPosition.z, 1.0f);
 		Light::SetPosition(0, lightPos);
 	}
+
+	preDrawCameraPos_ = PRE_CAMERA_POSITION;
+	preDrawCameraTar_ = PRE_CAMERA_TARGET;
 
 	//自分より下のUpdateを拒否
 	AllChildLeave();
@@ -149,7 +156,6 @@ void PlayScene::Update()
 		//Pause中
 		else {
 			return;
-
 		}
 	}
 
@@ -165,15 +171,14 @@ void PlayScene::Update()
 		}
 		else {
 			//カメラの移動
-			static float CAMERA_X = 42.0f;
-			CAMERA_X += 0.05f;
-			Camera::SetPosition(XMFLOAT3(CAMERA_X, 10.0f, 55.0f), 0);
-			Camera::SetTarget(XMFLOAT3(50.0f, 0.0f, 50.0f), 0);
+			preDrawCameraPos_.x += PRE_CAMERA_POS_MOVE_X;
+			Camera::SetPosition(preDrawCameraPos_, 0);
+			Camera::SetTarget(preDrawCameraTar_, 0);
 		}
 	}
 
 	//デバッグ用
-#if 0
+#if 1
 	{
 		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
 		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_TEST);

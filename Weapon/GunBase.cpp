@@ -123,9 +123,6 @@ void GunBase::FinishedReload()
 
 void GunBase::Peeking()
 {
-    //いったん除外
-    if (playerId_ == 1) return;
-
     bool returnFlag = pPlayer_->IsClimb() || pPlayer_->IsFly() || currentReloadTime_ > 0;        //ピークできない
     bool isPeekInput = InputManager::IsCmd(InputManager::AIM, playerId_);   //PeekInput押してるかどうか
 

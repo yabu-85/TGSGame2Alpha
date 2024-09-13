@@ -27,13 +27,20 @@ void PlayerIdle::Update()
 void PlayerIdle::OnEnter()
 {
 	//リロード/jump以外ならIDLEアニメーションに
-	int animId = pPlayer_->GetUpAnimationController()->GetCurrentAnim();
-	if (animId != (int)PLAYER_ANIMATION::RELOAD && animId != (int)PLAYER_ANIMATION::JUMP) {
-		pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+	int upAnimId = pPlayer_->GetUpAnimationController()->GetCurrentAnim();
+	int downAnimId = pPlayer_->GetDownAnimationController()->GetCurrentAnim();
+
+	//地上で移動やめたら止める
+	if (downAnimId != (int)PLAYER_ANIMATION::JUMP) {
 		pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
-		
-		if(!InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId()))
+	}
+
+	//覗き込みしてないなら、止める
+	if (upAnimId != (int)PLAYER_ANIMATION::RELOAD) {
+		if (!InputManager::IsCmd(InputManager::AIM, pPlayer_->GetPlayerId())) {
+			pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
 			pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+		}
 	}
 
 }
@@ -63,11 +70,9 @@ void PlayerMove::Update()
 
 void PlayerMove::OnEnter()
 {
-	//ジャンプ以外ならIDLEアニメーションに
-	if (pPlayer_->GetUpAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::JUMP) {
-		//pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+	//ジャンプ以外ならRun
+	if (pPlayer_->GetDownAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::JUMP) {
 		pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
-		//pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
 	}
 
 }

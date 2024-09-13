@@ -4,10 +4,10 @@
     "magazineCount": 40,
     "peekTime": 50,
     "peekValue": 0.6,
-    "hipFireAccuracy": 0.05,
+    "hipFireAccuracy": 0.1,
     "aimingAccuracy": 0.01,
-    "accuracyDecrease": 0.01,
-    "accuracyRecovery": 0.02,
+    "accuracyDecrease": 0.0,
+    "accuracyRecovery": 0.1,
     "maxAccuracy": 0.2
   },
   "SniperGun": {

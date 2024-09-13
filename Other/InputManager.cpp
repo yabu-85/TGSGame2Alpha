@@ -36,7 +36,7 @@ namespace InputManager {
 		std::make_pair(STICKL, 0),	//MOVE_DOWN
 
 		std::make_pair(TRRIGERR, 0),					//ATTACK
-		std::make_pair(TRRIGERL, 1),					//AIM
+		std::make_pair(TRRIGERL, 0),					//AIM
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//RELOAD
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//ACTION
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),	//JUMP

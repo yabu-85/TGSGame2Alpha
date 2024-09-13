@@ -1,15 +1,15 @@
 {
     "Common": {
         "gameVolume": 0.15234367549419403,
-        "shadowDraw": 0
+        "shadowDraw": 1
     },
     "Player1": {
-        "aimSensitivity": 1.0,
+        "aimSensitivity": 0.49609366059303284,
         "hp": 100,
         "pcCtrl": 1
     },
     "Player2": {
-        "aimSensitivity": 1.0,
+        "aimSensitivity": 0.5429686903953552,
         "hp": 100,
         "pcCtrl": 0
     }

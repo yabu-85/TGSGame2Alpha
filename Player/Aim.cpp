@@ -19,7 +19,7 @@ namespace {
     const float COMPULSION_COMPLEMENT_DEFAULT = 0.06f;       //強制の補完具合デフォルトの
     const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
-    const float MOUSE_SPEED_DEFAULT = 0.1f;                  //感度
+    const float MOUSE_SPEED_DEFAULT = 0.15f;                 //感度
     const float DISTANCE_HORIZONTAL_DEFAULT = 0.25f;         //どのくらい左右にずらすか
     const float DISTANCE_BEHIND_DEFAULT = 0.8f;              //どのくらい後ろから移すかのデフォルト値
     const float DISTANCE_HEIGHT_DEFAULT = 1.1f;              //Aimの高さ
@@ -33,7 +33,7 @@ Aim::Aim(GameObject* parent)
     : GameObject(parent, "Aim"), cameraPosition_{ 0,0,0 }, cameraTarget_{ 0,0,0 }, aimDirection_{ 0,0,0 }, cameraOffset_{ 0,0,0 },
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
-    shakeDirection_{ 1,0,0,0 }, isFps_(true), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
+    shakeDirection_{ 1,0,0,0 }, isFps_(false), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
     rotateShakeTimeCalc_(-1), isRotateShakeReturn_(false), rotateShakeDirKeepSub_(XMFLOAT2()), hPlayerFPSModel_(-1)
 {
 }
@@ -44,8 +44,11 @@ Aim::~Aim()
 
 void Aim::Initialize()
 {
-    isFps_ = true;
     pPlayer_ = static_cast<Player*>(GetParent());
+
+    //if(pPlayer_->GetPlayerId() == 1)
+    isFps_ = true;
+
 
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
     Model::GetPartBoneIndex(hPlayerFPSModel_, "eye", &eyePart, &eyeBone);         //Root

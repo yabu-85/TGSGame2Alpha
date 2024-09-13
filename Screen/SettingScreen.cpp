@@ -138,10 +138,12 @@ SettingScreen::SettingScreen() : Screen(), aimSliderUI_{nullptr, nullptr}, volum
 	AddUI(ui->UIInstantiate<ButtonUI>("On", XMFLOAT2(0.35f, -0.55f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
 		{
 			GameManager::SetShadowDraw(true);
+			SetJsonSetting();
 		}));
 	AddUI(ui->UIInstantiate<ButtonUI>("Off", XMFLOAT2(0.65f, -0.55f), XMFLOAT2(0.2f, 0.2f), XMFLOAT2(0.23f, 0.25f), [this]()
 		{
 			GameManager::SetShadowDraw(false);
+			SetJsonSetting();
 		}));
 
 	//JsonSettingì«Ç›çûÇ›
