@@ -181,19 +181,11 @@ void Player::Initialize()
 
 void Player::Update()
 {
-    //銃覗き込み
-    if (pGunBase_) {
-        if (!isFly_ && InputManager::IsCmd(InputManager::AIM, playerId_)) {
-            pUpAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
-            //pDownAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
-            pFpsAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
-        }
-        else {
-            pUpAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
-            //pDownAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
-            pFpsAnimationController_->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
-        }
-    }
+    //アニメーションの再生
+    // 銃の覗き込みはGunBaseから
+    // ReloadはGunBaseから
+    // 着地はPlayerUpdateの中から
+    // それ以外はPlayerStateの中からしている
 
     //アニメーション
     Model::Update(hUpModel_);

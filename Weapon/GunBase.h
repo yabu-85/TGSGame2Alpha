@@ -10,6 +10,7 @@ class GunBase : public GameObject
 protected:
     bool rayHit_;           //Collision判定で保存用
     bool isPeeking_;        //完全にのぞき込みしている状態か
+    bool isPrePeekInput_;   //前のフレームで覗き込みしているか、InputしてPeekできる状態ならtrue
 
     int hModel_;            //モデル番号
     int hUpPlayerModel_;    //プレイヤーのモデル番号

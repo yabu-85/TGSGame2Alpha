@@ -24,7 +24,15 @@ public:
 	void AddAnimNotify(int animId, OneFrame* action);
 
 	//次のアニメーションを設定
-	void SetNextAnim(int id, float speed = 1.0f);
+
+	/// <summary>
+	/// 次のアニメーションを設定
+	/// </summary>
+	/// <param name="id">AnimationのID</param>
+	/// <param name="speed">再生速度</param>
+	/// <param name="addStart">登録されたStartフレームに加算する値</param>
+	/// <param name="addEnd">登録されたEndフレームに減算する値</param>
+	void SetNextAnim(int id, float speed = 1.0f, int addStart = 0, int addEnd = 0);
 
 	AnimData GetAnim(int id);
 	int GetAnimTime(int id);

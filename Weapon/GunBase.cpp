@@ -22,7 +22,7 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), playerId_(0), coolTime_(0), rayHit_(false), rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1),
     isPeeking_(false), peekTime_(0), reloadTime_(0), currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hFpsPlayerModel_(-1), handBoneIndex_(-1),
     handPartIndex_(-1), animTime_(0), currentPeekTime_(0), peekZoom_(0.0f), hipFireAccuracy_(0.0f), aimingAccuracy_(0.0f), accuracyDecrease_(0.0f), 
-    accuracyRecovery_(0.0f), currentAccuracy_(0.0f), hUpPlayerModel_(-1)
+    accuracyRecovery_(0.0f), currentAccuracy_(0.0f), hUpPlayerModel_(-1), isPrePeekInput_(false)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();
@@ -65,13 +65,10 @@ void GunBase::LoadGunJson(std::string fileName)
     reloadTime_ = gunSection["reloadTime"];
     currentReloadTime_ = 0;
 
-    //のぞき込み時間
-    peekTime_ = gunSection["reloadTime"];
-    currentPeekTime_ = peekTime_;
-
-    //ズーム
+    //のぞき込み
     peekZoom_ = gunSection["peekValue"];
     peekTime_ = gunSection["peekTime"];
+    currentPeekTime_ = peekTime_;
 
     //集弾率
     hipFireAccuracy_ = gunSection["hipFireAccuracy"];
@@ -102,6 +99,10 @@ bool GunBase::Reload()
     //リロード完了
     if (currentReloadTime_ <= 0) {
         currentMagazineCount_ = magazineCount_;
+        
+        //その他・Peek時間初期化
+        currentPeekTime_ = peekTime_;
+
         FinishedReload();
         return true;
     }
@@ -122,16 +123,41 @@ void GunBase::FinishedReload()
     }
 }
 
-//プレイヤーのアニメーションのかかる時間と武器に持たせたかかる時間で計算してAnimationSpeedを計算してやる
-//IsCmdDownとIsCmdUpはなるべく使うな
 void GunBase::Peeking()
 {
-    bool playerClimb = pPlayer_->IsClimb();
-    if (playerClimb || currentReloadTime_ > 0) {
+    //いったん除外
+    if (playerId_ == 1) return;
+
+    bool returnFlag = pPlayer_->IsClimb() || pPlayer_->IsFly() || currentReloadTime_ > 0;        //ピークできない
+    bool isPeekInput = InputManager::IsCmd(InputManager::AIM, playerId_);   //PeekInput押してるかどうか
+
+    //戻す処理
+    if (returnFlag || !isPeekInput) {
+        //戻す処理終わっている場合は終了
+        if (currentPeekTime_ >= peekTime_) {
+            return;
+        }
+
+        //切り替わった（覗き込み解除）
+        if (isPrePeekInput_) {
+            int addAnimStart = currentPeekTime_;
+            int addAnimEnd = 0;
+
+            int peekAnimTime = pPlayer_->GetUpAnimationController()->GetAnimTime((int)PLAYER_ANIMATION::PEEK_START);
+            float animSpeed = (float)peekAnimTime / (float)(peekTime_ - currentPeekTime_);
+
+            pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_END, animSpeed, addAnimStart, addAnimEnd);
+            pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_END, animSpeed, addAnimStart, addAnimEnd);
+            isPrePeekInput_ = false;
+        }
+
         isPeeking_ = false;
         currentPeekTime_++;
 
+        //完全に戻った
         if (currentPeekTime_ >= peekTime_) {
+            pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
+            pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
             currentPeekTime_ = peekTime_;
         }
 
@@ -140,28 +166,37 @@ void GunBase::Peeking()
         return;
     }
 
-    if (InputManager::IsCmd(InputManager::AIM, playerId_)) {
-        currentPeekTime_--;
-
-        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
-        Camera::SetFovAngleParcent(zoom, playerId_);
-
-        //覗き込み完了
-        if (currentPeekTime_ <= 0) {
-            currentPeekTime_ = 0;
-            isPeeking_ = true;
-        }
+    //覗き込みしているときの処理
+    //すでに覗き込みしている場合
+    if (currentPeekTime_ <= 0) {
+        return;
     }
-    else {
-        isPeeking_ = false;
-        currentPeekTime_++;
 
-        if (currentPeekTime_ >= peekTime_) {
-            currentPeekTime_ = peekTime_;
-        }
-        
-        float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
-        Camera::SetFovAngleParcent(zoom, playerId_);
+    //切り替わった（覗き込みスタート）
+    if (!isPrePeekInput_) {
+        int addAnimStart = peekTime_ - currentPeekTime_;
+        int addAnimEnd = 0;
+
+        int peekAnimTime = pPlayer_->GetUpAnimationController()->GetAnimTime((int)PLAYER_ANIMATION::PEEK_START);
+        float animSpeed = (float)peekAnimTime / (float)(currentPeekTime_);
+
+        pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_START, animSpeed, addAnimStart, addAnimEnd);
+        pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_START, animSpeed, addAnimStart, addAnimEnd);
+        isPrePeekInput_ = true; 
+    }
+
+    //ズーム値計算
+    currentPeekTime_--;
+    float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
+    Camera::SetFovAngleParcent(zoom, playerId_);
+
+    //覗き込み完了
+    if (currentPeekTime_ <= 0) {
+        currentPeekTime_ = 0;
+        isPeeking_ = true;
+
+        pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
+        pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK, 1.0f);
     }
 
 }

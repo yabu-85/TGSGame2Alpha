@@ -48,8 +48,8 @@ int AnimationController::GetAnimTime(int id)
 	return  animDatas_[id].endFrame - animDatas_[id].startFrame;
 }
 
-void AnimationController::SetNextAnim(int id, float speed)
+void AnimationController::SetNextAnim(int id, float speed, int addStart, int addEnd)
 {
 	currentAnim_ = id;
-	Model::SetAnimFrame(modelNum_, animDatas_.at(id).startFrame, animDatas_.at(id).endFrame, speed);
+	Model::SetAnimFrame(modelNum_, animDatas_.at(id).startFrame + addStart, animDatas_.at(id).endFrame + addEnd, speed);
 }

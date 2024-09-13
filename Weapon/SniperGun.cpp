@@ -143,24 +143,19 @@ void SniperGun::Draw()
     transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     int dI = GameManager::GetDrawIndex();
     if (pPlayer_->GetPlayerId() == dI) {
-
         //ピーク中は画像の表示
+#if 0
         if (isPeeking_) {
             if (Direct3D::GetCurrentShader() == Direct3D::SHADER_3D) {
-#if 0
                 Transform t;
                 Image::SetTransform(hPict_, t);
                 Image::Draw(hPict_);
-#endif
             }
         }
+#endif
 
-        //常に手前に表示するように
-        Direct3D::SetDepthBafferWriteEnable(false);
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
-        Direct3D::SetDepthBafferWriteEnable(true);
-
     }
     //相手の表示
     else {
