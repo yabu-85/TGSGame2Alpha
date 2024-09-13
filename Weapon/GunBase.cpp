@@ -87,7 +87,6 @@ void GunBase::EnterReload()
     int reloadAnimTime = (reloadE - reloadS);
     float animSpeed = (float)reloadAnimTime / (float)reloadTime_;
     pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
-    pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
     pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RELOAD, animSpeed);
 
 }
@@ -116,9 +115,8 @@ void GunBase::FinishedReload()
 
     //プレイヤーのStateがIdleかJumpだったら
     std::string stateName = pPlayer_->GetStateManager()->GetName();
-    if (stateName == "Idle"/* || 修正箇所 stateName == "Move" */ ) {
+    if (stateName == "Idle" || stateName == "Move" ) {
         pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
-        pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
         pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
     }
 }
@@ -140,14 +138,16 @@ void GunBase::Peeking()
 
         //切り替わった（覗き込み解除）
         if (isPrePeekInput_) {
-            int addAnimStart = currentPeekTime_;
-            int addAnimEnd = 0;
+            int peekAnimTime = pPlayer_->GetUpAnimationController()->GetAnimTime((int)PLAYER_ANIMATION::PEEK_END);
+            float animSpeed = (float)peekAnimTime / (float)(peekTime_);
+            int addAnimStart = (int)((float)currentPeekTime_ / (float)peekTime_ * (float)peekAnimTime);
 
-            int peekAnimTime = pPlayer_->GetUpAnimationController()->GetAnimTime((int)PLAYER_ANIMATION::PEEK_START);
-            float animSpeed = (float)peekAnimTime / (float)(peekTime_ - currentPeekTime_);
+            //リロード中ではないなら
+            if (currentReloadTime_ <= 0) {
+                pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_END, animSpeed, addAnimStart);
+                pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_END, animSpeed, addAnimStart);
+            }
 
-            pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_END, animSpeed, addAnimStart, addAnimEnd);
-            pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_END, animSpeed, addAnimStart, addAnimEnd);
             isPrePeekInput_ = false;
         }
 
@@ -156,9 +156,13 @@ void GunBase::Peeking()
 
         //完全に戻った
         if (currentPeekTime_ >= peekTime_) {
-            pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
-            pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
             currentPeekTime_ = peekTime_;
+         
+            //リロード中ではないなら
+            if (currentReloadTime_ <= 0) {
+                pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
+                pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE, 1.0f);
+            }
         }
 
         float zoom = peekZoom_ + ((1.0f - peekZoom_) * (float)currentPeekTime_ / (float)peekTime_);
@@ -174,14 +178,12 @@ void GunBase::Peeking()
 
     //切り替わった（覗き込みスタート）
     if (!isPrePeekInput_) {
-        int addAnimStart = peekTime_ - currentPeekTime_;
-        int addAnimEnd = 0;
-
         int peekAnimTime = pPlayer_->GetUpAnimationController()->GetAnimTime((int)PLAYER_ANIMATION::PEEK_START);
-        float animSpeed = (float)peekAnimTime / (float)(currentPeekTime_);
+        float animSpeed = (float)peekAnimTime / (float)(peekTime_);
+        int addAnimStart = peekAnimTime - (int)((float)currentPeekTime_ / (float)peekTime_ * (float)peekAnimTime);
 
-        pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_START, animSpeed, addAnimStart, addAnimEnd);
-        pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_START, animSpeed, addAnimStart, addAnimEnd);
+        pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_START, animSpeed, addAnimStart);
+        pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::PEEK_START, animSpeed, addAnimStart);
         isPrePeekInput_ = true; 
     }
 

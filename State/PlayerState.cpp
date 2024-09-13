@@ -83,10 +83,7 @@ void PlayerJump::OnEnter()
 {
 	int playerId = pPlayer_->GetPlayerId();
 	pPlayer_->Jump();
-
-	pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::JUMP);
 	pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::JUMP);
-	pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::JUMP);
 
 	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
 	else owner_->ChangeState("Idle");
