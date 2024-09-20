@@ -38,9 +38,10 @@ namespace Model
 		
 		bool isAnimStop;
 		bool isShadow;
+		bool isAnimLoop;
 
 		//初期化
-		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isAnimStop(false), isShadow(true)
+		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isAnimStop(false), isShadow(true), isAnimLoop(true)
 		{
 		}
 
@@ -56,8 +57,6 @@ namespace Model
 			animSpeed = speed;
 		}
 	};
-
-
 
 	//初期化
 	void Initialize();
@@ -101,6 +100,9 @@ namespace Model
 	//アニメーションを止める
 	//引数：handle	開放したいモデルの番号
 	void AnimStop(int handle);
+
+	//アニメーションループ再生かどうかセット
+	void SetAnimLoop(int handle, bool b);
 
 	//パーツとボーンのインデックス取得
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex);
@@ -147,6 +149,7 @@ namespace Model
 	//回転軸セット
 	void SetOrietnRotateBone(int handle, int listIndex, XMFLOAT3 rotate);
 
+	//影表示するかセット
 	void SetShadow(int handle, bool b);
 
 	//すべてのポリゴン取得

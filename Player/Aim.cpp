@@ -49,7 +49,6 @@ void Aim::Initialize()
     //if(pPlayer_->GetPlayerId() == 1)
     isFps_ = true;
 
-
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
     Model::GetPartBoneIndex(hPlayerFPSModel_, "eye", &eyePart, &eyeBone);         //Root
     Model::GetPartBoneIndex(hPlayerFPSModel_, "eye.001", &eyePart1, &eyeBone1);   //Top

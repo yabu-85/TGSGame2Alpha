@@ -78,8 +78,10 @@ namespace Model
 			_datas[handle]->nowFrame += _datas[handle]->animSpeed;
 
 			//最後までアニメーションしたら戻す
-			if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame)
-				_datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
+			if (_datas[handle]->nowFrame > (float)_datas[handle]->endFrame) {
+				if(_datas[handle]->isAnimLoop) _datas[handle]->nowFrame = (float)_datas[handle]->startFrame;
+				else _datas[handle]->nowFrame = (float)_datas[handle]->endFrame;
+			}
 		}
 	}
 
@@ -167,6 +169,11 @@ namespace Model
 	void AnimStop(int handle)
 	{
 		_datas[handle]->isAnimStop = true;
+	}
+
+	void SetAnimLoop(int handle, bool b)
+	{
+		_datas[handle]->isAnimLoop = b;
 	}
 	
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex)

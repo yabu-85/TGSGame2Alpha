@@ -24,7 +24,7 @@
 STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
 namespace {
-	const int PRE_STAGE_DRAW_TIME = 300;
+	const int PRE_STAGE_DRAW_TIME = 0;
 	const int END_TIME_DEFAULT = 60;
 
 	const XMFLOAT3 PRE_CAMERA_POSITION = XMFLOAT3(42.0f, 15.0f, 55.0f);
@@ -107,11 +107,29 @@ void PlayScene::Update()
 			AllChildLeave();
 			Enter();
 	
+			//Playerの処理
+			for (int i = 0; i < 2; i++) {
+				if (pPlayer_[i]->GetAim()->IsAimFps()) {
+					//PlayerはUpdate許可
+					pPlayer_[i]->Enter();
+					pPlayer_[i]->GetAim()->Enter();
+
+					//Tps設定へ
+					pPlayer_[i]->GetAim()->SetAimFps(false);
+					pPlayer_[i]->GetAim()->SetAimMove(false);
+
+					pPlayer_[i]->GetAim()->SetDistanceBehind(0.0f);
+					pPlayer_[i]->GetAim()->SetDistanceHeight(0.0f);
+					pPlayer_[i]->GetAim()->SetDistanceHorizontal(0.0f);
+					pPlayer_[i]->GetAim()->SetDistanceIncreaseAmount(0.05f);
+				}
+			}
+
 			GameManager::SetCursorMode(true);
 		}
 
 		SceneBase::Update();
-
+		
 		endTime_--;
 		if (pScreenList_.empty()) {
 			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
@@ -162,7 +180,7 @@ void PlayScene::Update()
 	//ゲーム開始前のStage描画
 	time_++;
 	if (preStageDraw_) {
-		if (time_ == PRE_STAGE_DRAW_TIME) {
+		if (time_ >= PRE_STAGE_DRAW_TIME) {
 			//Updateの許可
 			AllChildEnter();
 

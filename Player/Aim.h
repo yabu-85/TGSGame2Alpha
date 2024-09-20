@@ -124,11 +124,19 @@ public:
     bool IsAimFps() { return isFps_; }
     void SetAimMove(bool b) { isMove_ = b; };
     bool IsAimMove() { return isMove_; }
-
-    void SetDistanceIncreaseAmount(float f) { distanceIncreaseAmount_ = f; }
+    bool IsCompulsion() { return isCompulsion_; }
+    
+    void SetDistanceHeight(float f) { distanceHeight_ = f; }
+    void SetDistanceHorizontal(float f) { distanceHorizontal_ = f; }
+    void SetDistanceBehind(float f) { distanceBehind_ = f; }
+    
+    void SetDistanceTargetHeight(float f) { distanceTargetHeight_ = f; }
+    void SetDistanceTargetHorizontal(float f) { distanceTargetHorizontal_ = f; }
+    void SetDistanceTargetBehind(float f) { distanceTargetBehind_ = f; }
+    
     void SetAimSensitivity(float parcent);
+    void SetDistanceIncreaseAmount(float f) { distanceIncreaseAmount_ = f; }
     
     XMFLOAT3 GetAimDirection() { return aimDirection_; }
-    bool IsCompulsion() { return isCompulsion_; }
 
 };

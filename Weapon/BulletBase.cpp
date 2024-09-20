@@ -2,7 +2,7 @@
 #include "../Json/JsonReader.h"
 
 BulletBase::BulletBase(GameObject* parent, std::string name)
-	: GameObject(parent, name), playerId_(0), move_(XMFLOAT3()), parameter_(BulletParameter())
+	: GameObject(parent, name), playerId_(0), move_(XMFLOAT3()), parameter_(BulletParameter()), drawMove_(XMFLOAT3()), drawPos_(XMFLOAT3())
 {
 }
 

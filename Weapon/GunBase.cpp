@@ -22,7 +22,7 @@ GunBase::GunBase(GameObject* parent, const std::string& name)
     : GameObject(parent, name), hModel_(-1), playerId_(0), coolTime_(0), rayHit_(false), rootBoneIndex_(-1), rootPartIndex_(-1), topBoneIndex_(-1), topPartIndex_(-1),
     isPeeking_(false), peekTime_(0), reloadTime_(0), currentReloadTime_(0), magazineCount_(0), currentMagazineCount_(0), hFpsPlayerModel_(-1), handBoneIndex_(-1),
     handPartIndex_(-1), animTime_(0), currentPeekTime_(0), peekZoom_(0.0f), hipFireAccuracy_(0.0f), aimingAccuracy_(0.0f), accuracyDecrease_(0.0f), 
-    accuracyRecovery_(0.0f), currentAccuracy_(0.0f), hUpPlayerModel_(-1), isPrePeekInput_(false)
+    accuracyRecovery_(0.0f), currentAccuracy_(0.0f), hUpPlayerModel_(-1), isPrePeekInput_(false), maxAccuracy_(0.0f)
 {
     pPlayer_ = static_cast<Player*>(GetParent());
     playerId_ = pPlayer_->GetPlayerId();

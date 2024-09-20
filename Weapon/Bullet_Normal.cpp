@@ -205,7 +205,8 @@ void Bullet_Normal::HitEffect()
     t.isLoop = false;   //繰り返し
     t.maxFrame = 80;    //80フレーム
     t.speed = 1.0;      //スピード
-    EFFEKSEERLIB::gEfk->Play("HIT", t);
+    EFFEKSEERLIB::gEfk->Play("HIT", t, 0);
+    EFFEKSEERLIB::gEfk->Play("HIT", t, 1);
 }
 
 void Bullet_Normal::KillBullet()

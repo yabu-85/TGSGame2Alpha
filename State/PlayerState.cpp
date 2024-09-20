@@ -3,6 +3,7 @@
 #include "../Player/Player.h"
 #include "../Other/InputManager.h"
 #include "../Animation/AnimationController.h"
+#include "../Engine/Model.h"
 
 PlayerIdle::PlayerIdle(StateManager* owner) : StateBase(owner)
 {
@@ -137,6 +138,8 @@ void PlayerDead::OnEnter()
 	pPlayer_->GetUpAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
 	pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
 	pPlayer_->GetFpsAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::DEAD);
+	Model::SetAnimLoop(pPlayer_->GetUpModelHandle(), false);
+	Model::SetAnimLoop(pPlayer_->GetDownModelHandle(), false);
 
 	//Effekseer
 	Transform pTrans;

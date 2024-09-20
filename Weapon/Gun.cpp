@@ -46,6 +46,7 @@ void Gun::Update()
     XMFLOAT3 subAim = pPlayer_->GetAim()->GetFPSSubY();
     transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.position_ = Float3Add(transform_.position_, subAim);
+    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     coolTime_--;
@@ -91,11 +92,10 @@ void Gun::Update()
 
 void Gun::Draw()
 {
-    //Shado‚Ìê‡Return
+    //Shadow‚Ìê‡Return
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     if (type == Direct3D::SHADER_SHADOWMAP) return;
 
-    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     int dI = GameManager::GetDrawIndex();
     //Ž©•ª‚Ì•\Ž¦
     if (pPlayer_->GetPlayerId() == dI) {
@@ -105,7 +105,7 @@ void Gun::Draw()
     //‘ŠŽè‚Ì•\Ž¦
     else {
         Transform t = transform_;
-        t.position_ = Model::GetBoneAnimPosition(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
+        transform_.position_ = Model::GetBoneAnimPosition(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
 
         Model::SetTransform(hModel_, t);
         Model::Draw(hModel_);
