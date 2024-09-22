@@ -15,8 +15,9 @@ enum SCREEN_STATE {
 class Screen
 {
 	int selectCoolTime_;			//コントローラー用選択クールダウン
-	bool latestPCCtrl_;				//最新のアクションはPCか（trueならPC、falseならコントローラー
 	int latestSelectUIIndex_;		//ゲームパッド使用時の選択してたUI番号
+
+	static bool latestPCCtrl_;		//最新のアクションはPCか（全スクリーン共通
 
 protected:
 	std::vector<UIBase*> uiList_;	//登録されたUI一覧

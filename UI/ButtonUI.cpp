@@ -18,7 +18,7 @@ void ButtonUI::Update()
 {
 	SelectAnimUpdate();
 
-	if (IsWithinBound()) {
+	if (redyBound_ && IsWithinBound()) {
 		//重なった時の音再生
 		if (!isBound_) AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN, 0.4f);
 
@@ -34,7 +34,6 @@ void ButtonUI::Update()
 		if (isSelect_) {
 			if (Input::IsPadButtonDown(XINPUT_GAMEPAD_A, 0)) OnClick();
 		}
-
 	}
 }
 
@@ -47,7 +46,7 @@ void ButtonUI::Draw()
 
 		//セレクト
 		Image::SetTransform(hButtonPict_[1], frameTransform_);
-		Image::SetAlpha(hButtonPict_[1], (int)(255.0f * selectAnim_));
+		Image::SetAlpha(hButtonPict_[1], (int)(255.0f *selectAnim_));
 		Image::Draw(hButtonPict_[1]);
 	}
 

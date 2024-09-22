@@ -7,12 +7,12 @@
 #include "../Other/AudioManager.h"
 
 namespace {
-	static const float BOUND_SIZE = 1.1f;		//通常サイズに掛けて表示
-	static const float BUTTON_SIZE = 0.05f;		//IsBoundの判定距離
-	static const float BORDER_POSX = 10000.0f;	//マウスのウィンドウ範囲外対処用
-	static const float HEIGHT_RANGE = 0.3f;		//ウィンドウ内での範囲外距離
-	static const float PAD_DEAD_ZONE = 0.1f;	//パッドのデッドゾーン
-	static const float PAD_FLUCTUATION = 0.05f;	//パッドのドラッキング変動値
+	const float BOUND_SIZE = 1.1f;		//通常サイズに掛けて表示
+	const float BUTTON_SIZE = 0.05f;		//IsBoundの判定距離
+	const float BORDER_POSX = 10000.0f;	//マウスのウィンドウ範囲外対処用
+	const float HEIGHT_RANGE = 0.3f;		//ウィンドウ内での範囲外距離
+	const float PAD_DEAD_ZONE = 0.1f;	//パッドのデッドゾーン
+	const float PAD_FLUCTUATION = 0.05f;	//パッドのドラッキング変動値
 
 }
 

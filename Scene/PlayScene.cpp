@@ -20,6 +20,7 @@
 #include "../UI/BulletInfoDisplay.h"
 #include "../Other/GameManager.h"
 #include "../Other/AudioManager.h"
+#include "../Other/InputManager.h"
 
 STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
@@ -93,53 +94,12 @@ void PlayScene::Update()
 {
 	//ゲーム勝利判定
 	if (GameManager::GetPlayer(0)->IsHealthZero() || GameManager::GetPlayer(1)->IsHealthZero()) {
-		//勝負ついた瞬間のやつ
-		if (endTime_ >= END_TIME_DEFAULT) {
-			AllDeleteScreen();
-
-			//ResultScreen作成と値のセット
-			ResultScreen* screen = new ResultScreen();
-			if (GameManager::GetPlayer(0)->IsHealthZero()) screen->SetWinPlayer(1);
-			else if (GameManager::GetPlayer(1)->IsHealthZero()) screen->SetWinPlayer(0);
-			AddScreen(screen);
-			
-			//自分より下のUpdateを拒否
-			AllChildLeave();
-			Enter();
-	
-			//Playerの処理
-			for (int i = 0; i < 2; i++) {
-				if (pPlayer_[i]->GetAim()->IsAimFps()) {
-					//PlayerはUpdate許可
-					pPlayer_[i]->Enter();
-					pPlayer_[i]->GetAim()->Enter();
-
-					//Tps設定へ
-					pPlayer_[i]->GetAim()->SetAimFps(false);
-					pPlayer_[i]->GetAim()->SetAimMove(false);
-
-					pPlayer_[i]->GetAim()->SetDistanceBehind(0.0f);
-					pPlayer_[i]->GetAim()->SetDistanceHeight(0.0f);
-					pPlayer_[i]->GetAim()->SetDistanceHorizontal(0.0f);
-					pPlayer_[i]->GetAim()->SetDistanceIncreaseAmount(0.05f);
-				}
-			}
-
-			GameManager::SetCursorMode(true);
-		}
-
-		SceneBase::Update();
-		
-		endTime_--;
-		if (pScreenList_.empty()) {
-			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
-			pSceneManager->ChangeScene(SCENE_ID_TITLE);
-		}
+		GameEnd();
 		return;
 	}
 
 	//Pause画面呼び出し
-	if (!isPause_ && IsPauseButtonDown()) {
+	if (!isPause_ && InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
 		AddScreen(new PauseScreen());
 
 		//自分より下のUpdateを拒否
@@ -153,9 +113,9 @@ void PlayScene::Update()
 	
 	//Pause中の処理
 	if (isPause_) {
-
-		//PauseButton押した
-		if (IsPauseButtonDown()) {
+		
+		//Pause終了
+		if (pScreenList_.empty() || InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
 			AllDeleteScreen();
 			GameManager::SetCursorMode(false);
 			isPause_ = false;
@@ -164,17 +124,7 @@ void PlayScene::Update()
 		}
 
 		SceneBase::Update();
-		
-		//Pause終了の処理
-		if (pScreenList_.empty()) {
-			GameManager::SetCursorMode(false);
-			isPause_ = false;
-			if(!preStageDraw_) AllChildEnter();
-		}
-		//Pause中
-		else {
-			return;
-		}
+		return;
 	}
 
 	//ゲーム開始前のStage描画
@@ -184,7 +134,7 @@ void PlayScene::Update()
 			//Updateの許可
 			AllChildEnter();
 
-			GameManager::SetTwoPlayer();
+			//GameManager::SetTwoPlayer();
 			preStageDraw_ = false;
 		}
 		else {
@@ -265,10 +215,55 @@ void PlayScene::IndividualUIDraw(int index)
 	}
 	
 	pBulletInfoDisplay_[index]->DrawBullet();
-
 }
 
-bool PlayScene::IsPauseButtonDown()
+void PlayScene::GameEnd()
 {
-	return (Input::IsKeyDown(DIK_TAB) || Input::IsPadButtonDown(XINPUT_GAMEPAD_START, 0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_BACK, 0));
+	//勝負ついた瞬間のやつ
+	if (endTime_ >= END_TIME_DEFAULT) {
+		GameManager::SetCursorMode(true);
+		AllDeleteScreen();
+
+		//ResultScreen作成と値のセット
+		ResultScreen* screen = new ResultScreen();
+		if (GameManager::GetPlayer(0)->IsHealthZero()) screen->SetWinPlayer(1);
+		else if (GameManager::GetPlayer(1)->IsHealthZero()) screen->SetWinPlayer(0);
+		AddScreen(screen);
+
+		//自分より下のUpdateを拒否
+		AllChildLeave();
+		Enter();
+
+		//Playerの処理
+		for (int i = 0; i < 2; i++) {
+			pPlayer_[i]->Enter();
+			pPlayer_[i]->GetAim()->Enter();
+
+			//Aimの設定
+			pPlayer_[i]->GetAim()->SetAimMove(false);
+			pPlayer_[i]->GetAim()->SetDistanceTargetHorizontal(0.0f);
+			pPlayer_[i]->GetAim()->SetDistanceTargetHeight(1.5f);
+			pPlayer_[i]->GetAim()->SetDistanceTargetBehind(1.2f);
+			pPlayer_[i]->GetAim()->SetDistanceIncreaseAmount(0.05f);
+
+			//FPS設定の場合
+			if (pPlayer_[i]->GetAim()->IsAimFps()) {
+				pPlayer_[i]->GetAim()->SetAimFps(false);
+
+				pPlayer_[i]->GetAim()->SetDistanceBehind(0.0f);
+				pPlayer_[i]->GetAim()->SetDistanceHeight(pPlayer_[i]->GetAim()->GetDistanceHeight());
+				pPlayer_[i]->GetAim()->SetDistanceHorizontal(0.0f);
+			}
+		}
+	}
+
+	SceneBase::Update();
+	endTime_--;
+
+	//シーン終了
+	if (pScreenList_.empty()) {
+		SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
+		pSceneManager->ChangeScene(SCENE_ID_TITLE);
+	}
+
 }

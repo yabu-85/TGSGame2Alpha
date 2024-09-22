@@ -75,7 +75,8 @@ class Aim : public GameObject
 
     Player* pPlayer_;
     int hPlayerFPSModel_;
-    XMFLOAT3 fpsSub_;
+    XMFLOAT3 fpsSub_;               //モデルのEyePosと今のEyePosの差分
+    float distanceHeightPlus_;      //ジャンプとかで使う高さの加算値
 
     void FPSAim();          //FPS用
     void DefaultAim();      //三人称視点の計算
@@ -133,8 +134,13 @@ public:
     void SetDistanceTargetHeight(float f) { distanceTargetHeight_ = f; }
     void SetDistanceTargetHorizontal(float f) { distanceTargetHorizontal_ = f; }
     void SetDistanceTargetBehind(float f) { distanceTargetBehind_ = f; }
-    
+
+    float GetDistanceHeight() { return distanceHeight_; }
+    float GetDistanceHorizontal() { return distanceHorizontal_; }
+    float GetDistanceBehind() { return distanceBehind_; }
+
     void SetAimSensitivity(float parcent);
+    void SetDistanceHeightPlus(float f) { distanceHeightPlus_ = f; }
     void SetDistanceIncreaseAmount(float f) { distanceIncreaseAmount_ = f; }
     
     XMFLOAT3 GetAimDirection() { return aimDirection_; }

@@ -167,20 +167,28 @@ void Aim::FPSAim()
     XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart, eyeBone);     //Root
     XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart1, eyeBone1);  //Top
     XMFLOAT3 playerPos = pPlayer_->GetPosition();
+
+    //ƒWƒƒƒ“ƒv‰ÁŽZ
+    eyePos.y += distanceHeightPlus_;
     
-    XMFLOAT3 x = XMFLOAT3(playerPos.x, eyePos.y, playerPos.z);
-    XMFLOAT3 sub = Float3Sub(x, eyePos);
-    XMFLOAT3 y = Float3Add(eyePos1, sub);
+    //TargetPos/Tar
+    XMFLOAT3 newPos = XMFLOAT3(playerPos.x, eyePos.y, playerPos.z);
+    XMFLOAT3 sub = Float3Sub(newPos, eyePos);
+    XMFLOAT3 newTar = Float3Add(eyePos1, sub);
 
     //Sub‹‚ß‚é
-    XMFLOAT3 eyeVec = Float3Sub(x, eyePos);
+    XMFLOAT3 eyeVec = Float3Sub(newPos, eyePos);
     fpsSub_ = eyeVec;
-    eyePos = x;
-    eyePos1 = y;
+    eyePos = newPos;
+    eyePos1 = newTar;
 
     int playerID = pPlayer_->GetPlayerId();
     Camera::SetPosition(eyePos, playerID);
     Camera::SetTarget(eyePos1, playerID);
+
+    distanceBehind_ = 0.0f;
+    distanceHorizontal_ = 0.0f;
+    distanceHeight_ = eyePos.y - playerPos.y;
 
     XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));
     XMMATRIX mRotY = XMMatrixRotationY(XMConvertToRadians(transform_.rotate_.y));

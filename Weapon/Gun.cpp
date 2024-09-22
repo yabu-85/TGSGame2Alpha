@@ -42,10 +42,8 @@ void Gun::Update()
     if (coolTime_ <= 0) currentAccuracy_ -= accuracyRecovery_;
     if (currentAccuracy_ < 0.0f) currentAccuracy_ = 0.0f;
 
-    //手の位置に合わせる＆Aimの差分を合わせる
-    XMFLOAT3 subAim = pPlayer_->GetAim()->GetFPSSubY();
-    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
-    transform_.position_ = Float3Add(transform_.position_, subAim);
+    //TransfromSet
+    SetFpsPlayerHandGun();
     transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
@@ -96,18 +94,15 @@ void Gun::Draw()
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     if (type == Direct3D::SHADER_SHADOWMAP) return;
 
-    int dI = GameManager::GetDrawIndex();
-    //自分の表示
-    if (pPlayer_->GetPlayerId() == dI) {
+    //FPSの表示
+    if (pPlayer_->GetAim()->IsAimFps() && pPlayer_->GetPlayerId() == GameManager::GetDrawIndex()) {
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
     }
-    //相手の表示
+    //TPSの表示
     else {
-        Transform t = transform_;
-        transform_.position_ = Model::GetBoneAnimPosition(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
-
-        Model::SetTransform(hModel_, t);
+        SetTpsPlayerHandGun();
+        Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
     }
 }

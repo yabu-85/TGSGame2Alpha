@@ -53,6 +53,9 @@ protected:
     void Peeking();                                 //覗き込み処理（アニメーションはしない）
     void ShotVFX();                                 //ShotVFX再生
 
+    void SetTpsPlayerHandGun();                     //三人称用、プレイヤーの手に合わせる
+    void SetFpsPlayerHandGun();                     //一人称用、プレイヤーの手に合わせる
+
     virtual void ShotBullet(BulletBase* pBullet);       //銃弾発射の処理
     virtual void ShotFPSBullet(BulletBase* pBullet);    //銃弾発射の処理
 

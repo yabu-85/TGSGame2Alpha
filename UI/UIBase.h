@@ -13,6 +13,7 @@ protected:
 	bool isSelect_;						//コントローラー用選択しているか
 	bool selectPlus_;					//アニメーション計算用
 	bool screenSelectPossible_;			//スクリーン画面でセレクトを変動させていいか
+	bool redyBound_;					//重なってるかを判定するかどうか
 
 	int hButtonPict_[2];				//UI本体の画像ハンドル
 	int hImagePict_;					//表示する画像のハンドル
@@ -45,9 +46,11 @@ public:
 	bool GetBound() { return isBound_; }
 	bool GetSelect() { return isSelect_; }
 	bool GetSelectPossible() { return screenSelectPossible_; }
+	bool GetRedyBound() { return redyBound_; }
 
 	void SetBound(bool b) { isBound_ = b; }
 	void SetSelect(bool b) { isSelect_ = b; }
+	void SetRedyBound(bool b) { redyBound_ = b; }
 
 	/// <summary>
 	/// UIの生成

@@ -6,8 +6,8 @@
 #include <array>
 
 namespace InputManager {
-	static const float STICK_DEAD_ZONE = 0.01f;	//コントローラーデッドゾーン
-	static const float TRRIGERR_DEAD_ZONE = 0.2f;	//コントローラーデッドゾーン
+	static const float STICK_DEAD_ZONE = 0.01f;		//スティックデッドゾーン
+	static const float TRRIGERR_DEAD_ZONE = 0.2f;	//トリガーデッドゾーン
 
 	std::array<std::pair<TYPE, int>, CMD_MAX> commandList;
 	std::array<std::pair<TYPE, int>, CMD_MAX> debugCommandList;
@@ -27,6 +27,7 @@ namespace InputManager {
 
 		std::make_pair(MOUSE, 0),		//SELECT
 		std::make_pair(MOUSE, 1),		//RETURN
+		std::make_pair(KEY, DIK_TAB),	//PAUSE
 	};
 
 	const std::array<std::pair<TYPE, int>, CMD_MAX> DEFAULT_COMMAND {
@@ -35,14 +36,15 @@ namespace InputManager {
 		std::make_pair(STICKL, 0),	//MOVE_UP
 		std::make_pair(STICKL, 0),	//MOVE_DOWN
 
-		std::make_pair(TRRIGERR, 0),					//ATTACK
-		std::make_pair(TRRIGERL, 0),					//AIM
-		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//RELOAD
-		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),	//ACTION
-		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),	//JUMP
+		std::make_pair(TRRIGERR, 0),						//ATTACK
+		std::make_pair(TRRIGERL, 0),						//AIM
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),		//RELOAD
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_X),		//ACTION
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),		//JUMP
 	
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_A),		//SELECT
 		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_B),		//RETURN
+		std::make_pair(CONTROLLER, XINPUT_GAMEPAD_START),	//RAUSE
 	};
 
 }
@@ -50,7 +52,6 @@ namespace InputManager {
 void InputManager::Initialize()
 {
 	SetDefaultKeyConfig();
-
 }
 
 void InputManager::SetDefaultKeyConfig()
@@ -79,7 +80,6 @@ void InputManager::ChangeCmd(COMMAND cmd, TYPE type, int num)
 
 	commandList[cmd].first = type;
 	commandList[cmd].second = num;
-
 }
 
 bool InputManager::IsCmd(COMMAND cmd, int id)
@@ -91,7 +91,7 @@ bool InputManager::IsCmd(COMMAND cmd, int id)
 			return false;
 		}
 		else {
-			//コントローラーのため
+			//PCとコントローラー操作の場合コントローラーの番号は0だからidは0に
 			id = 0;
 		}
 	}
@@ -120,14 +120,8 @@ bool InputManager::IsCmdUp(COMMAND cmd, int id)
 	}
 
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonUp(commandList[cmd].second, id);
-	else if (commandList[cmd].first == TRRIGERL) {
-		if (Input::GetPadTrrigerL(id) <= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerL(id) >= TRRIGERR_DEAD_ZONE) return true;
-		else return false;
-	}
-	else if (commandList[cmd].first == TRRIGERR) {
-		if (Input::GetPadTrrigerR(id) <= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerR(id) >= TRRIGERR_DEAD_ZONE) return true;
-		else return false;
-	}
+	else if (commandList[cmd].first == TRRIGERL) return (Input::GetPadTrrigerL(id) <= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerL(id) >= TRRIGERR_DEAD_ZONE);
+	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(id) <= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerR(id) >= TRRIGERR_DEAD_ZONE);
 	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(id)) <= STICK_DEAD_ZONE);
 	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(id)) <= STICK_DEAD_ZONE);
 	return false;
@@ -143,22 +137,14 @@ bool InputManager::IsCmdDown(COMMAND cmd, int id)
 		}
 		else {
 			//コントローラーのため
-			
 			id = 0;
-
 		}
 	}
 
 	//Inputの方にTrrigerのUPDown作ったほうがいいかもね
 	if (commandList[cmd].first == CONTROLLER) return Input::IsPadButtonDown(commandList[cmd].second, id);
-	else if (commandList[cmd].first == TRRIGERL) {
-		if (Input::GetPadTrrigerL(id) >= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerL(id) <= TRRIGERR_DEAD_ZONE) return true;
-		else return false;
-	}
-	else if (commandList[cmd].first == TRRIGERR) {
-		if (Input::GetPadTrrigerR(id) >= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerR(id) <= TRRIGERR_DEAD_ZONE) return true;
-		else return false;
-	}
+	else if (commandList[cmd].first == TRRIGERL) return (Input::GetPadTrrigerL(id) >= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerL(id) <= TRRIGERR_DEAD_ZONE);
+	else if (commandList[cmd].first == TRRIGERR) return (Input::GetPadTrrigerR(id) >= TRRIGERR_DEAD_ZONE && Input::GetPrePadTrrigerR(id) <= TRRIGERR_DEAD_ZONE);
 	else if (commandList[cmd].first == STICKL) return (CalculationDistance(Input::GetPadStickL(id)) >= STICK_DEAD_ZONE);
 	else if (commandList[cmd].first == STICKR) return (CalculationDistance(Input::GetPadStickR(id)) >= STICK_DEAD_ZONE);
 	return false;

@@ -27,7 +27,7 @@ class PlayScene : public SceneBase
 
 	static STAGE_TYPE stageType_;	//今のステージのタイプ（これから出すステージのタイプ）
 
-	bool IsPauseButtonDown();
+	void GameEnd();					//ゲーム終了時の処理
 
 public:
 	PlayScene(GameObject* parent);

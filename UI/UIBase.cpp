@@ -4,13 +4,14 @@
 #include "../Engine/Input.h"
 
 namespace {
-	static const float SELECT_ANIM_FLUCTUATION = 0.03f;		//選択アニメーション中の変動値
-	static const float NOT_SELECT_ANIM_FLUCTUATION = 0.03f;		//選択してないアニメーション中の変動値
+	const float SELECT_ANIM_FLUCTUATION = 0.03f;		//選択アニメーション中の変動値
+	const float NOT_SELECT_ANIM_FLUCTUATION = 0.03f;		//選択してないアニメーション中の変動値
 
 }
 
 UIBase::UIBase(XMFLOAT2 pos, XMFLOAT2 size, std::function<void()> onClick, XMFLOAT2 tsize)
-	: hButtonPict_{-1, -1}, hImagePict_(-1), alpha_{255}, isBound_(false), isSelect_(false), selectAnim_(0.0f), selectPlus_(true), screenSelectPossible_(true)
+	: hButtonPict_{-1, -1}, hImagePict_(-1), alpha_{255}, isBound_(false), isSelect_(false), selectAnim_(0.0f), selectPlus_(true), 
+	screenSelectPossible_(true), redyBound_(true)
 {
 	//関数登録
 	onClick_ = onClick;

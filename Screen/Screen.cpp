@@ -11,12 +11,15 @@ namespace {
 	const XMFLOAT2 DIR_LIST[4] = { XMFLOAT2(DIR_DIST, 10.0f), XMFLOAT2(-DIR_DIST, 10.0f), XMFLOAT2(10.0f, DIR_DIST), XMFLOAT2(10.0f, -DIR_DIST) };
 	const XMFLOAT2 DIR_MULTI[4] = { XMFLOAT2(0.5, 1.0f), XMFLOAT2(0.5, 1.0f), XMFLOAT2(1.0f, 0.5f), XMFLOAT2(1.0f, 0.5f) };
 	
-	const float GAMEPAD_DEAD_ZONE = 0.5f;
+	const float GAMEPAD_DEAD_ZONE = 0.3f;
 	const float PC_CTRL_THRESHOLD = 0.1f;
 
 }
 
-Screen::Screen() : state_(SCREEN_STATE::DRAW), selectCoolTime_(0), latestPCCtrl_(false), latestSelectUIIndex_(0)
+//最初はGAMEPADで
+bool Screen::latestPCCtrl_ = false;
+
+Screen::Screen() : state_(SCREEN_STATE::DRAW), selectCoolTime_(0), latestSelectUIIndex_(0)
 {
 }
 
@@ -74,38 +77,102 @@ void Screen::Update()
 		u->Update();
 	}
 
-	//最後に選択したやつはハイライト表示する
-	UIBase* boundUI = nullptr;
-	UIBase* selectUI = nullptr;
-	for (auto u : uiList_) {
-		if (u->GetBound()) boundUI = u;
-		if (u->GetSelect()) selectUI = u;
-	}
-
-	//SelectしてるUIなかったら
-	if (!selectUI) {
-		selectUI = uiList_[latestSelectUIIndex_];
-	}
-
 	//PCCtrlの場合
 	if (latestPCCtrl_) {
-		//カーソル表示
 		GameManager::SetCursorMode(true);
 
+		//
+		UIBase* boundUI = nullptr;
+		int index = 0;
 		for (auto u : uiList_) {
-			if (boundUI != u) {
-				u->SetSelect(false);
+			index++;
+			u->SetSelect(false);
+			u->SetRedyBound(true);
+			if (u->GetBound()) {
+				boundUI = u;
+				latestSelectUIIndex_ = index-1;
 			}
 		}
-		
-		//重なってる
+	
+		//
 		if (boundUI) {
 			boundUI->SetSelect(true);
-			boundUI->SelectUpdate();
 		}
 
 		return;
 	}
+
+	GameManager::SetCursorMode(false);
+
+	//
+	UIBase* selectUI = uiList_.at(latestSelectUIIndex_);
+	for (auto u : uiList_) {
+		u->SetRedyBound(false);
+	}
+
+	//セレクト移動ダメなら終わり
+	if (!selectUI->GetSelectPossible()) {
+		return;
+	}
+
+	//Selectの移動（矢印ボタン
+	int dir = -1;
+	if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_RIGHT, 0)) dir = 0;
+	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_LEFT, 0)) dir = 1;
+	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_UP, 0)) dir = 2;
+	else if (Input::IsPadButtonDown(XINPUT_GAMEPAD_DPAD_DOWN, 0)) dir = 3;
+
+	//Selectの移動（スティック
+	selectCoolTime_--;
+	if (dir <= -1 && selectCoolTime_ <= 0) {
+		XMFLOAT3 stick = Input::GetPadStickL(0);
+		if (stick.x > GAMEPAD_DEAD_ZONE) dir = 0;		//右
+		else if (stick.x < -GAMEPAD_DEAD_ZONE) dir = 1;	//左
+		else if (stick.y > GAMEPAD_DEAD_ZONE) dir = 2;	//上
+		else if (stick.y < -GAMEPAD_DEAD_ZONE) dir = 3;	//下
+		//選択したら
+		if (dir >= 0) selectCoolTime_ = 10;
+	}
+
+	//移動する場所検索
+	if (dir >= 0) {
+		int minUIIndex = -1;
+		float minDist = 9999.9f;
+		int cIndex = 0;
+		for (auto u : uiList_) {
+			cIndex++;
+			//自分はスキップ
+			if (u == selectUI) continue;
+
+			XMFLOAT3 sUIPos = selectUI->GetFramePosition();
+			XMFLOAT3 tUIPos = u->GetFramePosition();
+			XMFLOAT3 vecUI = Float3Sub(tUIPos, sUIPos);
+
+			//入力方向あっているか確認
+			if (dir == 0 && (vecUI.x > DIR_LIST[dir].x) ||
+				dir == 1 && (vecUI.x < DIR_LIST[dir].x) ||
+				dir == 2 && (vecUI.y > DIR_LIST[dir].y) ||
+				dir == 3 && (vecUI.y < DIR_LIST[dir].y))
+			{
+				//入力方向で一番近いやつ選ぶ
+				XMFLOAT2 vecDist = XMFLOAT2(vecUI.x * DIR_MULTI[dir].x, vecUI.y * DIR_MULTI[dir].y);
+				float dist = sqrt(vecDist.x * vecDist.x + vecDist.y * vecDist.y);
+				if (dist < minDist) {
+					minUIIndex = cIndex - 1;
+					minDist = dist;
+				}
+			}
+		}
+
+		//選べたから更新
+		if (minUIIndex >= 0) {
+			selectUI = uiList_.at(minUIIndex);
+			latestSelectUIIndex_ = minUIIndex;
+		}
+	}
+
+	for (auto u : uiList_) u->SetSelect(false);
+	selectUI->SetSelect(true);
 
 }
 
