@@ -20,7 +20,6 @@
 #include "../UI/BulletInfoDisplay.h"
 #include "../Other/GameManager.h"
 #include "../Other/AudioManager.h"
-#include "../Other/InputManager.h"
 
 STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
@@ -99,7 +98,7 @@ void PlayScene::Update()
 	}
 
 	//Pause‰æ–ÊŒÄ‚Ño‚µ
-	if (!isPause_ && InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
+	if (!isPause_ && IsPauseButtonDown()) {
 		AddScreen(new PauseScreen());
 
 		//Ž©•ª‚æ‚è‰º‚ÌUpdate‚ð‹‘”Û
@@ -115,7 +114,7 @@ void PlayScene::Update()
 	if (isPause_) {
 		
 		//PauseI—¹
-		if (pScreenList_.empty() || InputManager::IsCmdDown(InputManager::PAUSE, 0)) {
+		if (pScreenList_.empty() || IsPauseButtonDown()) {
 			AllDeleteScreen();
 			GameManager::SetCursorMode(false);
 			isPause_ = false;
@@ -134,7 +133,7 @@ void PlayScene::Update()
 			//Update‚Ì‹–‰Â
 			AllChildEnter();
 
-			//GameManager::SetTwoPlayer();
+			GameManager::SetTwoPlayer();
 			preStageDraw_ = false;
 		}
 		else {
@@ -266,4 +265,9 @@ void PlayScene::GameEnd()
 		pSceneManager->ChangeScene(SCENE_ID_TITLE);
 	}
 
+}
+
+bool PlayScene::IsPauseButtonDown()
+{
+	return (Input::IsKeyDown(DIK_TAB) || Input::IsPadButtonDown(XINPUT_GAMEPAD_START, 0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_BACK, 0));
 }

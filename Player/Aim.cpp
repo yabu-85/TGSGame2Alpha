@@ -46,7 +46,7 @@ void Aim::Initialize()
 {
     pPlayer_ = static_cast<Player*>(GetParent());
 
-    //if(pPlayer_->GetPlayerId() == 1)
+    if(pPlayer_->GetPlayerId() == 1)
     isFps_ = true;
 
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();

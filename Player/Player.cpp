@@ -419,47 +419,24 @@ XMFLOAT3 Player::GetInputMove()
         aimDirection = Float3Normalize(aimDirection);
 
         //キーボード
-        if (GameManager::IsPCCtrl()) {
-            if (playerId_ == GameManager::GetPCCtrlNumber()) {
-                if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
-                    fMove.x += aimDirection.x;
-                    if (isCreative_) fMove.y += aimDirection.y;
-                    fMove.z += aimDirection.z;
-                }
-                if (InputManager::IsCmd(InputManager::MOVE_LEFT, playerId_)) {
-                    fMove.x -= aimDirection.z;
-                    fMove.z += aimDirection.x;
-                }
-                if (InputManager::IsCmd(InputManager::MOVE_DOWN, playerId_)) {
-                    fMove.x -= aimDirection.x;
-                    if (isCreative_) fMove.y -= aimDirection.y;
-                    fMove.z -= aimDirection.z;
-                }
-                if (InputManager::IsCmd(InputManager::MOVE_RIGHT, playerId_)) {
-                    fMove.x += aimDirection.z;
-                    fMove.z -= aimDirection.x;
-                }
+        if (GameManager::IsPCCtrl() && playerId_ == GameManager::GetPCCtrlNumber()) {
+            if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
+                fMove.x += aimDirection.x;
+                if (isCreative_) fMove.y += aimDirection.y;
+                fMove.z += aimDirection.z;
             }
-            //コントローラー
-            else {
-                static const float DEAD_ZONE = 0.1f;
-                XMFLOAT3 lMove = Input::GetPadStickL(0);
-                if (lMove.y > DEAD_ZONE) {  //前
-                    fMove.x += (aimDirection.x * abs(lMove.y));
-                    fMove.z += (aimDirection.z * abs(lMove.y));
-                }
-                if (lMove.x < -DEAD_ZONE) { //左
-                    fMove.x -= (aimDirection.z * abs(lMove.x));
-                    fMove.z += (aimDirection.x * abs(lMove.x));
-                }
-                if (lMove.y < -DEAD_ZONE) { //下
-                    fMove.x -= (aimDirection.x * abs(lMove.y));
-                    fMove.z -= (aimDirection.z * abs(lMove.y));
-                }
-                if (lMove.x > DEAD_ZONE) {  //右
-                    fMove.x += (aimDirection.z * abs(lMove.x));
-                    fMove.z -= (aimDirection.x * abs(lMove.x));
-                }
+            if (InputManager::IsCmd(InputManager::MOVE_LEFT, playerId_)) {
+                fMove.x -= aimDirection.z;
+                fMove.z += aimDirection.x;
+            }
+            if (InputManager::IsCmd(InputManager::MOVE_DOWN, playerId_)) {
+                fMove.x -= aimDirection.x;
+                if (isCreative_) fMove.y -= aimDirection.y;
+                fMove.z -= aimDirection.z;
+            }
+            if (InputManager::IsCmd(InputManager::MOVE_RIGHT, playerId_)) {
+                fMove.x += aimDirection.z;
+                fMove.z -= aimDirection.x;
             }
         }
         //コントローラー
