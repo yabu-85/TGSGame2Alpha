@@ -39,6 +39,8 @@ void SliderUI::Update()
 		}
 
 		screenSelectPossible_ = false;
+		Dragging();
+
 		return;
 	}
 
@@ -51,7 +53,7 @@ void SliderUI::Update()
 		}
 
 		//ドラッグを開始
-		if (Input::IsMouseButtonDown(0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_B, 0)) {
+		if (Input::IsMouseButtonDown(0)) {
 			isDragging_ = true;
 			screenSelectPossible_ = false;
 		}
@@ -130,21 +132,8 @@ void SliderUI::SelectUpdate()
 	if (isSelect_) {
 		isBound_ = true;
 
-		//値を変える
-		if (isDragging_) {
-			//ドラッグを停止
-			if (Input::IsMouseButtonUp(0) || Input::IsPadButtonUp(XINPUT_GAMEPAD_B, 0)) {
-				isDragging_ = false;
-				return;
-			}
-
-			Dragging();
-			return;
-		}
-
 		//ドラッグを開始
-		if (Input::IsMouseButtonDown(0) || Input::IsPadButtonDown(XINPUT_GAMEPAD_B, 0)) {
-			Dragging();
+		if (Input::IsPadButtonDown(XINPUT_GAMEPAD_B, 0)) {
 			isDragging_ = true;
 		}
 	}

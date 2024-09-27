@@ -18,6 +18,7 @@ void ButtonUI::Update()
 {
 	SelectAnimUpdate();
 
+	//マウス
 	if (redyBound_ && IsWithinBound()) {
 		//重なった時の音再生
 		if (!isBound_) AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN, 0.4f);
@@ -26,14 +27,17 @@ void ButtonUI::Update()
 		if (Input::IsMouseButtonUp(0)) OnClick();
 
 		isBound_ = true;
+		return;
 	}
 	else {
 		isBound_ = false;
+	}
 
-		//Ctrl
-		if (isSelect_) {
-			if (Input::IsPadButtonDown(XINPUT_GAMEPAD_A, 0)) OnClick();
-		}
+	//コントローラー
+	if (isSelect_) {
+		if (Input::IsPadButtonDown(XINPUT_GAMEPAD_A, 0)) OnClick();
+		isBound_ = false;
+		return;
 	}
 }
 
@@ -99,6 +103,5 @@ void ButtonUI::SelectUpdate()
 {
 	if (isSelect_) {
 		isBound_ = true;
-
 	}
 }

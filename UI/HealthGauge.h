@@ -2,6 +2,7 @@
 #include "../Engine/Transform.h"
 class Character;
 
+//親の位置に合わせてHPゲージの表示をする
 class HealthGauge
 {
 protected:
@@ -26,5 +27,4 @@ public:
 	void SetOffSetPosition(XMFLOAT2 pos);
 	void SetParcent(float f);
 	void SetIsDraw(bool b);
-
 };

@@ -47,7 +47,7 @@ void UIBase::SelectAnimUpdate()
 {
 	//‘I‘ð’†
 	//‚O`1‚Ì”½•œ•Ï“®
-	if (isSelect_) {
+	if (isSelect_ || isBound_) {
 		if (selectPlus_) {
 			selectAnim_ += SELECT_ANIM_FLUCTUATION;
 			if (selectAnim_ > 1.0f) {

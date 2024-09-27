@@ -25,7 +25,7 @@
 
 namespace GameManager {
 	//ImGuiî•ñ
-	bool isImGuiDraw_ = false;
+	bool isImGuiDraw_ = true;
 	float playerSpeed = 0.0f;
 	bool playerClimb = false;
 	bool playerFaly = false;
@@ -231,7 +231,6 @@ namespace GameManager {
 				ImGui::Text("Player 1 State: %s", stateName);
 				ImGui::Text("Player 1 AnimFrameUp: %i", animFrameUp);
 				ImGui::Text("Player 1 AnimFrameDo: %i", animFrameDown);
-				ImGui::Text("Player 1 Accuracy: %f", pPlayer_[0]->GetGun()->GetAccuracy());
 
 				XMFLOAT3 cPos = Camera::GetPosition(0);
 				XMFLOAT3 cTar = Camera::GetTarget(0);
@@ -258,10 +257,14 @@ namespace GameManager {
 				const char* stateName = strName.c_str();
 				int animFrameUp = Model::GetAnimFrame(pPlayer_[1]->GetUpModelHandle());
 				int animFrameDown = Model::GetAnimFrame(pPlayer_[1]->GetDownModelHandle());
-				ImGui::Text("Player 1 State: %s", stateName);
-				ImGui::Text("Player 1 AnimFrameUp: %i", animFrameUp);
-				ImGui::Text("Player 1 AnimFrameDo: %i", animFrameDown);
-				ImGui::Text("Player 1 Accuracy: %f", pPlayer_[1]->GetGun()->GetAccuracy());
+				ImGui::Text("Player 2 State: %s", stateName);
+				ImGui::Text("Player 2 AnimFrameUp: %i", animFrameUp);
+				ImGui::Text("Player 2 AnimFrameDo: %i", animFrameDown);
+
+				XMFLOAT3 cPos = Camera::GetPosition(1);
+				XMFLOAT3 cTar = Camera::GetTarget(1);
+				ImGui::Text("Player 2 CamPos: (%.3f, %.3f, %.3f)", cPos.x, cPos.y, cPos.z);
+				ImGui::Text("Player 2 CamTar: (%.3f, %.3f, %.3f)", cTar.x, cTar.y, cTar.z);
 			}
 
 		}

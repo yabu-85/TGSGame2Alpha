@@ -280,9 +280,9 @@ void Player::Update()
     TargetRotate(Float3Add(transform_.position_, pAim_->GetAimDirection()), 1.0f);
     
     //Weapon用にここでSet
-    Model::SetTransform(hUpModel_, transform_);
-    Model::SetTransform(hDownModel_, transform_);
     Model::SetTransform(hFPSModel_, transform_);
+    Model::SetTransform(hDownModel_, transform_);
+    Model::SetTransform(hUpModel_, transform_);
 
     //GameManager情報
     moveSpeed_ = GameManager::playerSpeed;
@@ -293,17 +293,19 @@ void Player::Update()
 void Player::Draw()
 {
     //Shadowシェーダーの時
-    if (Direct3D::GetCurrentShader() == Direct3D::SHADER_SHADOWMAP) {
-        return;
-    }
+    if (Direct3D::GetCurrentShader() == Direct3D::SHADER_SHADOWMAP) return;
 
-    //自分自身の表示（アニメーション進めるために映らない場所でDraw
-    if (pAim_->IsAimFps() && GameManager::GetDrawIndex() == playerId_) {
+    //自分の画面 & FPSの場合
+    if (GameManager::GetDrawIndex() == playerId_ && pAim_->IsAimFps()) {
+        //Aimの差分に合わせて表示させる
         Transform t = transform_;
         XMFLOAT3 subAim = pAim_->GetFPSSubY();
         t.position_ = Float3Add(t.position_, subAim);
         Model::SetTransform(hFPSModel_, t);
         Model::Draw(hFPSModel_);
+
+        //差分無しで上書き
+        Model::SetTransform(hFPSModel_, transform_);
 
         //ダメージエフェクト
         if (damageDrawTime_ > 0) {
@@ -417,26 +419,50 @@ XMFLOAT3 Player::GetInputMove()
         XMFLOAT3 aimDirection = pAim_->GetAimDirection();
         aimDirection.y = 0.0f;
         aimDirection = Float3Normalize(aimDirection);
+        int inputId = playerId_;
 
         //キーボード
-        if (GameManager::IsPCCtrl() && playerId_ == GameManager::GetPCCtrlNumber()) {
-            if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
-                fMove.x += aimDirection.x;
-                if (isCreative_) fMove.y += aimDirection.y;
-                fMove.z += aimDirection.z;
+        if (GameManager::IsPCCtrl()) {
+            if (playerId_ == GameManager::GetPCCtrlNumber()) {
+                if (InputManager::IsCmd(InputManager::MOVE_UP, playerId_)) {
+                    fMove.x += aimDirection.x;
+                    if (isCreative_) fMove.y += aimDirection.y;
+                    fMove.z += aimDirection.z;
+                }
+                if (InputManager::IsCmd(InputManager::MOVE_LEFT, playerId_)) {
+                    fMove.x -= aimDirection.z;
+                    fMove.z += aimDirection.x;
+                }
+                if (InputManager::IsCmd(InputManager::MOVE_DOWN, playerId_)) {
+                    fMove.x -= aimDirection.x;
+                    if (isCreative_) fMove.y -= aimDirection.y;
+                    fMove.z -= aimDirection.z;
+                }
+                if (InputManager::IsCmd(InputManager::MOVE_RIGHT, playerId_)) {
+                    fMove.x += aimDirection.z;
+                    fMove.z -= aimDirection.x;
+                }
             }
-            if (InputManager::IsCmd(InputManager::MOVE_LEFT, playerId_)) {
-                fMove.x -= aimDirection.z;
-                fMove.z += aimDirection.x;
-            }
-            if (InputManager::IsCmd(InputManager::MOVE_DOWN, playerId_)) {
-                fMove.x -= aimDirection.x;
-                if (isCreative_) fMove.y -= aimDirection.y;
-                fMove.z -= aimDirection.z;
-            }
-            if (InputManager::IsCmd(InputManager::MOVE_RIGHT, playerId_)) {
-                fMove.x += aimDirection.z;
-                fMove.z -= aimDirection.x;
+            //コントローラー
+            else {
+                static const float DEAD_ZONE = 0.1f;
+                XMFLOAT3 lMove = Input::GetPadStickL(0);
+                if (lMove.y > DEAD_ZONE) {  //前
+                    fMove.x += (aimDirection.x * abs(lMove.y));
+                    fMove.z += (aimDirection.z * abs(lMove.y));
+                }
+                if (lMove.x < -DEAD_ZONE) { //左
+                    fMove.x -= (aimDirection.z * abs(lMove.x));
+                    fMove.z += (aimDirection.x * abs(lMove.x));
+                }
+                if (lMove.y < -DEAD_ZONE) { //下
+                    fMove.x -= (aimDirection.x * abs(lMove.y));
+                    fMove.z -= (aimDirection.z * abs(lMove.y));
+                }
+                if (lMove.x > DEAD_ZONE) {  //右
+                    fMove.x += (aimDirection.z * abs(lMove.x));
+                    fMove.z -= (aimDirection.x * abs(lMove.x));
+                }
             }
         }
         //コントローラー
@@ -460,7 +486,6 @@ XMFLOAT3 Player::GetInputMove()
                 fMove.z -= (aimDirection.x * abs(lMove.x));
             }
         }
-
     }
 
     XMVECTOR vMove = XMLoadFloat3(&fMove);

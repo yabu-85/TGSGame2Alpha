@@ -20,6 +20,8 @@ namespace {
     const int COMPULSION_TIME_DEFAULT = 60;                  //強制から戻る時間
     
     const float MOUSE_SPEED_DEFAULT = 0.15f;                 //感度
+    const float MOUSE_SPEED_MIN = 0.01f;                     //感度最低値
+
     const float DISTANCE_HORIZONTAL_DEFAULT = 0.25f;         //どのくらい左右にずらすか
     const float DISTANCE_BEHIND_DEFAULT = 0.8f;              //どのくらい後ろから移すかのデフォルト値
     const float DISTANCE_HEIGHT_DEFAULT = 1.1f;              //Aimの高さ
@@ -46,7 +48,7 @@ void Aim::Initialize()
 {
     pPlayer_ = static_cast<Player*>(GetParent());
 
-    if(pPlayer_->GetPlayerId() == 1)
+    //if(pPlayer_->GetPlayerId() == 0)
     isFps_ = true;
 
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
@@ -69,6 +71,7 @@ void Aim::Initialize()
     auto& gunSection2 = JsonReader::GetSection("Player2");
     if (pPlayer_->GetPlayerId() == 0) mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection1["aimSensitivity"];
     else mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection2["aimSensitivity"];
+    mouseSensitivity_ += MOUSE_SPEED_MIN;
 
     if (isFps_) FPSAim();
     else DefaultAim();
@@ -137,6 +140,7 @@ void Aim::SetCameraRotateShake(const CameraRotateShakeInfo& info)
 void Aim::SetAimSensitivity(float parcent)
 {
     mouseSensitivity_ = MOUSE_SPEED_DEFAULT * parcent;
+    mouseSensitivity_ += MOUSE_SPEED_MIN;
 }
 
 void Aim::SetCompulsion(XMFLOAT3 pos, XMFLOAT3 tar)

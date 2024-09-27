@@ -42,11 +42,11 @@ void Gun::Update()
     if (coolTime_ <= 0) currentAccuracy_ -= accuracyRecovery_;
     if (currentAccuracy_ < 0.0f) currentAccuracy_ = 0.0f;
 
-    //TransfromSet
+    //TransfromSet    
     SetFpsPlayerHandGun();
-    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     transform_.rotate_.y = pPlayer_->GetRotate().y;
-
+    transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
+    
     coolTime_--;
     Peeking();
 
@@ -93,9 +93,10 @@ void Gun::Draw()
     //Shadowの場合Return
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     if (type == Direct3D::SHADER_SHADOWMAP) return;
-
-    //FPSの表示
-    if (pPlayer_->GetAim()->IsAimFps() && pPlayer_->GetPlayerId() == GameManager::GetDrawIndex()) {
+    
+    //自分自身の表示で ＆ FPSの表示
+    if (pPlayer_->GetPlayerId() == GameManager::GetDrawIndex() && pPlayer_->GetAim()->IsAimFps()) {
+        SetFpsPlayerHandGun();
         Model::SetTransform(hModel_, transform_);
         Model::Draw(hModel_);
     }

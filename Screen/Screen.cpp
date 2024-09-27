@@ -5,6 +5,7 @@
 #include "../Engine/Input.h"
 #include "../Engine/Global.h"
 #include "../Other/GameManager.h"
+#include "../Other/AudioManager.h"
 
 namespace {
 	const float DIR_DIST = 0.01f;
@@ -81,30 +82,24 @@ void Screen::Update()
 	if (latestPCCtrl_) {
 		GameManager::SetCursorMode(true);
 
-		//
-		UIBase* boundUI = nullptr;
+		//重なっているUIとしてないUIの情報Set
 		int index = 0;
 		for (auto u : uiList_) {
 			index++;
-			u->SetSelect(false);
 			u->SetRedyBound(true);
 			if (u->GetBound()) {
-				boundUI = u;
-				latestSelectUIIndex_ = index-1;
+				u->SetSelect(true);
+				u->SelectUpdate();
+				latestSelectUIIndex_ = index - 1;
+			}
+			else {
+				u->SetSelect(false);
 			}
 		}
-	
-		//
-		if (boundUI) {
-			boundUI->SetSelect(true);
-		}
-
 		return;
 	}
-
+	
 	GameManager::SetCursorMode(false);
-
-	//
 	UIBase* selectUI = uiList_.at(latestSelectUIIndex_);
 	for (auto u : uiList_) {
 		u->SetRedyBound(false);
@@ -168,11 +163,15 @@ void Screen::Update()
 		if (minUIIndex >= 0) {
 			selectUI = uiList_.at(minUIIndex);
 			latestSelectUIIndex_ = minUIIndex;
+			
+			//音も再生する
+			AudioManager::Play(AUDIO_TYPE::BUTTON_WITHIN, 0.4f);
 		}
 	}
 
 	for (auto u : uiList_) u->SetSelect(false);
 	selectUI->SetSelect(true);
+	selectUI->SelectUpdate();
 
 }
 
@@ -180,17 +179,14 @@ void Screen::Draw()
 {
 	//PCCtrlの場合
 	if (latestPCCtrl_) {
-		for (auto u : uiList_)
-		{
-			u->SetBound(false);
+		for (auto u : uiList_) {
 			u->Draw();
 		}
 		return;
 	}
 
 	//ゲームパッドの場合
-	for (auto u : uiList_)
-	{
+	for (auto u : uiList_) {
 		u->Draw();
 	}
 }
