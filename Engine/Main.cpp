@@ -149,14 +149,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				FPS++;						//画面更新回数をカウントする
 
 				Input::Update();
+
 				pRootObject->UpdateSub();
 
 				Light::Update();
 
+				GameManager::Update();
+
 				//エフェクト更新
 				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 0);
 				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 1);
-				
+
 				if (GameManager::IsCursorMode()) {
 					//カーソルを表示
 					while (ShowCursor(TRUE) < 0);
@@ -175,8 +178,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					LimitMousePointer(hWnd);
 					isCursorLimited = true;
 				}
-
-				GameManager::Update();
 
 				GameManager::Draw();
 

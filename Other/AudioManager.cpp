@@ -7,16 +7,15 @@
 
 namespace AudioManager
 {
-	int hSound_[AUDIO_MAX];
-	struct AudioData {
+    int hSound_[AUDIO_MAX];
+    float gameVolume_;          //ÉQÅ[ÉÄâπó 
+    
+    struct AudioData {
 		std::string name;
 		bool isLoop;
 		unsigned short max;
 	};
 	std::vector<AudioData> sceneTable;
-
-    float gameVolume_;          //ÉQÅ[ÉÄâπó 
-
 }
 
 void AudioManager::Initialize()

@@ -7,14 +7,14 @@
 #include "../Json/JsonReader.h"
 #include "../Player/Player.h"
 #include "../Player/Aim.h"
-#include "../Other/GameManager.h"
 #include "../Stage/CollisionMap.h"
 #include "../Character/Character.h"
 #include "../Character/CharacterManager.h"
 #include "../UI/AimCursor.h"
+#include "../Other/GameManager.h"
 #include "../Other/InputManager.h"
+#include "../Other/AudioManager.h"
 
-//プレイヤーのアニメーション（リロード
 #include "../Animation/AnimationController.h"
 #include "../State/StateManager.h"
 
@@ -112,6 +112,7 @@ bool GunBase::Reload()
 void GunBase::FinishedReload()
 {
     Model::SetAnimFrame(hModel_, 0, 0, 0.0f);
+    AudioManager::Play(AUDIO_TYPE::SMALL_RELOAD, 0.7f);
 
     //プレイヤーのStateがIdleかJumpだったら
     std::string stateName = pPlayer_->GetStateManager()->GetName();

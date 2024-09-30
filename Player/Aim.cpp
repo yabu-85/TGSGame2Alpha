@@ -22,9 +22,9 @@ namespace {
     const float MOUSE_SPEED_DEFAULT = 0.15f;                 //感度
     const float MOUSE_SPEED_MIN = 0.01f;                     //感度最低値
 
-    const float DISTANCE_HORIZONTAL_DEFAULT = 0.25f;         //どのくらい左右にずらすか
+    const float DISTANCE_HORIZONTAL_DEFAULT = 0.15f;         //どのくらい左右にずらすか
     const float DISTANCE_BEHIND_DEFAULT = 0.8f;              //どのくらい後ろから移すかのデフォルト値
-    const float DISTANCE_HEIGHT_DEFAULT = 1.1f;              //Aimの高さ
+    const float DISTANCE_HEIGHT_DEFAULT = 1.2f;              //Aimの高さ
     const float HEIGHT_RAY = 0.1f;                           //RayCastの値にプラスする高さ
 
     const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);

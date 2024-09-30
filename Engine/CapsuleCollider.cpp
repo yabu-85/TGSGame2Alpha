@@ -25,7 +25,7 @@ CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XM
 
 void CapsuleCollider::Draw(XMFLOAT3 position)
 {
-#if 1
+#ifdef _DEBUG
 	XMFLOAT3 fDir;
 	XMStoreFloat3(&fDir, direction_); 
 	if (fDir.x == 0.0f && fDir.y == 0.0f && fDir.z == 0.0f) fDir.z = 0.0001f;

@@ -18,6 +18,7 @@
 #include "../Engine/Camera.h"
 #include "../Enemy/EnemyManager.h"
 #include "../Enemy/EnemyBase.h"
+#include "../Stage/StageEditor.h"
 #include "../State/StateManager.h"
 #include "../Weapon/GunBase.h"
 #include <vector>
@@ -25,7 +26,7 @@
 
 namespace GameManager {
 	//ImGui情報
-	bool isImGuiDraw_ = true;
+	bool isImGuiDraw_ = false;
 	float playerSpeed = 0.0f;
 	bool playerClimb = false;
 	bool playerFaly = false;
@@ -55,6 +56,11 @@ namespace GameManager {
 	void Initialize()
 	{
 		InputManager::Initialize();
+
+		//デバッグ時はImGui表示に
+#if _DEBUG
+		isImGuiDraw_ = true;
+#endif
 
 		//GameSetting読み込み
 		JsonReader::Load("Json/GameSetting.json");
@@ -209,6 +215,29 @@ namespace GameManager {
 
 		ImGui::Separator();
 
+		// シャドウのオンオフ切り替えボタン
+		if (ImGui::Button("Toggle Shadow"))
+		{
+			isShadowDraw_ = !isShadowDraw_;
+		}
+
+		// 画面分割のオンオフ切り替えボタン
+		if (ImGui::Button("Toggle Screen Split"))
+		{
+			isOnePlayer_ = !isOnePlayer_;
+			if (isOnePlayer_) {
+				Direct3D::SetViewOne();
+				Direct3D::SetViewPort(0);
+				Camera::SetOneProjectionMatrix();
+			}
+			else {
+				Direct3D::SetViewTwo();
+				Camera::SetTwoProjectionMatrix();
+			}
+		}
+
+		ImGui::Separator();
+
 		//選択されたObjのステータスを表示
 		switch (selectedType)
 		{
@@ -284,6 +313,8 @@ namespace GameManager {
 			ImGui::Text("No selection.");
 			break;
 		}
+
+		StageEditor::DrawStageEditor();
 
 		ImGui::End(); //ImGuiの処理を終了
 		ImGui::Render();

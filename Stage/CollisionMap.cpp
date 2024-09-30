@@ -115,7 +115,7 @@ void CollisionMap::Draw()
 #endif
     
     //Collision表示
-#if 0
+#ifdef _DEBUG
     if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
         Transform t = e.transform;
@@ -150,11 +150,16 @@ void CollisionMap::Release()
 
 void CollisionMap::SetStageModelList(std::string fileName)
 {
+    StageModelListReset();
     modelList_ = StageEditor::LoadFileStage(fileName);
 }
 
 void CollisionMap::StageModelListReset()
 {
+    //ModelReleseしてリストクリア
+    for (StageModelData data : modelList_) {
+        Model::Release(data.hModelNum);
+    }
     modelList_.clear();
 }
 
@@ -196,12 +201,11 @@ void CollisionMap::CreatIntersectDataTriangle()
 
 void CollisionMap::IntersectDataReset()
 {
-    //「各CELL」に含まれる三角ポリゴンを登録
     for (int y = 0; y < numY; y++) {
         for (int z = 0; z < numZ; z++) {
             for (int x = 0; x < numX; x++) {
                 Cell* c = &cells_[y][z][x];
-                c->ResetTriangles(); // 三角形のリストをクリア
+                c->ResetTriangles();
             }
         }
     }
@@ -223,7 +227,6 @@ bool CollisionMap::CellWallRayCast(XMFLOAT3 plaPos, RayCastData* _data)
 
 bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 {
-    //まずCenterの場所で判定
     XMFLOAT3 pos = Float3Add(collid->center_, collid->pGameObject_->GetWorldPosition());
     Cell* cell = GetCell(pos);
     bool hit = false;
@@ -240,7 +243,7 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
     int targetY = int((target.y - minY) / boxSize);
     int targetZ = int((target.z - minZ) / boxSize);
 
-    // 座標の範囲を制限
+    //座標の範囲を制限
     startX = (int)max(0, min(startX, maxX / boxSize - 1));
     startY = (int)max(0, min(startY, maxY / boxSize - 1));
     startZ = (int)max(0, min(startZ, maxZ / boxSize - 1));
@@ -252,13 +255,13 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
     int stepY = (targetY >= startY) ? 1 : -1;
     int stepZ = (targetZ >= startZ) ? 1 : -1;
 
-    // 座標の処理 : 常にStartPositionからループ回したいから座標によって増減を決める
+    //座標の処理 : 常にStartPositionからループ回したいから座標によって増減を決める
     for (int x = startX; x != targetX + stepX; x += stepX) {
         for (int y = startY; y != targetY + stepY; y += stepY) {
             for (int z = startZ; z != targetZ + stepZ; z += stepZ) {
 
-                // line ベクトルに垂直なベクトルを計算
-                XMVECTOR upVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // もし他のベクトルが必要なら変更
+                //line ベクトルに垂直なベクトルを計算
+                XMVECTOR upVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
                 XMVECTOR lineNormal = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&_data->dir), upVector));
 
                 const XMFLOAT3 floatBoxPos[4] = {
@@ -268,7 +271,7 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
                     { 0.0f, 0.0f, boxSize }
                 };
 
-                // 四角形の四隅の点を求める / その点からstartまでの距離を計算 / 内積により線の方向を計算
+                //四角形の四隅の点を求める / その点からstartまでの距離を計算 / 内積により線の方向を計算
                 XMVECTOR lineBase = XMLoadFloat3(&_data->start);
                 XMVECTOR c[4];
                 float dp[4] = {};
@@ -277,19 +280,19 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
                     XMFLOAT3 boxPos = XMFLOAT3(x * boxSize + floatBoxPos[i].x, y * boxSize + floatBoxPos[i].y, z * boxSize + floatBoxPos[i].z);
                     c[i] = XMLoadFloat3(&boxPos);
 
-                    // その点からstartまでの距離を計算
+                    //その点からstartまでの距離を計算
                     c[i] -= lineBase;
 
-                    // 内積により線の方向を求める
+                    //内積により線の方向を求める
                     dp[i] = XMVectorGetY(XMVector3Dot(lineNormal, c[i]));
                 }
 
-                // 全部同じ方向にあれば、線と四角形が当たっていることはない
+                //全部同じ方向にあれば、線と四角形が当たっていることはない
                 if ((dp[0] * dp[1] <= 0) || (dp[1] * dp[2] <= 0) || (dp[2] * dp[3] <= 0)) {
                     Cell* cell = &cells_[y][z][x];
                     if (!cell) continue;
 
-                    // Ray内にあったからそのCellで当たり判定をする
+                    //Ray内にあったからそのCellで当たり判定をする
                     bool isHitWall = cell->SegmentVsWallTriangle(_data);
                     float wallDist = _data->dist;
                     bool isHitFloar = cell->SegmentVsFloarTriangle(_data);
@@ -312,7 +315,7 @@ Cell* CollisionMap::GetCell(XMFLOAT3 pos)
     int y = int((pos.y - minY) / boxSize);
     int z = int((pos.z - minZ) / boxSize);
 
-    //ここ最大を超えないようにしてるけど、将来なくてもいいように設計したならいらない
+    //最大を超えないようにして
     if (x < 0 || y < 0 || z < 0 || x > maxX / boxSize || y > maxY / boxSize || z > maxZ / boxSize) {
         return nullptr;
     }
@@ -322,7 +325,7 @@ Cell* CollisionMap::GetCell(XMFLOAT3 pos)
 
 void CollisionMap::SetCellTriangle(Triangle t)
 {
-    //「各CELL」に含まれる三角ポリゴンを登録
+    //各CELLに含まれる三角ポリゴンを登録
     for (int y = 0; y < numY; y++) {
         for (int z = 0; z < numZ; z++) {
             for (int x = 0; x < numX; x++) {

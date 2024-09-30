@@ -16,7 +16,7 @@ namespace {
 //線分（始まりと終わりがある有限の線）
 struct Segment {
     XMFLOAT3 pos;   //線分の始点
-    XMVECTOR vec;   //線分の方向ベクトル
+    XMVECTOR vec;   //線分の方向ベクトル（長さも）
     Segment(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
 
     XMFLOAT3 GetEndPoint() {
@@ -68,7 +68,6 @@ void Collider::Draw(XMFLOAT3 position)
 
 bool Collider::IsHitBoxVsBox(BoxCollider* boxA, BoxCollider* boxB)
 {
-
 	XMFLOAT3 boxPosA = Transform::Float3Add(boxA->pGameObject_->GetWorldPosition(), boxA->center_);
 	XMFLOAT3 boxPosB = Transform::Float3Add(boxB->pGameObject_->GetWorldPosition(), boxB->center_);
 
@@ -102,11 +101,14 @@ bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 	return false;
 }
 
+//箱今のとこ使わないから、とりあえず思いついた出来そうなやり方書いておく、AABBの方も視野に
+//まず一番近い点求める→Boxの中に入っていないかの判定→最近でBox/Sphere判定する
 bool Collider::IsHitBoxVsCapsule(BoxCollider* box, CapsuleCollider* capsule)
 {
     return false;
 }
 
+//Box/Capsuleの前にこっち作って最近の内外判定だけ作ればよさげ
 bool Collider::IsHitBoxVsSegment(BoxCollider* box, SegmentCollider* seg)
 {
     return false;

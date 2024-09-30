@@ -142,7 +142,15 @@ void Bullet_Normal::OnCollision(GameObject* pTarget)
 void Bullet_Normal::Draw()
 {
     //Shadow‚Ìê‡•`‰æ‚µ‚È‚¢
-    if(Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) pPolyLine_->Draw();
+    if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) {
+        pPolyLine_->Draw();
+
+        //CollisionDraw
+#ifdef _DEBUG
+        CollisionDraw();
+#endif
+
+    }
 
 }
 

@@ -24,13 +24,12 @@
 STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
 namespace {
-	const int PRE_STAGE_DRAW_TIME = 0;
-	const int END_TIME_DEFAULT = 60;
+	const int PRE_STAGE_DRAW_TIME = 100;
+	const int END_TIME_DEFAULT = 30;
 
 	const XMFLOAT3 PRE_CAMERA_POSITION = XMFLOAT3(42.0f, 15.0f, 55.0f);
 	const XMFLOAT3 PRE_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
 	const float PRE_CAMERA_POS_MOVE_X = 0.05f;
-
 }
 
 //コンストラクタ
@@ -145,7 +144,7 @@ void PlayScene::Update()
 	}
 
 	//デバッグ用
-#if 1
+#if 0
 	{
 		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
 		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_TEST);
@@ -236,10 +235,11 @@ void PlayScene::GameEnd()
 		//Playerの処理
 		for (int i = 0; i < 2; i++) {
 			pPlayer_[i]->Enter();
+			pPlayer_[i]->SetActionReady(false);
 			pPlayer_[i]->GetAim()->Enter();
+			pPlayer_[i]->GetAim()->SetAimMove(false);
 
 			//Aimの設定
-			pPlayer_[i]->GetAim()->SetAimMove(false);
 			pPlayer_[i]->GetAim()->SetDistanceTargetHorizontal(0.0f);
 			pPlayer_[i]->GetAim()->SetDistanceTargetHeight(1.5f);
 			pPlayer_[i]->GetAim()->SetDistanceTargetBehind(1.2f);

@@ -15,8 +15,8 @@ void PlayerIdle::Update()
 	int playerId = pPlayer_->GetPlayerId();
 
 	//“ü—Í
-	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
-	else if (InputManager::IsCmdDown(InputManager::JUMP, playerId) && pPlayer_->IsReadyJump()) owner_->ChangeState("Jump");
+	if (pPlayer_->IsActionReady() && InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
+	else if (pPlayer_->IsActionReady() && InputManager::IsCmdDown(InputManager::JUMP, playerId) && pPlayer_->IsReadyJump()) owner_->ChangeState("Jump");
 
 	//ˆ—
 	else {

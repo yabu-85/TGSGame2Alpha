@@ -43,7 +43,8 @@ class Player : public Character
     bool isFly_;                //空中かどうか
     bool isClimb_;              //登り状態かどうか
     bool isCreative_;           //クリエイティブモード
-    
+    bool isActionReady_;        //移動やジャンプ可能状態か
+
     int playerId_;              //プレイヤー番号
     int hUpModel_;              //上半身モデル番号
     int hDownModel_;            //下半身モデル番号
@@ -127,7 +128,11 @@ public:
     //フラグ
     bool IsFly() { return isFly_; }
     bool IsClimb() { return isClimb_; }
+    bool IsActionReady() { return isActionReady_; }
+
+    //フラグセット
     void SetClimb(bool b) { isClimb_ = b; }
+    void SetActionReady(bool b) { isActionReady_ = b; }
 
     int GetPlayerId() { return playerId_; }
     int GetUpModelHandle() { return hUpModel_; }

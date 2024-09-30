@@ -26,9 +26,8 @@ void Gun::Initialize()
     assert(topBoneIndex_ >= 0);
     assert(rootBoneIndex_ >= 0);
 
+    //親の情報はNullに
     transform_.pParent_ = nullptr;
-    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
-    transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     LoadGunJson("Gun");
 }
@@ -46,7 +45,7 @@ void Gun::Update()
     SetFpsPlayerHandGun();
     transform_.rotate_.y = pPlayer_->GetRotate().y;
     transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
-    
+
     coolTime_--;
     Peeking();
 
@@ -90,10 +89,12 @@ void Gun::Update()
 
 void Gun::Draw()
 {
-    //Shadowの場合Return
-    Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
-    if (type == Direct3D::SHADER_SHADOWMAP) return;
-    
+    //回転計算
+    XMFLOAT3 handRotate = Model::GetBoneAnimRotate(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
+    //transform_.rotate_.y = pPlayer_->GetRotate().y;
+    //transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
+    //transform_.rotate_.x = handRotate.x + 90.0f;
+
     //自分自身の表示で ＆ FPSの表示
     if (pPlayer_->GetPlayerId() == GameManager::GetDrawIndex() && pPlayer_->GetAim()->IsAimFps()) {
         SetFpsPlayerHandGun();

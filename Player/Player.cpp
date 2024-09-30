@@ -11,7 +11,6 @@
 #include "../State/StateManager.h"
 #include "../Other/InputManager.h"
 #include "../Stage/CollisionMap.h"
-#include "../Stage/StageEditor.h"
 #include "../Other/GameManager.h"
 #include "../UI/AimCursor.h"
 #include "../UI/HealthGauge.h"
@@ -64,7 +63,7 @@ Player::Player(GameObject* parent)
     : Character(parent, "Player"), pAim_(nullptr), pGunBase_(nullptr), pStateManager_(nullptr), pCapsuleCollider_(nullptr),
     playerMovement_(0, 0, 0), gradually_(0.0f), climbPos_(XMFLOAT3()), isFly_(true), isClimb_(false), isCreative_(false), 
     gravity_(0.0f), moveSpeed_(0.0f), playerId_(0), bonePart_(-1), lowerBodyRotate_(0.0f), healthGaugeDrawTime_(0), damageDrawTime_(0),
-    pUpAnimationController_(nullptr), pDownAnimationController_(nullptr), pFpsAnimationController_(nullptr),
+    pUpAnimationController_(nullptr), pDownAnimationController_(nullptr), pFpsAnimationController_(nullptr), isActionReady_(true),
     hUpModel_(-1), hDownModel_(-1), hFPSModel_(-1), hPict_(-1)
 {
     for (int i = 0; i < 15; i++) upListIndex_[i] = -1;
@@ -292,11 +291,8 @@ void Player::Update()
 
 void Player::Draw()
 {
-    //Shadowシェーダーの時
-    if (Direct3D::GetCurrentShader() == Direct3D::SHADER_SHADOWMAP) return;
-
-    //自分の画面 & FPSの場合
-    if (GameManager::GetDrawIndex() == playerId_ && pAim_->IsAimFps()) {
+    //自分の画面 & FPSの場合 & 影表示は全身
+    if (GameManager::GetDrawIndex() == playerId_ && pAim_->IsAimFps() && Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) {
         //Aimの差分に合わせて表示させる
         Transform t = transform_;
         XMFLOAT3 subAim = pAim_->GetFPSSubY();
@@ -324,12 +320,18 @@ void Player::Draw()
         Model::Draw(hDownModel_);
         
         //HealthGauge表示
-        if (healthGaugeDrawTime_ > 0) {
+        if (healthGaugeDrawTime_ > 0 && Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) {
             healthGaugeDrawTime_--;
             float r = (float)GetHP() / (float)GetMaxHP();
             pHealthGauge_->SetParcent(r);
             pHealthGauge_->Draw(GameManager::GetDrawIndex());
         }
+    
+        //CollisionDraw
+#ifdef _DEBUG
+        if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) CollisionDraw();
+#endif
+
     }
 
 }

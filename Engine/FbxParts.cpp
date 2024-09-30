@@ -629,20 +629,24 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 	pos.y = (float)mCurrentOrentation[3][1];
 	pos.z = (float)mCurrentOrentation[3][2];
 
+	//Orient情報があるか
 	for (const auto& pair : orientDatas) {
 		if (pair.boneIndex == index) {
+			//親のボーンだから取れた値そのまま返す
 			if (pair.parentBoneIndex <= -1) {
 				XMFLOAT3 endPos = XMFLOAT3();
 				XMStoreFloat3(&endPos, pBoneArray_[pair.boneIndex].newPose.r[3]);
 				return endPos;
 			}
+			//子ボーンだから親ボーンとの計算する
 			else {
-				//回転行列を作成する
+				//ボーンのOrient回転行列を作成する
 				XMMATRIX matR =
 					XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
 					XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
 					XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
 
+				//親のボーンの位置を取得
 				FbxMatrix mParentCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[pair.parentBoneIndex]->GetLink(), time);
 				XMFLOAT3 parentBone = XMFLOAT3();
 				parentBone.x = (float)mParentCurrentOrentation[3][0];
@@ -654,7 +658,7 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 				XMVECTOR childPos = XMVector3Transform(localPosition, matR) + XMLoadFloat3(&parentBone);
 				XMVECTOR vPos = XMVector3Transform(XMLoadFloat3(&pos), matR);
 
-				//座標をWは変更なしで代入
+				//座標をWは変更なしで代入して返す
 				vPos = XMVectorSetW(childPos, 1.0f);
 				XMStoreFloat3(&pos, vPos);
 				return pos;
@@ -664,7 +668,6 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 	
 	XMFLOAT4X4  m;
 	XMStoreFloat4x4(&m, pBoneArray_[index].newPose);
-	//XMFLOAT3 pos = XMFLOAT3();
 	pos.x = m._41;
 	pos.y = m._42;
 	pos.z = m._43;
