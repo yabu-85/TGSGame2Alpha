@@ -36,12 +36,13 @@ namespace Model
 
 		std::vector<OrientRotateInfo> orientRotateDatas_;
 		
-		bool isAnimStop;
-		bool isShadow;
-		bool isAnimLoop;
+		bool isAnimStop;	//アニメーション再生するかどうか
+		bool isShadow;		//影適応するかどうか
+		bool isAnimLoop;	//アニメーションループするかどうか
+		bool isBlending;	//ブレンドするかどうか
 
 		//初期化
-		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isAnimStop(false), isShadow(true), isAnimLoop(true)
+		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isAnimStop(false), isShadow(true), isAnimLoop(true), isBlending(false)
 		{
 		}
 
@@ -103,6 +104,9 @@ namespace Model
 
 	//アニメーションループ再生かどうかセット
 	void SetAnimLoop(int handle, bool b);
+
+	//ブレンドモード化設定する
+	void SetBlend(int handle, bool b);
 
 	//パーツとボーンのインデックス取得
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex);

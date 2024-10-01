@@ -24,7 +24,7 @@
 STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
 namespace {
-	const int PRE_STAGE_DRAW_TIME = 100;
+	const int PRE_STAGE_DRAW_TIME = 0;
 	const int END_TIME_DEFAULT = 30;
 
 	const XMFLOAT3 PRE_CAMERA_POSITION = XMFLOAT3(42.0f, 15.0f, 55.0f);

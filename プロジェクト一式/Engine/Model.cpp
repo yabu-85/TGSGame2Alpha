@@ -95,10 +95,14 @@ namespace Model
 
 		if (_datas[handle]->pFbx)
 		{
-			bool shadow = _datas[handle]->isShadow;
-			if (!GameManager::IsShadowDraw()) shadow = false;
+			bool shadow = _datas[handle]->isShadow && GameManager::IsShadowDraw();
+			if (_datas[handle]->isBlending) {
+				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
+			}
+			else {
+				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
+			}
 
-			_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
 		}
 	}
 
@@ -174,6 +178,11 @@ namespace Model
 	void SetAnimLoop(int handle, bool b)
 	{
 		_datas[handle]->isAnimLoop = b;
+	}
+
+	void SetBlend(int handle, bool b)
+	{
+		_datas[handle]->isBlending = b;
 	}
 	
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex)

@@ -16,6 +16,17 @@ AnimationController::~AnimationController()
 
 void AnimationController::Update()
 {
+	//ブレンド
+	for (BlendData data : blendDatas_) {
+		data.currentBlend -= data.decreaseBlend;
+		
+		//ブレンド終了
+		if (data.currentBlend <= 0.0f) {
+
+		}
+	}
+
+	//アニメーション通知
 	if (currentAnim_ != -1) {
 		int animTime = (int)Model::GetAnimFrame(modelNum_);
 		for (OneFrame* action : animDatas_[currentAnim_].frameList) {
@@ -36,6 +47,14 @@ void AnimationController::AddAnim(int s, int e)
 void AnimationController::AddAnimNotify(int AnimId, OneFrame* action)
 {
 	animDatas_[AnimId].frameList.push_back(action);
+}
+
+void AnimationController::AddBlend(int id, float factor, float decrease)
+{
+	BlendData data;
+	data.currentBlend = factor;
+	data.decreaseBlend = decrease;
+	blendDatas_.push_back(data);
 }
 
 AnimData AnimationController::GetAnim(int id)
