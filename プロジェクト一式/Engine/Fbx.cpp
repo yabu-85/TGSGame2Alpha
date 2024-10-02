@@ -144,7 +144,7 @@ void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &o
 	//パーツを1個ずつ描画
 	for (int k = 0; k < parts_.size(); k++)
 	{
-		// その瞬間の自分の姿勢行列を得る
+		//その瞬間の自分の姿勢行列を得る
 		FbxTime     time;
 		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
 
@@ -157,11 +157,26 @@ void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &o
 		//メッシュアニメーションの場合
 		else
 		{
-			parts_[k]->DrawMeshAnime(transform, time, pFbxScene_, isShadow);
+			parts_[k]->DrawMeshAnime(transform, isShadow);
 		}
 	}
 }
 
+void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<BlendData> &blendDats)
+{
+	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
+
+	//パーツを1個ずつ描画
+	for (int k = 0; k < parts_.size(); k++)
+	{
+		//その瞬間の自分の姿勢行列を得る
+		FbxTime     time;
+		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
+
+		//ブレンド情報あるから必ずスキンアニメーション
+		parts_[k]->DrawBlendedSkinAnim(transform, time, orientDatas, isShadow, fbxBlendDatas_);
+	}
+}
 
 //レイキャスト（レイを飛ばして当たり判定）
 void Fbx::RayCast(RayCastData * data)
@@ -180,6 +195,21 @@ void Fbx::GetAllPolygon(std::vector<PolygonData>& list)
 	for (int i = 0; childCount > i; i++) {
 		GetAllPolygonRecursive(rootNode->GetChild(i), list);
 	}
+}
+
+std::vector<FbxBlendData>& Fbx::GetBlendData()
+{
+	return fbxBlendDatas_;
+}
+
+void Fbx::AddBlendData(FbxBlendData data)
+{
+	fbxBlendDatas_.push_back(data);
+}
+
+FbxTime::EMode Fbx::GetFrameRate()
+{
+	return _frameRate;
 }
 
 void Fbx::GetAllPolygonRecursive(FbxNode* pNode, std::vector<PolygonData>& list)

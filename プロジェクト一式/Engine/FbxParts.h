@@ -12,6 +12,7 @@ class Fbx;
 struct RayCastData;
 struct PolygonData;
 struct OrientRotateInfo;
+struct FbxBlendData;
 
 //-----------------------------------------------------------
 //FBXの１つのパーツを扱うクラス
@@ -140,12 +141,16 @@ public:
 	//引数：transform	行列情報
 	//引数：time		フレーム情報（１アニメーション内の今どこか）
 	void DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow);
+	
+	//ボーン有りのモデルを描画
+	//引数：transform	行列情報
+	//引数：time		フレーム情報（１アニメーション内の今どこか）
+	void DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData> &blendDatas);
 
 	//ボーン無しのモデルを描画
 	//引数：transform	行列情報
-	//引数：time		フレーム情報（１アニメーション内の今どこか）
-	//引数：scene		Fbxファイルから読み込んだシーン情報
-	void DrawMeshAnime(Transform& transform, FbxTime time, FbxScene* scene, bool isShadow);
+	//引数：isShadow　　影ありか無しか
+	void DrawMeshAnime(Transform& transform, bool isShadow);
 
 	//ボーンのインデックスを取得
 	bool GetBoneIndex(std::string boneName, int* index);

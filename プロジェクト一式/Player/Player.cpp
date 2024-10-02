@@ -181,10 +181,17 @@ void Player::Initialize()
 void Player::Update()
 {
     //アニメーションの再生
-    // 銃の覗き込みはGunBaseから
-    // ReloadはGunBaseから
-    // 着地はPlayerUpdateの中から
-    // それ以外はPlayerStateの中からしている
+    //銃の覗き込みはGunBaseから
+    //ReloadはGunBaseから
+    //着地はPlayerUpdateの中から
+    //それ以外はPlayerStateの中からしている
+
+    if (Input::IsKeyDown(DIK_F)) {
+        Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::AddBlend(hUpModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::SetBlend(hDownModel_, true);
+        Model::SetBlend(hUpModel_, true);
+    }
 
     //アニメーション
     Model::Update(hUpModel_);

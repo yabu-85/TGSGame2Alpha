@@ -7,6 +7,7 @@
 
 class FbxParts;
 struct OrientRotateInfo;
+struct BlendData;
 
 //レイキャスト用構造体
 struct RayCastData
@@ -18,6 +19,14 @@ struct RayCastData
 	XMFLOAT3 normal;	//法線
 
 	RayCastData() { dist = 99999.0f; start = XMFLOAT3(); dir = XMFLOAT3(); hit = FALSE; normal = XMFLOAT3(); }
+};
+
+//FbxPartsに送る用のデータ
+struct FbxBlendData {
+	FbxTime time;
+	float factor;
+
+	FbxBlendData() : factor(0.0f) {}
 };
 
 struct PolygonData {
@@ -40,6 +49,9 @@ class Fbx
 
 	//モデルの各パーツ（複数あるかも）
 	std::vector<FbxParts*>	parts_;
+
+	//Partsに送るブレンド情報
+	std::vector<FbxBlendData> fbxBlendDatas_;
 
 	//FBXファイルを扱う機能の本体
 	FbxManager* pFbxManager_;
@@ -65,11 +77,13 @@ public:
 	virtual HRESULT Load(std::string fileName);
 
 	//描画
-	//引数：World	ワールド行列
-	void    Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas, bool isShadow);
+	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas, bool isShadow);
+
+	//ブレンドありの描画
+	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector <BlendData> &blendDats);
 
 	//解放
-	void    Release();
+	void Release();
 
 	//ボーンのインデックス取得
 	bool GetPartBoneIndex(std::string boneName, int* partIndex, int* boneIndex);
@@ -91,6 +105,15 @@ public:
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(std::vector<PolygonData>& list);
+
+	//ブレンド情報の取得
+	std::vector<FbxBlendData>& GetBlendData();
+
+	//ブレンド情報の追加
+	void AddBlendData(FbxBlendData data);
+
+	//アニメーションフレームレート取得
+	FbxTime::EMode GetFrameRate();
 
 private:
 	//すべてのポリゴン取得計算用関数

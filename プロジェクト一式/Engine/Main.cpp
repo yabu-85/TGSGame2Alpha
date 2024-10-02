@@ -156,10 +156,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				GameManager::Update();
 
-				//エフェクト更新
-				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 0);
-				EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 1);
-
 				if (GameManager::IsCursorMode()) {
 					//カーソルを表示
 					while (ShowCursor(TRUE) < 0);
@@ -177,6 +173,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					//リミット制限あり
 					LimitMousePointer(hWnd);
 					isCursorLimited = true;
+
+					//一時停止時じゃないならエフェクト更新
+					EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 0);
+					EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 1);
 				}
 
 				GameManager::Draw();

@@ -19,51 +19,51 @@ namespace Model
 	//モデルをロード
 	int Load(std::string fileName)
 	{
-			ModelData* pData = new ModelData;
+		ModelData* pData = new ModelData;
 
-			//開いたファイル一覧から同じファイル名のものが無いか探す
-			bool isExist = false;
-			for (int i = 0; i < _datas.size(); i++)
+		//開いたファイル一覧から同じファイル名のものが無いか探す
+		bool isExist = false;
+		for (int i = 0; i < _datas.size(); i++)
+		{
+			//すでに開いている場合
+			if (_datas[i] != nullptr && _datas[i]->fileName == fileName)
 			{
-				//すでに開いている場合
-				if (_datas[i] != nullptr && _datas[i]->fileName == fileName)
-				{
-					pData->pFbx = _datas[i]->pFbx;
-					isExist = true;
-					break;
-				}
+				pData->pFbx = _datas[i]->pFbx;
+				isExist = true;
+				break;
+			}
+		}
+
+		//新たにファイルを開く
+		if (isExist == false)
+		{
+			pData->pFbx = new Fbx;
+			if (FAILED(pData->pFbx->Load(fileName)))
+			{
+				//開けなかった
+				SAFE_DELETE(pData->pFbx);
+				SAFE_DELETE(pData);
+				return -1;
 			}
 
-			//新たにファイルを開く
-			if (isExist == false)
+			//無事開けた
+			pData->fileName = fileName;
+		}
+
+
+		//使ってない番号が無いか探す
+		for (int i = 0; i < _datas.size(); i++)
+		{
+			if (_datas[i] == nullptr)
 			{
-				pData->pFbx = new Fbx;
-				if (FAILED(pData->pFbx->Load(fileName)))
-				{
-					//開けなかった
-					SAFE_DELETE(pData->pFbx);
-					SAFE_DELETE(pData);
-					return -1;
-				}
-
-				//無事開けた
-				pData->fileName = fileName;
+				_datas[i] = pData;
+				return i;
 			}
+		}
 
-
-			//使ってない番号が無いか探す
-			for (int i = 0; i < _datas.size(); i++)
-			{
-				if (_datas[i] == nullptr)
-				{
-					_datas[i] = pData;
-					return i;
-				}
-			}
-
-			//新たに追加
-			_datas.push_back(pData);
-			return (int)_datas.size() - 1;
+		//新たに追加
+		_datas.push_back(pData);
+		return (int)_datas.size() - 1;
 	}
 
 	void Update(int handle)
@@ -83,6 +83,48 @@ namespace Model
 				else _datas[handle]->nowFrame = (float)_datas[handle]->endFrame;
 			}
 		}
+
+		//ブレンド
+		if (!_datas[handle]->isBlending) return;
+		
+		//Fbxのブレンドデータにアクセス
+		std::vector<FbxBlendData>& fbxBlendDatas = _datas[handle]->pFbx->GetBlendData();
+
+		//ブレンドデータを更新
+		for (size_t i = 0; i < _datas[handle]->blendDatas_.size(); ) {
+			BlendData & blendData = _datas[handle]->blendDatas_[i];
+			
+			//ブレンド終了
+			if (blendData.currentBlend <= 0.0f) {
+				//ブレンドデータ削除
+				_datas[handle]->blendDatas_.erase(_datas[handle]->blendDatas_.begin() + i);
+				fbxBlendDatas.erase(fbxBlendDatas.begin() + i);
+
+				//ブレンドの情報全てなくなった
+				if (_datas[handle]->blendDatas_.empty()) {
+					_datas[handle]->isBlending = false;
+				}
+			}
+			else {
+				blendData.nowFrame += blendData.animSpeed;
+				blendData.currentBlend -= blendData.decreaseBlend;
+
+				//最後までアニメーションしたら戻す
+				if (blendData.nowFrame > (float)blendData.endFrame) {
+					if (blendData.animLoop) blendData.nowFrame = (float)blendData.startFrame;
+					else blendData.nowFrame = (float)blendData.endFrame;
+				}
+
+				//Fbxのブレンドデータを更新
+				FbxBlendData newBlendData;
+				newBlendData.time.SetTime(0, 0, 0, (int)blendData.nowFrame, 0, 0, _datas[handle]->pFbx->GetFrameRate());
+
+				newBlendData.factor = blendData.currentBlend;
+				fbxBlendDatas[i] = newBlendData;
+
+				++i;
+			}
+		}
 	}
 
 	//描画
@@ -97,12 +139,11 @@ namespace Model
 		{
 			bool shadow = _datas[handle]->isShadow && GameManager::IsShadowDraw();
 			if (_datas[handle]->isBlending) {
-				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
+				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow, _datas[handle]->blendDatas_);
 			}
 			else {
 				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
 			}
-
 		}
 	}
 
@@ -185,6 +226,47 @@ namespace Model
 		_datas[handle]->isBlending = b;
 	}
 	
+	void AddBlend(int handle, int start, int end, float speed, bool loop, float factor, float decrease, int nowFrame)
+	{
+		//同じブレンドデータがある場合の処理
+		for (auto& data : _datas[handle]->blendDatas_) {
+			if (data.startFrame == start && data.endFrame == end) {
+				// ブレンド値とアニメーションの進行を更新
+				data.currentBlend = factor;
+				data.animSpeed = speed;
+				data.animLoop = loop;
+				data.decreaseBlend = decrease;
+
+				//nowFrameがある場合更新
+				if (nowFrame >= 0) data.nowFrame = (float)nowFrame;
+
+				return;
+			}
+		}
+
+		BlendData data = BlendData();
+		data.startFrame = start;
+		data.endFrame = end;
+		data.animSpeed = speed;
+		data.animLoop = loop;
+		data.currentBlend = factor;
+		data.decreaseBlend = decrease;
+
+		//nowFrameがある場合更新
+		data.nowFrame = (float)start;
+		if (nowFrame >= 0) data.nowFrame = (float)nowFrame;
+
+		//追加
+		_datas[handle]->blendDatas_.push_back(data);
+
+		//Fbxの方のデータ追加
+		FbxBlendData fbxBData = FbxBlendData();
+		fbxBData.factor = data.currentBlend;
+		fbxBData.time.SetTime(0, 0, 0, (int)data.nowFrame, 0, 0, _datas[handle]->pFbx->GetFrameRate());
+		_datas[handle]->pFbx->AddBlendData(fbxBData);
+
+	}
+
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex)
 	{
 		return _datas[handle]->pFbx->GetPartBoneIndex(boneName, partIndex, boneIndex);

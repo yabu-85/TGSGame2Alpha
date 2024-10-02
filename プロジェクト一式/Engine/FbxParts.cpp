@@ -6,6 +6,7 @@
 #include "Light.h"
 #include "Model.h"
 #include "../Other/GameManager.h"
+#include <algorithm>
 
 //コンストラクタ
 FbxParts::FbxParts():
@@ -577,21 +578,150 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 	Draw(transform, isShadow);
 }
 
-void FbxParts::DrawMeshAnime(Transform& transform, FbxTime time, FbxScene * scene, bool isShadow)
+//BlendDataが0になることはない、Weightが0のデータもなし
+void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData>& blendDatas)
 {
-	//// その瞬間の自分の姿勢行列を得る
-	//FbxAnimEvaluator *evaluator = scene->GetAnimationEvaluator();
-	//FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(_pNode, time);
+	//まずブレンドの比重を計算する
+	float baseBlend = 0.0f;
+	int blendSize = (int)blendDatas.size();
+	std::vector<float> weightList(blendSize);
+	for (int i = 0; i < blendSize; i++) {
+		weightList[i] = blendDatas[i].factor;
+	}
 
-	//// Fbx形式の行列からDirectX形式の行列へのコピー（4×4の行列）
-	//for (DWORD x = 0; x < 4; x++)
-	//{
-	//	for (DWORD y = 0; y < 4; y++)
-	//	{
-	//		_localMatrix(x, y) = (float)mCurrentOrentation.Get(x, y);
-	//	}
-	//}
+	//Weight合計
+	float totalWeight = 0.0f;
+	for (int i = 0; i < blendSize; i++) {
+		totalWeight += blendDatas[i].factor;
+	}
 
+	//合計が1に満たない場合
+	if (totalWeight < 1.0f) {
+		baseBlend = 1.0f - totalWeight;
+
+		//ベースを加味した正規化
+		for (int i = 0; i < blendSize; i++) {
+			weightList[i] /= (totalWeight + baseBlend);
+		}
+	}
+	else {
+		//正規化する
+		for (int i = 0; i < blendSize; i++) {
+			weightList[i] /= totalWeight;
+		}
+	}
+
+
+	//GPTの書いてもらったコードブレンドの比重計算ぐらいは使えると思う
+	//
+
+	// 各ボーンごとの現在の行列を取得する
+	std::vector<XMMATRIX> boneMatrices(numBone_);
+
+	// ブレンド行列を保存するための変数
+	std::vector<XMMATRIX> blendMatrices(blendDatas.size(), XMMatrixIdentity());
+
+	for (size_t j = 0; j < blendDatas.size(); ++j)
+	{
+		float weight = blendDatas[j].factor;
+
+		// 現在のアニメーションフレームの行列を取得
+		for (int i = 0; i < numBone_; i++)
+		{
+			FbxAnimEvaluator* evaluator = ppCluster_[i]->GetLink()->GetScene()->GetAnimationEvaluator();
+			FbxMatrix mCurrentOrientation = evaluator->GetNodeGlobalTransform(ppCluster_[i]->GetLink(), time);
+
+			// 行列コピー（Fbx形式からDirectXへの変換）
+			XMFLOAT4X4 pose;
+			for (DWORD x = 0; x < 4; x++)
+			{
+				for (DWORD y = 0; y < 4; y++)
+				{
+					pose(x, y) = (float)mCurrentOrientation.Get(x, y);
+				}
+			}
+
+			// 行列を保存
+			blendMatrices[j] += XMLoadFloat4x4(&pose) * weight; // ウェイトを掛けてブレンド行列に加算
+		}
+
+		// 合計ウェイトを計算
+		totalWeight += weight;
+	}
+
+
+	// 合計が 1 に満たない場合は、残りを補完
+	if (totalWeight < 1.0f)
+	{
+		float remainingWeight = 1.0f - totalWeight;
+		baseBlend = remainingWeight;
+
+		for (size_t j = 0; j < blendDatas.size(); ++j)
+		{
+			if (blendDatas[j].factor > 0.0f)
+			{
+				blendDatas[j].factor /= totalWeight; // 正規化
+			}
+		}
+	}
+
+	// 最終的なブレンド行列を計算
+	XMMATRIX finalMatrix = XMMatrixIdentity(); // 初期化
+
+	// ブレンド行列を最終行列に適用
+	for (size_t j = 0; j < blendMatrices.size(); ++j)
+	{
+		finalMatrix += blendMatrices[j]; // 各ブレンド行列を加算
+	}
+
+	// ベースブレンド行列との最終計算
+	finalMatrix = finalMatrix * baseBlend; // baseBlend を適用
+
+	// 各頂点に関して、最終行列を使って変形を行う
+	for (DWORD i = 0; i < vertexCount_; i++)
+	{
+		// 各頂点ごとに、「影響するボーン×ウェイト値」を反映させた関節行列を作成する
+		XMMATRIX matrix = XMMatrixIdentity(); // 行列を単位行列で初期化
+
+		for (int m = 0; m < numBone_; m++)
+		{
+			if (pWeightArray_[i].pBoneIndex[m] < 0)
+			{
+				break; // ボーンがない場合は終了
+			}
+			int boneIndex = pWeightArray_[i].pBoneIndex[m];
+			float weight = pWeightArray_[i].pBoneWeight[m];
+
+			// 各ボーンのブレンドされたポーズにウェイトを掛けて行列を加算
+			matrix += boneMatrices[boneIndex] * weight;
+		}
+
+		// 作成された関節行列を使って、頂点を変形する
+		XMVECTOR Pos = XMLoadFloat3(&pWeightArray_[i].posOrigin);
+		XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
+
+		// 法線も変形
+		XMFLOAT3X3 mat33;
+		XMStoreFloat3x3(&mat33, matrix);
+		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
+		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
+		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformNormal(Normal, matrix33));
+	}
+
+	// 頂点バッファをロックして、変形させた後の頂点情報で上書きする
+	D3D11_MAPPED_SUBRESOURCE msr = {};
+	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+	if (msr.pData)
+	{
+		memcpy_s(msr.pData, msr.RowPitch, pVertexData_, sizeof(VERTEX) * vertexCount_);
+		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);
+	}
+
+	Draw(transform, isShadow);
+}
+
+void FbxParts::DrawMeshAnime(Transform& transform, bool isShadow)
+{
 	Draw(transform, isShadow);
 }
 

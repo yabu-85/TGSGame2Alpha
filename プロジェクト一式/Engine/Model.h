@@ -13,6 +13,18 @@ struct OrientRotateInfo
 	OrientRotateInfo() : boneIndex(-1), parentBoneIndex(-1), orientRotate(XMFLOAT3()) {}
 };
 
+//アニメーションブレンドの情報
+struct BlendData {
+	bool animLoop;
+	int startFrame;
+	int endFrame;
+	float nowFrame;
+	float animSpeed;
+	float currentBlend;	//今のBlendの値（1～0）
+	float decreaseBlend;	//1フレームでブレンド値減らす量
+	BlendData() : animLoop(false), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), currentBlend(0.0f), decreaseBlend(0.0f) {}
+};
+
 //-----------------------------------------------------------
 //3Dモデル（FBXファイル）を管理する
 //-----------------------------------------------------------
@@ -35,6 +47,7 @@ namespace Model
 		int startFrame, endFrame;
 
 		std::vector<OrientRotateInfo> orientRotateDatas_;
+		std::vector<BlendData> blendDatas_;
 		
 		bool isAnimStop;	//アニメーション再生するかどうか
 		bool isShadow;		//影適応するかどうか
@@ -105,8 +118,16 @@ namespace Model
 	//アニメーションループ再生かどうかセット
 	void SetAnimLoop(int handle, bool b);
 
-	//ブレンドモード化設定する
+	//ブレンドするか設定する
 	void SetBlend(int handle, bool b);
+
+	/// <summary>
+	/// ブレンド情報の追加
+	/// </summary>
+	/// <param name="factor">ブレンド値</param>
+	/// <param name="decrease">1フレームでブレンド値減らす量</param>
+	/// <param name="nowFrame">入力無い場合Startが再生開始Frameになる</param>
+	void AddBlend(int handle, int start, int end, float speed, bool loop, float factor, float decrease, int nowFrame = -1);
 
 	//パーツとボーンのインデックス取得
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex);
