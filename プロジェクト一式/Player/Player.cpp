@@ -186,11 +186,16 @@ void Player::Update()
     //着地はPlayerUpdateの中から
     //それ以外はPlayerStateの中からしている
 
-    if (Input::IsKeyDown(DIK_F)) {
-        Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
-        Model::AddBlend(hUpModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
-        Model::SetBlend(hDownModel_, true);
-        Model::SetBlend(hUpModel_, true);
+    if (playerId_ == 0) {
+
+        if (Input::IsKeyDown(DIK_F)) {
+            Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 0.7f, 0.05f);
+            Model::AddBlend(hUpModel_, 400, 630, 1.0f, true, 0.7f, 0.05f);
+            Model::AddBlend(hFPSModel_, 400, 630, 1.0f, true, 0.7f, 0.05f);
+            Model::SetBlend(hDownModel_, true);
+            Model::SetBlend(hUpModel_, true);
+            Model::SetBlend(hFPSModel_, true);
+        }
     }
 
     //アニメーション

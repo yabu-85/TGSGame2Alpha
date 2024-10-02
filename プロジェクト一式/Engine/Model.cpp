@@ -228,7 +228,8 @@ namespace Model
 	
 	void AddBlend(int handle, int start, int end, float speed, bool loop, float factor, float decrease, int nowFrame)
 	{
-		//同じブレンドデータがある場合の処理
+		//同じブレンドデータがある場合の処理（作ったけど、使うかわからん一応
+#if 0
 		for (auto& data : _datas[handle]->blendDatas_) {
 			if (data.startFrame == start && data.endFrame == end) {
 				// ブレンド値とアニメーションの進行を更新
@@ -239,10 +240,10 @@ namespace Model
 
 				//nowFrameがある場合更新
 				if (nowFrame >= 0) data.nowFrame = (float)nowFrame;
-
 				return;
 			}
 		}
+#endif
 
 		BlendData data = BlendData();
 		data.startFrame = start;
@@ -253,8 +254,8 @@ namespace Model
 		data.decreaseBlend = decrease;
 
 		//nowFrameがある場合更新
-		data.nowFrame = (float)start;
 		if (nowFrame >= 0) data.nowFrame = (float)nowFrame;
+		else data.nowFrame = (float)start;
 
 		//追加
 		_datas[handle]->blendDatas_.push_back(data);
@@ -264,7 +265,6 @@ namespace Model
 		fbxBData.factor = data.currentBlend;
 		fbxBData.time.SetTime(0, 0, 0, (int)data.nowFrame, 0, 0, _datas[handle]->pFbx->GetFrameRate());
 		_datas[handle]->pFbx->AddBlendData(fbxBData);
-
 	}
 
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex)

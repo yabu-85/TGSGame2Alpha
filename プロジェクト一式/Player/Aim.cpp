@@ -49,7 +49,7 @@ void Aim::Initialize()
     pPlayer_ = static_cast<Player*>(GetParent());
 
     //if(pPlayer_->GetPlayerId() == 0)
-    isFps_ = true;
+    isFps_ = false;
 
     hPlayerFPSModel_ = pPlayer_->GetFPSModelHandle();
     Model::GetPartBoneIndex(hPlayerFPSModel_, "eye", &eyePart, &eyeBone);         //Root

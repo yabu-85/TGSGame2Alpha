@@ -117,9 +117,6 @@ class FbxParts
 	void InitSkelton(FbxMesh * pMesh);			//骨の情報を準備
 	void IntConstantBuffer();	//コンスタントバッファ（シェーダーに情報を送るやつ）準備
 
-	//RotateOrientの計算をする
-	void RotateOrient();
-
 	//FbxMatrixから回転行列の計算をするラジアン
 	XMFLOAT3 CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat);
 
@@ -162,7 +159,7 @@ public:
 	XMFLOAT3 GetBonePosition(int index);
 
 	//任意のボーンの位置を取得
-	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
+	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData> &blendDatas);
 
 	//任意のボーンの回転を取得
 	XMFLOAT3 GetBoneRotate(int index, FbxTime time);

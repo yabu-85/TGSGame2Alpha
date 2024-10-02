@@ -1,11 +1,11 @@
-#include "FbxParts.h"
-#include "Fbx.h"
-#include "Global.h"
-#include "Direct3D.h"
+#include "../Other/GameManager.h"
 #include "Camera.h"
+#include "Direct3D.h"
+#include "Fbx.h"
+#include "FbxParts.h"
+#include "Global.h"
 #include "Light.h"
 #include "Model.h"
-#include "../Other/GameManager.h"
 #include <algorithm>
 
 //コンストラクタ
@@ -289,7 +289,6 @@ void FbxParts::InitSkelton(FbxMesh * pMesh)
 		}
 	}
 
-
 	// それぞれのボーンに影響を受ける頂点を調べる
 	// そこから逆に、頂点ベースでボーンインデックス・重みを整頓する
 	for (int i = 0; i < numBone_; i++)
@@ -356,19 +355,6 @@ void FbxParts::IntConstantBuffer()
 	cb.MiscFlags = 0;
 	cb.StructureByteStride = 0;
 	Direct3D::pDevice_->CreateBuffer(&cb, NULL, &pConstantBuffer_);
-}
-
-void FbxParts::RotateOrient()
-{
-	/*
-	for (const auto& pair : orientRotateMap_) {
-		XMMATRIX rotationMatrix = 
-			XMMatrixRotationX(XMConvertToRadians(pair.second.orientRotate.x)) * 
-			XMMatrixRotationY(XMConvertToRadians(pair.second.orientRotate.y)) *
-			XMMatrixRotationZ(XMConvertToRadians(pair.second.orientRotate.z));
-		pBoneArray_[pair.second.boneIndex].diffPose *= rotationMatrix;
-	}
-	*/
 }
 
 XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
@@ -581,9 +567,12 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 //BlendDataが0になることはない、Weightが0のデータもなし
 void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData>& blendDatas)
 {
-	//まずブレンドの比重を計算する
+	//ベースのブレンドのFactor値
 	float baseBlend = 0.0f;
+	//ブレンドデータのサイズ
 	int blendSize = (int)blendDatas.size();
+
+	//まずブレンドの比重を計算する
 	std::vector<float> weightList(blendSize);
 	for (int i = 0; i < blendSize; i++) {
 		weightList[i] = blendDatas[i].factor;
@@ -611,27 +600,19 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 		}
 	}
 
+	//ブレンド行列を保存するための変数（オフセット時のポーズの差分）
+	std::vector<std::vector<XMMATRIX>> blendMatrices(blendSize, std::vector<XMMATRIX>(numBone_, XMMatrixIdentity()));
 
-	//GPTの書いてもらったコードブレンドの比重計算ぐらいは使えると思う
-	//
-
-	// 各ボーンごとの現在の行列を取得する
-	std::vector<XMMATRIX> boneMatrices(numBone_);
-
-	// ブレンド行列を保存するための変数
-	std::vector<XMMATRIX> blendMatrices(blendDatas.size(), XMMatrixIdentity());
-
-	for (size_t j = 0; j < blendDatas.size(); ++j)
+	//ボーンごとの現在の行列を取得する
+	for (int i = 0; i < blendSize; i++)
 	{
-		float weight = blendDatas[j].factor;
-
-		// 現在のアニメーションフレームの行列を取得
-		for (int i = 0; i < numBone_; i++)
+		//現在のアニメーションフレームの行列を取得
+		for (int j = 0; j < numBone_; j++)
 		{
-			FbxAnimEvaluator* evaluator = ppCluster_[i]->GetLink()->GetScene()->GetAnimationEvaluator();
-			FbxMatrix mCurrentOrientation = evaluator->GetNodeGlobalTransform(ppCluster_[i]->GetLink(), time);
+			FbxAnimEvaluator* evaluator = ppCluster_[j]->GetLink()->GetScene()->GetAnimationEvaluator();
+			FbxMatrix mCurrentOrientation = evaluator->GetNodeGlobalTransform(ppCluster_[j]->GetLink(), blendDatas[i].time);
 
-			// 行列コピー（Fbx形式からDirectXへの変換）
+			//行列コピー（Fbx形式からDirectXへの変換）
 			XMFLOAT4X4 pose;
 			for (DWORD x = 0; x < 4; x++)
 			{
@@ -641,74 +622,98 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 				}
 			}
 
-			// 行列を保存
-			blendMatrices[j] += XMLoadFloat4x4(&pose) * weight; // ウェイトを掛けてブレンド行列に加算
+			//行列を保存
+			blendMatrices[i][j] = XMMatrixInverse(nullptr, pBoneArray_[j].bindPose) * XMLoadFloat4x4(&pose);
 		}
-
-		// 合計ウェイトを計算
-		totalWeight += weight;
 	}
 
-
-	// 合計が 1 に満たない場合は、残りを補完
-	if (totalWeight < 1.0f)
+	//ベースのアニメーションの計算
+	for (int i = 0; i < numBone_; i++)
 	{
-		float remainingWeight = 1.0f - totalWeight;
-		baseBlend = remainingWeight;
+		FbxAnimEvaluator* evaluator = ppCluster_[i]->GetLink()->GetScene()->GetAnimationEvaluator();
+		FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[i]->GetLink(), time);
 
-		for (size_t j = 0; j < blendDatas.size(); ++j)
+		//行列コピー（Fbx形式からDirectXへの変換）
+		XMFLOAT4X4 pose;
+		for (DWORD x = 0; x < 4; x++)
 		{
-			if (blendDatas[j].factor > 0.0f)
+			for (DWORD y = 0; y < 4; y++)
 			{
-				blendDatas[j].factor /= totalWeight; // 正規化
+				pose(x, y) = (float)mCurrentOrentation.Get(x, y);
 			}
 		}
+
+		//オフセット時のポーズの差分を計算する
+		pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
+		pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
+		pBoneArray_[i].diffPose *= pBoneArray_[i].newPose;
 	}
 
-	// 最終的なブレンド行列を計算
-	XMMATRIX finalMatrix = XMMatrixIdentity(); // 初期化
-
-	// ブレンド行列を最終行列に適用
-	for (size_t j = 0; j < blendMatrices.size(); ++j)
+	//Orientの計算
+	for (const auto& pair : orientDatas)
 	{
-		finalMatrix += blendMatrices[j]; // 各ブレンド行列を加算
+		//回転行列を作成する
+		XMMATRIX matR =
+			XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
+			XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
+			XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
+
+		if (pair.parentBoneIndex <= -1) {
+			XMVECTOR translation = pBoneArray_[pair.boneIndex].newPose.r[3];	//座標MATRIX
+			pBoneArray_[pair.boneIndex].newPose = pBoneArray_[pair.boneIndex].newPose * matR;
+			pBoneArray_[pair.boneIndex].newPose.r[3] = translation;
+		}
+		else {
+			//子Boneの始点を計算し、親Boneの始点を原点として、子Boneの始点を座標でmatRと計算
+			XMVECTOR localPosition = pBoneArray_[pair.boneIndex].newPose.r[3] - pBoneArray_[pair.parentBoneIndex].newPose.r[3];
+			XMVECTOR childPos = XMVector3Transform(localPosition, matR) + pBoneArray_[pair.parentBoneIndex].newPose.r[3];
+			pBoneArray_[pair.boneIndex].newPose *= matR;
+
+			//座標をWは変更なしで代入
+			pBoneArray_[pair.boneIndex].newPose.r[3] = XMVectorSetW(childPos, 1.0f);
+		}
+
+		pBoneArray_[pair.boneIndex].diffPose = XMMatrixInverse(nullptr, pBoneArray_[pair.boneIndex].bindPose);
+		pBoneArray_[pair.boneIndex].diffPose *= pBoneArray_[pair.boneIndex].newPose;
 	}
 
-	// ベースブレンド行列との最終計算
-	finalMatrix = finalMatrix * baseBlend; // baseBlend を適用
+	//最終ブレンド行列を計算
+	for (int i = 0; i < numBone_; i++) {
+		//base
+		pBoneArray_[i].diffPose *= baseBlend;
+	
+		//BlendList
+		for (int j = 0; j < blendSize; ++j) {
+			pBoneArray_[i].diffPose += blendMatrices[j][i] * weightList[j];
+		}
+	}
 
-	// 各頂点に関して、最終行列を使って変形を行う
 	for (DWORD i = 0; i < vertexCount_; i++)
 	{
-		// 各頂点ごとに、「影響するボーン×ウェイト値」を反映させた関節行列を作成する
-		XMMATRIX matrix = XMMatrixIdentity(); // 行列を単位行列で初期化
-
+		//各頂点ごとに「影響するボーン×ウェイト値」を反映させた関節行列を作成する
+		XMMATRIX  matrix;
+		ZeroMemory(&matrix, sizeof(matrix));
 		for (int m = 0; m < numBone_; m++)
 		{
 			if (pWeightArray_[i].pBoneIndex[m] < 0)
 			{
-				break; // ボーンがない場合は終了
+				break;
 			}
-			int boneIndex = pWeightArray_[i].pBoneIndex[m];
-			float weight = pWeightArray_[i].pBoneWeight[m];
 
-			// 各ボーンのブレンドされたポーズにウェイトを掛けて行列を加算
-			matrix += boneMatrices[boneIndex] * weight;
+			matrix += pBoneArray_[pWeightArray_[i].pBoneIndex[m]].diffPose * pWeightArray_[i].pBoneWeight[m];
 		}
 
-		// 作成された関節行列を使って、頂点を変形する
+		//作成された関節行列を使って、頂点を変形する
 		XMVECTOR Pos = XMLoadFloat3(&pWeightArray_[i].posOrigin);
+		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
 		XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
-
-		// 法線も変形
 		XMFLOAT3X3 mat33;
 		XMStoreFloat3x3(&mat33, matrix);
 		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
-		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
-		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformNormal(Normal, matrix33));
+		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
 	}
 
-	// 頂点バッファをロックして、変形させた後の頂点情報で上書きする
+	//頂点バッファをロックして、変形させた後の頂点情報で上書きする
 	D3D11_MAPPED_SUBRESOURCE msr = {};
 	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
 	if (msr.pData)
@@ -750,7 +755,8 @@ XMFLOAT3 FbxParts::GetBonePosition(int index)
 	return pos;
 }
 
-XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
+//モデルを一つしか使っていないとしたらdiffPosかnewPos使えば簡単に取得できると思う
+XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
 {
 	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
 	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
