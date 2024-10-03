@@ -765,14 +765,57 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 	pos.y = (float)mCurrentOrentation[3][1];
 	pos.z = (float)mCurrentOrentation[3][2];
 
+	if (!blendDatas.empty()) {
+		//ベースのブレンドのFactor値
+		float baseBlend = 0.0f;
+		//ブレンドデータのサイズ
+		int blendSize = (int)blendDatas.size();
+		//Weight合計
+		float totalWeight = 0.0f;
+
+		//まずブレンドの比重を計算する
+		std::vector<float> weightList(blendSize);
+		for (int i = 0; i < blendSize; i++) {
+			weightList[i] = blendDatas[i].factor;
+		}
+		//weight合計
+		for (int i = 0; i < blendSize; i++) {
+			totalWeight += blendDatas[i].factor;
+		}
+		//合計が1に満たない場合
+		if (totalWeight < 1.0f) {
+			baseBlend = 1.0f - totalWeight;
+			//ベースを加味した正規化
+			for (int i = 0; i < blendSize; i++) {
+				weightList[i] /= (totalWeight + baseBlend);
+			}
+		}
+		else {
+			//正規化する
+			for (int i = 0; i < blendSize; i++) {
+				weightList[i] /= totalWeight;
+			}
+		}
+
+		//ブレンドの合計座標
+		XMFLOAT3 blendBone = XMFLOAT3();
+		for (int i = 0; i < blendSize; i++) {
+			FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), blendDatas[i].time);
+			blendBone.x += (float)mCurrentOrentation[3][0] * weightList[i];
+			blendBone.y += (float)mCurrentOrentation[3][1] * weightList[i];
+			blendBone.z += (float)mCurrentOrentation[3][2] * weightList[i];
+		}
+
+		//posとblendPosで座標計算
+		pos = Float3Add(Float3Multiply(pos, baseBlend), blendBone);
+	}
+
 	//Orient情報があるか
 	for (const auto& pair : orientDatas) {
 		if (pair.boneIndex == index) {
 			//親のボーンだから取れた値そのまま返す
 			if (pair.parentBoneIndex <= -1) {
-				XMFLOAT3 endPos = XMFLOAT3();
-				XMStoreFloat3(&endPos, pBoneArray_[pair.boneIndex].newPose.r[3]);
-				return endPos;
+				return pos;
 			}
 			//子ボーンだから親ボーンとの計算する
 			else {
@@ -789,24 +832,18 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 				parentBone.y = (float)mParentCurrentOrentation[3][1];
 				parentBone.z = (float)mParentCurrentOrentation[3][2];
 
-				//子Boneの始点を計算し、親Boneの始点を原点として、子Boneの始点を座標でmatRと計算
+				//子Boneの始点を親Boneの始点を原点として、子Boneの始点をmatRで計算
 				XMVECTOR localPosition = XMLoadFloat3(&pos) - XMLoadFloat3(&parentBone);
 				XMVECTOR childPos = XMVector3Transform(localPosition, matR) + XMLoadFloat3(&parentBone);
-				XMVECTOR vPos = XMVector3Transform(XMLoadFloat3(&pos), matR);
 
 				//座標をWは変更なしで代入して返す
-				vPos = XMVectorSetW(childPos, 1.0f);
+				XMVECTOR vPos = XMVectorSetW(childPos, 1.0f);
 				XMStoreFloat3(&pos, vPos);
 				return pos;
 			}
 		}
 	}
 	
-	XMFLOAT4X4  m;
-	XMStoreFloat4x4(&m, pBoneArray_[index].newPose);
-	pos.x = m._41;
-	pos.y = m._42;
-	pos.z = m._43;
 	return pos;
 }
 
