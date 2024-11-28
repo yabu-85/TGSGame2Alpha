@@ -755,6 +755,52 @@ XMFLOAT3 FbxParts::GetBonePosition(int index)
 	return pos;
 }
 
+XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
+{
+	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
+	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
+	XMFLOAT3 pos = XMFLOAT3();
+	pos.x = (float)mCurrentOrentation[3][0];
+	pos.y = (float)mCurrentOrentation[3][1];
+	pos.z = (float)mCurrentOrentation[3][2];
+
+	//Orient情報があるか
+	for (const auto& pair : orientDatas) {
+		if (pair.boneIndex == index) {
+			//親のボーンだから取れた値そのまま返す
+			if (pair.parentBoneIndex <= -1) {
+				return pos;
+			}
+			//子ボーンだから親ボーンとの計算する
+			else {
+				//ボーンのOrient回転行列を作成する
+				XMMATRIX matR =
+					XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
+					XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
+					XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
+
+				//親のボーンの位置を取得
+				FbxMatrix mParentCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[pair.parentBoneIndex]->GetLink(), time);
+				XMFLOAT3 parentBone = XMFLOAT3();
+				parentBone.x = (float)mParentCurrentOrentation[3][0];
+				parentBone.y = (float)mParentCurrentOrentation[3][1];
+				parentBone.z = (float)mParentCurrentOrentation[3][2];
+
+				//子Boneの始点を親Boneの始点を原点として、子Boneの始点をmatRで計算
+				XMVECTOR localPosition = XMLoadFloat3(&pos) - XMLoadFloat3(&parentBone);
+				XMVECTOR childPos = XMVector3Transform(localPosition, matR) + XMLoadFloat3(&parentBone);
+
+				//座標をWは変更なしで代入して返す
+				XMVECTOR vPos = XMVectorSetW(childPos, 1.0f);
+				XMStoreFloat3(&pos, vPos);
+				return pos;
+			}
+		}
+	}
+
+	return pos;
+}
+
 //モデルを一つしか使っていないとしたらdiffPosかnewPos使えば簡単に取得できると思う
 XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
 {

@@ -27,6 +27,7 @@ namespace {
 
 }
 
+//ダメージ数値のデータ
 struct DamageUIInfo {
 	int damage;
 	int alpha;
@@ -34,10 +35,12 @@ struct DamageUIInfo {
 	XMFLOAT3 wPos;
 };
 
+//ダメージの方向のデータ
 struct DirectionDamageUIInfo {
 	XMFLOAT3 pos1, pos2;
 	int alpha;
 	float time;
+	DirectionDamageUIInfo() : pos1(XMFLOAT3()), pos2(XMFLOAT3()), alpha(0), time(0.0f) {}
 };
 
 namespace DamageUI {
@@ -49,14 +52,17 @@ namespace DamageUI {
 
 	void Initialize()
 	{
+		//Textの初期化
 		pText_ = new Text();
 		pText_->Initialize();
-		if(GameManager::IsOnePlayer()) pText_->SetScale(ONE_TEXT_SCALE);
-		else pText_->SetScale(TWO_TEXT_SCALE);
 
 		const char* fileName[] = { "Image/directionDamage.png" };
 		hPict_ = Image::Load(fileName[0]);
 		assert(hPict_ >= 0);
+
+		//分割してるかによってサイズ変更
+		if(GameManager::IsOnePlayer()) pText_->SetScale(ONE_TEXT_SCALE);
+		else pText_->SetScale(TWO_TEXT_SCALE);
 
 		DirectionDamageUIInfo info;
 		directionDamage_[0].push_back(info);

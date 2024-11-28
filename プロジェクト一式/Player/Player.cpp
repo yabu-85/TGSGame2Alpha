@@ -186,22 +186,31 @@ void Player::Update()
     //着地はPlayerUpdateの中から
     //それ以外はPlayerStateの中からしている
 
-    if (playerId_ == 0) {
+    if (playerId_ == 0 && Input::IsKeyDown(DIK_F)) {
+        Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::AddBlend(hUpModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::AddBlend(hFPSModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::SetBlend(hDownModel_, true);
+        Model::SetBlend(hUpModel_, true);
+        Model::SetBlend(hFPSModel_, true);
+    }
 
-        if (Input::IsKeyDown(DIK_F)) {
-            Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
-            Model::AddBlend(hUpModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
-            Model::AddBlend(hFPSModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
-            Model::SetBlend(hDownModel_, true);
-            Model::SetBlend(hUpModel_, true);
-            Model::SetBlend(hFPSModel_, true);
-        }
+    if (playerId_ == 1 && Input::IsKeyDown(DIK_G)) {
+        Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::AddBlend(hUpModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::AddBlend(hFPSModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
+        Model::SetBlend(hDownModel_, true);
+        Model::SetBlend(hUpModel_, true);
+        Model::SetBlend(hFPSModel_, true);
     }
 
     //アニメーション
     Model::Update(hUpModel_);
     Model::Update(hFPSModel_);
     Model::Update(hDownModel_);
+    
+    //腰下の回転計算
+    if(isActionReady_) CalcDownBodyRotate();
 
     //AnimCtrl
     pUpAnimationController_->Update();
@@ -304,6 +313,7 @@ void Player::Update()
 void Player::Draw()
 {
     //自分の画面 & FPSの場合 & 影表示は全身
+    //FPS表示
     if (GameManager::GetDrawIndex() == playerId_ && pAim_->IsAimFps() && Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) {
         //Aimの差分に合わせて表示させる
         Transform t = transform_;
@@ -320,12 +330,11 @@ void Player::Draw()
             Image::Draw(hPict_);
         }
     }
-    //相手の表示
+    //全身の表示
     else {
         Model::SetTransform(hUpModel_, transform_);
         Model::Draw(hUpModel_);
 
-        CalcDownBodyRotate();
         Transform downT = transform_;
         downT.rotate_.y += lowerBodyRotate_;
         Model::SetTransform(hDownModel_, downT);

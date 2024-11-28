@@ -20,9 +20,16 @@ struct BlendData {
 	int endFrame;
 	float nowFrame;
 	float animSpeed;
-	float currentBlend;	//今のBlendの値（1～0）
+	float currentBlend;		//今のBlendの値（1～0）
 	float decreaseBlend;	//1フレームでブレンド値減らす量
 	BlendData() : animLoop(false), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), currentBlend(0.0f), decreaseBlend(0.0f) {}
+};
+
+//Fbxに送る用のデータ
+struct FbxBlendData {
+	FbxTime time;
+	float factor;
+	FbxBlendData() : factor(0.0f) {}
 };
 
 //-----------------------------------------------------------
@@ -48,6 +55,7 @@ namespace Model
 
 		std::vector<OrientRotateInfo> orientRotateDatas_;
 		std::vector<BlendData> blendDatas_;
+		std::vector<FbxBlendData> fbxBlendDatas_;
 		
 		bool isAnimStop;	//アニメーション再生するかどうか
 		bool isShadow;		//影適応するかどうか

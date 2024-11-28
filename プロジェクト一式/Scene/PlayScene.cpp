@@ -220,6 +220,7 @@ void PlayScene::GameEnd()
 	//勝負ついた瞬間のやつ
 	if (endTime_ >= END_TIME_DEFAULT) {
 		GameManager::SetCursorMode(true);
+		GameManager::SetEffectUpdateInMenu(true);
 		AllDeleteScreen();
 
 		//ResultScreen作成と値のセット
@@ -228,7 +229,7 @@ void PlayScene::GameEnd()
 		else if (GameManager::GetPlayer(1)->IsHealthZero()) screen->SetWinPlayer(0);
 		AddScreen(screen);
 
-		//自分より下のUpdateを拒否
+		//自分より下のUpdateを拒否（プレイヤーはアニメーション再生のため除外）
 		AllChildLeave();
 		Enter();
 

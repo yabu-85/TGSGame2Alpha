@@ -127,7 +127,14 @@ XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::
 {
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas, fbxBlendDatas_);
+	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas);
+}
+
+XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
+{
+	FbxTime time;
+	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
+	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas, blendDatas);
 }
 
 XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)
@@ -162,7 +169,7 @@ void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &o
 	}
 }
 
-void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<BlendData> &blendDats)
+void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData> &blendDats)
 {
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
@@ -174,7 +181,7 @@ void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& o
 		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
 
 		//ブレンド情報あるから必ずスキンアニメーション
-		parts_[k]->DrawBlendedSkinAnim(transform, time, orientDatas, isShadow, fbxBlendDatas_);
+		parts_[k]->DrawBlendedSkinAnim(transform, time, orientDatas, isShadow, blendDats);
 	}
 }
 
@@ -197,15 +204,17 @@ void Fbx::GetAllPolygon(std::vector<PolygonData>& list)
 	}
 }
 
-std::vector<FbxBlendData>& Fbx::GetBlendData()
-{
-	return fbxBlendDatas_;
-}
-
-void Fbx::AddBlendData(FbxBlendData data)
-{
-	fbxBlendDatas_.push_back(data);
-}
+//修正
+//
+//std::vector<FbxBlendData>& Fbx::GetBlendData()
+//{
+//	return fbxBlendDatas_;
+//}
+//
+//void Fbx::AddBlendData(FbxBlendData data)
+//{
+//	fbxBlendDatas_.push_back(data);
+//}
 
 FbxTime::EMode Fbx::GetFrameRate()
 {

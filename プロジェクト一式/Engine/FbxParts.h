@@ -153,10 +153,10 @@ public:
 	bool GetBoneIndex(std::string boneName, int* index);
 
 	//任意のボーンの位置を取得
-	//引数：boneName	取得したいボーンの位置
-	//引数：position	ワールド座標での位置【out】
-	//戻値：見つかればtrue
 	XMFLOAT3 GetBonePosition(int index);
+
+	//任意のボーンの位置を取得
+	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
 
 	//任意のボーンの位置を取得
 	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);

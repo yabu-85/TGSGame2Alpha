@@ -21,6 +21,10 @@ namespace GameManager
 	bool IsCursorMode();
 	void SetCursorMode(bool b);
 
+	//メニュー状態でもエフェクトのアップデートをさせるかどうか
+	bool IsEffectUpdateInMenu();
+	void SetEffectUpdateInMenu(bool b);
+
 	//画面分割
 	void SetOnePlayer();
 	void SetTwoPlayer();

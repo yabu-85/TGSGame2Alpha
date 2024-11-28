@@ -87,9 +87,6 @@ namespace Model
 		//ブレンド
 		if (!_datas[handle]->isBlending) return;
 		
-		//Fbxのブレンドデータにアクセス
-		std::vector<FbxBlendData>& fbxBlendDatas = _datas[handle]->pFbx->GetBlendData();
-
 		//ブレンドデータを更新
 		for (size_t i = 0; i < _datas[handle]->blendDatas_.size(); ) {
 			BlendData & blendData = _datas[handle]->blendDatas_[i];
@@ -98,7 +95,7 @@ namespace Model
 			if (blendData.currentBlend <= 0.0f) {
 				//ブレンドデータ削除
 				_datas[handle]->blendDatas_.erase(_datas[handle]->blendDatas_.begin() + i);
-				fbxBlendDatas.erase(fbxBlendDatas.begin() + i);
+				_datas[handle]->fbxBlendDatas_.erase(_datas[handle]->fbxBlendDatas_.begin() + i);
 
 				//ブレンドの情報全てなくなった
 				if (_datas[handle]->blendDatas_.empty()) {
@@ -120,7 +117,7 @@ namespace Model
 				newBlendData.time.SetTime(0, 0, 0, (int)blendData.nowFrame, 0, 0, _datas[handle]->pFbx->GetFrameRate());
 
 				newBlendData.factor = blendData.currentBlend;
-				fbxBlendDatas[i] = newBlendData;
+				_datas[handle]->fbxBlendDatas_[i] = newBlendData;
 
 				++i;
 			}
@@ -138,8 +135,9 @@ namespace Model
 		if (_datas[handle]->pFbx)
 		{
 			bool shadow = _datas[handle]->isShadow && GameManager::IsShadowDraw();
-			if (_datas[handle]->isBlending) {
-				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow, _datas[handle]->blendDatas_);
+
+			if (_datas[handle]->isBlending && !_datas[handle]->blendDatas_.empty()) {
+				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow, _datas[handle]->fbxBlendDatas_);
 			}
 			else {
 				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
@@ -229,7 +227,7 @@ namespace Model
 	void AddBlend(int handle, int start, int end, float speed, bool loop, float factor, float decrease, int nowFrame)
 	{
 		//同じブレンドデータがある場合の処理（作ったけど、使うかわからん一応
-#if 0
+#if 1
 		for (auto& data : _datas[handle]->blendDatas_) {
 			if (data.startFrame == start && data.endFrame == end) {
 				// ブレンド値とアニメーションの進行を更新
@@ -257,14 +255,14 @@ namespace Model
 		if (nowFrame >= 0) data.nowFrame = (float)nowFrame;
 		else data.nowFrame = (float)start;
 
-		//追加
-		_datas[handle]->blendDatas_.push_back(data);
-
 		//Fbxの方のデータ追加
 		FbxBlendData fbxBData = FbxBlendData();
 		fbxBData.factor = data.currentBlend;
 		fbxBData.time.SetTime(0, 0, 0, (int)data.nowFrame, 0, 0, _datas[handle]->pFbx->GetFrameRate());
-		_datas[handle]->pFbx->AddBlendData(fbxBData);
+		_datas[handle]->fbxBlendDatas_.push_back(fbxBData);
+
+		//追加
+		_datas[handle]->blendDatas_.push_back(data);
 	}
 
 	bool GetPartBoneIndex(int handle, std::string boneName, int* partIndex, int* boneIndex)
@@ -299,7 +297,16 @@ namespace Model
 	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex)
 	{
 		//相対座標（ボーンの中心からの位置）
-		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_);
+		XMFLOAT3 pos = XMFLOAT3();
+
+		//Blend情報あるかないか
+		if (_datas[handle]->isBlending && !_datas[handle]->blendDatas_.empty()) {
+			pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, _datas[handle]->fbxBlendDatas_);
+		}
+		else {
+			pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_);
+		}
+
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
 		XMStoreFloat3(&pos, vec);
 		return pos;

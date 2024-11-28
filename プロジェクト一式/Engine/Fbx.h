@@ -8,6 +8,7 @@
 class FbxParts;
 struct OrientRotateInfo;
 struct BlendData;
+struct FbxBlendData;
 
 //レイキャスト用構造体
 struct RayCastData
@@ -17,16 +18,7 @@ struct RayCastData
 	float       dist;	//衝突点までの距離
 	BOOL        hit;	//レイが当たったか
 	XMFLOAT3 normal;	//法線
-
 	RayCastData() { dist = 99999.0f; start = XMFLOAT3(); dir = XMFLOAT3(); hit = FALSE; normal = XMFLOAT3(); }
-};
-
-//FbxPartsに送る用のデータ
-struct FbxBlendData {
-	FbxTime time;
-	float factor;
-
-	FbxBlendData() : factor(0.0f) {}
 };
 
 struct PolygonData {
@@ -50,8 +42,9 @@ class Fbx
 	//モデルの各パーツ（複数あるかも）
 	std::vector<FbxParts*>	parts_;
 
+	//修正
 	//Partsに送るブレンド情報
-	std::vector<FbxBlendData> fbxBlendDatas_;
+	//std::vector<FbxBlendData> fbxBlendDatas_;
 
 	//FBXファイルを扱う機能の本体
 	FbxManager* pFbxManager_;
@@ -80,7 +73,7 @@ public:
 	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas, bool isShadow);
 
 	//ブレンドありの描画
-	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector <BlendData> &blendDats);
+	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector <FbxBlendData> &blendDats);
 
 	//解放
 	void Release();
@@ -95,6 +88,9 @@ public:
 
 	//任意のアニメーション時のボーンの位置を取得
 	XMFLOAT3 GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas);
+	
+	//任意のアニメーション時のボーンの位置を取得
+	XMFLOAT3 GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);
 
 	//任意のアニメーション時のボーンの回転を取得
 	XMFLOAT3 GetBoneAnimRotate(int partIndex, int boneIndex, int frame);
@@ -106,11 +102,12 @@ public:
 	//すべてのポリゴン取得
 	void GetAllPolygon(std::vector<PolygonData>& list);
 
-	//ブレンド情報の取得
-	std::vector<FbxBlendData>& GetBlendData();
+	//修正
+	////ブレンド情報の取得
+	//std::vector<FbxBlendData>& GetBlendData();
 
-	//ブレンド情報の追加
-	void AddBlendData(FbxBlendData data);
+	////ブレンド情報の追加
+	//void AddBlendData(FbxBlendData data);
 
 	//アニメーションフレームレート取得
 	FbxTime::EMode GetFrameRate();

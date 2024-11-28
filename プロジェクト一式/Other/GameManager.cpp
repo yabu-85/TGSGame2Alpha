@@ -38,16 +38,18 @@ namespace GameManager {
 	SelectedType selectedType = SelectedType::None;
 
 	//GameManager
-	bool isOnePlayer_ = true;
-	bool isPCCtrl_ = false;
-	bool cursorMode_ = false;
-	int pcCtrlNumber_ = 0;
-	int drawIndex_ = 0;
+	bool isOnePlayer_ = true;				//画面分割してるか（true：してない）
+	bool isPCCtrl_ = false;					//PCでの操作をしているかどうか
+	bool cursorMode_ = false;				//カーソルモードかどうか（メニュー状態か）
+	bool isEffectUpdateInMenu = false;		//メニュー状態でもエフェクトのUpdateさせるか
+	int pcCtrlNumber_ = 0;					//PC操作をするプレイヤー番号
+	int drawIndex_ = 0;						//描画している画面の番号（計算用）
 	
 	//影関係の情報
 	XMFLOAT3 SHADOW_CAMERA_TARGET = XMFLOAT3(50.0f, 0.0f, 50.0f);
 	bool isShadowDraw_ = false;
 
+	//ポインタまとめ
 	GameObject* pRootObject_ = nullptr;
 	CollisionMap* pCollisionMap_ = nullptr;
 	Player* pPlayer_[2] = { nullptr, nullptr };
@@ -58,7 +60,7 @@ namespace GameManager {
 		InputManager::Initialize();
 
 		//デバッグ時はImGui表示に
-#if _DEBUG
+#if 1 //_DEBUG
 		isImGuiDraw_ = true;
 #endif
 
@@ -122,6 +124,10 @@ namespace GameManager {
 	//メニュ状態か
 	bool IsCursorMode() { return cursorMode_; }
 	void SetCursorMode(bool b) { cursorMode_ = b; }
+
+	//メニュー状態でもエフェクトのアップデートさせるか
+	bool IsEffectUpdateInMenu() { return isEffectUpdateInMenu; }
+	void SetEffectUpdateInMenu(bool b) { isEffectUpdateInMenu = b; }
 	
 	//人数関係
 	void SetOnePlayer() { isOnePlayer_ = true; }

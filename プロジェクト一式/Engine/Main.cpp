@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int screenWidth = GetPrivateProfileInt("SCREEN", "Width", 800, ".\\setup.ini");			//スクリーンの幅
 	int screenHeight = GetPrivateProfileInt("SCREEN", "Height", 600, ".\\setup.ini");		//スクリーンの高さ
 
-#if 1 //_DEBUG
+#if 0 //_DEBUG
 	screenWidth = 700;
 	screenHeight = 500;
 #endif
@@ -164,6 +164,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					//リミット制限無し
 					isCursorLimited = false;
 					ReleaseMousePointer();
+
+					//メニュー状態でもエフェクトUpdateさせる場合
+					if (GameManager::IsEffectUpdateInMenu()) {
+						EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 0);
+						EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 1);
+					}
 				}
 				else {
 					//カーソルを非表示
