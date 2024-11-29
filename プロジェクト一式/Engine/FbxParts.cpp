@@ -382,6 +382,37 @@ XMFLOAT3 FbxParts::CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat)
 	return rot;	
 }
 
+
+void FbxParts::CalcBlendData(std::vector<FbxBlendData>& blendDatas, float& baseBlend, int& blendSize, std::vector<float>& weightList)
+{
+	//Weight合計
+	float totalWeight = 0.0f;
+	for (int i = 0; i < blendSize; i++) {
+		totalWeight += blendDatas[i].factor;
+	}
+
+	//ブレンドの比重を計算する
+	for (int i = 0; i < blendSize; i++) {
+		weightList[i] = blendDatas[i].factor;
+	}
+
+	//合計が1に満たない場合
+	if (totalWeight < 1.0f) {
+		baseBlend = 1.0f - totalWeight;
+
+		//ベースを加味した正規化
+		for (int i = 0; i < blendSize; i++) {
+			weightList[i] /= (totalWeight + baseBlend);
+		}
+	}
+	else {
+		//正規化する
+		for (int i = 0; i < blendSize; i++) {
+			weightList[i] /= totalWeight;
+		}
+	}
+}
+
 //描画
 void FbxParts::Draw(Transform& transform, bool isShadow)
 {
@@ -567,38 +598,10 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 //BlendDataが0になることはない、Weightが0のデータもなし
 void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData>& blendDatas)
 {
-	//ベースのブレンドのFactor値
 	float baseBlend = 0.0f;
-	//ブレンドデータのサイズ
 	int blendSize = (int)blendDatas.size();
-
-	//まずブレンドの比重を計算する
 	std::vector<float> weightList(blendSize);
-	for (int i = 0; i < blendSize; i++) {
-		weightList[i] = blendDatas[i].factor;
-	}
-
-	//Weight合計
-	float totalWeight = 0.0f;
-	for (int i = 0; i < blendSize; i++) {
-		totalWeight += blendDatas[i].factor;
-	}
-
-	//合計が1に満たない場合
-	if (totalWeight < 1.0f) {
-		baseBlend = 1.0f - totalWeight;
-
-		//ベースを加味した正規化
-		for (int i = 0; i < blendSize; i++) {
-			weightList[i] /= (totalWeight + baseBlend);
-		}
-	}
-	else {
-		//正規化する
-		for (int i = 0; i < blendSize; i++) {
-			weightList[i] /= totalWeight;
-		}
-	}
+	CalcBlendData(blendDatas, baseBlend, blendSize, weightList);
 
 	//ブレンド行列を保存するための変数（オフセット時のポーズの差分）
 	std::vector<std::vector<XMMATRIX>> blendMatrices(blendSize, std::vector<XMMATRIX>(numBone_, XMMatrixIdentity()));
@@ -812,36 +815,10 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 	pos.z = (float)mCurrentOrentation[3][2];
 
 	if (!blendDatas.empty()) {
-		//ベースのブレンドのFactor値
 		float baseBlend = 0.0f;
-		//ブレンドデータのサイズ
 		int blendSize = (int)blendDatas.size();
-		//Weight合計
-		float totalWeight = 0.0f;
-
-		//まずブレンドの比重を計算する
 		std::vector<float> weightList(blendSize);
-		for (int i = 0; i < blendSize; i++) {
-			weightList[i] = blendDatas[i].factor;
-		}
-		//weight合計
-		for (int i = 0; i < blendSize; i++) {
-			totalWeight += blendDatas[i].factor;
-		}
-		//合計が1に満たない場合
-		if (totalWeight < 1.0f) {
-			baseBlend = 1.0f - totalWeight;
-			//ベースを加味した正規化
-			for (int i = 0; i < blendSize; i++) {
-				weightList[i] /= (totalWeight + baseBlend);
-			}
-		}
-		else {
-			//正規化する
-			for (int i = 0; i < blendSize; i++) {
-				weightList[i] /= totalWeight;
-			}
-		}
+		CalcBlendData(blendDatas, baseBlend, blendSize, weightList);
 
 		//ブレンドの合計座標
 		XMFLOAT3 blendBone = XMFLOAT3();

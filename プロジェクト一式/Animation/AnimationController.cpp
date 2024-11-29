@@ -39,6 +39,21 @@ void AnimationController::AddAnimNotify(int AnimId, OneFrame* action)
 	animDatas_[AnimId].frameList.push_back(action);
 }
 
+void AnimationController::SetNextAnim(int id, float speed, int addStart, int addEnd)
+{
+	currentAnim_ = id;
+	Model::SetAnimFrame(modelNum_, animDatas_.at(id).startFrame + addStart, animDatas_.at(id).endFrame + addEnd, speed);
+}
+
+void AnimationController::SetNextAnimBlend(int id, float blendFactor, float blendDecrease, float speed, int addStart, int addEnd)
+{
+	currentAnim_ = id;
+	int currentAnimTime = Model::GetAnimFrame(modelNum_);
+	Model::AddBlend(modelNum_, currentAnimTime, currentAnimTime, 0.0f, false, blendFactor, blendDecrease);
+	Model::SetBlend(modelNum_, true);
+	Model::SetAnimFrame(modelNum_, animDatas_.at(id).startFrame + addStart, animDatas_.at(id).endFrame + addEnd, speed);
+}
+
 AnimData AnimationController::GetAnim(int id)
 {
 	return animDatas_[id];
@@ -47,10 +62,4 @@ AnimData AnimationController::GetAnim(int id)
 int AnimationController::GetAnimTime(int id)
 {
 	return  animDatas_[id].endFrame - animDatas_[id].startFrame;
-}
-
-void AnimationController::SetNextAnim(int id, float speed, int addStart, int addEnd)
-{
-	currentAnim_ = id;
-	Model::SetAnimFrame(modelNum_, animDatas_.at(id).startFrame + addStart, animDatas_.at(id).endFrame + addEnd, speed);
 }

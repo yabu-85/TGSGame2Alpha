@@ -33,7 +33,7 @@ void PlayerIdle::OnEnter()
 
 	//’nã‚ÅˆÚ“®‚â‚ß‚½‚çŽ~‚ß‚é
 	if (downAnimId != (int)PLAYER_ANIMATION::JUMP) {
-		pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+		pPlayer_->GetDownAnimationController()->SetNextAnimBlend((int)PLAYER_ANIMATION::IDLE, 1.0f, 0.1f);
 	}
 
 	//”`‚«ž‚Ý‚µ‚Ä‚È‚¢‚È‚çAŽ~‚ß‚é
@@ -73,7 +73,7 @@ void PlayerMove::OnEnter()
 {
 	//ƒWƒƒƒ“ƒvˆÈŠO‚È‚çRun
 	if (pPlayer_->GetDownAnimationController()->GetCurrentAnim() != (int)PLAYER_ANIMATION::JUMP) {
-		pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::RUN);
+		pPlayer_->GetDownAnimationController()->SetNextAnimBlend((int)PLAYER_ANIMATION::RUN, 1.0f, 0.1f);
 	}
 
 }
@@ -89,7 +89,7 @@ void PlayerJump::OnEnter()
 {
 	int playerId = pPlayer_->GetPlayerId();
 	pPlayer_->Jump();
-	pPlayer_->GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::JUMP);
+	pPlayer_->GetDownAnimationController()->SetNextAnimBlend((int)PLAYER_ANIMATION::JUMP, 1.0f, 0.3f);
 
 	if (InputManager::CmdWalk(playerId)) owner_->ChangeState("Move");
 	else owner_->ChangeState("Idle");

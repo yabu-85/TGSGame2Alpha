@@ -281,7 +281,7 @@ void Player::Update()
 
         //’…’n‚µ‚½
         if (!isFly_) {
-            GetDownAnimationController()->SetNextAnim((int)PLAYER_ANIMATION::IDLE);
+            GetDownAnimationController()->SetNextAnimBlend((int)PLAYER_ANIMATION::IDLE, 1.0f, 0.4f);
 
             if (InputManager::CmdWalk(playerId_)) pStateManager_->ChangeState("Move");
             else pStateManager_->ChangeState("Idle");

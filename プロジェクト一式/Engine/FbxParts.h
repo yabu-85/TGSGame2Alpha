@@ -119,6 +119,13 @@ class FbxParts
 
 	//FbxMatrixから回転行列の計算をするラジアン
 	XMFLOAT3 CalcMatRotateRatio(const fbxsdk::FbxMatrix& mat);
+	
+	/// <summary>
+	/// ベースのブレンドのFactor値
+	/// ブレンドデータのサイズ
+	/// ブレンドの比重を計算する
+	/// </summary>
+	void CalcBlendData(std::vector<FbxBlendData>& blendDatas, float& baseBlend, int& blendSize, std::vector<float>& weightList);
 
 public:
 	FbxParts();
