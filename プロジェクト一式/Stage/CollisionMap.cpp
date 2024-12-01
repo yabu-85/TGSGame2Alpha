@@ -10,6 +10,9 @@
 #include "../Engine/Direct3D.h"
 #include "../Engine/SphereCollider.h"
 #include "../Other/GameManager.h"
+#include "../Player/Player.h"
+
+const float CollisionMap::boxSize = 5.0f;
 
 namespace {
     float minX = 0;
@@ -24,8 +27,6 @@ namespace {
     int numY = 0;
     int numZ = 0;
 }
-
-const float CollisionMap::boxSize = 5.0f;
 
 StageModelData::StageModelData() : hModelNum(-1), hRayModelNum(-1), transform{ }
 {
@@ -89,33 +90,32 @@ void CollisionMap::Draw()
     Direct3D::SHADER_TYPE type = Direct3D::GetCurrentShader();
     Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
-    //CellBox
+    //CellBox表示
 #if 0
-    Transform trans = transform_;
-    trans.position_.x = int((Direct3D::PlayerPosition.x - minX) / boxSize) * boxSize;
-    trans.position_.y = int((Direct3D::PlayerPosition.y - minY) / boxSize) * boxSize;
-    trans.position_.z = int((Direct3D::PlayerPosition.z - minZ) / boxSize) * boxSize;
-    trans.position_.x += boxSize * 0.5f;
-    trans.position_.y += boxSize * 0.5f;
-    trans.position_.z += boxSize * 0.5f;
-    trans.scale_ = XMFLOAT3(boxSize, boxSize, boxSize);
-    Model::SetTransform(handle_, trans);
-    Model::Draw(handle_);
+    Cell* cell = GetCell(GameManager::GetPlayer(GameManager::GetDrawIndex())->GetPosition());
+    if (cell) {
+        Transform trans = transform_;
+        trans.position_ = cell->GetCenterPosition();
+        trans.scale_ = XMFLOAT3(boxSize, boxSize, boxSize);
+        Model::SetTransform(handle_, trans);
+        Model::Draw(handle_);
+    }
 #endif
-
+    
+    //Cellの情報
 #if 0
-    Cell* pCell = GetCell(Direct3D::PlayerPosition);
+    Cell* pCell = GetCell(GameManager::GetPlayer(GameManager::GetDrawIndex())->GetPosition());
     if (pCell) {
         OutputDebugString("Floar triangles : ");
-        OutputDebugStringA(std::to_string(GetCell(Direct3D::PlayerPosition)->GetFloarTriangles().size()).c_str());
+        OutputDebugStringA(std::to_string(pCell->GetFloarTriangles().size()).c_str());
         OutputDebugString("\nWall  triangles : ");
-        OutputDebugStringA(std::to_string(GetCell(Direct3D::PlayerPosition)->GetWallTriangles().size()).c_str());
+        OutputDebugStringA(std::to_string(pCell->GetWallTriangles().size()).c_str());
         OutputDebugString("\n\n");
     }
 #endif
     
     //Collision表示
-#ifdef _DEBUG
+#if 0 //#ifdef _DEBUG
     if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
         Transform t = e.transform;
@@ -236,6 +236,14 @@ bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 
 void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
 {
+
+    /*#include <chrono>
+    using namespace std;
+    chrono::system_clock::time_point start, end;
+    start = chrono::system_clock::now();*/
+
+    //全探索にしてるけど変えるべき（やったけど効率上がらなかった。
+#if 1
     int startX = int((_data->start.x - minX) / boxSize);
     int startY = int((_data->start.y - minY) / boxSize);
     int startZ = int((_data->start.z - minZ) / boxSize);
@@ -255,21 +263,27 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
     int stepY = (targetY >= startY) ? 1 : -1;
     int stepZ = (targetZ >= startZ) ? 1 : -1;
 
+    float minDistYMax = 99999.9f;
+    float minDistY = minDistYMax;
+
+    //ボックス
+    const XMFLOAT3 floatBoxPos[4] = {
+    { 0.0f, 0.0f, 0.0f},
+    { boxSize, 0.0f, 0.0f },
+    { boxSize, 0.0f, boxSize },
+    { 0.0f, 0.0f, boxSize }
+    };
+
+    //上ベクトル
+    XMVECTOR UpVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
     //座標の処理 : 常にStartPositionからループ回したいから座標によって増減を決める
     for (int x = startX; x != targetX + stepX; x += stepX) {
         for (int y = startY; y != targetY + stepY; y += stepY) {
             for (int z = startZ; z != targetZ + stepZ; z += stepZ) {
 
                 //line ベクトルに垂直なベクトルを計算
-                XMVECTOR upVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-                XMVECTOR lineNormal = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&_data->dir), upVector));
-
-                const XMFLOAT3 floatBoxPos[4] = {
-                    { 0.0f, 0.0f, 0.0f},
-                    { boxSize, 0.0f, 0.0f },
-                    { boxSize, 0.0f, boxSize },
-                    { 0.0f, 0.0f, boxSize }
-                };
+                XMVECTOR lineNormal = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&_data->dir), UpVector));
 
                 //四角形の四隅の点を求める / その点からstartまでの距離を計算 / 内積により線の方向を計算
                 XMVECTOR lineBase = XMLoadFloat3(&_data->start);
@@ -290,7 +304,6 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
                 //全部同じ方向にあれば、線と四角形が当たっていることはない
                 if ((dp[0] * dp[1] <= 0) || (dp[1] * dp[2] <= 0) || (dp[2] * dp[3] <= 0)) {
                     Cell* cell = &cells_[y][z][x];
-                    if (!cell) continue;
 
                     //Ray内にあったからそのCellで当たり判定をする
                     bool isHitWall = cell->SegmentVsWallTriangle(_data);
@@ -299,14 +312,30 @@ void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)
 
                     //どれかに当たった時点で終了
                     if (isHitWall || isHitFloar) {
-                        //短い距離に合わせる
+                        //WallとFloarで短い距離に合わせる
                         if (_data->dist > wallDist) _data->dist = wallDist;
-                        return;
+                        
+                        //最短距離計算
+                        if (_data->dist < minDistY) minDistY = _data->dist;
                     }
                 }
             }
         }
     }
+
+    if (minDistY < minDistYMax) {
+        _data->dist = minDistY;
+        _data->hit = true;
+
+        /*end = chrono::system_clock::now();
+        double time = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
+        OutputDebugStringA(std::to_string(time).c_str());
+        OutputDebugString("\n");*/
+        return;
+    }
+
+#endif
+
 }
 
 Cell* CollisionMap::GetCell(XMFLOAT3 pos)

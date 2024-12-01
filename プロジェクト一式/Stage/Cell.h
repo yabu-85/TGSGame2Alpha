@@ -43,7 +43,13 @@ public:
 	//球とポリゴン判定して、押し出しもやる関数
 	bool SphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
 
+	//登録されたポリゴンの取得
 	std::vector<Triangle> GetFloarTriangles() { return floarTriangles_; }
 	std::vector<Triangle> GetWallTriangles() { return wallTriangles_; }
+
+	//座標の取得
+	XMFLOAT3 GetCenterPosition();
+	XMFLOAT3 GetMinPosition();
+	XMFLOAT3 GetMaxPosition();
 
 };

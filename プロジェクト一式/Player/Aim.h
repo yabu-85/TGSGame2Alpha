@@ -26,7 +26,7 @@ class Player;
 class Aim : public GameObject
 {
     //フラグ
-    bool isFps_;                    //全ての挙動を止める
+    bool isFps_;                    //FPS
     bool isMove_;                   //エイムを動かすかどうか
     bool isCompulsion_;             //強制的に移動させる状態か
     bool isRotateShakeReturn_;      //RotateShakeの戻り処理する

@@ -26,6 +26,7 @@ namespace InputManager {
 		RELOAD,
 		ACTION,
 		JUMP,
+		TOGGLE_VIEW,
 
 		SELECT,
 		RETURN,

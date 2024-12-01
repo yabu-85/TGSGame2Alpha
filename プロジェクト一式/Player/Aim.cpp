@@ -313,7 +313,9 @@ void Aim::RayCastStage()
     XMStoreFloat3(&dir, vDir);
     data.start = start;
     data.dir = dir;
-    GameManager::GetCollisionMap()->RaySelectCellVsSegment(cameraPosition_, &data);
+    
+    //C³‰ÓŠ
+    // GameManager::GetCollisionMap()->RaySelectCellVsSegment(cameraPosition_, &data);
 
     //ƒŒƒC“–‚½‚Á‚½E”»’è‹——£“à‚¾‚Á‚½‚ç
     if (data.dist <= distanceBehind_ + HEIGHT_RAY) {

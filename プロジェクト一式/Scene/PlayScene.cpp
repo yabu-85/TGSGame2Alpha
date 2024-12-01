@@ -134,6 +134,12 @@ void PlayScene::Update()
 
 			GameManager::SetTwoPlayer();
 			preStageDraw_ = false;
+
+			//C³‰ÓŠi‰æ–Ê•ªŠ„–³‚µ
+			GameManager::SetOnePlayer();
+			GameManager::SetDrawIndex(0);
+			GameManager::SetCursorMode(false);
+
 		}
 		else {
 			//ƒJƒƒ‰‚ÌˆÚ“®

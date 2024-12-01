@@ -1,7 +1,7 @@
 {
   "Gun": {
     "reloadTime": 80,
-    "magazineCount": 40,
+    "magazineCount": 4000,
     "peekTime": 50,
     "peekValue": 0.6,
     "hipFireAccuracy": 0.1,

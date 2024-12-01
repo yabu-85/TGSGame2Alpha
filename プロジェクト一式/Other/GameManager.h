@@ -15,7 +15,9 @@ namespace GameManager
 	void Update();
 	void Draw();
 	void SceneChange();
+	
 	int GetDrawIndex();
+	void SetDrawIndex(int i);
 
 	//メニュー表示中か（違うならプレイシーンでPause画面ではない
 	bool IsCursorMode();

@@ -186,7 +186,7 @@ void Player::Update()
     //着地はPlayerUpdateの中から
     //それ以外はPlayerStateの中からしている
 
-    if (playerId_ == 0 && Input::IsKeyDown(DIK_F)) {
+    if (playerId_ == 0 && Input::IsKeyDown(DIK_H)) {
         Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
         Model::AddBlend(hUpModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
         Model::AddBlend(hFPSModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
@@ -203,6 +203,7 @@ void Player::Update()
         Model::SetBlend(hUpModel_, true);
         Model::SetBlend(hFPSModel_, true);
     }
+    
 
     //アニメーション
     Model::Update(hUpModel_);
@@ -222,18 +223,25 @@ void Player::Update()
     for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hUpModel_, upListIndex_[i], XMFLOAT3(orientRotateX_, 0.0f, 0.0f));
     for (int i = 0; i < upOrientBoneSize; i++) Model::SetOrietnRotateBone(hFPSModel_, upListIndex_[i], XMFLOAT3(orientRotateX_, 0.0f, 0.0f));
 
+    //View切り替え
+    if (InputManager::IsCmdDown(InputManager::TOGGLE_VIEW, playerId_)) {
+        pAim_->SetAimFps(!pAim_->IsAimFps());
+    }
+
     //AimCursor
     if(pGunBase_) pAimCursor_->SetAccuracyParce(pGunBase_->GetAccuracy());
     pAimCursor_->Update();
 
     //デバッグ用
-#if 0
+#if 1
     if (Input::IsKeyDown(DIK_Z)) transform_.position_ = START_POS;
     if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
     if (isCreative_) {
-        if (Input::IsKey(DIK_SPACE)) playerMovement_.y += moveSpeed_ * 0.5f;
-        else if (Input::IsKey(DIK_F)) playerMovement_.y -= moveSpeed_ * 0.5f;
-        if (InputManager::CmdWalk(0)) CalcMove();
+        
+        if (Input::IsKey(DIK_SPACE)) playerMovement_.y += moveSpeed_;
+        else if (Input::IsKey(DIK_C)) playerMovement_.y -= moveSpeed_;
+        
+        if (InputManager::CmdWalk(playerId_)) CalcMove();
         else CalcNoMove();
         Move();
 

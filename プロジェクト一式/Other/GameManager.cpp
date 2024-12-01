@@ -120,6 +120,7 @@ namespace GameManager {
 
 	//¡•`‰æ’†‚Ì”Ô†
 	int GetDrawIndex() { return drawIndex_; }
+	void SetDrawIndex(int i) { drawIndex_ = i; }
 
 	//ƒƒjƒ…ó‘Ô‚©
 	bool IsCursorMode() { return cursorMode_; }
@@ -241,6 +242,15 @@ namespace GameManager {
 				Camera::SetTwoProjectionMatrix();
 			}
 		}
+		
+		// drawIndex ‚ÌØ‚è‘Ö‚¦
+		if (ImGui::Button("Toggle Screen Draw Index"))
+		{
+			if (isOnePlayer_) {
+				if (drawIndex_ == 0) drawIndex_ = 1;
+				else drawIndex_ = 0;
+			}
+		}
 
 		ImGui::Separator();
 
@@ -347,18 +357,17 @@ namespace GameManager {
 
 	void OnePlayerDraw()
 	{
-		drawIndex_ = 0;
-		Direct3D::SetViewPort(0);
+		Direct3D::SetViewPort(drawIndex_);
 		Direct3D::SetViewOne();
-		Camera::SetOneProjectionMatrix(Camera::GetFovAngleParcent(0));
+		Camera::SetOneProjectionMatrix(Camera::GetFovAngleParcent(drawIndex_));
 		
 		if (isShadowDraw_) ShadowDraw();
 		
 		Direct3D::BeginDraw();
-		Camera::Update(0);
+		Camera::Update(drawIndex_);
 		pRootObject_->DrawSub();
 		EFFEKSEERLIB::gEfk->Draw(drawIndex_);
-		GameManager::IndividualDraw(0);
+		GameManager::IndividualDraw(drawIndex_);
 		GameManager::CommonDraw();
 
 		//ImGui

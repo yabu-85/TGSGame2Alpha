@@ -156,6 +156,7 @@
     <ClCompile Include="Engine\Fbx.cpp" />
     <ClCompile Include="Engine\FbxParts.cpp" />
     <ClCompile Include="Engine\GameObject.cpp" />
+    <ClCompile Include="Engine\Global.cpp" />
     <ClCompile Include="Engine\Image.cpp" />
     <ClCompile Include="Engine\imgui\imgui.cpp" />
     <ClCompile Include="Engine\imgui\imgui_draw.cpp" />

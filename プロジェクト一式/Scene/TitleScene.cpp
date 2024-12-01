@@ -32,6 +32,7 @@ void TitleScene::Initialize()
 {
 	//‰æ–Ê•ªŠ„–³‚µ‚É
 	GameManager::SetOnePlayer();
+	GameManager::SetDrawIndex(0);
 	GameManager::SetCursorMode(true);
 	
 	//‰Šú‰»

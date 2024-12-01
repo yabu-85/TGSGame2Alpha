@@ -110,6 +110,10 @@ bool Cell::SphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 	return hit;
 }
 
+XMFLOAT3 Cell::GetCenterPosition() { return Float3Add(min_, Float3Multiply(Float3Sub(max_, min_), 0.5f)); }
+XMFLOAT3 Cell::GetMinPosition() { return min_; }
+XMFLOAT3 Cell::GetMaxPosition() { return max_; }
+
 //--------------------------------------------------------------------
 
 //https://gist.github.com/zvonicek/fe73ba9903f49d57314cf7e8e0f05dcf
