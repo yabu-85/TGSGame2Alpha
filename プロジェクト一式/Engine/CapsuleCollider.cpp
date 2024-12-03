@@ -25,6 +25,30 @@ CapsuleCollider::CapsuleCollider(XMFLOAT3 center, float radius, float height, XM
 
 void CapsuleCollider::Draw(XMFLOAT3 position)
 {
+	XMFLOAT3 fDir;
+	XMStoreFloat3(&fDir, direction_);
+	if (fDir.x == 0.0f && fDir.y == 0.0f && fDir.z == 0.0f) fDir.z = 0.0001f;
+
+	Transform transform;
+	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
+	transform.scale_ = XMFLOAT3(size_.x, size_.y, size_.z);
+	transform.rotate_ = CalculationRotateXY(fDir);
+	transform.Calclation();
+	Model::SetTransform(hDebugModel_, transform);
+	Model::Draw(hDebugModel_);
+
+	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
+	transform.position_ = Float3Add(transform.position_, Float3Multiply(CalculationDirection(transform.rotate_), height_ * 0.5f));
+	transform.Calclation();
+	Model::SetTransform(hDebugModel_, transform);
+	Model::Draw(hDebugModel_);
+
+	transform.position_ = XMFLOAT3(position.x + center_.x, position.y + center_.y, position.z + center_.z);
+	transform.position_ = Float3Sub(transform.position_, Float3Multiply(CalculationDirection(transform.rotate_), height_ * 0.5f));
+	transform.Calclation();
+	Model::SetTransform(hDebugModel_, transform);
+	Model::Draw(hDebugModel_);
+
 #ifdef _DEBUG
 	XMFLOAT3 fDir;
 	XMStoreFloat3(&fDir, direction_); 

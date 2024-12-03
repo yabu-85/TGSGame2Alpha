@@ -150,10 +150,10 @@ void PlayScene::Update()
 	}
 
 	//デバッグ用
-#if 0
+#if 1
 	{
 		if (Input::IsKeyDown(DIK_F1)) EnemyManager::SpawnEnemy(ENEMY_BOSS);
-		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_TEST);
+		if (Input::IsKeyDown(DIK_F2)) EnemyManager::SpawnEnemy(ENEMY_STONE);
 		if (Input::IsKeyDown(DIK_F3)) EnemyManager::AllKillEnemy();
 		if (Input::IsKeyDown(DIK_F4)) {
 			OutputDebugStringA(std::to_string(EnemyManager::GetAllEnemy().size()).c_str());

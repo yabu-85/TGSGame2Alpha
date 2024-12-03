@@ -1,4 +1,4 @@
-#include "TestBoss.h"
+#include "StoneGolem.h"
 #include "EnemyManager.h"
 #include "../Engine/Model.h"
 #include "../Engine/CapsuleCollider.h"
@@ -7,7 +7,7 @@
 #include "../Engine/Input.h"
 #include "../Character/DamageSystem.h"
 #include "../Animation/AnimationController.h"
-#include "../Animation/TestBossNotify.h"
+#include "../Animation/AnimationNotify.h"
 #include "../UI/FixedHealthGauge.h"
 #include "../Other/GameManager.h"
 #include "../Other/VFXManager.h"
@@ -17,18 +17,18 @@ namespace {
 
 }
 
-TestBoss::TestBoss(GameObject* parent)
-    : EnemyBase(parent, "TestBossEnemy")
+StoneGolem::StoneGolem(GameObject* parent)
+    : EnemyBase(parent, "StoneGolemEnemy")
 {
 }
 
-TestBoss::~TestBoss() 
+StoneGolem::~StoneGolem() 
 {
 }
 
-void TestBoss::Initialize()
+void StoneGolem::Initialize()
 {
-    hModel_ = Model::Load("Model/TREX.fbx");
+    hModel_ = Model::Load("Model/StoneGolem.fbx");
     assert(hModel_ >= 0);
 
     transform_.position_ = START_POS;
@@ -81,17 +81,17 @@ void TestBoss::Initialize()
 
     //アニメーションデータのセットフレームはヘッダに書いてる
     pAnimationController_ = new AnimationController(hModel_, this);
-    for (int i = 0; i < (int)TESTBOSS_ANIMATION::MAX; i++) pAnimationController_->AddAnim(TESTBOSS_ANIMATION_DATA[i][0], TESTBOSS_ANIMATION_DATA[i][1]);
+    for (int i = 0; i < (int)STONEGOLEM_ANIMATION::MAX; i++) pAnimationController_->AddAnim(STONEGOLEM_ANIMATION_DATA[i][0], STONEGOLEM_ANIMATION_DATA[i][1]);
     //1
-    pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(60, VFX_TYPE::Explode));
-    pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(120, VFX_TYPE::Explode));
-    pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(180, VFX_TYPE::Explode));
-    pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(240, VFX_TYPE::Explode));
+    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(60, VFX_TYPE::Explode));
+    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(120, VFX_TYPE::Explode));
+    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(180, VFX_TYPE::Explode));
+    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(240, VFX_TYPE::Explode));
     pAnimationController_->SetNextAnim(0, 0.3f);
 
 }
 
-void TestBoss::Update()
+void StoneGolem::Update()
 {
     //Dead判定
     if (IsHealthZero()) KillMe();
@@ -119,7 +119,7 @@ void TestBoss::Update()
 
 }
 
-void TestBoss::Draw()
+void StoneGolem::Draw()
 {
     Model::SetTransform(hModel_, transform_);
     Model::Draw(hModel_);
@@ -139,7 +139,7 @@ void TestBoss::Draw()
 
 }
 
-void TestBoss::Release()
+void StoneGolem::Release()
 {
     Model::Release(hModel_);
 

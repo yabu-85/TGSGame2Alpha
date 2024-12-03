@@ -365,6 +365,9 @@
     <ClCompile Include="Engine\Global.cpp">
       <Filter>01Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Enemy\StoneGolem.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -642,6 +645,9 @@
     </ClInclude>
     <ClInclude Include="Animation\TestBossNotify.h">
       <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy\StoneGolem.h">
+      <Filter>Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

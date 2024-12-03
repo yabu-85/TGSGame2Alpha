@@ -3,8 +3,10 @@
 #include "SkyBox.h"
 #include "../Engine/Model.h"
 #include "../Engine/Direct3D.h"
+#include "../Engine/Light.h"
 #include "../AI/RouteSearch.h"
 #include "../Other/GameManager.h"
+#include "../Other/VFXManager.h"
 #include "../Scene/PlayScene.h"
 #include "../Json/JsonReader.h"
 
@@ -52,6 +54,19 @@ void Stage::Update()
 
 void Stage::Draw()
 {
+	if (rand() % 10 != 0) return;
+	//Effekseer
+	XMFLOAT3 lightPos = XMFLOAT3(Light::GetPosition(0).x, Light::GetPosition(0).y, Light::GetPosition(0).z);
+	Transform pTrans;
+	pTrans.position_ = lightPos;
+
+	EFFEKSEERLIB::EFKTransform t;
+	DirectX::XMStoreFloat4x4(&(t.matrix), pTrans.GetWorldMatrix());
+	t.isLoop = false;   //繰り返し
+	t.maxFrame = 80;    //80フレーム
+	t.speed = 1.0;      //スピード
+	EFFEKSEERLIB::gEfk->Play("FEATHER", t);
+
 }
 
 void Stage::Release()

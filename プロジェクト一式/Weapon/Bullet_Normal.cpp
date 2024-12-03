@@ -147,7 +147,7 @@ void Bullet_Normal::Draw()
 
         //CollisionDraw
 #ifdef _DEBUG
-        CollisionDraw();
+        //CollisionDraw();
 #endif
 
     }

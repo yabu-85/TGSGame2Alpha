@@ -113,7 +113,7 @@ float4 PS(VS_OUT inData) : SV_Target
     
     inData.lightTex /= inData.lightTex.w;
     float TexValue = g_depthTexture.Sample(g_depthSampler, inData.lightTex.xy).r;
-    float LightLength = length(inData.lightViewPos - lightPos) / 50.0f;
+    float LightLength = length(inData.lightViewPos - lightPos) / 100.0f;
     
     //ライトビューでの長さが短い（ライトビューでは遮蔽物がある） 
     //誤差いい感じの値で調整

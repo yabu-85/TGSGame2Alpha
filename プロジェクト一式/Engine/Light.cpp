@@ -1,6 +1,7 @@
 #include "Light.h"
 #include "Model.h"
 #include "Direct3D.h"
+#include "Global.h"
 
 struct LightData {
 	XMFLOAT4 position;
@@ -10,7 +11,6 @@ struct LightData {
 
 namespace Light {
 	LightData lightDatas[LIGHT_TOTAL_NUM];
-	int hModel = -1;
 	
 }
 
@@ -42,4 +42,9 @@ XMFLOAT4 Light::GetPosition(int i)
 XMFLOAT4 Light::GetTarget(int i)
 {
 	return lightDatas[i].target;
+}
+
+XMFLOAT4 Light::GetDirection(int i)
+{
+	return XMFLOAT4();
 }

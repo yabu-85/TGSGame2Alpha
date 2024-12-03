@@ -425,7 +425,6 @@ void FbxParts::Draw(Transform& transform, bool isShadow)
 	Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);
 	Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);
 
-
 	//シェーダーのコンスタントバッファーに各種データを渡す
 	for (DWORD i = 0; i < materialCount_; i++)
 	{
@@ -463,6 +462,7 @@ void FbxParts::Draw(Transform& transform, bool isShadow)
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 		}
 
+		//描画画面それぞれの情報を渡す
 		int id = GameManager::GetDrawIndex();
 		Direct3D::pContext_->PSSetSamplers(1, 1, &Direct3D::pDepthSampler_[id]);
 		Direct3D::pContext_->PSSetShaderResources(2, 1, &Direct3D::pDepthSRV_[id]);
@@ -583,21 +583,27 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
 	}
 	
-	//頂点バッファをロックして、変形させた後の頂点情報で上書きする
+	//頂点バッファをロックして、変形させた後の頂点情報で上書きする（msr:バッファデータへのポインタを格納する構造体)
 	D3D11_MAPPED_SUBRESOURCE msr = {};
 	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
 	if (msr.pData)
 	{
-		memcpy_s(msr.pData, msr.RowPitch, pVertexData_, sizeof(VERTEX) * vertexCount_);
-		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);
+		memcpy_s(msr.pData, msr.RowPitch, pVertexData_, sizeof(VERTEX) * vertexCount_);		//msr.pData に頂点データ(pVertexData_)をコピー
+		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);										//頂点バッファのロックを解除
 	}
 
 	Draw(transform, isShadow);
 }
 
+//#include <chrono>
+//using namespace std;
+
 //BlendDataが0になることはない、Weightが0のデータもなし
 void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData>& blendDatas)
 {
+	//chrono::system_clock::time_point start, end;
+	//start = chrono::system_clock::now();
+
 	float baseBlend = 0.0f;
 	int blendSize = (int)blendDatas.size();
 	std::vector<float> weightList(blendSize);
@@ -630,6 +636,13 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 		}
 	}
 
+	//0.2
+	//end = chrono::system_clock::now();
+	//double ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
+	//OutputDebugStringA(std::to_string(ctime).c_str());
+	//OutputDebugString("\n");
+	//start = chrono::system_clock::now();
+
 	//ベースのアニメーションの計算
 	for (int i = 0; i < numBone_; i++)
 	{
@@ -651,6 +664,13 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 		pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
 		pBoneArray_[i].diffPose *= pBoneArray_[i].newPose;
 	}
+
+	//0.1
+	//end = chrono::system_clock::now();
+	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
+	//OutputDebugStringA(std::to_string(ctime).c_str());
+	//OutputDebugString("\n");
+	//start = chrono::system_clock::now();
 
 	//Orientの計算
 	for (const auto& pair : orientDatas)
@@ -680,6 +700,13 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 		pBoneArray_[pair.boneIndex].diffPose *= pBoneArray_[pair.boneIndex].newPose;
 	}
 
+	//0.00
+	//end = chrono::system_clock::now();
+	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
+	//OutputDebugStringA(std::to_string(ctime).c_str());
+	//OutputDebugString("\n");
+	//start = chrono::system_clock::now();
+
 	//最終ブレンド行列を計算
 	for (int i = 0; i < numBone_; i++) {
 		//base
@@ -690,6 +717,13 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 			pBoneArray_[i].diffPose += blendMatrices[j][i] * weightList[j];
 		}
 	}
+
+	//0.00
+	//end = chrono::system_clock::now();
+	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
+	//OutputDebugStringA(std::to_string(ctime).c_str());
+	//OutputDebugString("\n");
+	//start = chrono::system_clock::now();
 
 	for (DWORD i = 0; i < vertexCount_; i++)
 	{
@@ -715,6 +749,12 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
 		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
 	}
+	
+	//0.01
+	//end = chrono::system_clock::now();
+	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
+	//OutputDebugStringA(std::to_string(ctime).c_str());
+	//OutputDebugString("\n\n");
 
 	//頂点バッファをロックして、変形させた後の頂点情報で上書きする
 	D3D11_MAPPED_SUBRESOURCE msr = {};

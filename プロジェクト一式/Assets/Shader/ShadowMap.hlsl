@@ -30,7 +30,7 @@ VS_OUT VS(float4 pos : POSITION)
 {
     VS_OUT outData;
     outData.pos = mul(pos, matWVP);
-    outData.depth = length(camPos - mul(pos, matWorld)) / 50.0;
+    outData.depth = length(camPos - mul(pos, matWorld)) / 100.0;
     return outData;
 }
 
