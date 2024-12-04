@@ -185,6 +185,14 @@ void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& o
 	}
 }
 
+void Fbx::CalcDraw(int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData>& blendDats)
+{
+}
+
+void Fbx::Draw(Transform& transform)
+{
+}
+
 //レイキャスト（レイを飛ばして当たり判定）
 void Fbx::RayCast(RayCastData * data)
 {

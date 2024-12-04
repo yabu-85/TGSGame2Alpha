@@ -88,6 +88,7 @@ namespace Model
 		if (!_datas[handle]->isBlending) return;
 		
 		//ブレンドデータを更新
+		bool blendfinished = false;
 		for (size_t i = 0; i < _datas[handle]->blendDatas_.size(); ) {
 			BlendData & blendData = _datas[handle]->blendDatas_[i];
 			
@@ -100,6 +101,7 @@ namespace Model
 				//ブレンドの情報全てなくなった
 				if (_datas[handle]->blendDatas_.empty()) {
 					_datas[handle]->isBlending = false;
+					blendfinished = true;
 				}
 			}
 			else {
@@ -122,6 +124,14 @@ namespace Model
 				++i;
 			}
 		}
+
+		//DrawCallの処理
+		//条件（アニメーションが進む or ブレンドデータがある or Orientに変更がある
+		bool orientCall = false;
+		if (!_datas[handle]->isAnimStop || !_datas[handle]->blendDatas_.empty() || blendfinished || orientCall) {
+
+		}
+
 	}
 
 	//描画

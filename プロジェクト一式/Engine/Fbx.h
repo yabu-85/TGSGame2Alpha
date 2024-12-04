@@ -75,6 +75,11 @@ public:
 	//ブレンドありの描画
 	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector <FbxBlendData> &blendDats);
 
+	//新しいバージョン（変更があるものを描画計算する
+	void CalcDraw(int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector <FbxBlendData>& blendDats);
+	//計算を終えたやつらを描画する
+	void Draw(Transform& transform);
+
 	//解放
 	void Release();
 
