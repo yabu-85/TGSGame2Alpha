@@ -4,6 +4,12 @@
 #include "Fbx.h"
 #include "Transform.h"
 
+//インスタンスごとに持つボーン情報
+struct BoneInstanceData {
+	XMMATRIX  newPose;       // アニメーションで変化したときのボーン変換行列
+	XMMATRIX  diffPose;      // mBindPose に対する mNowPose の変化量
+};
+
 //UEで言う、LookAtのデータ
 struct OrientRotateInfo
 {
@@ -11,6 +17,14 @@ struct OrientRotateInfo
 	int parentBoneIndex;	//親ボーンのインデックス（Rootの場合-1）
 	XMFLOAT3 orientRotate;	//回転量
 	OrientRotateInfo() : boneIndex(-1), parentBoneIndex(-1), orientRotate(XMFLOAT3()) {}
+
+	//回転行列の取得（引数はDegreesの値）
+	XMMATRIX GetRotationMatrix() const {
+		return
+			XMMatrixRotationX(XMConvertToRadians(orientRotate.x)) *
+			XMMatrixRotationY(XMConvertToRadians(orientRotate.y)) *
+			XMMatrixRotationZ(XMConvertToRadians(orientRotate.z));
+	}
 };
 
 //アニメーションブレンドの情報
@@ -56,14 +70,20 @@ namespace Model
 		std::vector<OrientRotateInfo> orientRotateDatas_;
 		std::vector<BlendData> blendDatas_;
 		std::vector<FbxBlendData> fbxBlendDatas_;
-		
+
+		//インスタンスごとに持つボーンデータ
+		BoneInstanceData* pBoneInstanceData;
+
 		bool isAnimStop;	//アニメーション再生するかどうか
 		bool isShadow;		//影適応するかどうか
 		bool isAnimLoop;	//アニメーションループするかどうか
 		bool isBlending;	//ブレンドするかどうか
+		bool isCalcDraw;	//ClacDrawする必要があるかどうか
 
 		//初期化
-		ModelData() : pFbx(nullptr), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isAnimStop(false), isShadow(true), isAnimLoop(true), isBlending(false)
+		ModelData() 
+			: pFbx(nullptr), pBoneInstanceData(nullptr),
+			nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), isAnimStop(false), isShadow(true), isAnimLoop(true), isBlending(false), isCalcDraw(false)
 		{
 		}
 
@@ -91,6 +111,9 @@ namespace Model
 	//モデルのUpdate
 	//今はアニメーションの時間を進めるのに使う
 	void Update(int handle);
+
+	//ボーン有の描画前計算
+	void CalcDraw(int handle);
 
 	//描画
 	//引数：handle	描画したいモデルの番号
@@ -152,11 +175,14 @@ namespace Model
 	//戻値：ボーンの位置（ワールド座標）
 	XMFLOAT3 GetBonePosition(int handle, int partIndex, int boneIndex);
 
-	//アニメーション時のボーンの位置を取得
-	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex);
+	//現在のボーン位置を取得
+	XMFLOAT3 GetBoneAnimPositionAtNow(int handle, int partIndex, int boneIndex);
+
+	//指定したアニメーション時間のボーンの位置を取得
+	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex, int frame);
 	
-	//アニメーション時のボーンの回転を取得
-	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex);
+	//指定したアニメーション時間の回転を取得
+	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex, int frame);
 
 	//ワールド行列を設定
 	//引数：handle	設定したいモデルの番号

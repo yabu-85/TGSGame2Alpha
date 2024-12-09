@@ -32,7 +32,6 @@ FbxParts::~FbxParts()
 		SAFE_DELETE_ARRAY(pWeightArray_);
 	}
 
-
 	SAFE_DELETE_ARRAY(pVertexData_);
 	for (DWORD i = 0; i < materialCount_; i++)
 	{
@@ -70,6 +69,16 @@ HRESULT FbxParts::Init(FbxNode *pNode)
 	return E_NOTIMPL;
 }
 
+BoneInstanceData* FbxParts::CreateBoneInstanceData()
+{
+	//ボーン情報無いから終わり
+	if (numBone_ <= 0) {
+		return nullptr;
+	}
+
+	BoneInstanceData* pInstanceData = new BoneInstanceData[numBone_];
+	return pInstanceData;
+}
 
 //頂点バッファ準備
 void FbxParts::InitVertex(fbxsdk::FbxMesh * mesh)
@@ -476,37 +485,47 @@ void FbxParts::Draw(Transform& transform, bool isShadow)
 
 }
 
-// 回転行列からオイラー角を抽出する関数
-XMFLOAT3 GetEulerAnglesFromMatrix(const XMMATRIX& matrix) {
-	XMFLOAT4X4 mat;
-	XMStoreFloat4x4(&mat, matrix);
-
-	XMFLOAT3 euler;
-
-	// オイラー角を計算
-	if (mat.m[0][2] < 1.0f) {
-		if (mat.m[0][2] > -1.0f) {
-			euler.y = asinf(mat.m[0][2]);
-			euler.x = atan2f(-mat.m[1][2], mat.m[2][2]);
-			euler.z = atan2f(-mat.m[0][1], mat.m[0][0]);
+void FbxParts::DrawSkinAnime(BoneInstanceData* boneInst, Transform& transform, bool isShadow)
+{
+	//各ボーンに対応した頂点の変形制御
+	for (DWORD i = 0; i < vertexCount_; i++)
+	{
+		//各頂点ごとに、「影響するボーン×ウェイト値」を反映させた関節行列を作成する
+		XMMATRIX  matrix;
+		ZeroMemory(&matrix, sizeof(matrix));
+		for (int m = 0; m < numBone_; m++)
+		{
+			if (pWeightArray_[i].pBoneIndex[m] < 0)
+			{
+				break;
+			}
+			matrix += boneInst[pWeightArray_[i].pBoneIndex[m]].diffPose * pWeightArray_[i].pBoneWeight[m];
 		}
-		else { // mat.m[0][2] == -1
-			euler.y = -XM_PIDIV2;
-			euler.x = -atan2f(mat.m[1][0], mat.m[1][1]);
-			euler.z = 0.0f;
-		}
-	}
-	else { // mat.m[0][2] == 1
-		euler.y = XM_PIDIV2;
-		euler.x = atan2f(mat.m[1][0], mat.m[1][1]);
-		euler.z = 0.0f;
+
+		//作成された関節行列を使って、頂点を変形する
+		XMVECTOR Pos = XMLoadFloat3(&pWeightArray_[i].posOrigin);
+		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
+		XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
+		XMFLOAT3X3 mat33;
+		XMStoreFloat3x3(&mat33, matrix);
+		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
+		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
 	}
 
-	return euler;
+	//頂点バッファをロックして、変形させた後の頂点情報で上書きする（msr:バッファデータへのポインタを格納する構造体)
+	D3D11_MAPPED_SUBRESOURCE msr = {};
+	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+	if (msr.pData)
+	{
+		memcpy_s(msr.pData, msr.RowPitch, pVertexData_, sizeof(VERTEX) * vertexCount_);		//msr.pData に頂点データ(pVertexData_)をコピー
+		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);										//頂点バッファのロックを解除
+	}
+
+	Draw(transform, isShadow);
 }
 
 //ボーン有りのモデルを描画
-void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow)
+void FbxParts::CalcDrawSkinAnime(BoneInstanceData* boneInst, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
 {
 	//ボーンごとの現在の行列を取得する
 	for (int i = 0; i < numBone_; i++)
@@ -525,85 +544,42 @@ void FbxParts::DrawSkinAnime(Transform& transform, FbxTime time, std::vector<Ori
 		}
 
 		//オフセット時のポーズの差分を計算する
-		pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
-		pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
-		pBoneArray_[i].diffPose *= pBoneArray_[i].newPose;
+		boneInst[i].newPose = XMLoadFloat4x4(&pose);
 	}
 
 	//Orientの計算
 	for (const auto& pair : orientDatas)
 	{
 		//回転行列を作成する
-		XMMATRIX matR =
-			XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
-			XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
-			XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
+		XMMATRIX matR = pair.GetRotationMatrix();
 
 		if (pair.parentBoneIndex <= -1) {
-			XMVECTOR translation = pBoneArray_[pair.boneIndex].newPose.r[3];	//座標MATRIX
-			pBoneArray_[pair.boneIndex].newPose = pBoneArray_[pair.boneIndex].newPose * matR;
-			pBoneArray_[pair.boneIndex].newPose.r[3] = translation;
+			XMVECTOR translation = boneInst[pair.boneIndex].newPose.r[3];	//座標MATRIX
+			boneInst[pair.boneIndex].newPose = boneInst[pair.boneIndex].newPose * matR;
+			boneInst[pair.boneIndex].newPose.r[3] = translation;
 		}
 		else {
 			//子Boneの始点を計算し、親Boneの始点を原点として、子Boneの始点を座標でmatRと計算
-			XMVECTOR localPosition = pBoneArray_[pair.boneIndex].newPose.r[3] - pBoneArray_[pair.parentBoneIndex].newPose.r[3];
-			XMVECTOR childPos = XMVector3Transform(localPosition, matR) + pBoneArray_[pair.parentBoneIndex].newPose.r[3];
-			pBoneArray_[pair.boneIndex].newPose *= matR;
+			XMVECTOR localPosition = boneInst[pair.boneIndex].newPose.r[3] - boneInst[pair.parentBoneIndex].newPose.r[3];
+			XMVECTOR childPos = XMVector3Transform(localPosition, matR) + boneInst[pair.parentBoneIndex].newPose.r[3];
+			boneInst[pair.boneIndex].newPose *= matR;
 			
 			//座標をWは変更なしで代入
-			pBoneArray_[pair.boneIndex].newPose.r[3] = XMVectorSetW(childPos, 1.0f);
+			boneInst[pair.boneIndex].newPose.r[3] = XMVectorSetW(childPos, 1.0f);
 		}
-		
-		pBoneArray_[pair.boneIndex].diffPose = XMMatrixInverse(nullptr, pBoneArray_[pair.boneIndex].bindPose);
-		pBoneArray_[pair.boneIndex].diffPose *= pBoneArray_[pair.boneIndex].newPose;
 	}
 
-	//各ボーンに対応した頂点の変形制御
-	for (DWORD i = 0; i < vertexCount_; i++)
+	//差分からボーン計算
+	for (int i = 0; i < numBone_; i++)
 	{
-		//各頂点ごとに、「影響するボーン×ウェイト値」を反映させた関節行列を作成する
-		XMMATRIX  matrix;
-		ZeroMemory(&matrix, sizeof(matrix));
-		for (int m = 0; m < numBone_; m++)
-		{
-			if (pWeightArray_[i].pBoneIndex[m] < 0)
-			{
-				break;
-			}
-			matrix += pBoneArray_[pWeightArray_[i].pBoneIndex[m]].diffPose * pWeightArray_[i].pBoneWeight[m];
-		}
-
-		//作成された関節行列を使って、頂点を変形する
-		XMVECTOR Pos = XMLoadFloat3(&pWeightArray_[i].posOrigin);
-		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
-		XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
-		XMFLOAT3X3 mat33;
-		XMStoreFloat3x3(&mat33, matrix);
-		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
-		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
+		boneInst[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
+		boneInst[i].diffPose *= boneInst[i].newPose;
 	}
-	
-	//頂点バッファをロックして、変形させた後の頂点情報で上書きする（msr:バッファデータへのポインタを格納する構造体)
-	D3D11_MAPPED_SUBRESOURCE msr = {};
-	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
-	if (msr.pData)
-	{
-		memcpy_s(msr.pData, msr.RowPitch, pVertexData_, sizeof(VERTEX) * vertexCount_);		//msr.pData に頂点データ(pVertexData_)をコピー
-		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);										//頂点バッファのロックを解除
-	}
-
-	Draw(transform, isShadow);
 }
 
-//#include <chrono>
-//using namespace std;
-
 //BlendDataが0になることはない、Weightが0のデータもなし
-void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData>& blendDatas)
+void FbxParts::CalcDrawBlendedSkinAnim(BoneInstanceData* boneInst, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
 {
-	//chrono::system_clock::time_point start, end;
-	//start = chrono::system_clock::now();
-
 	float baseBlend = 0.0f;
 	int blendSize = (int)blendDatas.size();
 	std::vector<float> weightList(blendSize);
@@ -636,13 +612,6 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 		}
 	}
 
-	//0.2
-	//end = chrono::system_clock::now();
-	//double ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
-	//OutputDebugStringA(std::to_string(ctime).c_str());
-	//OutputDebugString("\n");
-	//start = chrono::system_clock::now();
-
 	//ベースのアニメーションの計算
 	for (int i = 0; i < numBone_; i++)
 	{
@@ -660,117 +629,46 @@ void FbxParts::DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vect
 		}
 
 		//オフセット時のポーズの差分を計算する
-		pBoneArray_[i].newPose = XMLoadFloat4x4(&pose);
-		pBoneArray_[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
-		pBoneArray_[i].diffPose *= pBoneArray_[i].newPose;
+		boneInst[i].newPose = XMLoadFloat4x4(&pose);
+		boneInst[i].diffPose = XMMatrixInverse(nullptr, pBoneArray_[i].bindPose);
+		boneInst[i].diffPose *= boneInst[i].newPose;
 	}
-
-	//0.1
-	//end = chrono::system_clock::now();
-	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
-	//OutputDebugStringA(std::to_string(ctime).c_str());
-	//OutputDebugString("\n");
-	//start = chrono::system_clock::now();
 
 	//Orientの計算
 	for (const auto& pair : orientDatas)
 	{
 		//回転行列を作成する
-		XMMATRIX matR =
-			XMMatrixRotationX(XMConvertToRadians(pair.orientRotate.x)) *
-			XMMatrixRotationY(XMConvertToRadians(pair.orientRotate.y)) *
-			XMMatrixRotationZ(XMConvertToRadians(pair.orientRotate.z));
+		XMMATRIX matR = pair.GetRotationMatrix();
 
 		if (pair.parentBoneIndex <= -1) {
-			XMVECTOR translation = pBoneArray_[pair.boneIndex].newPose.r[3];	//座標MATRIX
-			pBoneArray_[pair.boneIndex].newPose = pBoneArray_[pair.boneIndex].newPose * matR;
-			pBoneArray_[pair.boneIndex].newPose.r[3] = translation;
+			XMVECTOR translation = boneInst[pair.boneIndex].newPose.r[3];	//座標MATRIX
+			boneInst[pair.boneIndex].newPose = boneInst[pair.boneIndex].newPose * matR;
+			boneInst[pair.boneIndex].newPose.r[3] = translation;
 		}
 		else {
-			//子Boneの始点を計算し、親Boneの始点を原点として、子Boneの始点を座標でmatRと計算
-			XMVECTOR localPosition = pBoneArray_[pair.boneIndex].newPose.r[3] - pBoneArray_[pair.parentBoneIndex].newPose.r[3];
-			XMVECTOR childPos = XMVector3Transform(localPosition, matR) + pBoneArray_[pair.parentBoneIndex].newPose.r[3];
-			pBoneArray_[pair.boneIndex].newPose *= matR;
+			//子Boneの始点を計算し、親boneInstの始点を原点として、子Boneの始点を座標でmatRと計算
+			XMVECTOR localPosition = boneInst[pair.boneIndex].newPose.r[3] - boneInst[pair.parentBoneIndex].newPose.r[3];
+			XMVECTOR childPos = XMVector3Transform(localPosition, matR) + boneInst[pair.parentBoneIndex].newPose.r[3];
+			boneInst[pair.boneIndex].newPose *= matR;
 
 			//座標をWは変更なしで代入
-			pBoneArray_[pair.boneIndex].newPose.r[3] = XMVectorSetW(childPos, 1.0f);
+			boneInst[pair.boneIndex].newPose.r[3] = XMVectorSetW(childPos, 1.0f);
 		}
 
-		pBoneArray_[pair.boneIndex].diffPose = XMMatrixInverse(nullptr, pBoneArray_[pair.boneIndex].bindPose);
-		pBoneArray_[pair.boneIndex].diffPose *= pBoneArray_[pair.boneIndex].newPose;
+		boneInst[pair.boneIndex].diffPose = XMMatrixInverse(nullptr, pBoneArray_[pair.boneIndex].bindPose);
+		boneInst[pair.boneIndex].diffPose *= boneInst[pair.boneIndex].newPose;
 	}
-
-	//0.00
-	//end = chrono::system_clock::now();
-	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
-	//OutputDebugStringA(std::to_string(ctime).c_str());
-	//OutputDebugString("\n");
-	//start = chrono::system_clock::now();
 
 	//最終ブレンド行列を計算
 	for (int i = 0; i < numBone_; i++) {
 		//base
-		pBoneArray_[i].diffPose *= baseBlend;
+		boneInst[i].diffPose *= baseBlend;
 	
 		//BlendList
 		for (int j = 0; j < blendSize; ++j) {
-			pBoneArray_[i].diffPose += blendMatrices[j][i] * weightList[j];
+			boneInst[i].diffPose += blendMatrices[j][i] * weightList[j];
 		}
 	}
-
-	//0.00
-	//end = chrono::system_clock::now();
-	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
-	//OutputDebugStringA(std::to_string(ctime).c_str());
-	//OutputDebugString("\n");
-	//start = chrono::system_clock::now();
-
-	for (DWORD i = 0; i < vertexCount_; i++)
-	{
-		//各頂点ごとに「影響するボーン×ウェイト値」を反映させた関節行列を作成する
-		XMMATRIX  matrix;
-		ZeroMemory(&matrix, sizeof(matrix));
-		for (int m = 0; m < numBone_; m++)
-		{
-			if (pWeightArray_[i].pBoneIndex[m] < 0)
-			{
-				break;
-			}
-
-			matrix += pBoneArray_[pWeightArray_[i].pBoneIndex[m]].diffPose * pWeightArray_[i].pBoneWeight[m];
-		}
-
-		//作成された関節行列を使って、頂点を変形する
-		XMVECTOR Pos = XMLoadFloat3(&pWeightArray_[i].posOrigin);
-		XMVECTOR Normal = XMLoadFloat3(&pWeightArray_[i].normalOrigin);
-		XMStoreFloat3(&pVertexData_[i].position, XMVector3TransformCoord(Pos, matrix));
-		XMFLOAT3X3 mat33;
-		XMStoreFloat3x3(&mat33, matrix);
-		XMMATRIX matrix33 = XMLoadFloat3x3(&mat33);
-		XMStoreFloat3(&pVertexData_[i].normal, XMVector3TransformCoord(Normal, matrix33));
-	}
-	
-	//0.01
-	//end = chrono::system_clock::now();
-	//ctime = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
-	//OutputDebugStringA(std::to_string(ctime).c_str());
-	//OutputDebugString("\n\n");
-
-	//頂点バッファをロックして、変形させた後の頂点情報で上書きする
-	D3D11_MAPPED_SUBRESOURCE msr = {};
-	Direct3D::pContext_->Map(pVertexBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
-	if (msr.pData)
-	{
-		memcpy_s(msr.pData, msr.RowPitch, pVertexData_, sizeof(VERTEX) * vertexCount_);
-		Direct3D::pContext_->Unmap(pVertexBuffer_, 0);
-	}
-
-	Draw(transform, isShadow);
-}
-
-void FbxParts::DrawMeshAnime(Transform& transform, bool isShadow)
-{
-	Draw(transform, isShadow);
 }
 
 bool FbxParts::GetBoneIndex(std::string boneName, int* index)
@@ -798,7 +696,18 @@ XMFLOAT3 FbxParts::GetBonePosition(int index)
 	return pos;
 }
 
-XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
+XMFLOAT3 FbxParts::GetBonePositionAtNow(BoneInstanceData* boneInst, int index)
+{
+	XMFLOAT3 pos = XMFLOAT3();
+	XMFLOAT4X4  m;
+	XMStoreFloat4x4(&m, boneInst[index].newPose);
+	pos.x = m._41;
+	pos.y = m._42;
+	pos.z = m._43;
+	return pos;
+}
+
+XMFLOAT3 FbxParts::GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
 {
 	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
 	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
@@ -845,7 +754,7 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 }
 
 //モデルを一つしか使っていないとしたらdiffPosかnewPos使えば簡単に取得できると思う
-XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
+XMFLOAT3 FbxParts::GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
 {
 	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
 	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
@@ -906,7 +815,7 @@ XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRo
 			}
 		}
 	}
-	
+
 	return pos;
 }
 

@@ -31,6 +31,6 @@ CreatFrameBone::CreatFrameBone(int t, VFX_TYPE _type, int model, std::string nam
 
 void CreatFrameBone::CalcFrame(int t, GameObject* obj)
 {
-	XMFLOAT3 bonePos = Model::GetBoneAnimPosition(hModel, boneIndex, partIndex);
+	XMFLOAT3 bonePos = Model::GetBoneAnimPositionAtNow(hModel, boneIndex, partIndex);
 	//if (time == t) VFXManager::CreateVfx(bonePos, type);
 }

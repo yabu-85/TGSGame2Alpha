@@ -35,7 +35,9 @@ namespace JsonReader
         if (j.empty())
         {
             //JSONが空の場合のエラーハンドリング
-            OutputDebugString("Json none");
+            OutputDebugString("Json none : ");
+            OutputDebugStringA(fileName.c_str());
+            OutputDebugString("\n");
             return;
         }
 

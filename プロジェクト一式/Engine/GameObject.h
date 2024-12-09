@@ -55,9 +55,17 @@ public:
 	virtual void Draw() = 0;
 	virtual void Release(void) = 0;
 
+	/// <summary>
+	/// ボーンありの描画で使用する（2画面に下から1回の計算で済むように作成した）
+	/// ボーンがない場合は継承の必要は無し
+	/// ある場合はModel::CalcDrawを呼ぶ必要がある
+	/// </summary>
+	virtual void CalcDraw() {};
+
 	//自分の該当関数を読んだ後、子供の関数も呼ぶ
 	void UpdateSub();
 	void DrawSub();
+	void CalcDrawSub();
 	void ReleaseSub();
 
 	//ワールド行列の取得（親の影響を受けた最終的な行列）

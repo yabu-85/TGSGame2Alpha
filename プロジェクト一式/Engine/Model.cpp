@@ -50,6 +50,8 @@ namespace Model
 			pData->fileName = fileName;
 		}
 
+		//インスタンス用データを作成
+		pData->pBoneInstanceData = pData->pFbx->CreateBoneInstanceData();
 
 		//使ってない番号が無いか探す
 		for (int i = 0; i < _datas.size(); i++)
@@ -84,54 +86,61 @@ namespace Model
 			}
 		}
 
-		//ブレンド
-		if (!_datas[handle]->isBlending) return;
-		
-		//ブレンドデータを更新
-		bool blendfinished = false;
-		for (size_t i = 0; i < _datas[handle]->blendDatas_.size(); ) {
-			BlendData & blendData = _datas[handle]->blendDatas_[i];
+		//ブレンド処理
+		bool blendCalc = false;
+		if (_datas[handle]->isBlending && !_datas[handle]->blendDatas_.empty()) {
+			blendCalc = true;
 			
-			//ブレンド終了
-			if (blendData.currentBlend <= 0.0f) {
-				//ブレンドデータ削除
-				_datas[handle]->blendDatas_.erase(_datas[handle]->blendDatas_.begin() + i);
-				_datas[handle]->fbxBlendDatas_.erase(_datas[handle]->fbxBlendDatas_.begin() + i);
+			for (size_t i = 0; i < _datas[handle]->blendDatas_.size(); ) {
+				BlendData& blendData = _datas[handle]->blendDatas_[i];
 
-				//ブレンドの情報全てなくなった
-				if (_datas[handle]->blendDatas_.empty()) {
-					_datas[handle]->isBlending = false;
-					blendfinished = true;
+				//ブレンド終了
+				if (blendData.currentBlend <= 0.0f) {
+					//ブレンドデータ削除
+					_datas[handle]->blendDatas_.erase(_datas[handle]->blendDatas_.begin() + i);
+					_datas[handle]->fbxBlendDatas_.erase(_datas[handle]->fbxBlendDatas_.begin() + i);
+
+					//ブレンドの情報全てなくなった
+					if (_datas[handle]->blendDatas_.empty()) {
+						_datas[handle]->isBlending = false;
+					}
+				}
+				else {
+					blendData.nowFrame += blendData.animSpeed;
+					blendData.currentBlend -= blendData.decreaseBlend;
+
+					//最後までアニメーションしたら戻す
+					if (blendData.nowFrame > (float)blendData.endFrame) {
+						if (blendData.animLoop) blendData.nowFrame = (float)blendData.startFrame;
+						else blendData.nowFrame = (float)blendData.endFrame;
+					}
+
+					//Fbxのブレンドデータを更新
+					FbxBlendData newBlendData;
+					newBlendData.time.SetTime(0, 0, 0, (int)blendData.nowFrame, 0, 0, _datas[handle]->pFbx->GetFrameRate());
+					newBlendData.factor = blendData.currentBlend;
+					_datas[handle]->fbxBlendDatas_[i] = newBlendData;
+
+					++i;
 				}
 			}
-			else {
-				blendData.nowFrame += blendData.animSpeed;
-				blendData.currentBlend -= blendData.decreaseBlend;
+		}
+	}
 
-				//最後までアニメーションしたら戻す
-				if (blendData.nowFrame > (float)blendData.endFrame) {
-					if (blendData.animLoop) blendData.nowFrame = (float)blendData.startFrame;
-					else blendData.nowFrame = (float)blendData.endFrame;
-				}
-
-				//Fbxのブレンドデータを更新
-				FbxBlendData newBlendData;
-				newBlendData.time.SetTime(0, 0, 0, (int)blendData.nowFrame, 0, 0, _datas[handle]->pFbx->GetFrameRate());
-
-				newBlendData.factor = blendData.currentBlend;
-				_datas[handle]->fbxBlendDatas_[i] = newBlendData;
-
-				++i;
-			}
+	void CalcDraw(int handle)
+	{
+		if (handle < 0 || handle >= _datas.size() || _datas[handle] == nullptr)
+		{
+			return;
 		}
 
-		//DrawCallの処理
-		//条件（アニメーションが進む or ブレンドデータがある or Orientに変更がある
-		bool orientCall = false;
-		if (!_datas[handle]->isAnimStop || !_datas[handle]->blendDatas_.empty() || blendfinished || orientCall) {
-
+		//ブレンドするやつとしないやつ
+		if (_datas[handle]->isBlending && !_datas[handle]->blendDatas_.empty()) {
+			_datas[handle]->pFbx->CalcDraw(_datas[handle]->pBoneInstanceData, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, _datas[handle]->fbxBlendDatas_);
 		}
-
+		else {
+			_datas[handle]->pFbx->CalcDraw(_datas[handle]->pBoneInstanceData, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_);
+		}
 	}
 
 	//描画
@@ -145,16 +154,9 @@ namespace Model
 		if (_datas[handle]->pFbx)
 		{
 			bool shadow = _datas[handle]->isShadow && GameManager::IsShadowDraw();
-
-			if (_datas[handle]->isBlending && !_datas[handle]->blendDatas_.empty()) {
-				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow, _datas[handle]->fbxBlendDatas_);
-			}
-			else {
-				_datas[handle]->pFbx->Draw(_datas[handle]->transform, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, shadow);
-			}
+			_datas[handle]->pFbx->Draw(_datas[handle]->pBoneInstanceData, _datas[handle]->transform, shadow);
 		}
 	}
-
 
 	//任意のモデルを開放
 	void Release(int handle)
@@ -163,6 +165,9 @@ namespace Model
 		{
 			return;
 		}
+
+		//インスタンスのボーンデータ解放
+		SAFE_DELETE_ARRAY(_datas[handle]->pBoneInstanceData);
 
 		//同じモデルを他でも使っていないか
 		bool isExist = false;
@@ -304,17 +309,25 @@ namespace Model
 		return pos;
 	}
 
-	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex)
+	XMFLOAT3 GetBoneAnimPositionAtNow(int handle, int partIndex, int boneIndex)
+	{
+		XMFLOAT3 pos = _datas[handle]->pFbx->GetBoneAnimPositionAtNow(_datas[handle]->pBoneInstanceData, partIndex, boneIndex);
+		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
+		XMStoreFloat3(&pos, vec);
+		return pos;
+	}
+
+	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex, int frame)
 	{
 		//相対座標（ボーンの中心からの位置）
 		XMFLOAT3 pos = XMFLOAT3();
 
 		//Blend情報あるかないか
 		if (_datas[handle]->isBlending && !_datas[handle]->blendDatas_.empty()) {
-			pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_, _datas[handle]->fbxBlendDatas_);
+			pos = _datas[handle]->pFbx->GetBoneAnimPosition(_datas[handle]->pBoneInstanceData, partIndex, boneIndex, frame, _datas[handle]->orientRotateDatas_, _datas[handle]->fbxBlendDatas_);
 		}
 		else {
-			pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, (int)_datas[handle]->nowFrame, _datas[handle]->orientRotateDatas_);
+			pos = _datas[handle]->pFbx->GetBoneAnimPosition(_datas[handle]->pBoneInstanceData, partIndex, boneIndex, frame, _datas[handle]->orientRotateDatas_);
 		}
 
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
@@ -322,10 +335,10 @@ namespace Model
 		return pos;
 	}
 
-	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex)
+	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex, int frame)
 	{
 		//相対座標（ボーンの中心からの位置）
-		XMFLOAT3 rot = _datas[handle]->pFbx->GetBoneAnimRotate(partIndex, boneIndex, (int)_datas[handle]->nowFrame);
+		XMFLOAT3 rot = _datas[handle]->pFbx->GetBoneAnimRotate(partIndex, boneIndex, frame);
 		if (rot.x >= 90.0f || rot.x <= -90.0f) rot.y *= -1.0f;
 		return rot;
 	}

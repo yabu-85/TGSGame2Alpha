@@ -9,6 +9,7 @@ class FbxParts;
 struct OrientRotateInfo;
 struct BlendData;
 struct FbxBlendData;
+struct BoneInstanceData;
 
 //レイキャスト用構造体
 struct RayCastData
@@ -67,18 +68,19 @@ public:
 	//ロード
 	//引数：fileName	ファイル名
 	//戻値：成功したかどうか
-	virtual HRESULT Load(std::string fileName);
+	HRESULT Load(std::string fileName);
 
-	//描画
-	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas, bool isShadow);
+	// ボーンインスタンスデータを生成する関数（ボーン情報無ければnull）
+	BoneInstanceData* CreateBoneInstanceData();
 
-	//ブレンドありの描画
-	void Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector <FbxBlendData> &blendDats);
 
-	//新しいバージョン（変更があるものを描画計算する
-	void CalcDraw(int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector <FbxBlendData>& blendDats);
-	//計算を終えたやつらを描画する
-	void Draw(Transform& transform);
+	void CalcDraw(BoneInstanceData* boneInst, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDats);
+
+	void CalcDraw(BoneInstanceData* boneInst, int frame, std::vector<OrientRotateInfo>& orientDatas);
+
+	void Draw(BoneInstanceData* boneInst, Transform& transform, bool isShadow);
+
+
 
 	//解放
 	void Release();
@@ -91,11 +93,13 @@ public:
 	//戻値：ボーンの位置
 	XMFLOAT3 GetBonePosition(int partIndex, int boneIndex);
 
+	XMFLOAT3 GetBoneAnimPositionAtNow(BoneInstanceData* boneInst, int partIndex, int boneIndex);
+
 	//任意のアニメーション時のボーンの位置を取得
-	XMFLOAT3 GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas);
+	XMFLOAT3 GetBoneAnimPosition(BoneInstanceData* boneInst, int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas);
 	
 	//任意のアニメーション時のボーンの位置を取得
-	XMFLOAT3 GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);
+	XMFLOAT3 GetBoneAnimPosition(BoneInstanceData* boneInst, int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);
 
 	//任意のアニメーション時のボーンの回転を取得
 	XMFLOAT3 GetBoneAnimRotate(int partIndex, int boneIndex, int frame);
@@ -106,13 +110,6 @@ public:
 
 	//すべてのポリゴン取得
 	void GetAllPolygon(std::vector<PolygonData>& list);
-
-	//修正
-	////ブレンド情報の取得
-	//std::vector<FbxBlendData>& GetBlendData();
-
-	////ブレンド情報の追加
-	//void AddBlendData(FbxBlendData data);
 
 	//アニメーションフレームレート取得
 	FbxTime::EMode GetFrameRate();

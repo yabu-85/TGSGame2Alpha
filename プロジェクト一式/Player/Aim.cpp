@@ -73,9 +73,6 @@ void Aim::Initialize()
     else mouseSensitivity_ = MOUSE_SPEED_DEFAULT * (float)gunSection2["aimSensitivity"];
     mouseSensitivity_ += MOUSE_SPEED_MIN;
 
-    if (isFps_) FPSAim();
-    else DefaultAim();
-
 }
 
 void Aim::Update()
@@ -89,23 +86,27 @@ void Aim::Update()
     if (Input::IsKey(DIK_4)) distanceTargetBehind_ -= 0.1f;
 #endif
 
+    //映さないならUpdateしなくていい
+    if (GameManager::IsOnePlayer() && pPlayer_->GetPlayerId() != GameManager::GetDrawIndex()) {
+        return;
+    }
+
+    //強制移動
     if (compulsionTime_ > 0) {
-        //強制移動
         if (isCompulsion_) {
             Compulsion();
             isCompulsion_ = false;
             return;
         }
+
+        //TODO BackCompu
     }
 
+    //視点移動処理
     if (isMove_) CalcMouseMove();
    
-    if (isFps_) {
-        FPSAim();
-    }
-    else {
-        DefaultAim();
-    }
+    //視点計算
+    CalcAim();
 
 }
 
@@ -168,8 +169,8 @@ void Aim::FPSAim()
     CameraRotateShake();
 
     //Eyeポジション設定
-    XMFLOAT3 eyePos = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart, eyeBone);     //Root
-    XMFLOAT3 eyePos1 = Model::GetBoneAnimPosition(hPlayerFPSModel_, eyePart1, eyeBone1);  //Top
+    XMFLOAT3 eyePos = Model::GetBoneAnimPositionAtNow(hPlayerFPSModel_, eyePart, eyeBone);     //Root
+    XMFLOAT3 eyePos1 = Model::GetBoneAnimPositionAtNow(hPlayerFPSModel_, eyePart1, eyeBone1);  //Top
     XMFLOAT3 playerPos = pPlayer_->GetPosition();
 
     //ジャンプ加算
@@ -239,6 +240,12 @@ void Aim::DefaultAim()
     //カメラ情報をセット
     Camera::SetPosition(cameraPosition_, pPlayer_->GetPlayerId());
     Camera::SetTarget(cameraTarget_, pPlayer_->GetPlayerId());
+}
+
+void Aim::CalcAim()
+{
+    if (isFps_) FPSAim();
+    else DefaultAim();
 }
 
 void Aim::Compulsion()

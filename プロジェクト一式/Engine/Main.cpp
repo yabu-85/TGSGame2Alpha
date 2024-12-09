@@ -183,6 +183,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					//一時停止時じゃないならエフェクト更新
 					EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 0);
 					EFFEKSEERLIB::gEfk->Update(deltaT / 1000.0, 1);
+				
+					pRootObject->CalcDrawSub();
 				}
 
 				GameManager::Draw();

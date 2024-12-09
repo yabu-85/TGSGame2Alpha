@@ -36,7 +36,7 @@ void SniperGun::Initialize()
     assert(hPict_ >= 0);
 
     transform_.pParent_ = nullptr;
-    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPositionAtNow(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
 
     LoadGunJson("SniperGun");
@@ -52,7 +52,7 @@ void SniperGun::Update()
     if (currentAccuracy_ < 0.0f) currentAccuracy_ = 0.0f;
 
     //Žè‚ÌˆÊ’u‚É‡‚í‚¹‚é•Aim‚Ì·•ª‚ð‡‚í‚¹‚é
-    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPositionAtNow(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.rotate_.y = pPlayer_->GetRotate().y;
     XMFLOAT3 subAim = pPlayer_->GetAim()->GetFPSSubY();
     transform_.position_ = Float3Add(transform_.position_, subAim);

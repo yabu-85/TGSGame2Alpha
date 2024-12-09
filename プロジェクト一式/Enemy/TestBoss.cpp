@@ -109,11 +109,11 @@ void TestBoss::Update()
         int ni = (i * 2);
 
         //Center
-        pCapsuleCollider_[i]->center_ = Float3Sub(Model::GetBoneAnimPosition(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]), transform_.position_);
+        pCapsuleCollider_[i]->center_ = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]), transform_.position_);
    
         //Direction
         XMFLOAT3 fff = XMFLOAT3();
-        fff = Float3Sub(Model::GetBoneAnimPosition(hModel_, partIndex_[ni], boneIndex_[ni]), Model::GetBoneAnimPosition(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]));
+        fff = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni], boneIndex_[ni]), Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]));
         pCapsuleCollider_[i]->direction_ = XMVector3Normalize(XMLoadFloat3(&fff));
     }
 
@@ -143,4 +143,9 @@ void TestBoss::Release()
 {
     Model::Release(hModel_);
 
+}
+
+void TestBoss::CalcDraw()
+{
+    Model::CalcDraw(hModel_);
 }

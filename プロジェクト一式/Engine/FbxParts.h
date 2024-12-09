@@ -13,6 +13,7 @@ struct RayCastData;
 struct PolygonData;
 struct OrientRotateInfo;
 struct FbxBlendData;
+struct BoneInstanceData;
 
 //-----------------------------------------------------------
 //FBXの１つのパーツを扱うクラス
@@ -61,8 +62,6 @@ class FbxParts
 	struct  Bone
 	{
 		XMMATRIX  bindPose;      // 初期ポーズ時のボーン変換行列
-		XMMATRIX  newPose;       // アニメーションで変化したときのボーン変換行列
-		XMMATRIX  diffPose;      // mBindPose に対する mNowPose の変化量
 	};
 
 	// ウェイト構造体（ボーンと頂点の関連付け）
@@ -106,7 +105,7 @@ class FbxParts
 	FbxSkin*		pSkinInfo_;		// スキンメッシュ情報（スキンメッシュアニメーションのデータ本体）
 	FbxCluster**	ppCluster_;		// クラスタ情報（関節ごとに関連付けられた頂点情報）
 	int				numBone_;		// FBXに含まれている関節の数
-	Bone*			pBoneArray_;	// 各関節の情報
+	Bone* pBoneArray_;				// 各関節の情報
 	Weight*			pWeightArray_;	// ウェイト情報（頂点の対する各関節の影響度合い）
 
 	/////////privateな関数（Init関数から呼ばれる）//////////////////////////
@@ -136,6 +135,7 @@ public:
 	//戻値：結果
 	HRESULT Init(FbxNode * pNode);
 
+	BoneInstanceData* CreateBoneInstanceData();
 
 	//描画
 	//引数：world	ワールド行列
@@ -143,30 +143,28 @@ public:
 
 	//ボーン有りのモデルを描画
 	//引数：transform	行列情報
-	//引数：time		フレーム情報（１アニメーション内の今どこか）
-	void DrawSkinAnime(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow);
+	void DrawSkinAnime(BoneInstanceData* boneInst, Transform& transform, bool isShadow);
+
+	//ボーン有りのモデルを描画
+	void CalcDrawSkinAnime(BoneInstanceData* boneInst, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
 	
 	//ボーン有りのモデルを描画
-	//引数：transform	行列情報
-	//引数：time		フレーム情報（１アニメーション内の今どこか）
-	void DrawBlendedSkinAnim(Transform& transform, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData> &blendDatas);
-
-	//ボーン無しのモデルを描画
-	//引数：transform	行列情報
-	//引数：isShadow　　影ありか無しか
-	void DrawMeshAnime(Transform& transform, bool isShadow);
+	void CalcDrawBlendedSkinAnim(BoneInstanceData* boneInst, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData> &blendDatas);
 
 	//ボーンのインデックスを取得
 	bool GetBoneIndex(std::string boneName, int* index);
 
 	//任意のボーンの位置を取得
 	XMFLOAT3 GetBonePosition(int index);
+	
+	//任意のボーンの現在の位置を取得
+	XMFLOAT3 GetBonePositionAtNow(BoneInstanceData* boneInst, int index);
+
+	//任意のボーンの指定フレームの位置を取得
+	XMFLOAT3 GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
 
 	//任意のボーンの位置を取得
-	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
-
-	//任意のボーンの位置を取得
-	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);
+	XMFLOAT3 GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);
 
 	//任意のボーンの回転を取得
 	XMFLOAT3 GetBoneRotate(int index, FbxTime time);

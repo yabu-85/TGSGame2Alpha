@@ -231,14 +231,14 @@ void GunBase::ShotVFX()
 
 void GunBase::SetTpsPlayerHandGun()
 {
-    transform_.position_ = Model::GetBoneAnimPosition(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPositionAtNow(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
 }
 
 void GunBase::SetFpsPlayerHandGun()
 {
     //Aim‚Ì·•ª‚ð‡‚í‚¹‚é
     XMFLOAT3 subAim = pPlayer_->GetAim()->GetFPSSubY();
-    transform_.position_ = Model::GetBoneAnimPosition(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
+    transform_.position_ = Model::GetBoneAnimPositionAtNow(hFpsPlayerModel_, handPartIndex_, handBoneIndex_);
     transform_.position_ = Float3Add(transform_.position_, subAim);
 }
 

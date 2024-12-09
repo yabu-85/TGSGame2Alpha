@@ -69,6 +69,21 @@ HRESULT Fbx::Load(std::string fileName)
 	return S_OK;
 }
 
+BoneInstanceData* Fbx::CreateBoneInstanceData()
+{
+	BoneInstanceData* data = nullptr;
+
+	//パーツを1個ずつ
+	for (int k = 0; k < parts_.size(); k++) {
+		//有効なデータが取得できれば返す
+		data = parts_[k]->CreateBoneInstanceData();
+		if (data) return data;
+	}
+
+	//有効なデータが見つからなかった
+	return nullptr;
+}
+
 void Fbx::CheckNode(FbxNode * pNode, std::vector<FbxParts*>* pPartsList)
 {
 	//そのノードにはメッシュ情報が入っているだろうか？
@@ -100,7 +115,6 @@ void Fbx::CheckNode(FbxNode * pNode, std::vector<FbxParts*>* pPartsList)
 
 void Fbx::Release()
 {
-
 }
 
 bool Fbx::GetPartBoneIndex(std::string boneName, int* partIndex, int* boneIndex)
@@ -123,18 +137,23 @@ XMFLOAT3 Fbx::GetBonePosition(int partIndex, int boneIndex)
 	return parts_[partIndex]->GetBonePosition(boneIndex);
 }
 
-XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas)
+XMFLOAT3 Fbx::GetBoneAnimPositionAtNow(BoneInstanceData* boneInst, int partIndex, int boneIndex)
 {
-	FbxTime time;
-	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas);
+	return parts_[partIndex]->GetBonePositionAtNow(boneInst, boneIndex);
 }
 
-XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
+XMFLOAT3 Fbx::GetBoneAnimPosition(BoneInstanceData* boneInst, int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas)
 {
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas, blendDatas);
+	return parts_[partIndex]->GetBonePosition(boneInst, boneIndex, time, orientDatas);
+}
+
+XMFLOAT3 Fbx::GetBoneAnimPosition(BoneInstanceData* boneInst, int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
+{
+	FbxTime time;
+	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
+	return parts_[partIndex]->GetBonePosition(boneInst, boneIndex, time, orientDatas, blendDatas);
 }
 
 XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)
@@ -144,53 +163,53 @@ XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)
 	return parts_[partIndex]->GetBoneRotate(boneIndex, time);
 }
 
-void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo> &orientDatas, bool isShadow)
+void Fbx::CalcDraw(BoneInstanceData* boneInst, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDats)
 {
-	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
-
 	//パーツを1個ずつ描画
 	for (int k = 0; k < parts_.size(); k++)
 	{
-		//その瞬間の自分の姿勢行列を得る
 		FbxTime     time;
 		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
 
 		//スキンアニメーション（ボーン有り）の場合
 		if (parts_[k]->GetSkinInfo() != nullptr)
 		{
-			parts_[k]->DrawSkinAnime(transform, time, orientDatas, isShadow);
-		}
-
-		//メッシュアニメーションの場合
-		else
-		{
-			parts_[k]->DrawMeshAnime(transform, isShadow);
+			parts_[k]->CalcDrawBlendedSkinAnim(boneInst, time, orientDatas, blendDats);
 		}
 	}
 }
 
-void Fbx::Draw(Transform& transform, int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData> &blendDats)
+void Fbx::CalcDraw(BoneInstanceData* boneInst, int frame, std::vector<OrientRotateInfo>& orientDatas)
+{
+	//パーツを1個ずつ描画
+	for (int k = 0; k < parts_.size(); k++)
+	{
+		FbxTime     time;
+		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
+
+		//スキンアニメーション（ボーン有り）の場合
+		if (parts_[k]->GetSkinInfo() != nullptr)
+		{
+			parts_[k]->CalcDrawSkinAnime(boneInst, time, orientDatas);
+		}
+	}
+}
+
+void Fbx::Draw(BoneInstanceData* boneInst, Transform& transform, bool isShadow)
 {
 	Direct3D::SetBlendMode(Direct3D::BLEND_DEFAULT);
 
 	//パーツを1個ずつ描画
 	for (int k = 0; k < parts_.size(); k++)
 	{
-		//その瞬間の自分の姿勢行列を得る
-		FbxTime     time;
-		time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-
-		//ブレンド情報あるから必ずスキンアニメーション
-		parts_[k]->DrawBlendedSkinAnim(transform, time, orientDatas, isShadow, blendDats);
+		//スキンアニメーション（ボーン有り）の場合
+		if (parts_[k]->GetSkinInfo() != nullptr) {
+			parts_[k]->DrawSkinAnime(boneInst, transform, isShadow);
+		}
+		else {
+			parts_[k]->Draw(transform, isShadow);
+		}
 	}
-}
-
-void Fbx::CalcDraw(int frame, std::vector<OrientRotateInfo>& orientDatas, bool isShadow, std::vector<FbxBlendData>& blendDats)
-{
-}
-
-void Fbx::Draw(Transform& transform)
-{
 }
 
 //レイキャスト（レイを飛ばして当たり判定）

@@ -8,7 +8,7 @@ namespace {
 }
 
 SkyBox::SkyBox(GameObject* parent)
-	:GameObject(parent, "SkyBos"), hModel_(-1)
+	:GameObject(parent, "SkyBox"), hModel_(-1)
 {
 }
 

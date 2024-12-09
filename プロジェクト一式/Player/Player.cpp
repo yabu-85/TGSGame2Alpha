@@ -204,7 +204,6 @@ void Player::Update()
         Model::SetBlend(hFPSModel_, true);
     }
     
-
     //アニメーション
     Model::Update(hUpModel_);
     Model::Update(hFPSModel_);
@@ -360,13 +359,19 @@ void Player::Draw()
 #ifdef _DEBUG
         if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) CollisionDraw();
 #endif
-
     }
 
 }
 
 void Player::Release()
 {
+}
+
+void Player::CalcDraw()
+{
+    Model::CalcDraw(hFPSModel_);
+    Model::CalcDraw(hUpModel_);
+    Model::CalcDraw(hDownModel_);
 }
 
 void Player::OnDamageDealt(const DamageInfo& damageInfo)

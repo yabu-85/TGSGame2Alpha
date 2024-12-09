@@ -355,6 +355,18 @@ void GameObject::DrawSub()
 	}
 }
 
+void GameObject::CalcDrawSub()
+{
+	//計算のみなのでVisibileは関係なしに実行
+	CalcDraw();
+
+	//その子オブジェクトの描画処理
+	for (auto it = childList_.begin(); it != childList_.end(); it++)
+	{
+		(*it)->CalcDrawSub();
+	}
+}
+
 void GameObject::ReleaseSub()
 {
 	//コライダーを削除

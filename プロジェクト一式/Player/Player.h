@@ -90,6 +90,7 @@ public:
     void Update() override;
     void Draw() override;
     void Release() override;
+    void CalcDraw() override;
 
     //ƒ_ƒ[ƒW‚ğ—^‚¦‚½
     void OnDamageDealt(const DamageInfo& damageInfo) override;

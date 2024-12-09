@@ -30,6 +30,12 @@ void Gun::Initialize()
     transform_.pParent_ = nullptr;
 
     LoadGunJson("Gun");
+
+    //
+    currentReloadTime_ = 1;
+    CalcDraw();
+    currentReloadTime_ = 0;
+
 }
 
 void Gun::Update()
@@ -90,7 +96,7 @@ void Gun::Update()
 void Gun::Draw()
 {
     //‰ñ“]ŒvŽZ
-    XMFLOAT3 handRotate = Model::GetBoneAnimRotate(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
+    //XMFLOAT3 handRotate = Model::GetBoneAnimRotate(hUpPlayerModel_, handPartIndex_, handBoneIndex_);
     //transform_.rotate_.y = pPlayer_->GetRotate().y;
     //transform_.rotate_.x = -pPlayer_->GetAim()->GetRotate().x;
     //transform_.rotate_.x = handRotate.x + 90.0f;
@@ -111,6 +117,12 @@ void Gun::Draw()
 
 void Gun::Release()
 {
+}
+
+void Gun::CalcDraw()
+{
+    if (currentReloadTime_ <= 0) return;
+    Model::CalcDraw(hModel_);
 }
 
 void Gun::PressedShot()

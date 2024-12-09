@@ -63,6 +63,9 @@ void StoneGolem::Initialize()
     for (int i = 0; i < MAX_INDEX; i++) if (pCapsuleCollider_[i]) AddCollider(pCapsuleCollider_[i]);
 
     std::string boneName[MAX_INDEX * 2] = {
+    //    "upper_arm.R", "forearm.R",         //˜rã
+    //    "upper_arm.R", "forearm.R",         //˜rã
+
         "Head.001", "Head.002", 
         "Bone.003.R", "Bone.004.R",
         "Bone", "Bone.001.R",
@@ -109,11 +112,11 @@ void StoneGolem::Update()
         int ni = (i * 2);
 
         //Center
-        pCapsuleCollider_[i]->center_ = Float3Sub(Model::GetBoneAnimPosition(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]), transform_.position_);
+        pCapsuleCollider_[i]->center_ = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]), transform_.position_);
    
         //Direction
         XMFLOAT3 fff = XMFLOAT3();
-        fff = Float3Sub(Model::GetBoneAnimPosition(hModel_, partIndex_[ni], boneIndex_[ni]), Model::GetBoneAnimPosition(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]));
+        fff = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni], boneIndex_[ni]), Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]));
         pCapsuleCollider_[i]->direction_ = XMVector3Normalize(XMLoadFloat3(&fff));
     }
 

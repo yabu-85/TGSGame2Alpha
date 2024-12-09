@@ -80,6 +80,7 @@ class Aim : public GameObject
 
     void FPSAim();          //FPS用
     void DefaultAim();      //三人称視点の計算
+
     void Compulsion();      //強制移動時の計算
     void BackCompulsion();  //強制移動から通常に移るときの計算
 
@@ -116,6 +117,9 @@ public:
     /// <param name="info"></param>
     void SetCameraRotateShake(const CameraRotateShakeInfo& info);
     void SetCameraRotateReturn(bool b) { isRotateShakeReturn_ = b; }
+
+    //FpsかTpsどっちか選んで視点計算
+    void CalcAim();
 
     XMFLOAT3 GetFPSSubY() { return fpsSub_; }
 

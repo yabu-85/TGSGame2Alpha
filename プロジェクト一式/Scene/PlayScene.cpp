@@ -140,6 +140,11 @@ void PlayScene::Update()
 			GameManager::SetDrawIndex(0);
 			GameManager::SetCursorMode(false);
 
+			//‰f‚³‚È‚¢ƒJƒƒ‰ˆê‰ñŒvZ‚·‚é
+			if (GameManager::IsOnePlayer()) {
+				if(GameManager::GetDrawIndex() == 0) pPlayer_[1]->GetAim()->CalcAim();
+				else pPlayer_[0]->GetAim()->CalcAim();
+			}
 		}
 		else {
 			//ƒJƒƒ‰‚ÌˆÚ“®

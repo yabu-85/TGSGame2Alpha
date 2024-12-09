@@ -14,9 +14,6 @@
     <Filter Include="01Engine\DirectX">
       <UniqueIdentifier>{e56f8c9a-95a5-4ceb-b65f-5b8e572d087b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01Engine\GameObject">
-      <UniqueIdentifier>{b450e438-c939-4b05-b319-0e3c0b4a335c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01Engine\ResourceManager">
       <UniqueIdentifier>{bedee914-5063-4c08-95bb-79c861b4969c}</UniqueIdentifier>
     </Filter>
@@ -95,6 +92,9 @@
     </Filter>
     <Filter Include="Weapon\Base">
       <UniqueIdentifier>{69a3b57b-74a7-49ae-a6bf-8b82b45fee9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01Engine\GameObject">
+      <UniqueIdentifier>{b450e438-c939-4b05-b319-0e3c0b4a335c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
