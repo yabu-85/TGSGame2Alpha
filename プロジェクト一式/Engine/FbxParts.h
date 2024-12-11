@@ -161,10 +161,13 @@ public:
 	XMFLOAT3 GetBonePositionAtNow(BoneInstanceData* boneInst, int index);
 
 	//任意のボーンの指定フレームの位置を取得
-	XMFLOAT3 GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
+	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas);
 
 	//任意のボーンの位置を取得
-	XMFLOAT3 GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);
+	XMFLOAT3 GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas);
+
+	//任意のボーンの回転を取得
+	XMFLOAT3 GetBoneRotateAtNow(BoneInstanceData* boneInst, int index);
 
 	//任意のボーンの回転を取得
 	XMFLOAT3 GetBoneRotate(int index, FbxTime time);

@@ -324,15 +324,23 @@ namespace Model
 
 		//Blend情報あるかないか
 		if (_datas[handle]->isBlending && !_datas[handle]->blendDatas_.empty()) {
-			pos = _datas[handle]->pFbx->GetBoneAnimPosition(_datas[handle]->pBoneInstanceData, partIndex, boneIndex, frame, _datas[handle]->orientRotateDatas_, _datas[handle]->fbxBlendDatas_);
+			pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, frame, _datas[handle]->orientRotateDatas_, _datas[handle]->fbxBlendDatas_);
 		}
 		else {
-			pos = _datas[handle]->pFbx->GetBoneAnimPosition(_datas[handle]->pBoneInstanceData, partIndex, boneIndex, frame, _datas[handle]->orientRotateDatas_);
+			pos = _datas[handle]->pFbx->GetBoneAnimPosition(partIndex, boneIndex, frame, _datas[handle]->orientRotateDatas_);
 		}
 
 		XMVECTOR vec = XMVector3TransformCoord(XMLoadFloat3(&pos), _datas[handle]->transform.GetWorldMatrix()); //posをワールドマトリックスで計算する
 		XMStoreFloat3(&pos, vec);
 		return pos;
+	}
+
+	XMFLOAT3 GetBoneAnimRotateAtNow(int handle, int partIndex, int boneIndex)
+	{
+		//相対座標（ボーンの中心からの位置）
+		XMFLOAT3 rot = _datas[handle]->pFbx->GetBoneAnimRotateAtNow(_datas[handle]->pBoneInstanceData, partIndex, boneIndex);
+		if (rot.x >= 90.0f || rot.x <= -90.0f) rot.y *= -1.0f;
+		return rot;
 	}
 
 	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex, int frame)

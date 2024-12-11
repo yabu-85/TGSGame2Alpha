@@ -12,8 +12,50 @@
 #include "../Other/GameManager.h"
 #include "../Other/VFXManager.h"
 
+#include <cmath>
+// 回転行列から回転角度 (Radian) を取得する関数
+XMFLOAT3 GetRotationFromMatrix(const XMMATRIX& matrix) {
+    // 回転行列から必要な値を抽出
+    float r11 = matrix.r[0].m128_f32[0];
+    float r12 = matrix.r[0].m128_f32[1];
+    float r13 = matrix.r[0].m128_f32[2];
+    float r21 = matrix.r[1].m128_f32[0];
+    float r22 = matrix.r[1].m128_f32[1];
+    float r23 = matrix.r[1].m128_f32[2];
+    float r33 = matrix.r[2].m128_f32[2];
+
+    XMFLOAT3 rot;
+
+    // Y軸の回転を算出
+    rot.y = std::asin(-r13);
+
+    // 特殊ケース: Gimbal Lock の判定
+    const float threshold = 1.0f - 1e-6f; // 許容誤差
+    if (std::abs(std::cos(rot.y)) > threshold) {
+        // 通常ケース
+        rot.x = std::atan2(r23, r33);
+        rot.z = std::atan2(r12, r11);
+    }
+    else {
+        // Gimbal Lock: ±90度の場合
+        rot.x = 0.0f;
+        rot.z = (rot.y > 0) ? std::atan2(r21, r22) : -std::atan2(r21, r22);
+    }
+
+    // ラジアンを度に変換
+    const float radToDeg = 180.0f / XM_PI;
+    rot.x *= radToDeg;
+    rot.y *= radToDeg;
+    rot.z *= radToDeg;
+
+    return rot;
+}
+
 namespace {
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 5.0f, 50.0f);
+    
+    XMFLOAT3 CapsuleCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    XMFLOAT3 CapRot = XMFLOAT3();
 
 }
 
@@ -45,61 +87,22 @@ void StoneGolem::Initialize()
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.2f, 0.8f));
 
     XMVECTOR vec = { 0.0f, 0.0f, 0.0f, 0.0f };
-    XMFLOAT3 center = XMFLOAT3();
-    pCapsuleCollider_[0] = new CapsuleCollider(center, 0.9f, 0.5f, vec);    //頭
-    pCapsuleCollider_[1] = new CapsuleCollider(center, 0.7f, 1.3f, vec);    //首
-    pCapsuleCollider_[2] = new CapsuleCollider(center, 1.2f, 0.8f, vec);    //胴体上
-    pCapsuleCollider_[3] = new CapsuleCollider(center, 0.8f, 1.1f, vec);    //胴体下
-    pCapsuleCollider_[4] = new CapsuleCollider(center, 0.5f, 1.1f, vec);    //尻尾上
-    pCapsuleCollider_[5] = new CapsuleCollider(center, 0.3f, 0.8f, vec);    //尻尾下
-    pCapsuleCollider_[6] = new CapsuleCollider(center, 0.6f, 0.9f, vec);    //左足上
-    pCapsuleCollider_[7] = new CapsuleCollider(center, 0.4f, 0.9f, vec);    //左足下
-    pCapsuleCollider_[8] = new CapsuleCollider(center, 0.4f, 1.0f, vec);    //左足
-    pCapsuleCollider_[9] = new CapsuleCollider(center, 0.6f, 0.9f, vec);    //右足上
-    pCapsuleCollider_[10] = new CapsuleCollider(center, 0.4f, 0.9f, vec);   //右足下
-    pCapsuleCollider_[11] = new CapsuleCollider(center, 0.4f, 1.0f, vec);   //左足
-    pCapsuleCollider_[12] = new CapsuleCollider(center, 0.5f, 1.0f, vec);   //左手
-    pCapsuleCollider_[13] = new CapsuleCollider(center, 0.5f, 1.0f, vec);   //右手
-    for (int i = 0; i < MAX_INDEX; i++) if (pCapsuleCollider_[i]) AddCollider(pCapsuleCollider_[i]);
+    pCapsuleCollider_ = new CapsuleCollider(CapsuleCenter, 0.2f, 0.4f, vec);
+    AddCollider(pCapsuleCollider_);
 
-    std::string boneName[MAX_INDEX * 2] = {
-    //    "upper_arm.R", "forearm.R",         //腕上
-    //    "upper_arm.R", "forearm.R",         //腕上
+    Model::GetPartBoneIndex(hModel_, "hand.R", &partIndex_, &boneIndex_);
 
-        "Head.001", "Head.002", 
-        "Bone.003.R", "Bone.004.R",
-        "Bone", "Bone.001.R",
-        "Bone.009.L", "Bone.008.L", 
-        "Tail.011.L", "Bone.010.L", 
-        "Tail.011.L", "Tail.011.L.001", 
-        "Bone.007.L.002", "Bone.007.L.001",
-        "Bone.007.L.002", "Bone.007.L.004",
-        "Feet.L.004", "Feet.L.005",
-        "Bone.007.R.002", "Bone.007.R.001",
-        "Bone.007.R.002", "Bone.007.R.004",
-        "Feet.R.004", "Feet.R.005",
-        "Bone.001.L.002", "Bone.001.L.001", 
-        "Bone.001.R.002", "Bone.001.R.001", };
-    for (int i = 0; i < MAX_INDEX * 2; i++) Model::GetPartBoneIndex(hModel_, boneName[i], &partIndex_[i], &boneIndex_[i]);
-
-    //アニメーションデータのセットフレームはヘッダに書いてる
-    pAnimationController_ = new AnimationController(hModel_, this);
-    for (int i = 0; i < (int)STONEGOLEM_ANIMATION::MAX; i++) pAnimationController_->AddAnim(STONEGOLEM_ANIMATION_DATA[i][0], STONEGOLEM_ANIMATION_DATA[i][1]);
-    //1
-    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(60, VFX_TYPE::Explode));
-    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(120, VFX_TYPE::Explode));
-    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(180, VFX_TYPE::Explode));
-    pAnimationController_->AddAnimNotify((int)STONEGOLEM_ANIMATION::ANIM1, new CreatFrame(240, VFX_TYPE::Explode));
-    pAnimationController_->SetNextAnim(0, 0.3f);
+    Model::CalcDraw(hModel_);
+    Model::SetAnimFrame(hModel_, 0, 300, 1.0f);
 
 }
+
+
 
 void StoneGolem::Update()
 {
     //Dead判定
     if (IsHealthZero()) KillMe();
-    
-    pAnimationController_->Update();
     Model::Update(hModel_);
 
     if (Input::IsKey(DIK_T)) transform_.position_.x -= 0.5f;
@@ -107,19 +110,60 @@ void StoneGolem::Update()
     if (Input::IsKey(DIK_G)) transform_.rotate_.y += 10;
     if (Input::IsKey(DIK_H)) transform_.rotate_.y -= 10;
 
-    //Center計算
-    for (int i = 0; i < MAX_INDEX; i++) {
-        int ni = (i * 2);
+    if (Input::IsKeyDown(DIK_U)) Model::AnimStop(hModel_);
+    if (Input::IsKeyDown(DIK_I)) Model::AnimStart(hModel_);
 
-        //Center
-        pCapsuleCollider_[i]->center_ = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]), transform_.position_);
-   
-        //Direction
-        XMFLOAT3 fff = XMFLOAT3();
-        fff = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni], boneIndex_[ni]), Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]));
-        pCapsuleCollider_[i]->direction_ = XMVector3Normalize(XMLoadFloat3(&fff));
+    if (Input::IsKey(DIK_F)) {
+        if (Input::IsKey(DIK_NUMPAD1)) CapRot.x += 3.0f;
+        if (Input::IsKey(DIK_NUMPAD2)) CapRot.x -= 3.0f;
+        if (Input::IsKey(DIK_NUMPAD4)) CapRot.y += 3.0f;
+        if (Input::IsKey(DIK_NUMPAD5)) CapRot.y -= 3.0f;
+        if (Input::IsKey(DIK_NUMPAD7)) CapRot.z += 3.0f;
+        if (Input::IsKey(DIK_NUMPAD8)) CapRot.z -= 3.0f;
+        if (Input::IsKey(DIK_NUMPAD0)) CapRot = XMFLOAT3();
+    
+    }
+    else {
+        float mSpeed = 0.1f;
+        if (Input::IsKey(DIK_NUMPAD1)) CapsuleCenter.x += mSpeed;
+        if (Input::IsKey(DIK_NUMPAD2)) CapsuleCenter.x -= mSpeed;
+        if (Input::IsKey(DIK_NUMPAD4)) CapsuleCenter.y += mSpeed;
+        if (Input::IsKey(DIK_NUMPAD5)) CapsuleCenter.y -= mSpeed;
+        if (Input::IsKey(DIK_NUMPAD7)) CapsuleCenter.z += mSpeed;
+        if (Input::IsKey(DIK_NUMPAD8)) CapsuleCenter.z -= mSpeed;
+        if (Input::IsKey(DIK_NUMPAD0)) CapsuleCenter = XMFLOAT3();
+
     }
 
+    XMFLOAT3 cBoneRot = Model::GetBoneAnimRotateAtNow(hModel_, partIndex_, boneIndex_);
+
+    // 初期回転行列を保存
+    XMMATRIX initialRotationMatrix = XMMatrixRotationRollPitchYaw(
+        XMConvertToRadians(CapRot.x),
+        XMConvertToRadians(CapRot.y),
+        XMConvertToRadians(CapRot.z)
+    );
+
+    // 現在の回転行列を取得
+    XMMATRIX currentRotationMatrix = XMMatrixRotationRollPitchYaw(
+        XMConvertToRadians(cBoneRot.x),
+        XMConvertToRadians(cBoneRot.y),
+        XMConvertToRadians(cBoneRot.z)
+    );
+
+    // 初期回転行列を現在の回転行列で回転
+    XMMATRIX finalRotationMatrix = XMMatrixMultiply(initialRotationMatrix, currentRotationMatrix);
+
+    // 必要に応じてcorrectedRotationを利用
+    XMFLOAT3 boneRot = GetRotationFromMatrix(finalRotationMatrix);
+    boneRot = cBoneRot;
+
+    boneRot.y += transform_.rotate_.y;
+    pCapsuleCollider_->direction_ = CalculationVectorDirection(boneRot);
+
+    // Center の更新
+    pCapsuleCollider_->center_ = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_, boneIndex_), transform_.position_);
+    pCapsuleCollider_->center_ = Float3Add(pCapsuleCollider_->center_, CapsuleCenter);
 }
 
 void StoneGolem::Draw()
@@ -146,4 +190,9 @@ void StoneGolem::Release()
 {
     Model::Release(hModel_);
 
+}
+
+void StoneGolem::CalcDraw()
+{
+    Model::CalcDraw(hModel_);
 }

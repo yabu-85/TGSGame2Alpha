@@ -335,10 +335,13 @@ void FbxParts::InitSkelton(FbxMesh * pMesh)
 	pBoneArray_ = new FbxParts::Bone[numBone_];
 	for (int i = 0; i < numBone_; i++)
 	{
+		//OutputDebugString(ppCluster_[i]->GetLink()->GetName());
+		//OutputDebugString("\n");
+
 		// ボーンのデフォルト位置を取得する
 		FbxAMatrix  matrix;
 		ppCluster_[i]->GetTransformLinkMatrix(matrix);
-
+		
 		// 行列コピー（Fbx形式からDirectXへの変換）
 		XMFLOAT4X4 pose;
 		for (DWORD x = 0; x < 4; x++)
@@ -707,7 +710,7 @@ XMFLOAT3 FbxParts::GetBonePositionAtNow(BoneInstanceData* boneInst, int index)
 	return pos;
 }
 
-XMFLOAT3 FbxParts::GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
+XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas)
 {
 	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
 	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
@@ -754,7 +757,7 @@ XMFLOAT3 FbxParts::GetBonePosition(BoneInstanceData* boneInst, int index, FbxTim
 }
 
 //モデルを一つしか使っていないとしたらdiffPosかnewPos使えば簡単に取得できると思う
-XMFLOAT3 FbxParts::GetBonePosition(BoneInstanceData* boneInst, int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
+XMFLOAT3 FbxParts::GetBonePosition(int index, FbxTime time, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
 {
 	FbxAnimEvaluator* evaluator = ppCluster_[index]->GetLink()->GetScene()->GetAnimationEvaluator();
 	FbxMatrix mCurrentOrentation = evaluator->GetNodeGlobalTransform(ppCluster_[index]->GetLink(), time);
@@ -817,6 +820,63 @@ XMFLOAT3 FbxParts::GetBonePosition(BoneInstanceData* boneInst, int index, FbxTim
 	}
 
 	return pos;
+}
+//
+//#include <cmath>
+//// 回転行列から回転角度 (Radian) を取得する関数
+//XMFLOAT3 GetRotationFromMatrix(const XMMATRIX& matrix) {
+//	// 回転行列から必要な値を抽出
+//	float r11 = matrix.r[0].m128_f32[0];
+//	float r12 = matrix.r[0].m128_f32[1];
+//	float r13 = matrix.r[0].m128_f32[2];
+//	float r21 = matrix.r[1].m128_f32[0];
+//	float r22 = matrix.r[1].m128_f32[1];
+//	float r23 = matrix.r[1].m128_f32[2];
+//	float r33 = matrix.r[2].m128_f32[2];
+//
+//	XMFLOAT3 rot;
+//
+//	// Y軸の回転を算出
+//	rot.y = std::asin(-r13);
+//
+//	// 特殊ケース: Gimbal Lock の判定
+//	const float threshold = 1.0f - 1e-6f; // 許容誤差
+//	if (std::abs(std::cos(rot.y)) > threshold) {
+//		// 通常ケース
+//		rot.x = std::atan2(r23, r33);
+//		rot.z = std::atan2(r12, r11);
+//	}
+//	else {
+//		// Gimbal Lock: ±90度の場合
+//		rot.x = 0.0f;
+//		rot.z = (rot.y > 0) ? std::atan2(r21, r22) : -std::atan2(r21, r22);
+//	}
+//
+//	return rot;
+//}
+
+XMFLOAT3 FbxParts::GetBoneRotateAtNow(BoneInstanceData* boneInst, int index)
+{
+	//XMFLOAT3 boneRot = GetRotationFromMatrix(boneInst[index].newPose);
+	//return boneRot;
+
+	// XMMATRIX を XMFLOAT4X4 に変換
+	DirectX::XMFLOAT4X4 float4x4;
+	DirectX::XMStoreFloat4x4(&float4x4, boneInst[index].newPose);
+	FbxMatrix fbxMatrix;
+
+	// XMFLOAT4X4 の値を FbxMatrix にコピー
+	for (int row = 0; row < 4; ++row) {
+		for (int col = 0; col < 4; ++col) {
+			fbxMatrix[row][col] = float4x4.m[row][col];
+		}
+	}
+
+	XMFLOAT3 rot = CalcMatRotateRatio(fbxMatrix);
+	rot.x = -XMConvertToDegrees(rot.x);
+	rot.y = -XMConvertToDegrees(rot.y);
+	rot.z = XMConvertToDegrees(rot.z);
+	return rot;
 }
 
 XMFLOAT3 FbxParts::GetBoneRotate(int index, FbxTime time)

@@ -142,18 +142,23 @@ XMFLOAT3 Fbx::GetBoneAnimPositionAtNow(BoneInstanceData* boneInst, int partIndex
 	return parts_[partIndex]->GetBonePositionAtNow(boneInst, boneIndex);
 }
 
-XMFLOAT3 Fbx::GetBoneAnimPosition(BoneInstanceData* boneInst, int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas)
+XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas)
 {
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBonePosition(boneInst, boneIndex, time, orientDatas);
+	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas);
 }
 
-XMFLOAT3 Fbx::GetBoneAnimPosition(BoneInstanceData* boneInst, int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
+XMFLOAT3 Fbx::GetBoneAnimPosition(int partIndex, int boneIndex, int frame, std::vector<OrientRotateInfo>& orientDatas, std::vector<FbxBlendData>& blendDatas)
 {
 	FbxTime time;
 	time.SetTime(0, 0, 0, frame, 0, 0, _frameRate);
-	return parts_[partIndex]->GetBonePosition(boneInst, boneIndex, time, orientDatas, blendDatas);
+	return parts_[partIndex]->GetBonePosition(boneIndex, time, orientDatas, blendDatas);
+}
+
+XMFLOAT3 Fbx::GetBoneAnimRotateAtNow(BoneInstanceData* boneInst, int partIndex, int boneIndex)
+{
+	return parts_[partIndex]->GetBoneRotateAtNow(boneInst, boneIndex);
 }
 
 XMFLOAT3 Fbx::GetBoneAnimRotate(int partIndex, int boneIndex, int frame)

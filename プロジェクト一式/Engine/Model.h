@@ -180,7 +180,10 @@ namespace Model
 
 	//指定したアニメーション時間のボーンの位置を取得
 	XMFLOAT3 GetBoneAnimPosition(int handle, int partIndex, int boneIndex, int frame);
-	
+
+	//現在のボーンの回転を取得
+	XMFLOAT3 GetBoneAnimRotateAtNow(int handle, int partIndex, int boneIndex);
+
 	//指定したアニメーション時間の回転を取得
 	XMFLOAT3 GetBoneAnimRotate(int handle, int partIndex, int boneIndex, int frame);
 
