@@ -51,3 +51,4 @@ void OutPutString(std::string firstText, T* array, int size, std::string endText
 
 //OutPutDebugString‚Å’l‚Ì•\Ž¦
 void OutPutString(std::string firstText, XMFLOAT3 text, std::string endText = "");
+void OutPutString(std::string firstText, XMVECTOR text, std::string endText = "");

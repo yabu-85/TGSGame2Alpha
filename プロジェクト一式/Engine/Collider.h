@@ -42,6 +42,9 @@ public:
 	int				hDebugModel_;	//デバッグ表示用のモデルのID
 	std::vector<OBJECT_TYPE> typeList_;	//判定するリスト
 
+	XMFLOAT3 offsetPosition_;
+	XMFLOAT3 offsetRotation_;
+
 public:
 	//コンストラクタ
 	Collider();

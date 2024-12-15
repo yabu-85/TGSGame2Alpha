@@ -1,5 +1,6 @@
 #include "Global.h"
 #include "Model.h"
+#include "CapsuleCollider.h"
 #include "../Other/GameManager.h"
 #include <assert.h>
 #include <vector>
@@ -123,6 +124,102 @@ namespace Model
 
 					++i;
 				}
+			}
+		}
+
+		//BoneCollider
+		if (!_datas[handle]->isAnimStop || blendCalc) {
+			for (BoneColliderData bData : _datas[handle]->boneColliders_) {
+				XMFLOAT3 bonePosition = GetBoneAnimPositionAtNow(handle, bData.partIndex, bData.boneIndex);
+				XMFLOAT3 boneRotation = GetBoneAnimRotateAtNow(handle, bData.partIndex, bData.boneIndex);
+
+				//Offset情報が０以外なら
+				if (bData.offsetPosition.x != 0.0f || bData.offsetPosition.y != 0.0f || bData.offsetPosition.z != 0.0f) {
+					//ボーンの回転をラジアンに変換
+					XMFLOAT3 boneRotationRad = {
+						XMConvertToRadians(boneRotation.x),
+						XMConvertToRadians(boneRotation.y),
+						XMConvertToRadians(boneRotation.z)
+					};
+
+					//ボーンの回転行列を作成
+					XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(
+						boneRotationRad.x,
+						boneRotationRad.y,
+						boneRotationRad.z
+					);
+
+					//オフセット座標をXMVECTORに変換
+					XMVECTOR offsetPosVec = XMLoadFloat3(&bData.offsetPosition);
+
+					// まずオフセットをオブジェクト中心に対する座標系で回転させる
+					_datas[handle]->transform.Calclation();
+					XMVECTOR rotatedOffsetPos = XMVector3Transform(offsetPosVec, (rotationMatrix * _datas[handle]->transform.matRotate_));
+
+					// ボーンの位置をXMVECTORに変換
+					XMVECTOR bonePosVec = XMLoadFloat3(&bonePosition);
+
+					// ボーンの位置と回転後のオフセットを加算して、コライダーの中心座標を計算
+					XMVECTOR colliderCenterVec = XMVectorAdd(bonePosVec, rotatedOffsetPos);
+
+					// コライダーの中心座標を設定
+					XMStoreFloat3(&bData.pCollider->center_, colliderCenterVec);
+
+					// コライダーの中心座標をトランスフォームの位置に合わせる
+					bData.pCollider->center_ = Float3Sub(bData.pCollider->center_, _datas[handle]->transform.position_);
+				}
+				//OffsetPositionが0の場合はボーンの原点に
+				else {
+					bData.pCollider->center_ = Float3Sub(bonePosition, _datas[handle]->transform.position_);
+				}
+				
+
+				//ボーンの回転をラジアンに変換
+				XMFLOAT3 boneRotationRad = {
+					XMConvertToRadians(boneRotation.x),
+					XMConvertToRadians(boneRotation.y),
+					XMConvertToRadians(boneRotation.z)
+				};
+
+				//ボーンの回転行列を作成
+				XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(
+					boneRotationRad.x,
+					boneRotationRad.y,
+					boneRotationRad.z
+				);
+
+				// オフセット回転をラジアンに変換
+				XMFLOAT3 offsetRotationRad = {
+					XMConvertToRadians(bData.offsetRotation.x),
+					XMConvertToRadians(bData.offsetRotation.y),
+					XMConvertToRadians(bData.offsetRotation.z)
+				};
+
+				// オフセット回転行列を作成
+				XMMATRIX offsetRotationMatrix = XMMatrixRotationRollPitchYaw(
+					offsetRotationRad.x,
+					offsetRotationRad.y,
+					offsetRotationRad.z
+				);
+
+				// ボーンの回転行列にオフセット回転を適用
+				XMMATRIX colliderRotationMatrix = XMMatrixMultiply(offsetRotationMatrix, rotationMatrix);
+
+				// カプセルコライダーの方向を計算（例: Z軸が向いている方向として計算）
+				XMVECTOR direction = XMVector3TransformNormal(XMVectorSet(0, 0, 1, 0), colliderRotationMatrix);
+
+				// 最終的な回転結果を計算
+				XMFLOAT3 rotateRes = CalculationRotateXYZ(XMFLOAT3(XMVectorGetX(direction), XMVectorGetY(direction), XMVectorGetZ(direction)));
+
+				// Y軸方向の回転補正
+				rotateRes.y += _datas[handle]->transform.rotate_.y;
+
+				// 向きベクトルに変換
+				direction = CalculationVectorDirection(rotateRes);
+
+				// コライダーの方向を設定
+				bData.pCollider->direction_ = direction;
+
 			}
 		}
 	}
@@ -418,6 +515,23 @@ namespace Model
 	void GetAllPolygon(int handle, std::vector<PolygonData>& list)
 	{
 		_datas[handle]->pFbx->GetAllPolygon(list);
+	}
+
+	void AttachColliderToBone(int handle, CapsuleCollider* pCollider, std::string boneName, XMFLOAT3 position, XMFLOAT3 rotation)
+	{
+		BoneColliderData data = BoneColliderData();
+
+		//Bone情報
+		GetPartBoneIndex(handle, boneName, &data.partIndex, &data.boneIndex);
+		assert(data.boneIndex >= 0);
+
+		//初期値
+		data.offsetPosition = position;
+		data.offsetRotation = rotation;
+		data.pCollider = pCollider;
+
+		//追加
+		_datas[handle]->boneColliders_.push_back(data);
 	}
 
 	void SetShadow(int handle, bool b)

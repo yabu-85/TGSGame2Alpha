@@ -4,6 +4,8 @@
 #include "Fbx.h"
 #include "Transform.h"
 
+class CapsuleCollider;
+
 //インスタンスごとに持つボーン情報
 struct BoneInstanceData {
 	XMMATRIX  newPose;       // アニメーションで変化したときのボーン変換行列
@@ -36,7 +38,22 @@ struct BlendData {
 	float animSpeed;
 	float currentBlend;		//今のBlendの値（1～0）
 	float decreaseBlend;	//1フレームでブレンド値減らす量
+
 	BlendData() : animLoop(false), nowFrame(0), startFrame(0), endFrame(0), animSpeed(0), currentBlend(0.0f), decreaseBlend(0.0f) {}
+};
+
+//指定したボーンにコライダーを取り付ける（今のところカプセルのみ対応）
+struct BoneColliderData {
+	int partIndex;
+	int boneIndex;
+	XMFLOAT3 offsetPosition;    //ボーンからのオフセット位置
+	XMFLOAT3 offsetRotation;    //ボーンからのオフセット回転
+	CapsuleCollider* pCollider;		//コライダーのポインタ
+
+	XMMATRIX preCalculatedRotationMatrix;   // 事前計算した回転行列
+	XMMATRIX preCalculatedOffsetRotationMatrix; // 事前計算したオフセット回転行列
+
+	BoneColliderData() : partIndex(-1), boneIndex(-1), offsetPosition(XMFLOAT3()), offsetRotation(XMFLOAT3()), pCollider(nullptr) {}
 };
 
 //Fbxに送る用のデータ
@@ -67,9 +84,10 @@ namespace Model
 		float nowFrame, animSpeed;
 		int startFrame, endFrame;
 
-		std::vector<OrientRotateInfo> orientRotateDatas_;
-		std::vector<BlendData> blendDatas_;
-		std::vector<FbxBlendData> fbxBlendDatas_;
+		std::vector<OrientRotateInfo> orientRotateDatas_;	//ボーンの回転情報
+		std::vector<BlendData> blendDatas_;					//ブレンド情報
+		std::vector<FbxBlendData> fbxBlendDatas_;			//Fbx情報
+		std::vector<BoneColliderData> boneColliders_;		//コライダー情報
 
 		//インスタンスごとに持つボーンデータ
 		BoneInstanceData* pBoneInstanceData;
@@ -210,6 +228,11 @@ namespace Model
 	
 	//回転軸セット
 	void SetOrietnRotateBone(int handle, int listIndex, XMFLOAT3 rotate);
+
+	/// <summary>
+	/// コライダーを指定したボーンに取り付ける
+	/// </summary>
+	void AttachColliderToBone(int handle, CapsuleCollider* pCollider, std::string boneName, XMFLOAT3 position = XMFLOAT3(), XMFLOAT3 rotation = XMFLOAT3());
 
 	//影表示するかセット
 	void SetShadow(int handle, bool b);

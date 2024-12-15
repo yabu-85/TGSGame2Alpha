@@ -56,10 +56,11 @@ XMFLOAT3 CalculationRotateXY(XMFLOAT3 dir) {
 
 //ベクトルから回転軸を計算（度）
 float CalculationRotateZ(XMFLOAT3 dir) {
-	float cosX = cosf(dir.x * XM_PI / 180.0f);
-	float cosY = cosf(dir.y * XM_PI / 180.0f);
-	float sinX = sinf(dir.x * XM_PI / 180.0f);
-	float sinY = sinf(dir.y * XM_PI / 180.0f);
+	float rXM_PI = XM_PI / 180.0f;
+	float cosX = cosf(dir.x * rXM_PI);
+	float cosY = cosf(dir.y * rXM_PI);
+	float sinX = sinf(dir.x * rXM_PI);
+	float sinY = sinf(dir.y * rXM_PI);
 	return XMConvertToDegrees(atan2f(-sinY * dir.x + cosY * dir.z, dir.y * sinX + (dir.x * cosY + dir.z * sinY) * cosX));
 }
 
@@ -117,5 +118,16 @@ void OutPutString(std::string firstText, XMFLOAT3 text, std::string endText) {
 	OutputDebugStringA(std::to_string(text.y).c_str());
 	OutputDebugString(" , ");
 	OutputDebugStringA(std::to_string(text.z).c_str());
+	OutputDebugString(endText.c_str());
+}
+
+void OutPutString(std::string firstText, XMVECTOR text, std::string endText)
+{
+	OutputDebugString(firstText.c_str());
+	OutputDebugStringA(std::to_string(XMVectorGetX(text)).c_str());
+	OutputDebugString(" , ");
+	OutputDebugStringA(std::to_string(XMVectorGetY(text)).c_str());
+	OutputDebugString(" , ");
+	OutputDebugStringA(std::to_string(XMVectorGetZ(text)).c_str());
 	OutputDebugString(endText.c_str());
 }
