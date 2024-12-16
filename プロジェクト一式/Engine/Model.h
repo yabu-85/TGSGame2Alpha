@@ -46,14 +46,17 @@ struct BlendData {
 struct BoneColliderData {
 	int partIndex;
 	int boneIndex;
-	XMFLOAT3 offsetPosition;    //ボーンからのオフセット位置
-	XMFLOAT3 offsetRotation;    //ボーンからのオフセット回転
+	XMFLOAT3 offsetPosition;		//ボーンからのオフセット位置
 	CapsuleCollider* pCollider;		//コライダーのポインタ
 
-	XMMATRIX preCalculatedRotationMatrix;   // 事前計算した回転行列
-	XMMATRIX preCalculatedOffsetRotationMatrix; // 事前計算したオフセット回転行列
+	//テスト
+	XMMATRIX offsetRotationMatrix = XMMATRIX();
 
-	BoneColliderData() : partIndex(-1), boneIndex(-1), offsetPosition(XMFLOAT3()), offsetRotation(XMFLOAT3()), pCollider(nullptr) {}
+	//ImGui用
+	XMFLOAT3 offsetRotation;
+	std::string boneName;
+
+	BoneColliderData() : partIndex(-1), boneIndex(-1), offsetPosition(XMFLOAT3()), pCollider(nullptr) {}
 };
 
 //Fbxに送る用のデータ
@@ -229,10 +232,13 @@ namespace Model
 	//回転軸セット
 	void SetOrietnRotateBone(int handle, int listIndex, XMFLOAT3 rotate);
 
-	/// <summary>
-	/// コライダーを指定したボーンに取り付ける
-	/// </summary>
-	void AttachColliderToBone(int handle, CapsuleCollider* pCollider, std::string boneName, XMFLOAT3 position = XMFLOAT3(), XMFLOAT3 rotation = XMFLOAT3());
+	//コライダーを指定したボーンに取り付ける
+	void AddAttachColliderToBone(int handle, CapsuleCollider* pCollider, std::string boneName, XMFLOAT3 position = XMFLOAT3(), XMFLOAT3 rotation = XMFLOAT3());
+
+	//すでに追加されてるボーンの情報をセット
+	void SetAttachColliderToBone(int handle, CapsuleCollider* pCollider, XMFLOAT3 position = XMFLOAT3(), XMFLOAT3 rotation = XMFLOAT3());
+
+	std::vector<BoneColliderData>* GetBoneColliderData(int handle);
 
 	//影表示するかセット
 	void SetShadow(int handle, bool b);

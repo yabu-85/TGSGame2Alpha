@@ -29,7 +29,7 @@ public:
 	XMVECTOR direction_;	//カプセルの向いている方向
 
 	float targetDit_;		//当たった距離保存用
-	XMFLOAT3 targetPos_;		//当たった場所保存用
+	XMFLOAT3 targetPos_;	//当たった場所保存用
 
 };
 

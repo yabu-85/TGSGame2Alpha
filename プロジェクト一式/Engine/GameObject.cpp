@@ -258,8 +258,12 @@ void GameObject::Collision(GameObject * pTarget)
 	//1つのオブジェクトが複数のコリジョン情報を持ってる場合もあるので二重ループ
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
 	{
+		if (!(*i)->isValid_) continue;
+
 		for (auto j = pTarget->colliderList_.begin(); j != pTarget->colliderList_.end(); j++)
 		{
+			if (!(*j)->isValid_) continue;
+
 			bool findS = std::find(begin((*j)->typeList_), end((*j)->typeList_), selfObjType) != end((*j)->typeList_);
 			bool findT = std::find(begin((*i)->typeList_), end((*i)->typeList_), targetObjType) != end((*i)->typeList_);
 			if (findS || findT) {
@@ -290,7 +294,8 @@ void GameObject::CollisionDraw()
 
 	for (auto i = this->colliderList_.begin(); i != this->colliderList_.end(); i++)
 	{
-		(*i)->Draw(GetWorldPosition());
+		//表示
+		if((*i)->isDraw_) (*i)->Draw(GetWorldPosition());
 	}
 
 	Direct3D::SetShader(type);

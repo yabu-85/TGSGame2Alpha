@@ -4,24 +4,6 @@
 class CapsuleCollider;
 class AnimationController;
 
-enum BONE_INDEX {
-    HEAD = 0,
-    NECK,
-    BODY_UP,
-    BODY_DOWN,
-    TAIL_UP,
-    TAIL_DOWN,
-    THIGHS_LEFT,
-    CALF_LEFT,
-    FEET_LEFT,
-    THIGHS_RIGHT,
-    CALF_RIGHT,
-    FEET_RIGHT,
-    HAND_LEFT,
-    HAND_RIGHT,
-    MAX_INDEX,
-};
-
 enum class TESTBOSS_ANIMATION {
     ANIM1 = 0,
     ANIM2,
@@ -33,13 +15,22 @@ const int TESTBOSS_ANIMATION_DATA[(int)TESTBOSS_ANIMATION::MAX][2]{
     { 240, 360 },
 };
 
+struct BoneAttachColliderData
+{
+    float radius, height;
+    std::string boneName;
+    XMFLOAT3 position, rotation;
+    BoneAttachColliderData() : radius(0.0f), height(0.0f), position(XMFLOAT3()), rotation(XMFLOAT3()) {}
+    BoneAttachColliderData(float r, float h, std::string name, XMFLOAT3 pos, XMFLOAT3 rot)
+        : radius(r), height(h), boneName(name), position(pos), rotation(rot) {
+    }
+};
+
 class TestBoss : public EnemyBase
 {
-    int boneIndex_[MAX_INDEX * 2];
-    int partIndex_[MAX_INDEX * 2];
-
-    CapsuleCollider* pCapsuleCollider_[MAX_INDEX];
     AnimationController* pAnimationController_;
+
+    void LoadBoneAttachData(const std::string& filename);
 
 public:
     TestBoss(GameObject* parent);

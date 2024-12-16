@@ -43,7 +43,8 @@ float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t);
 
 //コンストラクタ
 Collider::Collider():
-    pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f)), hDebugModel_(-1), type_(ColliderType::COLLIDER_BOX)
+    pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f)), type_(ColliderType::COLLIDER_BOX), 
+    isValid_(true), isDraw_(true), hDebugModel_(-1)
 {
 }
 

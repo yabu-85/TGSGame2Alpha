@@ -23,5 +23,5 @@ public:
     virtual void Release() override;
 
     void SetEnemyType(ENEMY_TYPE type) { enemyType_ = type; }
-
+    int GetModelHandle() { return hModel_; }
 };

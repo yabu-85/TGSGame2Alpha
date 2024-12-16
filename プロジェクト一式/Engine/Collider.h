@@ -35,15 +35,16 @@ class Collider
 	friend class SegmentCollider;
 
 public:
-	GameObject*		pGameObject_;	//この判定をつけたゲームオブジェクト
-	ColliderType	type_;			//種類
-	XMFLOAT3		center_;		//中心位置（ゲームオブジェクトの原点から見た位置）
-	XMFLOAT3		size_;			//判定サイズ（幅、高さ、奥行き）
-	int				hDebugModel_;	//デバッグ表示用のモデルのID
 	std::vector<OBJECT_TYPE> typeList_;	//判定するリスト
+	GameObject*		pGameObject_;		//この判定をつけたゲームオブジェクト
+	ColliderType	type_;				//種類
+	XMFLOAT3		center_;			//中心位置（ゲームオブジェクトの原点から見た位置）
+	XMFLOAT3		size_;				//判定サイズ（幅、高さ、奥行き）
+	bool			isValid_;			//判定するかどうか
 
-	XMFLOAT3 offsetPosition_;
-	XMFLOAT3 offsetRotation_;
+	//デバッグ用
+	bool			isDraw_;			//表示するかどうか
+	int				hDebugModel_;		//デバッグ表示用のモデルのID
 
 public:
 	//コンストラクタ
@@ -132,4 +133,3 @@ public:
 	bool IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg);
 
 };
-

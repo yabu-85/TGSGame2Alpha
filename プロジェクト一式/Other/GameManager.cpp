@@ -23,6 +23,34 @@
 #include "../Weapon/GunBase.h"
 #include <vector>
 #include <string>
+#include <cstring> 
+#include <fstream>
+#include "../Engine/CapsuleCollider.h"
+#include "../Enemy/TestBoss.h"
+ 
+void SaveBoneAttachData(const std::string& filename, BoneAttachColliderData* data, int size)
+{
+	nlohmann::json j;
+
+	for (int i = 0; i < size; i++) {
+		nlohmann::json boneData;
+		boneData["radius"] = data[i].radius;
+		boneData["height"] = data[i].height;
+		boneData["boneName"] = data[i].boneName;
+		boneData["position"] = { data[i].position.x, data[i].position.y, data[i].position.z };
+		boneData["rotation"] = { data[i].rotation.x, data[i].rotation.y, data[i].rotation.z };
+
+		j["boneAttachData"].push_back(boneData);
+	}
+
+	// JSONデータをファイルに書き出し
+	std::ofstream ofs(filename);
+	if (ofs.is_open())
+	{
+		ofs << j.dump(4);  // インデント4スペースで整形して保存
+		ofs.close();
+	}
+}
 
 namespace GameManager {
 	//ImGui情報
@@ -184,6 +212,38 @@ namespace GameManager {
 
 		ImGui::Begin("Hello");
 
+		// シャドウのオンオフ切り替えボタン
+		if (ImGui::Button("Toggle Shadow"))
+		{
+			isShadowDraw_ = !isShadowDraw_;
+		}
+
+		// 画面分割のオンオフ切り替えボタン
+		if (ImGui::Button("Toggle Screen Split"))
+		{
+			isOnePlayer_ = !isOnePlayer_;
+			if (isOnePlayer_) {
+				Direct3D::SetViewOne();
+				Direct3D::SetViewPort(0);
+				Camera::SetOneProjectionMatrix();
+			}
+			else {
+				Direct3D::SetViewTwo();
+				Camera::SetTwoProjectionMatrix();
+			}
+		}
+
+		// drawIndex の切り替え
+		if (ImGui::Button("Toggle Screen Draw Index"))
+		{
+			if (isOnePlayer_) {
+				if (drawIndex_ == 0) drawIndex_ = 1;
+				else drawIndex_ = 0;
+			}
+		}
+
+		ImGui::Separator();
+
 		//プレイヤーと敵のリストを表示するウィジェット
 		ImGui::Text("Select an Entity:");
 		ImGui::Separator();
@@ -216,41 +276,9 @@ namespace GameManager {
 		if (ImGui::ListBox("Enemies", &selectedEnemy, enemyNamesCStr.data(), (int)enemyNamesCStr.size()))
 		{
 			selectedType = SelectedType::Enemy;
-			selectedIndex = -1;
-			selectedPlayer = -1;
+			selectedIndex = selectedEnemy;
 		}
 
-		ImGui::Separator();
-
-		// シャドウのオンオフ切り替えボタン
-		if (ImGui::Button("Toggle Shadow"))
-		{
-			isShadowDraw_ = !isShadowDraw_;
-		}
-
-		// 画面分割のオンオフ切り替えボタン
-		if (ImGui::Button("Toggle Screen Split"))
-		{
-			isOnePlayer_ = !isOnePlayer_;
-			if (isOnePlayer_) {
-				Direct3D::SetViewOne();
-				Direct3D::SetViewPort(0);
-				Camera::SetOneProjectionMatrix();
-			}
-			else {
-				Direct3D::SetViewTwo();
-				Camera::SetTwoProjectionMatrix();
-			}
-		}
-		
-		// drawIndex の切り替え
-		if (ImGui::Button("Toggle Screen Draw Index"))
-		{
-			if (isOnePlayer_) {
-				if (drawIndex_ == 0) drawIndex_ = 1;
-				else drawIndex_ = 0;
-			}
-		}
 
 		ImGui::Separator();
 
@@ -317,10 +345,95 @@ namespace GameManager {
 
 		case SelectedType::Enemy:
 		{
-			for (size_t i = 0; i < enemies.size(); ++i)
-			{
-				const auto& enemy = enemies[i];
-				ImGui::Text("Enemy %zu Position: (%.2f, %.2f, %.2f)", i + 1, enemy->GetPosition().x, enemy->GetPosition().y, enemy->GetPosition().z);
+			// 選択されたエネミーが存在しない場合は処理を終了
+			if (enemies.empty() || !enemies[selectedIndex]) return;
+
+			// 選択中のエネミーを取得
+			const auto& enemy = enemies[selectedIndex];
+			int modelHandle = enemy->GetModelHandle();
+
+			// 現在のPositionとRotationを取得
+			XMFLOAT3 currentPosition = enemy->GetPosition();
+			XMFLOAT3 currentRotation = enemy->GetRotate();
+
+			//PositionとRotationを表示
+			ImGui::SliderFloat("Position X", &currentPosition.x, 20.0f, 80.0f, "%.2f");
+			ImGui::SliderFloat("Position Y", &currentPosition.y, -10.0f, 10.0f, "%.2f");
+			ImGui::SliderFloat("Position Z", &currentPosition.z, 20.0f, 80.0f, "%.2f");
+			ImGui::SliderFloat3("Rotation", reinterpret_cast<float*>(&currentRotation), -180.0f, 180.0f, "%.2f");
+			ImGui::Spacing();
+
+			// 更新されたPositionとRotationをエネミーに反映
+			enemy->SetPosition(currentPosition);
+			enemy->SetRotate(currentRotation);
+
+			// ボーンのコライダー情報を取得
+			std::vector<BoneColliderData> boneColliders = *Model::GetBoneColliderData(modelHandle);
+
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			// ボーンの情報を折りたたみ可能に表示
+			for (size_t i = 0; i < boneColliders.size(); ++i) {
+				BoneColliderData& colliderData = boneColliders[i];
+
+				// ボーン名を最小表示（折りたたみ可能）
+				bool isOpen = ImGui::CollapsingHeader(colliderData.boneName.c_str());
+
+				if (isOpen) {
+					// 詳細情報を表示
+					ImGui::PushID(static_cast<int>(i)); // 複数コライダーを識別するためのID
+					ImGui::Text("Bone: %s", colliderData.boneName.c_str());
+
+					// OffsetPosition の編集
+					bool positionChanged = false;
+					positionChanged |= ImGui::SliderFloat3("Offset Position", reinterpret_cast<float*>(&colliderData.offsetPosition), -5.0f, 5.0f);
+
+					// OffsetRotationMatrix（回転のオフセット）をラジアン変換して編集
+					XMFLOAT3 offsetRotationEuler = colliderData.offsetRotation;
+					bool rotationChanged = false;
+					rotationChanged |= ImGui::SliderFloat3("Offset Rotation", reinterpret_cast<float*>(&offsetRotationEuler), -180.0f, 180.0f);
+
+					// 変更があった場合に値をセット
+					if (positionChanged || rotationChanged) {
+						Model::SetAttachColliderToBone(modelHandle, colliderData.pCollider, colliderData.offsetPosition, offsetRotationEuler);
+					}
+
+					// Collider自体の情報
+					if (colliderData.pCollider) {
+						float radius = colliderData.pCollider->size_.x;
+						ImGui::SliderFloat("Radius", &radius, 0.0f, 10.0f, "%.2f");
+						colliderData.pCollider->size_ = XMFLOAT3(radius, radius, radius);
+
+						// Height のスライダー
+						ImGui::SliderFloat("Height", &colliderData.pCollider->height_, 0.0f, 10.0f, "%.2f");
+					
+						//表示非表示
+						int isDrawCollider = colliderData.pCollider->isDraw_;
+						ImGui::SliderInt("Draw", &isDrawCollider, 0, 1, "%.2d");
+						colliderData.pCollider->isDraw_ = isDrawCollider;
+
+					}
+
+					ImGui::Separator();
+					ImGui::Spacing();
+					ImGui::PopID();
+				}
+			}
+
+			//セーブボタン
+			if (ImGui::Button("CreateCollisionMap")) {
+				BoneAttachColliderData BoneAttachDataGame[14];
+				for (int i = 0; i < 14; i++) {
+					boneColliders;
+					BoneAttachDataGame[i].boneName = boneColliders[i].boneName;
+					BoneAttachDataGame[i].height = boneColliders[i].pCollider->height_;
+					BoneAttachDataGame[i].position = boneColliders[i].offsetPosition;
+					BoneAttachDataGame[i].radius = boneColliders[i].pCollider->size_.x;
+					BoneAttachDataGame[i].rotation = boneColliders[i].offsetRotation;
+				}
+
+				SaveBoneAttachData("Json/TestBossAttachCollider", BoneAttachDataGame, 14);
 			}
 		}
 		break;

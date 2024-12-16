@@ -13,6 +13,7 @@
 #include "../Engine/SceneManager.h"
 
 #include "../AI/RouteSearch.h"
+#include "../Enemy/EnemyBase.h"
 #include "../Enemy/EnemyManager.h"
 #include "../UI/DamageUI.h"
 #include "../UI/AimCursor.h"
@@ -103,6 +104,11 @@ void PlayScene::Update()
 		//自分より下のUpdateを拒否
 		AllChildLeave();
 		Enter();
+
+		//デバッグ用
+		for (EnemyBase* enemy : EnemyManager::GetAllEnemy()) {
+			enemy->Enter();
+		}
 
 		GameManager::SetCursorMode(true);
 		isPause_ = true;

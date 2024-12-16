@@ -14,7 +14,8 @@
 
 namespace {
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 5.5f, 50.0f);
-    
+
+    //BoneAttach
     XMFLOAT3 offsetPosition = XMFLOAT3(0.04f, 0.52f, 0.04f);
     XMFLOAT3 offsetRotation = XMFLOAT3(-88.0f, 0.0f, 0.0f);
 
@@ -49,11 +50,10 @@ void StoneGolem::Initialize()
 
     CapsuleCollider* pCapsuleCollider = new CapsuleCollider(XMFLOAT3(), 0.3f, 0.5f, XMVECTOR());
     AddCollider(pCapsuleCollider);
-
-    Model::AttachColliderToBone(hModel_, pCapsuleCollider, "hand.R", offsetPosition, offsetRotation);
+    Model::AddAttachColliderToBone(hModel_, pCapsuleCollider, "hand.R", offsetPosition, offsetRotation);
 
     Model::CalcDraw(hModel_);
-    Model::SetAnimFrame(hModel_, 0, 300, 1.0f);
+    Model::SetAnimFrame(hModel_, 0, 320, 1.0f);
 }
 
 void StoneGolem::Update()
@@ -64,11 +64,26 @@ void StoneGolem::Update()
         return;
     }
 
-    if (Input::IsKey(DIK_T)) transform_.position_.x -= 0.5f;
-    if (Input::IsKey(DIK_Y)) transform_.position_.x += 0.5f;
-    if (Input::IsKey(DIK_G)) transform_.rotate_.y += 10;
-    if (Input::IsKey(DIK_H)) transform_.rotate_.y -= 10;
-
+    if (!Input::IsKey(DIK_F)) {
+        float speed = 0.3f;
+        if (Input::IsKey(DIK_NUMPAD1)) transform_.position_.x -= speed;
+        if (Input::IsKey(DIK_NUMPAD2)) transform_.position_.x += speed;
+        if (Input::IsKey(DIK_NUMPAD4)) transform_.position_.y -= speed;
+        if (Input::IsKey(DIK_NUMPAD5)) transform_.position_.y += speed;
+        if (Input::IsKey(DIK_NUMPAD7)) transform_.position_.z -= speed;
+        if (Input::IsKey(DIK_NUMPAD8)) transform_.position_.z += speed;
+        if (Input::IsKey(DIK_NUMPAD0)) transform_.position_ = XMFLOAT3();
+    }
+    else {
+        float speed = 2.0f;
+        if (Input::IsKey(DIK_NUMPAD1)) transform_.rotate_.x -= speed;
+        if (Input::IsKey(DIK_NUMPAD2)) transform_.rotate_.x += speed;
+        if (Input::IsKey(DIK_NUMPAD4)) transform_.rotate_.y -= speed;
+        if (Input::IsKey(DIK_NUMPAD5)) transform_.rotate_.y += speed;
+        if (Input::IsKey(DIK_NUMPAD7)) transform_.rotate_.z -= speed;
+        if (Input::IsKey(DIK_NUMPAD8)) transform_.rotate_.z += speed;
+        if (Input::IsKey(DIK_NUMPAD0)) transform_.rotate_ = XMFLOAT3();
+    }
     if (Input::IsKeyDown(DIK_U)) Model::AnimStop(hModel_);
     if (Input::IsKeyDown(DIK_I)) Model::AnimStart(hModel_);
 
@@ -87,11 +102,12 @@ void StoneGolem::Draw()
         pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
 
-    CollisionDraw();
 #if _DEBUG
     Direct3D::SetDepthBafferWriteEnable(false);
     CollisionDraw();
     Direct3D::SetDepthBafferWriteEnable(true);
+#else
+    CollisionDraw();
 #endif // _DEBUG
 
 }

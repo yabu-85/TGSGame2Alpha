@@ -29,8 +29,6 @@ namespace {
 
     const XMVECTOR forwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 
-    int DEBUG_LIFE_TIME = 1;
-
 }
 
 Aim::Aim(GameObject* parent)
@@ -76,16 +74,12 @@ void Aim::Initialize()
     mouseSensitivity_ += MOUSE_SPEED_MIN;
 
     //初回処理しとく
-    CalcAim();
+    //CalcAim();
 
 }
 
 void Aim::Update()
 {
-    //DEBUG_LIFE_TIME--;
-    //if(DEBUG_LIFE_TIME >= 0) return;
-
-
     //デバッグ用
 #if 0
     if (Input::IsKeyDown(DIK_5)) isMove_ = !isMove_;

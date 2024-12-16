@@ -12,13 +12,43 @@
 #include "../Other/GameManager.h"
 #include "../Other/VFXManager.h"
 
+#include "../Json/JsonReader.h"
+#include "../Engine/ImGui/imgui.h"
+#include "../Engine/ImGui/imgui_impl_dx11.h"
+#include "../Engine/ImGui/imgui_impl_win32.h"
+#include <fstream>
+#include <cstring> 
+#include <string>
+
 namespace {
     const XMFLOAT3 START_POS = XMFLOAT3(50.0f, 5.0f, 50.0f);
+    
+    const int BoneAttackSize = 14;
+    BoneAttachColliderData BoneAttachData[BoneAttackSize] = {
+        { 0.85f, 0.85f, "Head", XMFLOAT3(0.0f, 0.708f, 0.04f), XMFLOAT3(98.7f, 0.0f, 0.0f)},      //頭
+        { 0.7f, 1.3f, "Neck", XMFLOAT3(0.0f, 0.22f, 0.0f), XMFLOAT3(84.4f, 0.0f, 0.0f)},              //首
+        { 1.2f, 0.8f, "BodyUp", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},    //胴体上
+        { 0.8f, 1.1f, "BodyCenter", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},          //胴体下
+
+        { 0.1f, 0.1f, "TailUp", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},    //尻尾上
+        { 0.1f, 0.1f, "TailDown", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},    //尻尾下
+
+        { 0.1f, 0.1f, "Thighs.L", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},//左足上
+        { 0.1f, 0.1f, "Calf.L", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},//左足下
+        { 0.1f, 0.1f, "Feet.L", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},    //左足 
+        
+        { 0.1f, 0.1f, "Thighs.R", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},//右足上
+        { 0.1f, 0.1f, "Calf.R", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},//右足下
+        { 0.1f, 0.1f, "Feet.R", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},    //右足
+
+        { 0.1f, 0.1f, "Hand.L", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},//左手
+        { 0.1f, 0.1f, "Hand.R", XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f)},//右手
+    };
 
 }
 
 TestBoss::TestBoss(GameObject* parent)
-    : EnemyBase(parent, "TestBossEnemy")
+    : EnemyBase(parent, "TestBossEnemy"), pAnimationController_(nullptr)
 {
 }
 
@@ -44,40 +74,13 @@ void TestBoss::Initialize()
     pHealthGauge_ = new FixedHealthGauge(this);
     pHealthGauge_->SetOffSetPosition(XMFLOAT2(0.2f, 0.8f));
 
-    XMVECTOR vec = { 0.0f, 0.0f, 0.0f, 0.0f };
-    XMFLOAT3 center = XMFLOAT3();
-    pCapsuleCollider_[0] = new CapsuleCollider(center, 0.9f, 0.5f, vec);    //頭
-    pCapsuleCollider_[1] = new CapsuleCollider(center, 0.7f, 1.3f, vec);    //首
-    pCapsuleCollider_[2] = new CapsuleCollider(center, 1.2f, 0.8f, vec);    //胴体上
-    pCapsuleCollider_[3] = new CapsuleCollider(center, 0.8f, 1.1f, vec);    //胴体下
-    pCapsuleCollider_[4] = new CapsuleCollider(center, 0.5f, 1.1f, vec);    //尻尾上
-    pCapsuleCollider_[5] = new CapsuleCollider(center, 0.3f, 0.8f, vec);    //尻尾下
-    pCapsuleCollider_[6] = new CapsuleCollider(center, 0.6f, 0.9f, vec);    //左足上
-    pCapsuleCollider_[7] = new CapsuleCollider(center, 0.4f, 0.9f, vec);    //左足下
-    pCapsuleCollider_[8] = new CapsuleCollider(center, 0.4f, 1.0f, vec);    //左足
-    pCapsuleCollider_[9] = new CapsuleCollider(center, 0.6f, 0.9f, vec);    //右足上
-    pCapsuleCollider_[10] = new CapsuleCollider(center, 0.4f, 0.9f, vec);   //右足下
-    pCapsuleCollider_[11] = new CapsuleCollider(center, 0.4f, 1.0f, vec);   //左足
-    pCapsuleCollider_[12] = new CapsuleCollider(center, 0.5f, 1.0f, vec);   //左手
-    pCapsuleCollider_[13] = new CapsuleCollider(center, 0.5f, 1.0f, vec);   //右手
-    for (int i = 0; i < MAX_INDEX; i++) if (pCapsuleCollider_[i]) AddCollider(pCapsuleCollider_[i]);
+    LoadBoneAttachData("Json/TestBossAttachCollider");
 
-    std::string boneName[MAX_INDEX * 2] = {
-        "Head.001", "Head.002", 
-        "Bone.003.R", "Bone.004.R",
-        "Bone", "Bone.001.R",
-        "Bone.009.L", "Bone.008.L", 
-        "Tail.011.L", "Bone.010.L", 
-        "Tail.011.L", "Tail.011.L.001", 
-        "Bone.007.L.002", "Bone.007.L.001",
-        "Bone.007.L.002", "Bone.007.L.004",
-        "Feet.L.004", "Feet.L.005",
-        "Bone.007.R.002", "Bone.007.R.001",
-        "Bone.007.R.002", "Bone.007.R.004",
-        "Feet.R.004", "Feet.R.005",
-        "Bone.001.L.002", "Bone.001.L.001", 
-        "Bone.001.R.002", "Bone.001.R.001", };
-    for (int i = 0; i < MAX_INDEX * 2; i++) Model::GetPartBoneIndex(hModel_, boneName[i], &partIndex_[i], &boneIndex_[i]);
+    for (int i = 0; i < BoneAttackSize; i++) {
+        CapsuleCollider* pCapsuleCollider = new CapsuleCollider(XMFLOAT3(), BoneAttachData[i].radius, BoneAttachData[i].height, XMVECTOR());
+        AddCollider(pCapsuleCollider);
+        Model::AddAttachColliderToBone(hModel_, pCapsuleCollider, BoneAttachData[i].boneName, BoneAttachData[i].position, BoneAttachData[i].rotation);
+    }
 
     //アニメーションデータのセットフレームはヘッダに書いてる
     pAnimationController_ = new AnimationController(hModel_, this);
@@ -88,35 +91,44 @@ void TestBoss::Initialize()
     pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(180, VFX_TYPE::Explode));
     pAnimationController_->AddAnimNotify((int)TESTBOSS_ANIMATION::ANIM1, new CreatFrame(240, VFX_TYPE::Explode));
     pAnimationController_->SetNextAnim(0, 0.3f);
+    Model::AnimStop(hModel_);
 
 }
 
 void TestBoss::Update()
 {
     //Dead判定
-    if (IsHealthZero()) KillMe();
-    
-    pAnimationController_->Update();
-    Model::Update(hModel_);
-
-    if (Input::IsKey(DIK_T)) transform_.position_.x -= 0.5f;
-    if (Input::IsKey(DIK_Y)) transform_.position_.x += 0.5f;
-    if (Input::IsKey(DIK_G)) transform_.rotate_.y += 10;
-    if (Input::IsKey(DIK_H)) transform_.rotate_.y -= 10;
-
-    //Center計算
-    for (int i = 0; i < MAX_INDEX; i++) {
-        int ni = (i * 2);
-
-        //Center
-        pCapsuleCollider_[i]->center_ = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]), transform_.position_);
-   
-        //Direction
-        XMFLOAT3 fff = XMFLOAT3();
-        fff = Float3Sub(Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni], boneIndex_[ni]), Model::GetBoneAnimPositionAtNow(hModel_, partIndex_[ni + 1], boneIndex_[ni + 1]));
-        pCapsuleCollider_[i]->direction_ = XMVector3Normalize(XMLoadFloat3(&fff));
+    if (IsHealthZero()) {
+        KillMe();
+        return;
     }
 
+    if (!Input::IsKey(DIK_F)) {
+        float speed = 0.3f;
+        if (Input::IsKey(DIK_NUMPAD1)) transform_.position_.x -= speed;
+        if (Input::IsKey(DIK_NUMPAD2)) transform_.position_.x += speed;
+        if (Input::IsKey(DIK_NUMPAD4)) transform_.position_.y -= speed;
+        if (Input::IsKey(DIK_NUMPAD5)) transform_.position_.y += speed;
+        if (Input::IsKey(DIK_NUMPAD7)) transform_.position_.z -= speed;
+        if (Input::IsKey(DIK_NUMPAD8)) transform_.position_.z += speed;
+        if (Input::IsKey(DIK_NUMPAD0)) transform_.position_ = XMFLOAT3();
+    }
+    else {
+        float speed = 2.0f;
+        if (Input::IsKey(DIK_NUMPAD1)) transform_.rotate_.x -= speed;
+        if (Input::IsKey(DIK_NUMPAD2)) transform_.rotate_.x += speed;
+        if (Input::IsKey(DIK_NUMPAD4)) transform_.rotate_.y -= speed;
+        if (Input::IsKey(DIK_NUMPAD5)) transform_.rotate_.y += speed;
+        if (Input::IsKey(DIK_NUMPAD7)) transform_.rotate_.z -= speed;
+        if (Input::IsKey(DIK_NUMPAD8)) transform_.rotate_.z += speed;
+        if (Input::IsKey(DIK_NUMPAD0)) transform_.rotate_ = XMFLOAT3();
+    }
+    if (Input::IsKeyDown(DIK_U)) Model::AnimStop(hModel_);
+    if (Input::IsKeyDown(DIK_I)) Model::AnimStart(hModel_);
+
+    pAnimationController_->Update();
+    Model::SetTransform(hModel_, transform_);
+    Model::Update(hModel_);
 }
 
 void TestBoss::Draw()
@@ -130,11 +142,12 @@ void TestBoss::Draw()
         pHealthGauge_->Draw(GameManager::GetDrawIndex());
     }
 
-    CollisionDraw();
 #if _DEBUG
     Direct3D::SetDepthBafferWriteEnable(false);
     CollisionDraw();
     Direct3D::SetDepthBafferWriteEnable(true);
+#else
+    CollisionDraw();
 #endif // _DEBUG
 
 }
@@ -148,4 +161,24 @@ void TestBoss::Release()
 void TestBoss::CalcDraw()
 {
     Model::CalcDraw(hModel_);
+}
+
+void TestBoss::LoadBoneAttachData(const std::string& filename)
+{
+    JsonReader::Load(filename);
+    const auto& j = JsonReader::GetSection("boneAttachData");
+
+    for (size_t i = 0; i < j.size(); ++i)
+    {
+        const auto& boneData = j[i];
+        BoneAttachData[i].radius = boneData["radius"];
+        BoneAttachData[i].height = boneData["height"];
+        BoneAttachData[i].boneName = boneData["boneName"];
+        BoneAttachData[i].position = DirectX::XMFLOAT3(
+            boneData["position"][0], boneData["position"][1], boneData["position"][2]
+        );
+        BoneAttachData[i].rotation = DirectX::XMFLOAT3(
+            boneData["rotation"][0], boneData["rotation"][1], boneData["rotation"][2]
+        );
+    }
 }
