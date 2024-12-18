@@ -4,6 +4,8 @@
 #include "../Character/DamageSystem.h"
 #include "../Engine/Global.h"
 #include <vector>
+#include "../Engine/Fbx.h"
+#include "../Other/GameManager.h"
 
 Character::Character(GameObject* parent, std::string name)
     : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}, bodyHeightHalf_(0.0f)
@@ -20,6 +22,52 @@ Character::~Character()
 
 void Character::Update()
 {
+}
+
+void Character::BounceFloar()
+{
+    RayCastData rayData = RayCastData();
+    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeight, transform_.position_.z);
+    rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
+    XMFLOAT3 pos = XMFLOAT3(transform_.position_.x, transform_.position_.y + calcHeight, transform_.position_.z);
+    GameManager::GetCollisionMap()->CellFloarRayCast(pos, &rayData);
+    if (rayData.dist <= PlayerHeight + perDist) {
+        transform_.position_.y += PlayerHeight - rayData.dist;
+        gravity_ = 0.0f;
+        isFly_ = false;
+    }
+}
+
+void Character::BounceWall()
+{
+    //‰º
+    XMVECTOR push = XMVectorZero();
+    bool hit = GameManager::GetCollisionMap()->CellSphereVsTriangle(pSphereCollider_[0], push);
+
+    //ã
+    push = XMVectorZero();
+    if (GameManager::GetCollisionMap()->CellSphereVsTriangle(pSphereCollider_[1], push)) hit = true;
+
+    return hit;
+}
+
+void Character::BounceRoof()
+{
+    RayCastData rayData = RayCastData();
+    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerWaist, transform_.position_.z);
+    rayData.dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
+    GameManager::GetCollisionMap()->CellFloarRayCast(transform_.position_, &rayData);
+    float calcSize = PlayerHeight - PlayerWaist;
+    if (rayData.hit && rayData.dist < calcSize) {
+        transform_.position_.y -= calcSize - rayData.dist;
+
+        //Œë·
+        transform_.position_.y -= 0.05f;
+
+        gravity_ = 0.0f;
+        return true;
+    }
+    return false;
 }
 
 void Character::ReflectCharacter()

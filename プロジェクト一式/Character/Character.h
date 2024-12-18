@@ -22,6 +22,11 @@ public:
     virtual void Draw() override = 0 {};
     virtual void Release() override = 0 {};
 
+    //
+    void BounceFloar();
+    void BounceWall();
+    void BounceRoof();
+
     //キャラクター同士の衝突の際めり込みを避ける
     void ReflectCharacter();
 

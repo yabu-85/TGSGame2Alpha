@@ -143,11 +143,13 @@ void TestBoss::Draw()
     }
 
 #if _DEBUG
-    Direct3D::SetDepthBafferWriteEnable(false);
-    CollisionDraw();
-    Direct3D::SetDepthBafferWriteEnable(true);
+    if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) {
+        Direct3D::SetDepthBafferWriteEnable(false);
+        CollisionDraw();
+        Direct3D::SetDepthBafferWriteEnable(true);
+    }
 #else
-    CollisionDraw();
+    if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) CollisionDraw();
 #endif // _DEBUG
 
 }

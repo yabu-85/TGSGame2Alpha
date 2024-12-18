@@ -38,9 +38,9 @@ void StoneGolem::Initialize()
     transform_.position_ = START_POS;
     enemyType_ = ENEMY_TYPE::ENEMY_TEST;
 
-    SetBodyRange(0.5f);
-    SetBodyWeight(0.3f);
-    SetBodyHeightHalf(0.8f);
+    SetBodyRange(0.1f);
+    SetBodyWeight(3.0f);
+    SetBodyHeightHalf(2.0f);
     
     SetMaxHP(1000);
     SetHP(1000);
@@ -87,6 +87,7 @@ void StoneGolem::Update()
     if (Input::IsKeyDown(DIK_U)) Model::AnimStop(hModel_);
     if (Input::IsKeyDown(DIK_I)) Model::AnimStart(hModel_);
 
+    ReflectCharacter();
     Model::SetTransform(hModel_, transform_);
     Model::Update(hModel_);
 }
@@ -103,13 +104,14 @@ void StoneGolem::Draw()
     }
 
 #if _DEBUG
-    Direct3D::SetDepthBafferWriteEnable(false);
-    CollisionDraw();
-    Direct3D::SetDepthBafferWriteEnable(true);
+    if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) {
+        Direct3D::SetDepthBafferWriteEnable(false);
+        CollisionDraw();
+        Direct3D::SetDepthBafferWriteEnable(true);
+    }
 #else
-    CollisionDraw();
+    if (Direct3D::GetCurrentShader() != Direct3D::SHADER_SHADOWMAP) CollisionDraw();
 #endif // _DEBUG
-
 }
 
 void StoneGolem::Release()

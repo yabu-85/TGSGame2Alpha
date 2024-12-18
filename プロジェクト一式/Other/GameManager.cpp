@@ -346,13 +346,21 @@ namespace GameManager {
 		case SelectedType::Enemy:
 		{
 			// 選択されたエネミーが存在しない場合は処理を終了
-			if (enemies.empty() || !enemies[selectedIndex]) return;
+			if (enemies.empty() || !enemies[selectedIndex]) {
+				selectedType = SelectedType::None;
+				selectedIndex = -1;
+				break;
+			}
 
 			// 選択中のエネミーを取得
 			const auto& enemy = enemies[selectedIndex];
-			int modelHandle = enemy->GetModelHandle();
+			if (!enemy && enemy->IsDead()) {
+				selectedType = SelectedType::None;
+				selectedIndex = -1;
+				break;
+			}
 
-			// 現在のPositionとRotationを取得
+			int modelHandle = enemy->GetModelHandle();
 			XMFLOAT3 currentPosition = enemy->GetPosition();
 			XMFLOAT3 currentRotation = enemy->GetRotate();
 
