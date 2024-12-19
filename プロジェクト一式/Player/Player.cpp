@@ -165,9 +165,11 @@ void Player::Initialize()
     pStateManager_->ChangeState("Idle");
 
     XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
-    pCapsuleCollider_ = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.3f, 0.65f, vec);
+    pCapsuleCollider_ = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.1f, 0.95f, vec);
     pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(pCapsuleCollider_);
+
+    Character::pCapsuleCollider_ = Player::pCapsuleCollider_;
 
     for (int i = 0; i < 2; i++) {
         pSphereCollider_[i] = new SphereCollider(XMFLOAT3(), pCapsuleCollider_->size_.x);
@@ -185,6 +187,8 @@ void Player::Update()
     //ReloadはGunBaseから
     //着地はPlayerUpdateの中から
     //それ以外はPlayerStateの中からしている
+
+    BounceStage();
 
     if (playerId_ == 0 && Input::IsKeyDown(DIK_H)) {
         Model::AddBlend(hDownModel_, 400, 630, 1.0f, true, 1.0f, 0.01f);
@@ -267,7 +271,7 @@ void Player::Update()
     pStateManager_->Update();
 
     //空中にいる
-    if (isFly_) {
+    if (isFly_ && false) {
 
         //登り処理いったんなし
         /*
@@ -281,10 +285,10 @@ void Player::Update()
         gravity_ += WorldGravity;
         transform_.position_.y -= gravity_;
         
-        StageRoofBounce();
+        /*StageRoofBounce();
         StageFloarBounce(0.0f, -1.0f);
         StageFloarBounce();
-        StageWallBounce();
+        StageWallBounce();*/
 
         //着地した
         if (!isFly_) {
@@ -298,9 +302,9 @@ void Player::Update()
     //地上・登り状態じゃないとき、地面に立っているか判定
     if (!isFly_ && !isClimb_) {
         isFly_ = true;
-        StageWallBounce();
-        StageRoofBounce();
-        StageFloarBounce(0.2f);
+        //StageWallBounce();
+        //StageRoofBounce();
+        //StageFloarBounce(0.2f);
     }
     
     ReflectCharacter();

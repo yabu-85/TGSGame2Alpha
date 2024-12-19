@@ -3,6 +3,7 @@
 #include "../Engine/GameObject.h"
 
 class HealthGauge;
+class CapsuleCollider;
 
 class Character : public GameObject, public DamageSystem
 {
@@ -13,6 +14,7 @@ class Character : public GameObject, public DamageSystem
 
 protected:
     HealthGauge* pHealthGauge_;
+    CapsuleCollider* pCapsuleCollider_;
 
 public:
     Character(GameObject* parent, std::string name);
@@ -23,9 +25,7 @@ public:
     virtual void Release() override = 0 {};
 
     //
-    void BounceFloar();
-    void BounceWall();
-    void BounceRoof();
+    void BounceStage();
 
     //キャラクター同士の衝突の際めり込みを避ける
     void ReflectCharacter();

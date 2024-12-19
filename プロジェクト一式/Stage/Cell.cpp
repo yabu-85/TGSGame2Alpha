@@ -6,6 +6,7 @@
 #include "../Engine/Global.h"
 #include "../Engine/Collider.h"
 #include "../Engine/SphereCollider.h"
+#include "../Engine/CapsuleCollider.h"
 
 Cell::Cell() : length_(0), min_(XMFLOAT3()), max_(XMFLOAT3())
 {
@@ -100,6 +101,36 @@ bool Cell::SphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
 			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
 			XMFLOAT3 fP = XMFLOAT3();
 			XMStoreFloat3(&fP, push);
+
+			pos = Float3Add(pos, fP);
+			collid->pGameObject_->SetPosition(pos);
+			hit = true;
+		}
+	}
+
+	return hit;
+}
+
+bool Cell::CapsuleVsTriangle(CapsuleCollider* collid, XMVECTOR& push)
+{
+	bool hit = false;
+	for (int i = 0; i < (int)floarTriangles_.size(); i++) {
+		if (collid->IsHitCapsuleVsTriangle(collid, &floarTriangles_[i], push)) {
+			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
+			XMFLOAT3 fP = XMFLOAT3();
+			XMStoreFloat3(&fP, push * 0.5f);
+
+			pos = Float3Add(pos, fP);
+			collid->pGameObject_->SetPosition(pos);
+			hit = true;
+		}
+	}
+
+	for (int i = 0; i < (int)wallTriangles_.size(); i++) {
+		if (collid->IsHitCapsuleVsTriangle(collid, &wallTriangles_[i], push)) {
+			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
+			XMFLOAT3 fP = XMFLOAT3();
+			XMStoreFloat3(&fP, push * 0.5f);
 
 			pos = Float3Add(pos, fP);
 			collid->pGameObject_->SetPosition(pos);

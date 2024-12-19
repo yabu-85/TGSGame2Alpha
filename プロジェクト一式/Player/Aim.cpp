@@ -81,7 +81,7 @@ void Aim::Initialize()
 void Aim::Update()
 {
     //デバッグ用
-#if 0
+#if 1
     if (Input::IsKeyDown(DIK_5)) isMove_ = !isMove_;
     if (Input::IsKey(DIK_1)) distanceTargetHeight_ += 0.1f;
     if (Input::IsKey(DIK_2)) distanceTargetHeight_ -= 0.1f;

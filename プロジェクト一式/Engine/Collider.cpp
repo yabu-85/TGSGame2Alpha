@@ -1,4 +1,4 @@
-#include "BoxCollider.h"
+ï»¿#include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "CapsuleCollider.h"
 #include "SegmentCollider.h"
@@ -9,24 +9,27 @@
 #include "../Stage/Triangle.h"
 
 namespace {
-    const float EPSILON = 0.000001f;     //‹–—eŒë·‚Ì’è‹`
+    const float EPSILON = 0.000001f;     //è¨±å®¹èª¤å·®ã®å®šç¾©
 
 }
 
-//ü•ªin‚Ü‚è‚ÆI‚í‚è‚ª‚ ‚é—LŒÀ‚Ìüj
+//ç·šåˆ†ï¼ˆå§‹ã¾ã‚Šã¨çµ‚ã‚ã‚ŠãŒã‚ã‚‹æœ‰é™ã®ç·šï¼‰
 struct Segment {
-    XMFLOAT3 pos;   //ü•ª‚Ìn“_
-    XMVECTOR vec;   //ü•ª‚Ì•ûŒüƒxƒNƒgƒ‹i’·‚³‚àj
+    XMFLOAT3 pos;   //ç·šåˆ†ã®å§‹ç‚¹
+    XMVECTOR vec;   //ç·šåˆ†ã®æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ï¼ˆé•·ã•ã‚‚ï¼‰
     Segment(XMFLOAT3 p, XMVECTOR v) : pos(p), vec(v) {};
 
-    XMFLOAT3 GetEndPoint() {
+    XMVECTOR GetEndPointVector() {
+        return XMVectorAdd(XMLoadFloat3(&pos), vec);
+    }
+
+    XMFLOAT3 GetEndPointFloat3() {
         XMFLOAT3 endPoint;
-        XMVECTOR endPointVec = XMVectorAdd(XMLoadFloat3(&pos), vec);
-        XMStoreFloat3(&endPoint, endPointVec);
+        XMStoreFloat3(&endPoint, GetEndPointVector());
         return endPoint;
     }
 
-    //’¼üã‚Ì“_‚ğæ“¾‚·‚é
+    //ç›´ç·šä¸Šã®ç‚¹ã‚’å–å¾—ã™ã‚‹
     XMFLOAT3 GetPosition(float dot) const {
         XMFLOAT3 p = XMFLOAT3();
         XMStoreFloat3(&p, (XMLoadFloat3(&pos) + (vec * dot)));
@@ -41,20 +44,20 @@ float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, flo
 float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
 float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t);
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 Collider::Collider():
     pGameObject_(nullptr), center_(XMFLOAT3()), size_(XMFLOAT3(1.0f, 1.0f, 1.0f)), type_(ColliderType::COLLIDER_BOX), 
     isValid_(true), isDraw_(true), hDebugModel_(-1)
 {
 }
 
-//ƒfƒXƒgƒ‰ƒNƒ^
+//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 Collider::~Collider()
 {
 }
 
-//ƒeƒXƒg•\¦—p‚Ì˜g‚ğ•`‰æ
-//ˆø”Fposition	ƒIƒuƒWƒFƒNƒg‚ÌˆÊ’u
+//ãƒ†ã‚¹ãƒˆè¡¨ç¤ºç”¨ã®æ ã‚’æç”»
+//å¼•æ•°ï¼šposition	ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä½ç½®
 void Collider::Draw(XMFLOAT3 position)
 {
 #ifdef _DEBUG
@@ -102,14 +105,14 @@ bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 	return false;
 }
 
-//” ¡‚Ì‚Æ‚±g‚í‚È‚¢‚©‚çA‚Æ‚è‚ ‚¦‚¸v‚¢‚Â‚¢‚½o—ˆ‚»‚¤‚È‚â‚è•û‘‚¢‚Ä‚¨‚­AAABB‚Ì•û‚à‹–ì‚É
-//‚Ü‚¸ˆê”Ô‹ß‚¢“_‹‚ß‚é¨Box‚Ì’†‚É“ü‚Á‚Ä‚¢‚È‚¢‚©‚Ì”»’è¨Å‹ß‚ÅBox/Sphere”»’è‚·‚é
+//ç®±ä»Šã®ã¨ã“ä½¿ã‚ãªã„ã‹ã‚‰ã€ã¨ã‚Šã‚ãˆãšæ€ã„ã¤ã„ãŸå‡ºæ¥ãã†ãªã‚„ã‚Šæ–¹æ›¸ã„ã¦ãŠãã€AABBã®æ–¹ã‚‚è¦–é‡ã«
+//ã¾ãšä¸€ç•ªè¿‘ã„ç‚¹æ±‚ã‚ã‚‹â†’Boxã®ä¸­ã«å…¥ã£ã¦ã„ãªã„ã‹ã®åˆ¤å®šâ†’æœ€è¿‘ã§Box/Sphereåˆ¤å®šã™ã‚‹
 bool Collider::IsHitBoxVsCapsule(BoxCollider* box, CapsuleCollider* capsule)
 {
     return false;
 }
 
-//Box/Capsule‚Ì‘O‚É‚±‚Á‚¿ì‚Á‚ÄÅ‹ß‚Ì“àŠO”»’è‚¾‚¯ì‚ê‚Î‚æ‚³‚°
+//Box/Capsuleã®å‰ã«ã“ã£ã¡ä½œã£ã¦æœ€è¿‘ã®å†…å¤–åˆ¤å®šã ã‘ä½œã‚Œã°ã‚ˆã•ã’
 bool Collider::IsHitBoxVsSegment(BoxCollider* box, SegmentCollider* seg)
 {
     return false;
@@ -157,30 +160,30 @@ bool Collider::IsHitCircleVsCapsule(SphereCollider* circle, CapsuleCollider* cap
 
 bool Collider::IsHitCircleVsSegment(SphereCollider* circle, SegmentCollider* seg)
 {
-    //‹…‘Ì‚Ì’†SÀ•W
+    //çƒä½“ã®ä¸­å¿ƒåº§æ¨™
     XMFLOAT3 f = circle->pGameObject_->GetWorldPosition();
     XMVECTOR cCenter = XMLoadFloat3(&f) + XMLoadFloat3(&circle->center_);
 
-    //ü•ª‚Ìn“_‚ÆI“_À•W
+    //ç·šåˆ†ã®å§‹ç‚¹ã¨çµ‚ç‚¹åº§æ¨™
     f = seg->pGameObject_->GetWorldPosition();
     XMVECTOR sStart = XMLoadFloat3(&f) + XMLoadFloat3(&seg->center_);
     XMVECTOR sEnd = sStart + seg->vec_ * seg->size_.x;
 
-    //ü•ª‚ÌI“_‚Æ‹…‚Ì‹——£‚ª‰~‚Ì”ÍˆÍ“à‚È‚ç“–‚½‚Á‚Ä‚é
+    //ç·šåˆ†ã®çµ‚ç‚¹ã¨çƒã®è·é›¢ãŒå††ã®ç¯„å›²å†…ãªã‚‰å½“ãŸã£ã¦ã‚‹
     XMVECTOR vP = cCenter - sEnd;
     if (circle->size_.x > XMVectorGetX(XMVector3Length(vP))) return true;
 
-    //ü•ª‚Ìn“_‚Æ‹…‚Ì‹——£‚ª‰~‚Ì”ÍˆÍ“à‚È‚ç“–‚½‚Á‚Ä‚é
+    //ç·šåˆ†ã®å§‹ç‚¹ã¨çƒã®è·é›¢ãŒå††ã®ç¯„å›²å†…ãªã‚‰å½“ãŸã£ã¦ã‚‹
     vP = cCenter - sStart;
     if (circle->size_.x > XMVectorGetX(XMVector3Length(vP))) return true;
 
-    //“àÏ‚ª0‚æ‚è‘å‚«‚­Aü•ªƒxƒNƒgƒ‹‚Ì‘å‚«‚³‚æ‚è¬‚³‚¢‚È‚ç
+    //å†…ç©ãŒ0ã‚ˆã‚Šå¤§ããã€ç·šåˆ†ãƒ™ã‚¯ãƒˆãƒ«ã®å¤§ãã•ã‚ˆã‚Šå°ã•ã„ãªã‚‰
     float dot = XMVectorGetX(XMVector3Dot(seg->vec_, vP));
     if (dot > 0 && dot < seg->size_.x) {
-        //dot‚Ì’·‚³‚ÌƒxƒNƒgƒ‹
+        //dotã®é•·ã•ã®ãƒ™ã‚¯ãƒˆãƒ«
         XMVECTOR vec = seg->vec_ * dot;
 
-        //‹…‘Ì‚©‚çˆê”Ô‹ß‚¢segment‚Ì“_‚Æ‹…‘Ì‚Ü‚Å‚Ì‹——£‚ª‹…‘Ì‚Ì”¼Œa‚Ì‚Qæ‚æ‚è¬‚³‚¯‚ê‚Î“–‚½‚Á‚Ä‚é
+        //çƒä½“ã‹ã‚‰ä¸€ç•ªè¿‘ã„segmentã®ç‚¹ã¨çƒä½“ã¾ã§ã®è·é›¢ãŒçƒä½“ã®åŠå¾„ã®ï¼’ä¹—ã‚ˆã‚Šå°ã•ã‘ã‚Œã°å½“ãŸã£ã¦ã‚‹
         float range = XMVectorGetX(XMVector3Length(vP - vec));
         if (circle->size_.x > range) return true;
     }
@@ -197,22 +200,22 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle,
     XMVECTOR q2 = triangle->GetPosition(2);
     XMVECTOR normal = triangle->GetNormal();
 
-    //‹…‚Ì’†S‚©‚ç•½–Ê‚Ö‚Ì‹——£‚ğŒvZ
+    //çƒã®ä¸­å¿ƒã‹ã‚‰å¹³é¢ã¸ã®è·é›¢ã‚’è¨ˆç®—
     float distanceToPlane = XMVectorGetX(XMVector3Dot(normal, p - q0));
 
-    //•½–Ê‚Æ‹…‚Ì’†S‚Ì‹——£‚ª‹…‚Ì”¼Œa‚æ‚è‘å‚«‚¢ê‡A”ñŒğ·‚Æ”»’è
+    //å¹³é¢ã¨çƒã®ä¸­å¿ƒã®è·é›¢ãŒçƒã®åŠå¾„ã‚ˆã‚Šå¤§ãã„å ´åˆã€éäº¤å·®ã¨åˆ¤å®š
     if (fabs(distanceToPlane) > circle->size_.x) {
         return false;
     }
 
-    // ‹…‚Ì’†S‚©‚çOŠpŒ`‚Ì•½–Ê‚Ö‚Ì‚ü‚Ì‘«
+    // çƒã®ä¸­å¿ƒã‹ã‚‰ä¸‰è§’å½¢ã®å¹³é¢ã¸ã®å‚ç·šã®è¶³
     XMVECTOR pointOnPlane = p - distanceToPlane * normal;
 
-    //OŠpŒ`‚Ì•ÓƒxƒNƒgƒ‹‚ğŒvZ
+    //ä¸‰è§’å½¢ã®è¾ºãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—
     XMVECTOR edge0 = q1 - q0;
     XMVECTOR edge1 = q2 - q0;
 
-    // OŠpŒ`“à‚Ì“_‚ğƒpƒ‰ƒƒgƒŠƒbƒN‚É•\Œ»
+    // ä¸‰è§’å½¢å†…ã®ç‚¹ã‚’ãƒ‘ãƒ©ãƒ¡ãƒˆãƒªãƒƒã‚¯ã«è¡¨ç¾
     XMVECTOR v0ToPoint = pointOnPlane - q0;
     float d00 = XMVectorGetX(XMVector3Dot(edge0, edge0));
     float d01 = XMVectorGetX(XMVector3Dot(edge0, edge1));
@@ -224,14 +227,14 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle,
     float w = (d00 * d21 - d01 * d20) / denom;
     float u = 1.0f - v - w;
 
-    //•½–Êã‚Ì“_‚ªOŠpŒ`“à•”‚©‚Ç‚¤‚©
+    //å¹³é¢ä¸Šã®ç‚¹ãŒä¸‰è§’å½¢å†…éƒ¨ã‹ã©ã†ã‹
     if ((u >= 0.0f) && (v >= 0.0f) && (w >= 0.0f)) {
         outDistanceVector = (circle->size_.x - distanceToPlane) * normal;
         bool output = fabs(distanceToPlane) < circle->size_.x;
         return output;
     }
 
-    // OŠpŒ`‚ÌŠe’¸“_‚Æ‹…‚Ì’†S‚Æ‚Ì‹——£‚ğŒvZ
+    // ä¸‰è§’å½¢ã®å„é ‚ç‚¹ã¨çƒã®ä¸­å¿ƒã¨ã®è·é›¢ã‚’è¨ˆç®—
     float distSqToV0 = XMVectorGetX(XMVector3LengthSq(p - q0));
     float distSqToV1 = XMVectorGetX(XMVector3LengthSq(p - q1));
     float distSqToV2 = XMVectorGetX(XMVector3LengthSq(p - q2));
@@ -249,7 +252,7 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle,
         closestPoint = q2;
     }
 
-    // Še•Ó‚Æ‹…‚Ì’†S‚Æ‚ÌÅ¬‹——£‚ğŒvZ
+    // å„è¾ºã¨çƒã®ä¸­å¿ƒã¨ã®æœ€å°è·é›¢ã‚’è¨ˆç®—
     auto updateClosestPoint = [&](XMVECTOR a, XMVECTOR b) {
         XMVECTOR ab = b - a;
         float t = max(0.0f, min(1.0f, XMVectorGetX(XMVector3Dot(p - a, ab) / XMVector3Dot(ab, ab))));
@@ -265,7 +268,7 @@ bool Collider::IsHitCircleVsTriangle(SphereCollider* circle, Triangle* triangle,
     updateClosestPoint(q0, q2);
     updateClosestPoint(q1, q2);
 
-    //Å¬‹——£‚ª‹…‚Ì”¼ŒaˆÈ“à‚©‚Ç‚¤‚©
+    //æœ€å°è·é›¢ãŒçƒã®åŠå¾„ä»¥å†…ã‹ã©ã†ã‹
     float minDist = sqrtf(minDistSq);
     bool hit = minDist < circle->size_.x;
 
@@ -308,7 +311,6 @@ bool Collider::IsHitCapsuleVsCapsule(CapsuleCollider* capsule1, CapsuleCollider*
     return out;
 }
 
-//‚±‚êŠÔˆá‚Á‚Ä‚é‚Æv‚¤TodoF¡‚¹
 bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* seg)
 {
     XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
@@ -336,9 +338,106 @@ bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* 
     return out;
 }
 
-//[[[[[[[[[[[[[[[[[[[[[‹…‚ÆTriangle‚Ég‚¤[[[[[[[[[[[[[[[[[[[[[[
+XMVECTOR ClosestPointOnLineSegment(XMVECTOR A, XMVECTOR B, XMVECTOR Point)
+{
+    XMVECTOR AB = B - A;
+    float t = XMVectorGetX(XMVector3Dot(Point - A, AB)) / XMVectorGetX(XMVector3Dot(AB, AB));
+    t = min(max(t, 0.0f), 1.0f); // æ‹¬å¼§ã®å•é¡Œã‚’ä¿®æ­£
+    return A + t * AB;
+}
 
-// 0`1‚ÌŠÔ‚ÉƒNƒ‰ƒ“ƒv
+bool Collider::IsHitCapsuleVsTriangle(CapsuleCollider* capsule, Triangle* triangle, XMVECTOR& outDistanceVector)
+{
+    XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
+    XMVECTOR dir = XMVector3Normalize(capsule->direction_);
+    dir *= capsule->height_;
+
+    XMVECTOR vPos = XMLoadFloat3(&capPos) - dir * 0.5f;
+    XMStoreFloat3(&capPos, vPos);
+    Segment seg1 = Segment(capPos, dir);
+
+    XMVECTOR tip = seg1.GetEndPointVector();
+    XMVECTOR base = vPos;
+
+    XMVECTOR p0 = triangle->GetPosition(0);
+    XMVECTOR p1 = triangle->GetPosition(1);
+    XMVECTOR p2 = triangle->GetPosition(2);
+
+    XMVECTOR CapsuleNormal = XMVector3Normalize(tip - base);
+    XMVECTOR LineEndOffset = CapsuleNormal * capsule->size_.x;
+    XMVECTOR A = base + LineEndOffset;
+    XMVECTOR B = tip - LineEndOffset;
+    XMVECTOR N = triangle->GetNormal();
+
+    float t = XMVectorGetX(XMVector3Dot(N, (p0 - base)) / XMVectorGetX(XMVector3Dot(N, CapsuleNormal)));
+
+    XMVECTOR line_plane_intersection = base + CapsuleNormal * t;
+    XMVECTOR reference_point;
+
+    // Check if the intersection point is inside the triangle
+    XMVECTOR c0 = XMVector3Cross(line_plane_intersection - p0, p1 - p0);
+    XMVECTOR c1 = XMVector3Cross(line_plane_intersection - p1, p2 - p1);
+    XMVECTOR c2 = XMVector3Cross(line_plane_intersection - p2, p0 - p2);
+    bool inside =
+        XMVectorGetX(XMVector3Dot(c0, N)) >= 0 &&
+        XMVectorGetX(XMVector3Dot(c1, N)) >= 0 &&
+        XMVectorGetX(XMVector3Dot(c2, N)) >= 0;
+
+    if (inside)
+    {
+        reference_point = line_plane_intersection;
+    }
+    else
+    {
+        // Check closest points on triangle edges
+        XMVECTOR point1 = ClosestPointOnLineSegment(p0, p1, line_plane_intersection);
+        XMVECTOR v1 = line_plane_intersection - point1;
+        float best_dist = XMVectorGetX(XMVector3Dot(v1, v1));
+        reference_point = point1;
+
+        XMVECTOR point2 = ClosestPointOnLineSegment(p1, p2, line_plane_intersection);
+        XMVECTOR v2 = line_plane_intersection - point2;
+        float dist2 = XMVectorGetX(XMVector3Dot(v2, v2));
+        if (dist2 < best_dist)
+        {
+            reference_point = point2;
+            best_dist = dist2;
+        }
+
+        XMVECTOR point3 = ClosestPointOnLineSegment(p2, p0, line_plane_intersection);
+        XMVECTOR v3 = line_plane_intersection - point3;
+        float dist3 = XMVectorGetX(XMVector3Dot(v3, v3));
+        if (dist3 < best_dist)
+        {
+            reference_point = point3;
+            best_dist = dist3;
+        }
+    }
+
+    //XMVECTOR center = ClosestPointOnLineSegment(A, B, reference_point);
+
+    //// Compute the distance vector (outDistanceVector) if needed
+    //outDistanceVector = center - reference_point;
+
+    //// Return true if the capsule and triangle intersect
+    //return XMVectorGetX(XMVector3LengthSq(outDistanceVector)) <= capsule->size_.x * capsule->size_.x;
+
+    XMFLOAT3 sphereCenter = XMFLOAT3();
+    XMStoreFloat3(&sphereCenter, reference_point);
+    sphereCenter = Float3Sub(sphereCenter, pGameObject_->GetWorldPosition());
+
+    SphereCollider sphere = SphereCollider(sphereCenter, capsule->size_.x);
+    sphere.pGameObject_ = capsule->pGameObject_;
+
+    OutPutString("ref : ", reference_point, "\n");
+
+    return IsHitCircleVsTriangle(&sphere, triangle, outDistanceVector);
+
+}
+
+//ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼çƒã¨Triangleã«ä½¿ã†ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼ãƒ¼
+
+// 0ï½1ã®é–“ã«ã‚¯ãƒ©ãƒ³ãƒ—
 void Clamp01(float& v) {
     if (v < 0.0f) v = 0.0f;
     else if (v > 1.0f) v = 1.0f;
@@ -346,12 +445,12 @@ void Clamp01(float& v) {
 
 #include <math.h>
 
-// “_‚Æ’¼ü‚ÌÅ’Z‹——£
-// p : “_
-// l : ’¼ü
-// h : “_‚©‚ç‰º‚ë‚µ‚½‚ü‚Ì‘«i–ß‚è’lj
-// t :ƒxƒNƒgƒ‹ŒW”i–ß‚è’lj
-// –ß‚è’l: Å’Z‹——£
+// ç‚¹ã¨ç›´ç·šã®æœ€çŸ­è·é›¢
+// p : ç‚¹
+// l : ç›´ç·š
+// h : ç‚¹ã‹ã‚‰ä¸‹ã‚ã—ãŸå‚ç·šã®è¶³ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// t :ãƒ™ã‚¯ãƒˆãƒ«ä¿‚æ•°ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// æˆ»ã‚Šå€¤: æœ€çŸ­è·é›¢
 float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t) {
     t = 0.0f;
     float dvv = powf(XMVectorGetX(XMVector3Length(s.vec)), 2.0f);
@@ -365,43 +464,43 @@ float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t) {
     return XMVectorGetX(XMVector3Length(v));
 }
 
-// Úp1p2p3‚Í‰sŠpH
+// âˆ p1p2p3ã¯é‹­è§’ï¼Ÿ
 bool IsSharpAngle(XMFLOAT3& p1, XMFLOAT3& p2, XMFLOAT3& p3) {
     XMVECTOR v21 = XMLoadFloat3(&p1) - XMLoadFloat3(&p2);
     XMVECTOR v23 = XMLoadFloat3(&p3) - XMLoadFloat3(&p2);
 
-    //‚Q‚Â‚Ìü‚Ì“àÏ‚ğŒvZ
+    //ï¼’ã¤ã®ç·šã®å†…ç©ã‚’è¨ˆç®—
     float dotProduct = XMVectorGetX(XMVector3Dot(XMVector3Normalize(v21), XMVector3Normalize(v23)));
     float length1 = XMVectorGetX(XMVector3Length(v21));
     float length2 = XMVectorGetX(XMVector3Length(v23));
 
-    //Šp“xŒvZ‚µ‚Ä“x‚É•ÏŠ·
+    //è§’åº¦è¨ˆç®—ã—ã¦åº¦ã«å¤‰æ›
     float angle = acosf(dotProduct / (length1 * length2));
     angle = XMConvertToDegrees(angle);
 
-    //90“x‚æ‚è¬‚³‚¢‚È‚ç‰sŠp
+    //90åº¦ã‚ˆã‚Šå°ã•ã„ãªã‚‰é‹­è§’
     return angle < 90.0f + EPSILON;
 }
 
-// “_‚Æü•ª‚ÌÅ’Z‹——£
-// p : “_
-// seg : ü•ª
-// h : Å’Z‹——£‚Æ‚È‚é’[“_i–ß‚è’lj
-// t : ’[“_ˆÊ’ui t < 0: n“_‚ÌŠO, 0 <= t <= 1: ü•ª“à, t > 1: I“_‚ÌŠO j
-// –ß‚è’l: Å’Z‹——£
+// ç‚¹ã¨ç·šåˆ†ã®æœ€çŸ­è·é›¢
+// p : ç‚¹
+// seg : ç·šåˆ†
+// h : æœ€çŸ­è·é›¢ã¨ãªã‚‹ç«¯ç‚¹ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// t : ç«¯ç‚¹ä½ç½®ï¼ˆ t < 0: å§‹ç‚¹ã®å¤–, 0 <= t <= 1: ç·šåˆ†å†…, t > 1: çµ‚ç‚¹ã®å¤– ï¼‰
+// æˆ»ã‚Šå€¤: æœ€çŸ­è·é›¢
 float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t) {
-    XMFLOAT3 e = seg.GetEndPoint();
+    XMFLOAT3 e = seg.GetEndPointFloat3();
 
-    // ‚ü‚Ì’·‚³A‚ü‚Ì‘«‚ÌÀ•W‹y‚Ñt‚ğZo
+    // å‚ç·šã®é•·ã•ã€å‚ç·šã®è¶³ã®åº§æ¨™åŠã³tã‚’ç®—å‡º
     float len = CalcPointLineDist(p, seg, h, t);
 
     if (!IsSharpAngle(p, seg.pos, e)) {
-        // n“_‘¤‚ÌŠO‘¤
+        // å§‹ç‚¹å´ã®å¤–å´
         h = seg.pos;
         return XMVectorGetX(XMVector3Length(XMLoadFloat3(&seg.pos) - XMLoadFloat3(&p)));
     }
     else if (!IsSharpAngle(p, e, seg.pos)) {
-        // I“_‘¤‚ÌŠO‘¤
+        // çµ‚ç‚¹å´ã®å¤–å´
         h = e;
         return XMVectorGetX(XMVector3Length(XMLoadFloat3(&p) - XMLoadFloat3(&e)));
     }
@@ -409,28 +508,28 @@ float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t) {
     return len;
 }
 
-// 2’¼ü‚ÌÅ’Z‹——£
+// 2ç›´ç·šã®æœ€çŸ­è·é›¢
 // l1 : L1
 // l2 : L2
-// p1 : L1‘¤‚Ì‚ü‚Ì‘«i–ß‚è’lj
-// p2 : L2‘¤‚Ì‚ü‚Ì‘«i–ß‚è’lj
-// t1 : L1‘¤‚ÌƒxƒNƒgƒ‹ŒW”i–ß‚è’lj
-// t2 : L2‘¤‚ÌƒxƒNƒgƒ‹ŒW”i–ß‚è’lj
-// –ß‚è’l: Å’Z‹——£
+// p1 : L1å´ã®å‚ç·šã®è¶³ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// p2 : L2å´ã®å‚ç·šã®è¶³ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// t1 : L1å´ã®ãƒ™ã‚¯ãƒˆãƒ«ä¿‚æ•°ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// t2 : L2å´ã®ãƒ™ã‚¯ãƒˆãƒ«ä¿‚æ•°ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// æˆ»ã‚Šå€¤: æœ€çŸ­è·é›¢
 float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
-    //2’¼ü‚ª•½s‚©’²‚×‚é
-    //2‚Â‚ÌƒxƒNƒgƒ‹‚ÌŠOÏ‚Ì’·‚³‚ğƒ`ƒFƒbƒN‚µA‹–—eŒë·‚æ‚è¬‚³‚¢‚©‚Ç‚¤‚©‚ğŠm”F
+    //2ç›´ç·šãŒå¹³è¡Œã‹èª¿ã¹ã‚‹
+    //2ã¤ã®ãƒ™ã‚¯ãƒˆãƒ«ã®å¤–ç©ã®é•·ã•ã‚’ãƒã‚§ãƒƒã‚¯ã—ã€è¨±å®¹èª¤å·®ã‚ˆã‚Šå°ã•ã„ã‹ã©ã†ã‹ã‚’ç¢ºèª
     float crossLeng = XMVectorGetX(XMVector3Length(XMVector3Cross(XMVector3Normalize(s1.vec), XMVector3Normalize(s2.vec))));
     crossLeng = crossLeng * crossLeng + 0.0000001f;
     if (crossLeng < EPSILON) {
-        //ü•ª1‚Ìn“_‚©‚ç’¼ü2‚Ü‚Å‚ÌÅ’Z‹——£–â‘è‚É‹A’…‚·‚é
+        //ç·šåˆ†1ã®å§‹ç‚¹ã‹ã‚‰ç›´ç·š2ã¾ã§ã®æœ€çŸ­è·é›¢å•é¡Œã«å¸°ç€ã™ã‚‹
         t1 = 0.0f;
         p1 = s1.pos;
         return CalcPointLineDist(s1.pos, s2, p2, t2);
     }
 
-    //’¼ü“¯m‚Ì‚¨Œİ‚¢‚ª‚’¼‚É‚È‚é“_‚ğ‹‚ß‚Ä
-    //‚»‚Ì2“_‚Å‹——£‚ğ‹‚ß‚é
+    //ç›´ç·šåŒå£«ã®ãŠäº’ã„ãŒå‚ç›´ã«ãªã‚‹ç‚¹ã‚’æ±‚ã‚ã¦
+    //ãã®2ç‚¹ã§è·é›¢ã‚’æ±‚ã‚ã‚‹
     XMVECTOR vecN1 = XMVector3Normalize(s1.vec);
     XMVECTOR vecN2 = XMVector3Normalize(s2.vec);
     float DV1V2 = XMVectorGetX(XMVector3Dot(s1.vec, s2.vec));
@@ -449,50 +548,50 @@ float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, flo
 }
 
 //https://www.youtube.com/watch?v=oCg5T5Xyg-o
-// 2ü•ª‚ÌÅ’Z‹——£
-// s1 : S1(ü•ª1)
-// s2 : S2(ü•ª2)
-// p1 : S1‘¤‚Ì‚ü‚Ì‘«i–ß‚è’lj
-// p2 : S2‘¤‚Ì‚ü‚Ì‘«i–ß‚è’lj
-// t1 : S1‘¤‚ÌƒxƒNƒgƒ‹ŒW”i–ß‚è’lj
-// t2 : S2‘¤‚ÌƒxƒNƒgƒ‹ŒW”i–ß‚è’lj
-// –ß‚è’l: Å’Z‹——£
+// 2ç·šåˆ†ã®æœ€çŸ­è·é›¢
+// s1 : S1(ç·šåˆ†1)
+// s2 : S2(ç·šåˆ†2)
+// p1 : S1å´ã®å‚ç·šã®è¶³ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// p2 : S2å´ã®å‚ç·šã®è¶³ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// t1 : S1å´ã®ãƒ™ã‚¯ãƒˆãƒ«ä¿‚æ•°ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// t2 : S2å´ã®ãƒ™ã‚¯ãƒˆãƒ«ä¿‚æ•°ï¼ˆæˆ»ã‚Šå€¤ï¼‰
+// æˆ»ã‚Šå€¤: æœ€çŸ­è·é›¢
 float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2) {
     float dist = 0.0f;
 
     //----------------------------------------------------------------
-    //‚Æ‚è‚ ‚¦‚¸2’¼üŠÔ‚ÌÅ’Z‹——£,mp1,mp2,t1,t2‚ğ‹‚ß‚Ä‚İ‚é
+    //ã¨ã‚Šã‚ãˆãš2ç›´ç·šé–“ã®æœ€çŸ­è·é›¢,mp1,mp2,t1,t2ã‚’æ±‚ã‚ã¦ã¿ã‚‹
     dist = CalcLineLineDist(s1, s2, p1, p2, t1, t2);
     if (0.0f <= t1 && t1 <= 1.0f && 0.0f <= t2 && t2 <= 1.0f) {
-        //mp1,mp2‚ª—¼•û‚Æ‚àü•ª“à‚É‚ ‚Á‚½
+        //mp1,mp2ãŒä¸¡æ–¹ã¨ã‚‚ç·šåˆ†å†…ã«ã‚ã£ãŸ
         return dist;
     }
-    //mp1,mp2‚Ì—¼•ûA‚Ü‚½‚Í‚Ç‚¿‚ç‚©‚ªü•ª“à‚É‚È‚©‚Á‚½‚Ì‚ÅŸ‚Ö
+    //mp1,mp2ã®ä¸¡æ–¹ã€ã¾ãŸã¯ã©ã¡ã‚‰ã‹ãŒç·šåˆ†å†…ã«ãªã‹ã£ãŸã®ã§æ¬¡ã¸
 
     //----------------------------------------------------------------
-    //mp1,t1‚ğ‹‚ß’¼‚· Ë t2‚ğ0`1‚ÉƒNƒ‰ƒ“ƒv‚µ‚Ämp2‚©‚çs1.v‚É‚ü‚ğ~‚ë‚µ‚Ä‚İ‚é
+    //mp1,t1ã‚’æ±‚ã‚ç›´ã™ â‡’ t2ã‚’0ï½1ã«ã‚¯ãƒ©ãƒ³ãƒ—ã—ã¦mp2ã‹ã‚‰s1.vã«å‚ç·šã‚’é™ã‚ã—ã¦ã¿ã‚‹
     Clamp01(t2);
     p2 = s2.GetPosition(t2);
     dist = CalcPointLineDist(p2, s1, p1, t1);
     if (0.0f <= t1 && t1 <= 1.0f) {
-        //mp1‚ªü•ª“à‚É‚ ‚Á‚½
+        //mp1ãŒç·šåˆ†å†…ã«ã‚ã£ãŸ
         return dist;
     }
-    //mp1‚ªü•ª“à‚É‚È‚©‚Á‚½‚Ì‚ÅŸ‚Ö
+    //mp1ãŒç·šåˆ†å†…ã«ãªã‹ã£ãŸã®ã§æ¬¡ã¸
 
     //----------------------------------------------------------------
-    //mp2,t2‚ğ‹‚ß’¼‚· Ë t1‚ğ0`1‚ÉƒNƒ‰ƒ“ƒv‚µ‚Ämp1‚©‚çs2.v‚É‚ü‚ğ~‚ë‚µ‚Ä‚İ‚é
+    //mp2,t2ã‚’æ±‚ã‚ç›´ã™ â‡’ t1ã‚’0ï½1ã«ã‚¯ãƒ©ãƒ³ãƒ—ã—ã¦mp1ã‹ã‚‰s2.vã«å‚ç·šã‚’é™ã‚ã—ã¦ã¿ã‚‹
     Clamp01(t1);
     p1 = s1.GetPosition(t1);
     dist = CalcPointLineDist(p1, s2, p2, t2);
     if (0.0f <= t2 && t2 <= 1.0f) {
-        //mp2‚ªü•ª“à‚É‚ ‚Á‚½
+        //mp2ãŒç·šåˆ†å†…ã«ã‚ã£ãŸ
         return dist;
     }
-    //mp2‚ªü•ª“à‚É‚È‚©‚Á‚½‚Ì‚ÅŸ‚Ö
+    //mp2ãŒç·šåˆ†å†…ã«ãªã‹ã£ãŸã®ã§æ¬¡ã¸
 
     //----------------------------------------------------------------
-    //t2‚ğƒNƒ‰ƒ“ƒv‚µ‚Ämp2‚ğÄŒvZ‚·‚é‚ÆAmp1‚©‚çmp2‚Ü‚Å‚ªÅ’Z
+    //t2ã‚’ã‚¯ãƒ©ãƒ³ãƒ—ã—ã¦mp2ã‚’å†è¨ˆç®—ã™ã‚‹ã¨ã€mp1ã‹ã‚‰mp2ã¾ã§ãŒæœ€çŸ­
     Clamp01(t2);
     p2 = s2.GetPosition(t2);
     dist = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p2) - XMLoadFloat3(&p1)));

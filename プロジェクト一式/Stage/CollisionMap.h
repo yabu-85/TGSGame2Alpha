@@ -6,6 +6,7 @@
 class Triangle;
 class Cell;
 class SphereCollider;
+class CapsuleCollider;
 struct RayCastData;
 
 struct StageModelData {
@@ -60,6 +61,9 @@ public:
 
     //壁と天井に対して判定する
     bool CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
+
+    //壁と天井に対して判定する
+    bool CellCapsuleVsTriangle(CapsuleCollider* collid, XMVECTOR& push);
 
     //ray.Startからtargetの長方形の範囲で、Ray.Dirが通るCellを計算してそこでCellRay判定する
     void RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data);

@@ -9,6 +9,7 @@
 #include "../Engine/Global.h"
 #include "../Engine/Direct3D.h"
 #include "../Engine/SphereCollider.h"
+#include "../Engine/CapsuleCollider.h"
 #include "../Other/GameManager.h"
 #include "../Player/Player.h"
 
@@ -232,6 +233,15 @@ bool CollisionMap::CellSphereVsTriangle(SphereCollider* collid, XMVECTOR& push)
     bool hit = false;
     if (!cell) return false;
     return cell->SphereVsTriangle(collid, push);
+}
+
+bool CollisionMap::CellCapsuleVsTriangle(CapsuleCollider* collid, XMVECTOR& push)
+{
+    XMFLOAT3 pos = Float3Add(collid->center_, collid->pGameObject_->GetWorldPosition());
+    Cell* cell = GetCell(pos);
+    bool hit = false;
+    if (!cell) return false;
+    return cell->CapsuleVsTriangle(collid, push);
 }
 
 void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)

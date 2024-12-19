@@ -1,16 +1,19 @@
-#include "Character.h"
+ï»¿#include "Character.h"
 #include "CharacterManager.h"
 #include "../UI/HealthGauge.h"
-#include "../Character/DamageSystem.h"
 #include "../Engine/Global.h"
-#include <vector>
 #include "../Engine/Fbx.h"
+#include "../Engine/CapsuleCollider.h"
+#include "../Character/DamageSystem.h"
 #include "../Other/GameManager.h"
+#include "../Stage/CollisionMap.h"
+#include <vector>
 
 Character::Character(GameObject* parent, std::string name)
     : GameObject(parent, name), bodyRange_(0.0f), bodyWeight_(0.0f), movement_{0,0,0}, bodyHeightHalf_(0.0f)
 {
     pHealthGauge_ = nullptr;
+    pCapsuleCollider_ = nullptr;
     CharacterManager::AddCharacter(this);
 }
 
@@ -24,50 +27,11 @@ void Character::Update()
 {
 }
 
-void Character::BounceFloar()
+void Character::BounceStage()
 {
-    RayCastData rayData = RayCastData();
-    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeight, transform_.position_.z);
-    rayData.dir = XMFLOAT3(0.0f, -1.0f, 0.0f);
-    XMFLOAT3 pos = XMFLOAT3(transform_.position_.x, transform_.position_.y + calcHeight, transform_.position_.z);
-    GameManager::GetCollisionMap()->CellFloarRayCast(pos, &rayData);
-    if (rayData.dist <= PlayerHeight + perDist) {
-        transform_.position_.y += PlayerHeight - rayData.dist;
-        gravity_ = 0.0f;
-        isFly_ = false;
-    }
-}
-
-void Character::BounceWall()
-{
-    //‰º
     XMVECTOR push = XMVectorZero();
-    bool hit = GameManager::GetCollisionMap()->CellSphereVsTriangle(pSphereCollider_[0], push);
-
-    //ã
-    push = XMVectorZero();
-    if (GameManager::GetCollisionMap()->CellSphereVsTriangle(pSphereCollider_[1], push)) hit = true;
-
-    return hit;
-}
-
-void Character::BounceRoof()
-{
-    RayCastData rayData = RayCastData();
-    rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerWaist, transform_.position_.z);
-    rayData.dir = XMFLOAT3(0.0f, 1.0f, 0.0f);
-    GameManager::GetCollisionMap()->CellFloarRayCast(transform_.position_, &rayData);
-    float calcSize = PlayerHeight - PlayerWaist;
-    if (rayData.hit && rayData.dist < calcSize) {
-        transform_.position_.y -= calcSize - rayData.dist;
-
-        //Œë·
-        transform_.position_.y -= 0.05f;
-
-        gravity_ = 0.0f;
-        return true;
-    }
-    return false;
+    bool hit = GameManager::GetCollisionMap()->CellCapsuleVsTriangle(pCapsuleCollider_, push);
+    if (hit) OutputDebugString("HIT\n");
 }
 
 void Character::ReflectCharacter()
@@ -75,27 +39,27 @@ void Character::ReflectCharacter()
     float sY = transform_.position_.y;
     std::vector<Character*> list = CharacterManager::GetCharacterList();
     for (Character* c : list) {
-        //Ž©•ª‚Í”ò‚Î‚·
+        //è‡ªåˆ†ã¯é£›ã°ã™
         if (c == this) continue;
         float oY = c->transform_.position_.y;
 
         XMFLOAT3 targetPos = c->GetPosition();
         XMFLOAT3 direction = Float3Sub(targetPos, transform_.position_);
 
-        //“–‚½‚Á‚Ä‚È‚¢‚È‚çŽŸ
+        //å½“ãŸã£ã¦ãªã„ãªã‚‰æ¬¡
         float addRange = bodyRange_ + bodyRange_;
         float range = CalculationDistance(direction);
         if (range > addRange) continue;
 
-        //‰Ÿ‚µo‚µ‚Ì‹­‚³i0‚É‚È‚é‚Ì–h‚®‚½‚ß‚É‚¿‚å‚¢‘«‚·j
+        //æŠ¼ã—å‡ºã—ã®å¼·ã•ï¼ˆ0ã«ãªã‚‹ã®é˜²ããŸã‚ã«ã¡ã‚‡ã„è¶³ã™ï¼‰
         float w = bodyWeight_ + bodyWeight_;
         float sWeight = bodyWeight_ / (w + 0.001f);
         float oWeight = bodyWeight_ / (w + 0.001f);
 
-        //‰Ÿ‚µo‚µƒxƒNƒgƒ‹ŒvŽZ
+        //æŠ¼ã—å‡ºã—ãƒ™ã‚¯ãƒˆãƒ«è¨ˆç®—
         XMFLOAT3 extrusion = Float3Multiply(Float3Normalize(direction), addRange - range);
 
-        //‰Ÿ‚µo‚·
+        //æŠ¼ã—å‡ºã™
         XMFLOAT3 outPos = Float3Multiply(extrusion, -sWeight);
         outPos = Float3Add(outPos, transform_.position_);
         transform_.position_ = outPos;
@@ -104,7 +68,7 @@ void Character::ReflectCharacter()
         outPos = Float3Add(outPos, targetPos);
         c->transform_.position_ = outPos;
 
-        //yÀ•W‚Í–ß‚·
+        //yåº§æ¨™ã¯æˆ»ã™
         c->transform_.position_.y = oY;
     }
     transform_.position_.y = sY;

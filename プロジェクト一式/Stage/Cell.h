@@ -6,6 +6,7 @@ using namespace DirectX;
 class Triangle;
 struct RayCastData;
 class SphereCollider;
+class CapsuleCollider;
 
 class Cell
 {
@@ -42,6 +43,9 @@ public:
 
 	//球とポリゴン判定して、押し出しもやる関数
 	bool SphereVsTriangle(SphereCollider* collid, XMVECTOR& push);
+	
+	//球とポリゴン判定して、押し出しもやる関数
+	bool CapsuleVsTriangle(CapsuleCollider* collid, XMVECTOR& push);
 
 	//登録されたポリゴンの取得
 	std::vector<Triangle> GetFloarTriangles() { return floarTriangles_; }

@@ -335,9 +335,6 @@ void FbxParts::InitSkelton(FbxMesh * pMesh)
 	pBoneArray_ = new FbxParts::Bone[numBone_];
 	for (int i = 0; i < numBone_; i++)
 	{
-		//OutputDebugString(ppCluster_[i]->GetLink()->GetName());
-		//OutputDebugString("\n");
-
 		// ボーンのデフォルト位置を取得する
 		FbxAMatrix  matrix;
 		ppCluster_[i]->GetTransformLinkMatrix(matrix);
