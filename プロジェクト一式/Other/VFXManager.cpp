@@ -24,6 +24,7 @@ namespace VFXManager {
     {
         Transform trans;
         trans.position_ = pos;
+        trans.scale_ = XMFLOAT3(0.2f, 0.2f, 0.2f);
 
         EFFEKSEERLIB::EFKTransform t;
         DirectX::XMStoreFloat4x4(&(t.matrix), trans.GetWorldMatrix());

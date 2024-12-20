@@ -110,6 +110,13 @@ void OutPutString(std::string firstText, T* array, int size, std::string endText
 	OutputDebugString(endText.c_str());
 }
 
+void OutPutString(std::string firstText, float text, std::string endText)
+{
+	OutputDebugString(firstText.c_str());
+	OutputDebugStringA(std::to_string(text).c_str());
+	OutputDebugString(endText.c_str());
+}
+
 //OutPutDebugString‚Å’l‚Ì•\Ž¦
 void OutPutString(std::string firstText, XMFLOAT3 text, std::string endText) {
 	OutputDebugString(firstText.c_str());

@@ -164,8 +164,8 @@ void Player::Initialize()
     pStateManager_->AddState(new PlayerDead(pStateManager_));
     pStateManager_->ChangeState("Idle");
 
-    XMVECTOR vec = { 1.0f, 0.0f, 0.0f, 0.0f };
-    pCapsuleCollider_ = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.3f, 0.65f, vec);
+    XMVECTOR vec = { 1.0f, 0.0f, 1.0f, 0.0f };
+    pCapsuleCollider_ = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.3f, 1.65f, vec);
     pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(pCapsuleCollider_);
 

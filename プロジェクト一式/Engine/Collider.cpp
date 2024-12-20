@@ -392,7 +392,6 @@ bool ray_capsule_intersect(XMVECTOR ro, XMVECTOR rd, XMVECTOR pa, XMVECTOR pb, f
     return false;
 }
 
-
 XMVECTOR capsule_normal(XMVECTOR p, XMVECTOR a, XMVECTOR b, float r) {
 
     XMVECTOR ba = XMVectorSubtract(b, a);
@@ -403,6 +402,8 @@ XMVECTOR capsule_normal(XMVECTOR p, XMVECTOR a, XMVECTOR b, float r) {
 
     return XMVectorSubtract(pa, XMVectorScale(ba, h)) / r;
 }
+
+#include "../Other/VFXManager.h"    
 
 //https://photodiode.github.io/article/triangle-capsule-intersection.html
 //https://wickedengine.net/2020/04/capsule-collision-detection/
@@ -481,6 +482,14 @@ bool Collider::IsHitCapsuleVsTriangle(CapsuleCollider* capsule, Triangle* triang
     float distance = u;
     XMVECTOR hit_point = p;
     XMVECTOR hit_normal = planeNormal;
+
+    OutPutString("distance : ", distance, "\n");
+    OutPutString("ht point : ", hit_point, "\n");
+    OutPutString("ht norml : ", hit_normal, "\n\n");
+
+    XMFLOAT3 hitPosition = XMFLOAT3();
+    XMStoreFloat3(&hitPosition, hit_point);
+    VFXManager::CreateVfxExplode(hitPosition);
 
     outDistanceVector = hit_normal * distance;
 
