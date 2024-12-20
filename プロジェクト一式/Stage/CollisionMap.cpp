@@ -92,7 +92,7 @@ void CollisionMap::Draw()
     Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
     //CellBox•\Ž¦
-#if 0
+#if 1
     Cell* cell = GetCell(GameManager::GetPlayer(GameManager::GetDrawIndex())->GetPosition());
     if (cell) {
         Transform trans = transform_;
@@ -116,7 +116,7 @@ void CollisionMap::Draw()
 #endif
     
     //Collision•\Ž¦
-#if 0 //#ifdef _DEBUG
+#if 1 //#ifdef _DEBUG
     if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
         Transform t = e.transform;
@@ -242,6 +242,9 @@ bool CollisionMap::CellCapsuleVsTriangle(CapsuleCollider* collid, XMVECTOR& push
     bool hit = false;
     if (!cell) return false;
     return cell->CapsuleVsTriangle(collid, push);
+
+
+
 }
 
 void CollisionMap::RaySelectCellVsSegment(XMFLOAT3 target, RayCastData* _data)

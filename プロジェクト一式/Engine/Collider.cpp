@@ -37,12 +37,12 @@ struct Segment {
     }
 };
 
-void Clamp01(float& v);
-bool IsSharpAngle(XMFLOAT3& p1, XMFLOAT3& p2, XMFLOAT3& p3);
-float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t);
-float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
-float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);
-float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t);
+void Clamp01(float& v);                                                                                     // 0～1の間にクランプ
+bool IsSharpAngle(XMFLOAT3& p1, XMFLOAT3& p2, XMFLOAT3& p3);                                                // ∠p1p2p3は鋭角？
+float CalcPointSegmentDist(XMFLOAT3& p, Segment& seg, XMFLOAT3& h, float& t);                               // 点と線分の最短距離
+float CalcLineLineDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);         // 2直線の最短距離
+float CalcSegmentSegmentDist(Segment& s1, Segment& s2, XMFLOAT3& p1, XMFLOAT3& p2, float& t1, float& t2);   // 2線分の最短距離
+float CalcPointLineDist(XMFLOAT3& p, Segment& s, XMFLOAT3& h, float& t);                                    // 点と直線の最短距離
 
 //コンストラクタ
 Collider::Collider():
@@ -338,101 +338,153 @@ bool Collider::IsHitCapsuleVsSegment(CapsuleCollider* capsule, SegmentCollider* 
     return out;
 }
 
-XMVECTOR ClosestPointOnLineSegment(XMVECTOR A, XMVECTOR B, XMVECTOR Point)
-{
-    XMVECTOR AB = B - A;
-    float t = XMVectorGetX(XMVector3Dot(Point - A, AB)) / XMVectorGetX(XMVector3Dot(AB, AB));
-    t = min(max(t, 0.0f), 1.0f); // 括弧の問題を修正
-    return A + t * AB;
+
+
+float point_line_distance(XMVECTOR p, XMVECTOR a, XMVECTOR b) {
+
+    XMVECTOR pa = XMVectorSubtract(p, a);
+    XMVECTOR ba = XMVectorSubtract(b, a);
+
+    float h = XMVectorGetX(XMVector3Dot(pa, ba)) / XMVectorGetX(XMVector3Dot(ba, ba));
+    h = fminf(fmaxf(h, 0.0f), 1.0f);
+
+    return XMVectorGetX(XMVector3Length(XMVectorSubtract(pa, XMVectorScale(ba, h))));
 }
 
+bool ray_capsule_intersect(XMVECTOR ro, XMVECTOR rd, XMVECTOR pa, XMVECTOR pb, float ra, float* distance) {
+
+    XMVECTOR ba = XMVectorSubtract(pb, pa);
+    XMVECTOR oa = XMVectorSubtract(ro, pa);
+
+    float baba = XMVectorGetX(XMVector3Dot(ba, ba));
+    float bard = XMVectorGetX(XMVector3Dot(ba, rd));
+    float baoa = XMVectorGetX(XMVector3Dot(ba, oa));
+    float rdoa = XMVectorGetX(XMVector3Dot(rd, oa));
+    float oaoa = XMVectorGetX(XMVector3Dot(oa, oa));
+
+    float a = baba - bard * bard;
+    float b = baba * rdoa - baoa * bard;
+    float c = baba * oaoa - baoa * baoa - ra * ra * baba;
+    float h = b * b - a * c;
+
+    if (h >= 0.0f) {
+        float t = (-b - sqrt(h)) / a;
+        float y = baoa + t * bard;
+
+        // body
+        if (y > 0.0f && y < baba) {
+            *distance = t;
+            return true;
+        }
+
+        // caps
+        XMVECTOR oc = (y <= 0.0) ? oa : XMVectorSubtract(ro, pb);
+
+        b = XMVectorGetX(XMVector3Dot(rd, oc));
+        c = XMVectorGetX(XMVector3Dot(oc, oc)) - ra * ra;
+        h = b * b - c;
+
+        if (h > 0.0f) {
+            *distance = -b - sqrtf(h);
+            return true;
+        }
+    }
+    return false;
+}
+
+
+XMVECTOR capsule_normal(XMVECTOR p, XMVECTOR a, XMVECTOR b, float r) {
+
+    XMVECTOR ba = XMVectorSubtract(b, a);
+    XMVECTOR pa = XMVectorSubtract(p, a);
+
+    float h = XMVectorGetX(XMVector3Dot(pa, ba)) / XMVectorGetX(XMVector3Dot(ba, ba));
+    h = fminf(fmaxf(h, 0.0f), 1.0f);
+
+    return XMVectorSubtract(pa, XMVectorScale(ba, h)) / r;
+}
+
+//https://photodiode.github.io/article/triangle-capsule-intersection.html
+//https://wickedengine.net/2020/04/capsule-collision-detection/
 bool Collider::IsHitCapsuleVsTriangle(CapsuleCollider* capsule, Triangle* triangle, XMVECTOR& outDistanceVector)
 {
     XMFLOAT3 capPos = Transform::Float3Add(capsule->pGameObject_->GetWorldPosition(), capsule->center_);
-    XMVECTOR dir = XMVector3Normalize(capsule->direction_);
-    dir *= capsule->height_;
+    XMVECTOR capDir = XMVector3Normalize(capsule->direction_) * capsule->height_;
 
-    XMVECTOR vPos = XMLoadFloat3(&capPos) - dir * 0.5f;
-    XMStoreFloat3(&capPos, vPos);
-    Segment seg1 = Segment(capPos, dir);
+    XMVECTOR origin = XMLoadFloat3(&capPos) - capDir * 0.5f;
+    XMVECTOR v0 = triangle->GetPosition(0);
+    XMVECTOR v1 = triangle->GetPosition(1);
+    XMVECTOR v2 = triangle->GetPosition(2);
 
-    XMVECTOR tip = seg1.GetEndPointVector();
-    XMVECTOR base = vPos;
+    //Triangleの法線 
+    XMVECTOR planeNormal = triangle->GetNormal();
 
-    XMVECTOR p0 = triangle->GetPosition(0);
-    XMVECTOR p1 = triangle->GetPosition(1);
-    XMVECTOR p2 = triangle->GetPosition(2);
+    //カプセルの長さと法線
+    float capsuleLen = capsule->height_;
+    XMVECTOR capsuleNormal = XMVector3Normalize(capsule->direction_);
 
-    XMVECTOR CapsuleNormal = XMVector3Normalize(tip - base);
-    XMVECTOR LineEndOffset = CapsuleNormal * capsule->size_.x;
-    XMVECTOR A = base + LineEndOffset;
-    XMVECTOR B = tip - LineEndOffset;
-    XMVECTOR N = triangle->GetNormal();
+    //カプセルの中心軸と三角形の平面が平行かどうかを判定
+    float denom = XMVectorGetX(XMVector3Dot(planeNormal, capsuleNormal));
+    if (fabsf(denom) < 0.00001f) return false;
 
-    float t = XMVectorGetX(XMVector3Dot(N, (p0 - base)) / XMVectorGetX(XMVector3Dot(N, CapsuleNormal)));
+    //半面の厚さを半径で拡張
+    //原点に向かって半径だけ平面の厚さを成長させます
+    //denom が負の場合、カプセルの半径を正方向に。
+    //denom が正の場合、半径を逆方向に調整。
+    float r = (denom < 0.0f) ? capsule->size_.x : -capsule->size_.x;
+    XMVECTOR po = XMVectorAdd(v0, XMVectorScale(planeNormal, r));
 
-    XMVECTOR line_plane_intersection = base + CapsuleNormal * t;
-    XMVECTOR reference_point;
+    //カプセルの始点 origin から交点までの距離
+    float u = XMVectorGetX(XMVector3Dot(planeNormal, XMVectorSubtract(po, origin))) / denom;
 
-    // Check if the intersection point is inside the triangle
-    XMVECTOR c0 = XMVector3Cross(line_plane_intersection - p0, p1 - p0);
-    XMVECTOR c1 = XMVector3Cross(line_plane_intersection - p1, p2 - p1);
-    XMVECTOR c2 = XMVector3Cross(line_plane_intersection - p2, p0 - p2);
-    bool inside =
-        XMVectorGetX(XMVector3Dot(c0, N)) >= 0 &&
-        XMVectorGetX(XMVector3Dot(c1, N)) >= 0 &&
-        XMVectorGetX(XMVector3Dot(c2, N)) >= 0;
+    //平面とカプセル線分の交点を計算
+    if (u > capsuleLen) return false;
+    XMVECTOR p = XMVectorAdd(origin, XMVectorScale(capsuleNormal, u));
 
-    if (inside)
+    XMVECTOR e0 = XMVectorSubtract(v1, v0);
+    XMVECTOR e1 = XMVectorSubtract(v2, v0);
+    XMVECTOR e0e1 = XMVector3Cross(e0, e1);
+
+    //三角形の重心座標（バリセントリック座標）を計算
+    XMVECTOR w = XMVectorSubtract(p, v0);
+    float y = XMVectorGetX(XMVector3Dot(XMVector3Cross(e0, w), e0e1)) / XMVectorGetX(XMVector3LengthSq(e0e1)); // γ=[(u×w)⋅n]/n²
+    float b = XMVectorGetX(XMVector3Dot(XMVector3Cross(w, e1), e0e1)) / XMVectorGetX(XMVector3LengthSq(e0e1)); // β=[(w×v)⋅n]/n²
+    float a = 1.0f - y - b;
+
+    //交点が三角形の内部にあるか判定
+    if ((0.0f <= a) && (a <= 1.0f) &&
+        (0.0f <= b) && (b <= 1.0f) &&
+        (0.0f <= y) && (y <= 1.0f)) 
     {
-        reference_point = line_plane_intersection;
-    }
-    else
-    {
-        // Check closest points on triangle edges
-        XMVECTOR point1 = ClosestPointOnLineSegment(p0, p1, line_plane_intersection);
-        XMVECTOR v1 = line_plane_intersection - point1;
-        float best_dist = XMVectorGetX(XMVector3Dot(v1, v1));
-        reference_point = point1;
+        // find closest edge
+        float d1 = point_line_distance(p, v0, v1);
+        float d2 = point_line_distance(p, v1, v2);
+        float d3 = point_line_distance(p, v2, v0);
 
-        XMVECTOR point2 = ClosestPointOnLineSegment(p1, p2, line_plane_intersection);
-        XMVECTOR v2 = line_plane_intersection - point2;
-        float dist2 = XMVectorGetX(XMVector3Dot(v2, v2));
-        if (dist2 < best_dist)
-        {
-            reference_point = point2;
-            best_dist = dist2;
-        }
+        XMVECTOR va = v0;
+        XMVECTOR vb = v1;
 
-        XMVECTOR point3 = ClosestPointOnLineSegment(p2, p0, line_plane_intersection);
-        XMVECTOR v3 = line_plane_intersection - point3;
-        float dist3 = XMVectorGetX(XMVector3Dot(v3, v3));
-        if (dist3 < best_dist)
-        {
-            reference_point = point3;
-            best_dist = dist3;
-        }
+        float dt = d1;
+
+        if (d2 < dt) { dt = d2;  va = v1;  vb = v2; }
+        if (d3 < dt) { va = v2;  vb = v0; }
+
+        if (!ray_capsule_intersect(origin, capsuleNormal, va, vb, capsule->size_.x, &u)) return false;
+        if (u > capsuleLen) return false;
+
+        p = XMVectorAdd(origin, XMVectorScale(capsuleNormal, u));
+        planeNormal = capsule_normal(p, va, vb, capsule->size_.x);
     }
 
-    //XMVECTOR center = ClosestPointOnLineSegment(A, B, reference_point);
+    if (u < 0.0f) return false;
 
-    //// Compute the distance vector (outDistanceVector) if needed
-    //outDistanceVector = center - reference_point;
+    float distance = u;
+    XMVECTOR hit_point = p;
+    XMVECTOR hit_normal = planeNormal;
 
-    //// Return true if the capsule and triangle intersect
-    //return XMVectorGetX(XMVector3LengthSq(outDistanceVector)) <= capsule->size_.x * capsule->size_.x;
+    outDistanceVector = hit_normal * distance;
 
-    XMFLOAT3 sphereCenter = XMFLOAT3();
-    XMStoreFloat3(&sphereCenter, reference_point);
-    sphereCenter = Float3Sub(sphereCenter, pGameObject_->GetWorldPosition());
-
-    SphereCollider sphere = SphereCollider(sphereCenter, capsule->size_.x);
-    sphere.pGameObject_ = capsule->pGameObject_;
-
-    OutPutString("ref : ", reference_point, "\n");
-
-    return IsHitCircleVsTriangle(&sphere, triangle, outDistanceVector);
-
+    return true;
 }
 
 //ーーーーーーーーーーーーーーーーーーーーー球とTriangleに使うーーーーーーーーーーーーーーーーーーーーーー

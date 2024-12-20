@@ -118,7 +118,7 @@ bool Cell::CapsuleVsTriangle(CapsuleCollider* collid, XMVECTOR& push)
 		if (collid->IsHitCapsuleVsTriangle(collid, &floarTriangles_[i], push)) {
 			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
 			XMFLOAT3 fP = XMFLOAT3();
-			XMStoreFloat3(&fP, push * 0.5f);
+			XMStoreFloat3(&fP, push);
 
 			pos = Float3Add(pos, fP);
 			collid->pGameObject_->SetPosition(pos);
@@ -130,7 +130,7 @@ bool Cell::CapsuleVsTriangle(CapsuleCollider* collid, XMVECTOR& push)
 		if (collid->IsHitCapsuleVsTriangle(collid, &wallTriangles_[i], push)) {
 			XMFLOAT3 pos = collid->pGameObject_->GetPosition();
 			XMFLOAT3 fP = XMFLOAT3();
-			XMStoreFloat3(&fP, push * 0.5f);
+			XMStoreFloat3(&fP, push);
 
 			pos = Float3Add(pos, fP);
 			collid->pGameObject_->SetPosition(pos);
