@@ -17,16 +17,14 @@ SceneManager::SceneManager(GameObject * parent)
 void SceneManager::Initialize()
 {
 	//最初のシーンを準備
-#if 0
-	currentSceneID_ = SCENE_ID_TITLE;
-	nextSceneID_ = currentSceneID_;
-	Instantiate<TitleScene>(this);
-#else
+	//currentSceneID_ = SCENE_ID_TITLE;
+	//nextSceneID_ = currentSceneID_;
+	//Instantiate<TitleScene>(this);
+
 	currentSceneID_ = SCENE_ID_PLAY;
 	nextSceneID_ = currentSceneID_;
 	Instantiate<PlayScene>(this);
-#endif
-	
+
 }
 
 //更新

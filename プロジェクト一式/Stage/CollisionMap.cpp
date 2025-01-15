@@ -92,7 +92,7 @@ void CollisionMap::Draw()
     Direct3D::SetShader(Direct3D::SHADER_UNLIT);
 
     //CellBox•\Ž¦
-#if 1
+#if 0
     Cell* cell = GetCell(GameManager::GetPlayer(GameManager::GetDrawIndex())->GetPosition());
     if (cell) {
         Transform trans = transform_;
@@ -116,7 +116,7 @@ void CollisionMap::Draw()
 #endif
     
     //Collision•\Ž¦
-#if 1 //#ifdef _DEBUG
+#ifdef _DEBUG
     if (type != Direct3D::SHADER_SHADOWMAP) 
     for (auto e : modelList_) {
         Transform t = e.transform;

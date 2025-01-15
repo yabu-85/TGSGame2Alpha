@@ -164,8 +164,9 @@ void Player::Initialize()
     pStateManager_->AddState(new PlayerDead(pStateManager_));
     pStateManager_->ChangeState("Idle");
 
-    XMVECTOR vec = { 1.0f, 0.0f, 1.0f, 0.0f };
-    pCapsuleCollider_ = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.3f, 1.65f, vec);
+    //XMVECTOR vec = { 1.0f, 0.0f, 1.0f, 0.0f };
+    XMVECTOR vec = { 0.0f, 1.0f, 0.0f, 0.0f };
+    pCapsuleCollider_ = new CapsuleCollider(XMFLOAT3(0.0f, 0.65f, 0.0f), 0.3f, 0.65f, vec);
     pCapsuleCollider_->typeList_.push_back(OBJECT_TYPE::Stage);
     AddCollider(pCapsuleCollider_);
 
@@ -237,25 +238,55 @@ void Player::Update()
     pAimCursor_->Update();
 
     //デバッグ用
-#if 1
-    if (Input::IsKeyDown(DIK_Z)) transform_.position_ = START_POS;
-    if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
-    if (isCreative_) {
-        
-        if (Input::IsKey(DIK_SPACE)) playerMovement_.y += moveSpeed_;
-        else if (Input::IsKey(DIK_C)) playerMovement_.y -= moveSpeed_;
-        
-        if (InputManager::CmdWalk(playerId_)) CalcMove();
-        else CalcNoMove();
-        Move();
+#if 0
+    if (playerId_ == 0) {
+        if (Input::IsKeyDown(DIK_Z)) transform_.position_ = START_POS;
+        if (Input::IsKeyDown(DIK_M)) isCreative_ = !isCreative_;
+        if (isCreative_) {
 
-        XMFLOAT3 targetRot = Float3Add(transform_.position_, pAim_->GetAimDirection());
-        TargetRotate(targetRot, 1.0f);
+            XMFLOAT3 fCapDir = XMFLOAT3();
+            XMStoreFloat3(&fCapDir, pCapsuleCollider_->direction_);
+            XMFLOAT3 fCapRot = CalculationRotateXYZ(fCapDir);
+            
+            float speed = 2.0f;
+            if (Input::IsKey(DIK_NUMPAD1)) fCapRot.x -= speed;
+            if (Input::IsKey(DIK_NUMPAD2)) fCapRot.x += speed;
+            if (Input::IsKey(DIK_NUMPAD4)) fCapRot.y -= speed;
+            if (Input::IsKey(DIK_NUMPAD5)) fCapRot.y += speed;
+            if (Input::IsKey(DIK_NUMPAD7)) fCapRot.z -= speed;
+            if (Input::IsKey(DIK_NUMPAD8)) fCapRot.z += speed;
+            if (Input::IsKey(DIK_NUMPAD0)) fCapRot = XMFLOAT3();
+            pCapsuleCollider_->direction_ = CalculationVectorDirection(fCapRot);
 
-        moveSpeed_ = GameManager::playerSpeed;
-        GameManager::playerClimb = isClimb_;
-        GameManager::playerFaly = isFly_;
-        return;
+
+            if (Input::IsKey(DIK_NUMPAD3)) pCapsuleCollider_->height_ = pCapsuleCollider_->height_ + 0.01f;
+            if (Input::IsKey(DIK_NUMPAD6)) pCapsuleCollider_->size_ = Float3Add(pCapsuleCollider_->size_, XMFLOAT3(0.01f, 0.01f, 0.01));
+            if (Input::IsKey(DIK_NUMPAD9)) {
+                pCapsuleCollider_->height_ = 0.01f;
+                pCapsuleCollider_->size_ = XMFLOAT3(0.01f, 0.01, 0.01);
+            }
+
+            if (Input::IsKey(DIK_SPACE)) playerMovement_.y += (moveSpeed_ * 2.0f);
+            else if (Input::IsKey(DIK_C)) playerMovement_.y -= (moveSpeed_ * 2.0f);
+
+            if (InputManager::CmdWalk(playerId_)) CalcMove();
+            else CalcNoMove();
+            Move();
+
+            XMFLOAT3 targetRot = Float3Add(transform_.position_, pAim_->GetAimDirection());
+            TargetRotate(targetRot, 1.0f);
+
+            moveSpeed_ = GameManager::playerSpeed;
+            GameManager::playerClimb = isClimb_;
+            GameManager::playerFaly = isFly_;
+            return;
+        }
+    }
+    else {
+        if (GameManager::GetPlayer(0)->isCreative_) {
+
+            return;
+        }
     }
 #endif
 
@@ -581,7 +612,8 @@ void Player::CalcNoMove()
 
 bool Player::StageFloarBounce(float perDist, float calcHeight)
 {
-    return false;
+    //デバッグ用
+    //return false;
 
     RayCastData rayData = RayCastData();
     rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerHeight, transform_.position_.z);
@@ -601,8 +633,11 @@ bool Player::StageFloarBounce(float perDist, float calcHeight)
 bool Player::StageWallBounce()
 {
     XMVECTOR push = XMVectorZero();
-    bool hit = GameManager::GetCollisionMap()->CellCapsuleVsTriangle(pCapsuleCollider_, push);
+    bool hit = false;
 
+    //デバッグ用　Cap Vs Triangle
+#if 0
+    hit = GameManager::GetCollisionMap()->CellCapsuleVsTriangle(pCapsuleCollider_, push);
     if (hit) {
         gravity_ = 0.0f;
         isFly_ = false;
@@ -612,6 +647,7 @@ bool Player::StageWallBounce()
     }
 
     return hit;
+#endif
 
     //下
     hit = GameManager::GetCollisionMap()->CellSphereVsTriangle(pSphereCollider_[0], push);
@@ -625,7 +661,8 @@ bool Player::StageWallBounce()
 
 bool Player::StageRoofBounce()
 {
-    return false;
+    //デバッグ用
+    //return false;
    
     RayCastData rayData = RayCastData();
     rayData.start = XMFLOAT3(transform_.position_.x, transform_.position_.y + PlayerWaist, transform_.position_.z);

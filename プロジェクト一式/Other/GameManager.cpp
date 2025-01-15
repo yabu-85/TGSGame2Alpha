@@ -27,6 +27,7 @@
 #include <fstream>
 #include "../Engine/CapsuleCollider.h"
 #include "../Enemy/TestBoss.h"
+#include "../Scene/PlayScene.h"
  
 void SaveBoneAttachData(const std::string& filename, BoneAttachColliderData* data, int size)
 {
@@ -87,10 +88,8 @@ namespace GameManager {
 	{
 		InputManager::Initialize();
 
-		//デバッグ時はImGui表示に
-#if 1 //_DEBUG
+		//デバッグ用 ImGui表示On
 		isImGuiDraw_ = true;
-#endif
 
 		//GameSetting読み込み
 		JsonReader::Load("Json/GameSetting.json");
@@ -211,6 +210,16 @@ namespace GameManager {
 		ImGui::NewFrame();
 
 		ImGui::Begin("Hello");
+
+
+		// シャドウのオンオフ切り替えボタン
+		if (ImGui::Button("Debug Scene Change"))
+		{
+			//ステージタイプセット
+			PlayScene::SetStageType(STAGE_PLANE);
+			SceneManager* pSceneManager = (SceneManager*)GameManager::GetRootObject()->FindObject("SceneManager");
+			pSceneManager->ChangeScene(SCENE_ID_PLAY);
+		}
 
 		// シャドウのオンオフ切り替えボタン
 		if (ImGui::Button("Toggle Shadow"))

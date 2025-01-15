@@ -32,7 +32,7 @@ namespace {
 }
 
 Aim::Aim(GameObject* parent)
-    : GameObject(parent, "Aim"), cameraPosition_{ 0,0,0 }, cameraTarget_{ 0,0,0 }, aimDirection_{ 0,0,0 }, cameraOffset_{ 0,0,0 },
+    : GameObject(parent, "Aim"), cameraPosition_{ 0,0,0 }, cameraTarget_{ 0,0,0 }, aimDirection_{ 0,0,1 }, cameraOffset_{ 0,0,0 },
     compulsionTarget_{ 0,0,0 }, compulsionPosisiton_{ 0,0,0 }, pPlayer_(nullptr), isMove_(true), isCompulsion_(false), compulsionTime_(0), 
     iterations_(0), sign_(1), range_(0), moveDistance_(0), distanceDecrease_(0), center_{ 0,0,0,0 }, shakeSpeed_(0), rangeDecrease_(0),
     shakeDirection_{ 1,0,0,0 }, isFps_(false), rotateShakeDirection_{ 1,0 }, rotateShakeDirKeep_{ 0, 0 }, rotateShakeTime_(0), distanceIncreaseAmount_(0.1f),
@@ -74,7 +74,7 @@ void Aim::Initialize()
     mouseSensitivity_ += MOUSE_SPEED_MIN;
 
     //‰‰ñˆ—‚µ‚Æ‚­
-    //CalcAim();
+    CalcAim();
 
 }
 
@@ -325,7 +325,7 @@ void Aim::RayCastStage()
     data.dir = dir;
     
     //C³‰ÓŠ
-    // GameManager::GetCollisionMap()->RaySelectCellVsSegment(cameraPosition_, &data);
+    GameManager::GetCollisionMap()->RaySelectCellVsSegment(cameraPosition_, &data);
 
     //ƒŒƒC“–‚½‚Á‚½E”»’è‹——£“à‚¾‚Á‚½‚ç
     if (data.dist <= distanceBehind_ + HEIGHT_RAY) {

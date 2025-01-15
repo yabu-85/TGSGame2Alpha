@@ -25,7 +25,7 @@
 STAGE_TYPE PlayScene::stageType_ = STAGE_TYPE::STAGE_PLANE;
 
 namespace {
-	const int PRE_STAGE_DRAW_TIME = 0;
+	const int PRE_STAGE_DRAW_TIME = 10;
 	const int END_TIME_DEFAULT = 30;
 
 	const XMFLOAT3 PRE_CAMERA_POSITION = XMFLOAT3(42.0f, 15.0f, 55.0f);
@@ -141,10 +141,10 @@ void PlayScene::Update()
 			GameManager::SetTwoPlayer();
 			preStageDraw_ = false;
 
-			//修正箇所（画面分割無し
-			GameManager::SetOnePlayer();
-			GameManager::SetDrawIndex(0);
-			GameManager::SetCursorMode(false);
+			//修正箇所（画面分割無し　デバッグ用
+			//GameManager::SetOnePlayer();
+			//GameManager::SetDrawIndex(0);
+			//GameManager::SetCursorMode(false);
 
 			//映さないカメラ一回計算する
 			if (GameManager::IsOnePlayer()) {
